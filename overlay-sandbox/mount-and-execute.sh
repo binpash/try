@@ -5,5 +5,5 @@ ls / | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir=$PWD/$p
 # TODO: use unshare instead of chroot
 # Alternatively, have a look at this
 # NOTE: installed version of unshare does not support --root option
-chroot "$PWD/$pt/temproot" /bin/bash -c "cd $start_dir && ./execute-cmd.sh"
+chroot "$PWD/$pt/temproot" /bin/bash -c "cd $start_dir && source $2"
 
