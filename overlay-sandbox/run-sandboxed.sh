@@ -15,8 +15,14 @@ ls / | xargs -I '{}' mkdir $pt/temproot/'{}' $pt/workdir/'{}' $pt/upperdir/'{}'
 # 
 # TODO: we will need to fix this issue as we progress by e.g.
 # managing to mount overlay on root
-unshare -rmU ./mount-and-execute.sh $2
 
+# --mount: mounting and unmounting filesystems will not affect the rest
+#          of the system inside the unshare
+# --map-root-user: map to the superuser UID and GID in
+#                  the newly created user namespace.
+# --user: The process will have a distinct set of UIDs, GIDs and
+#         capabilities.
+unshare --mount --map-root-user --user ./mount-and-execute.sh $2
 
 changed_files=`find $PWD/$pt/upperdir/* -type f`
 
@@ -41,4 +47,3 @@ if [ !  -z  "$changed_files"  ]; then
 else
     echo "No changes detected"
 fi
-
