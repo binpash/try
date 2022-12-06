@@ -1,19 +1,21 @@
 #!/bin/bash
 
-# Usage: ./run-sandboxed.sh <sandbox_label> <cmd_to_execute>
+# Usage: ./run-sandboxed.sh <sandbox_label> <script_to_execute>
 
 # TODO: Use $PASH_TOP to specify directory locations
 
 export pt="pash/temp/$1"
 export start_dir="$PWD"
 
-echo "#!/bin/bash" > execute-cmd.sh
-echo "$2" >> execute-cmd.sh
-
 mkdir -p $pt/upperdir $pt/workdir $pt/temproot
 ls / | xargs -I '{}' mkdir $pt/temproot/'{}' $pt/workdir/'{}' $pt/upperdir/'{}'
 
-unshare -rmU ./mount-and-execute.sh
+# Me overlay-mount each root directory separately 
+# (instead of all at once) because some directories cannot be overlayed. 
+# 
+# TODO: we will need to fix this issue as we progress by e.g.
+# managing to mount overlay on root
+unshare -rmU ./mount-and-execute.sh $2
 
 
 changed_files=`find $PWD/$pt/upperdir/* -type f`
