@@ -34,26 +34,4 @@ ls / | xargs -I '{}' mkdir "${SANDBOX_DIR}"/temproot/'{}' "${SANDBOX_DIR}"/workd
 #         capabilities.
 unshare --mount --map-root-user --user "${PASH_SPEC_TOP}/overlay-sandbox/mount-and-execute.sh" "${SANDBOX_DIR}" "${script_to_execute}"
 
-changed_files=`find ${SANDBOX_DIR}/upperdir/* -type f`
-
-if [ !  -z  "$changed_files"  ]; then
-    echo "Changes detected in the following files:"
-    echo "$changed_files"
-    echo -n "Commit changes? [y/n]: "
-    read commit
-    # commit fails in directories the user does not has access
-    # even though it ran successfully in unshare
-    if [ "$commit" == "y" ]; then
-        # attempt to copy each changed file in the current working directory
-        # currently the cut command depends on the pash directory location
-        # TODO: change it to do this dynamically based on $PASH_HOME location
-        while IFS= read -r changed_file; do
-                cp $changed_file `cut -d'/' -f8- $changed_file | sed 's/^/\//'`
-        done <<< "$changed_files"
-        echo "Changes commited"
-    else
-        echo "Changes not commited"
-    fi
-else
-    echo "No changes detected"
-fi
+"${PASH_SPEC_TOP}/overlay-sandbox/check_changes_in_overlay.sh" "${SANDBOX_DIR}"
