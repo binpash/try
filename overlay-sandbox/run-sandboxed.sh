@@ -32,6 +32,11 @@ ls / | xargs -I '{}' mkdir "${SANDBOX_DIR}"/temproot/'{}' "${SANDBOX_DIR}"/workd
 #                  the newly created user namespace.
 # --user: The process will have a distinct set of UIDs, GIDs and
 #         capabilities.
-unshare --mount --map-root-user --user "${PASH_SPEC_TOP}/overlay-sandbox/mount-and-execute.sh" "${SANDBOX_DIR}" "${script_to_execute}"
+# --pid: Create a new process namespace
+#        KK: As far as I understand this is necessary so that 
+#            procfs can be mounted and internal commands see it properly.
+# --fork: Seems necessary if we do --pid
+#        KK: Not sure why!
+unshare --mount --map-root-user --user --pid --fork "${PASH_SPEC_TOP}/overlay-sandbox/mount-and-execute.sh" "${SANDBOX_DIR}" "${script_to_execute}"
 
 # "${PASH_SPEC_TOP}/overlay-sandbox/check_changes_in_overlay.sh" "${SANDBOX_DIR}"
