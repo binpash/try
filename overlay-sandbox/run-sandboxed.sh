@@ -39,4 +39,14 @@ ls / | xargs -I '{}' mkdir "${SANDBOX_DIR}"/temproot/'{}' "${SANDBOX_DIR}"/workd
 #        KK: Not sure why!
 unshare --mount --map-root-user --user --pid --fork "${PASH_SPEC_TOP}/overlay-sandbox/mount-and-execute.sh" "${SANDBOX_DIR}" "${script_to_execute}"
 
+## TODO: Instead of running this code here always, we need to run
+##       it inside orch.py and essentially find the W dependencies
+##       of each command (which should also in theory be given by Riker).
+##
+##       Then, we need to commit changes only if these write dependencies are
+##       independent from: 
+##       (1)  the readset of the main command that was run without
+##            the sandbox (the first command in the workset)   
+##       (2)  the writeset of the main command (actually if they are
+##            the same, we could just make sure to commit them in order).
 "${PASH_SPEC_TOP}/overlay-sandbox/check_changes_in_overlay.sh" "${SANDBOX_DIR}"
