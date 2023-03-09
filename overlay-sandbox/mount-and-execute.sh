@@ -5,7 +5,7 @@ export script_to_execute=${2?No script is given to execute}
 
 ## TODO: Figure out if we need these directories and if we do, we need to get them some other way than the overlay
 ubuntu22_ignore_directories=" -e snap -e swap.img"
-ignore_directories="-e proc -e dev -e proj -e run -e sys "$ubuntu22_ignore_directories
+ignore_directories="-e proc -e dev -e proj -e run -e sys"$ubuntu22_ignore_directories
 ls / | grep -v ${ignore_directories} | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
 
 # TODO: use unshare instead of chroot
