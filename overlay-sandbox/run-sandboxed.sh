@@ -9,10 +9,6 @@ export script_to_execute=${1?Script to execute not given}
 ## Find the source code top directory
 export PASH_SPEC_TOP=${PASH_SPEC_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}
 
-## Generate a temporary directory to store the workfiles
-mkdir -p /tmp/pash_spec
-export SANDBOX_DIR="$(mktemp -d /tmp/pash_spec/sandbox_XXXXXXX)/"
-
 export start_dir="$PWD"
 
 echo "Overlay directory: ${SANDBOX_DIR}"
@@ -49,4 +45,6 @@ unshare --mount --map-root-user --user --pid --fork "${PASH_SPEC_TOP}/overlay-sa
 ##            the sandbox (the first command in the workset)   
 ##       (2)  the writeset of the main command (actually if they are
 ##            the same, we could just make sure to commit them in order).
-"${PASH_SPEC_TOP}/overlay-sandbox/check_changes_in_overlay.sh" "${SANDBOX_DIR}"
+
+# We now commit at a later stage
+# "${PASH_SPEC_TOP}/overlay-sandbox/commit-sandbox.sh" "${SANDBOX_DIR}"
