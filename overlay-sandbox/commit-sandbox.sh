@@ -7,7 +7,7 @@ export upperdir=upperdir
 ## Note: We are ignoring changes in the rikerfiles
 ignore_patterns="-e .rkr -e Rikerfile -e swapfile"
 echo "Ignoring changes in: $ignore_patterns"
-changed_files=`find ${SANDBOX_DIR}/${upperdir}/*  | grep -v ${ignore_patterns}`
+changed_files=`find ${SANDBOX_DIR}/${upperdir}/*  -mindepth 2 | grep -v ${ignore_patterns}`
 
 if [ !  -z  "$changed_files"  ]; then
     echo "Changes detected in the following files:"
