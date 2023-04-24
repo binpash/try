@@ -11,7 +11,7 @@ export PASH_SPEC_TOP=${PASH_SPEC_TOP:-$(git rev-parse --show-toplevel --show-sup
 
 export start_dir="$PWD"
 
-pash_redir_output echo "$$: Overlay directory: ${SANDBOX_DIR}"
+pash_redir_output echo "Sandbox ${CMD_ID} Overlay directory: ${SANDBOX_DIR}"
 
 mkdir -p "${SANDBOX_DIR}/upperdir" "${SANDBOX_DIR}/workdir" "${SANDBOX_DIR}/temproot"
 ls / | xargs -I '{}' mkdir "${SANDBOX_DIR}"/temproot/'{}' "${SANDBOX_DIR}"/workdir/'{}' "${SANDBOX_DIR}"/upperdir/'{}'
