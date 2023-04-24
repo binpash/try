@@ -11,5 +11,5 @@ ls / | grep -v ${ignore_directories} | xargs -I '{}' mount -t overlay overlay -o
 # TODO: use unshare instead of chroot
 # Alternatively, have a look at this
 # NOTE: installed version of unshare does not support --root option
-chroot "$SANDBOX_DIR/temproot" /bin/bash -c "mount -t proc proc /proc && cd $start_dir && source ${script_to_execute}"
-
+# chroot "$SANDBOX_DIR/temproot" /bin/bash -c "mount -t proc proc /proc && cd $start_dir && source ${script_to_execute}"
+chroot "$SANDBOX_DIR/temproot" /bin/bash "${PASH_SPEC_TOP}/overlay-sandbox/chroot_executable.sh"
