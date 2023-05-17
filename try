@@ -31,10 +31,8 @@ chroot_executable=$(mktemp)
 cat >"$mount_and_execute" <<EOF
 #!/bin/sh
 
-## TODO: Figure out if we need these directories and if we do, we need to get them some other way than the overlay
-ubuntu22_ignore_directories=" -e snap -e swap.img"
-ignore_directories="-e proc -e dev -e proj -e run -e sys"$ubuntu22_ignore_directories
-ls / | grep -v $ignore_directories | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
+# TODO we may not need to ignore ALL of these (paltform dependent?)
+ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
 
 # TODO: use unshare instead of chroot
 # Alternatively, have a look at this
@@ -56,12 +54,14 @@ cat $mount_and_execute
 echo
 cat $chroot_executable
 
+chmod +x "$mount_and_execute" "$chroot_executable"
+
 # --mount: mounting and unmounting filesystems will not affect the rest of the system inside the unshare
 # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
 # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
 # --pid: create a new process namespace (needed fr procfs to work right)
 # --fork: necessary if we do --pid
-#        "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
+#         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
 unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
 
 
