@@ -45,7 +45,7 @@ EOF
 
     chmod +x "$mount_and_execute" "$chroot_executable"
 
-    # --mount: mounting and unmounting filesystems will not affect the rest of the system inside the unshare
+    # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
     # --pid: create a new process namespace (needed fr procfs to work right)
@@ -60,14 +60,18 @@ EOF
         (quiet) ;;
         (show) printf "%s\n" "$SANDBOX_DIR";;
         (interactive)
-            summary "$SANDBOX_DIR"
+            summary "$SANDBOX_DIR" >&2
 
-            echo
-            read -p "Commit these changes? [y/N] " DO_COMMIT
-            case "$DO_COMMIT" in
-                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not commiting.\n%s\n" "$SANDBOX_DIR";;
-            esac
+	    if [ "$?" -eq 0 ]
+	    then
+		echo
+		read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+		case "$DO_COMMIT" in
+                    (y|Y|yes|YES) commit "$SANDBOX_DIR";;
+                    (*) printf "Not commiting.\n" >&2
+			echo "$SANDBOX_DIR";;
+		esac
+	    fi
         ;;
     esac
 }
@@ -77,24 +81,28 @@ EOF
 ################################################################################
 
 summary() {
-    if ! [ -d $1 ]
+    if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $1\n" "$(basename $)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $)" >&2
         exit 2
-    elif ! [ -d $1/upperdir ]
-        printf "%s: could not find directory $1\n" "$(basename $)" >&2
+    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+    then
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
         exit 1
     fi
     
     # TODO let people control what's ignored
-    changed_files=$(find $1/upperdir/ -type f | grep -v -e .rkr -e Rikerfile)
+    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | grep -v -e .rkr -e Rikerfile)
 
-    if [ "$changed_files" ]; then
+    if [ "$changed_files" ]
+    then
+	echo
         echo "Changes detected in the following files:"
         echo
         echo "$changed_files"
+	return 0
     else
-        echo "No changes detected"
+	return 1
     fi
 }
 
@@ -105,21 +113,25 @@ summary() {
 commit() {
     if ! [ "$changed_files" ]
     then
-        changed_files=$(find $1/upperdir/ -type f | grep -v -e .rkr -e Rikerfile)
+        changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
     fi
 
     while IFS= read -r changed_file; do
-        if [ -d "$changed_file" ] # new directory
-        then
-            mkdir "${changed_file#$SANDBOX_DIR/$upperdir}"
-        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] # whiteout file
-        then
-            rm "${changed_file#$SANDBOX_DIR/$upperdir}"
-        else # normal file
-            cp "$changed_file" "${changed_file#$SANDBOX_DIR/$upperdir}"
+        if [ -d "$changed_file" ] && ! [ -d "${changed_file#$SANDBOX_DIR/upperdir}" ]
+        then # new directory
+            mkdir "${changed_file#$SANDBOX_DIR/upperdir}"
+        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
+        then # whiteout file
+            rm "${changed_file#$SANDBOX_DIR/upperdir}"
+        elif [ -f "$changed_file" ]
+	then # normal file
+            cp "$changed_file" "${changed_file#$SANDBOX_DIR/upperdir}"
         fi
-        if [ $? -ne 0 ]; then
-            printf "couldn't commit $changed_file" "$(basename 0)"
+	
+        if [ $? -ne 0 ]
+	then
+	    # TODO collect errors and summarize later
+            printf "couldn't commit $changed_file\n"
             exit 1
         fi
     done <<EOF
@@ -151,7 +163,7 @@ EOF
 # "quiet"       - do not show the result directory on stdout when we're done
 NO_COMMIT="interactive"
 
-while getopts ":n:D" opt
+while getopts ":nD:" opt
 do
     case "$opt" in
         (n) NO_COMMIT="show";;
@@ -175,9 +187,8 @@ then
 fi
 
 case "$1" in
-    (summary)
-        summary "${2-$SANDBOX_DIR}";;
-    (commit) commit "${2-$SANDBOX_DIR}";;
-    (--) shift; try;;
-    (*) try;;
+    (summary) : ${SANDBOX_DIR=$2}; summary;;
+    (commit) : ${SANDBOX_DIR=$2}; commit;;
+    (--) shift; try "$@";;
+    (*) try "$@";;
 esac
