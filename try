@@ -1,5 +1,136 @@
 #!/bin/sh
 
+# exit status invariants
+#
+# 0 -- command ran
+# 1 -- consistency error/failure
+# 2 -- input error
+
+################################################################################
+# Run a command in an overlay
+################################################################################
+
+try() {
+    START_DIR="$PWD"
+
+    [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
+    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+
+    # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
+    # so we set up the mount points now
+    #
+    # TODO can we avoid warnings?
+    # TODO can we make this more uniform?
+    ls / | xargs -I '{}' mkdir "$SANDBOX_DIR"/temproot/'{}' "$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/upperdir/'{}'
+
+    mount_and_execute=$(mktemp)
+    chroot_executable=$(mktemp)
+    cat >"$mount_and_execute" <<EOF
+#!/bin/sh
+
+# actually mount the overlays
+# TODO we may not need to ignore ALL of these (paltform dependent?)
+ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
+
+unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+EOF
+
+    cat >"$chroot_executable" <<EOF
+#!/bin/sh
+                              
+mount -t proc proc /proc &&   
+cd $START_DIR && 
+exec $@
+EOF
+
+    chmod +x "$mount_and_execute" "$chroot_executable"
+
+    # --mount: mounting and unmounting filesystems will not affect the rest of the system inside the unshare
+    # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
+    # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
+    # --pid: create a new process namespace (needed fr procfs to work right)
+    # --fork: necessary if we do --pid
+    #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
+    unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+
+    ################################################################################
+    # commit?
+
+    case "$NO_COMMIT" in
+        (quiet) ;;
+        (show) printf "%s\n" "$SANDBOX_DIR";;
+        (interactive)
+            summary "$SANDBOX_DIR"
+
+            echo
+            read -p "Commit these changes? [y/N] " DO_COMMIT
+            case "$DO_COMMIT" in
+                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
+                (*) printf "Not commiting.\n%s\n" "$SANDBOX_DIR";;
+            esac
+        ;;
+    esac
+}
+
+################################################################################
+# Summarize an overlay
+################################################################################
+
+summary() {
+    if ! [ -d $1 ]
+    then
+        printf "%s: could not find directory $1\n" "$(basename $)" >&2
+        exit 2
+    elif ! [ -d $1/upperdir ]
+        printf "%s: could not find directory $1\n" "$(basename $)" >&2
+        exit 1
+    fi
+    
+    # TODO let people control what's ignored
+    changed_files=$(find $1/upperdir/ -type f | grep -v -e .rkr -e Rikerfile)
+
+    if [ "$changed_files" ]; then
+        echo "Changes detected in the following files:"
+        echo
+        echo "$changed_files"
+    else
+        echo "No changes detected"
+    fi
+}
+
+################################################################################
+# Commit the results of an overlay
+################################################################################
+
+commit() {
+    if ! [ "$changed_files" ]
+    then
+        changed_files=$(find $1/upperdir/ -type f | grep -v -e .rkr -e Rikerfile)
+    fi
+
+    while IFS= read -r changed_file; do
+        if [ -d "$changed_file" ] # new directory
+        then
+            mkdir "${changed_file#$SANDBOX_DIR/$upperdir}"
+        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] # whiteout file
+        then
+            rm "${changed_file#$SANDBOX_DIR/$upperdir}"
+        else # normal file
+            cp "$changed_file" "${changed_file#$SANDBOX_DIR/$upperdir}"
+        fi
+        if [ $? -ne 0 ]; then
+            printf "couldn't commit $changed_file" "$(basename 0)"
+            exit 1
+        fi
+    done <<EOF
+$changed_files
+EOF
+}
+
+################################################################################
+# Argument parsing
+################################################################################
+
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
@@ -15,19 +146,22 @@ EOF
     exit 2
 }
 
-NO_COMMIT=0
+# "interactive" - show nothing, interactively prompt on commit
+# "show"        - show the resulting directory on stdout when we're done
+# "quiet"       - do not show the result directory on stdout when we're done
+NO_COMMIT="interactive"
 
 while getopts ":n:D" opt
 do
     case "$opt" in
-        (n) NO_COMMIT=1;;
+        (n) NO_COMMIT="show";;
         (D) if ! [ -d "$OPTARG" ]
             then
                 printf "%s: no such directory $OPTARG\n" "$(basename $)" >&2
                 exit 2
             fi
             SANDBOX_DIR="$OPTARG"
-            NO_COMMIT=1
+            NO_COMMIT="quiet"
             ;;
         (h|*) usage;;
     esac
@@ -40,49 +174,10 @@ then
     usage
 fi
 
-START_DIR="$PWD"
-
-[ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
-mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
-
-# we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
-# so we set up the mount points now
-#
-# TODO can we avoid warnings?
-# TODO can we make this more uniform?
-ls / | xargs -I '{}' mkdir "$SANDBOX_DIR"/temproot/'{}' "$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/upperdir/'{}'
-
-mount_and_execute=$(mktemp)
-chroot_executable=$(mktemp)
-cat >"$mount_and_execute" <<EOF
-#!/bin/sh
-
-# actually mount the overlays
-# TODO we may not need to ignore ALL of these (paltform dependent?)
-ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
-
-unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable" 
-EOF
-
-cat >"$chroot_executable" <<EOF
-#!/bin/sh
-
-mount -t proc proc /proc &&
-cd $START_DIR && 
-exec $@
-EOF
-
-echo
-cat $mount_and_execute
-echo
-cat $chroot_executable
-
-chmod +x "$mount_and_execute" "$chroot_executable"
-
-# --mount: mounting and unmounting filesystems will not affect the rest of the system inside the unshare
-# --map-root-user: map to the superuser UID and GID in the newly created user namespace.
-# --user: the process will have a distinct set of UIDs, GIDs and capabilities.
-# --pid: create a new process namespace (needed fr procfs to work right)
-# --fork: necessary if we do --pid
-#         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+case "$1" in
+    (summary)
+        summary "${2-$SANDBOX_DIR}";;
+    (commit) commit "${2-$SANDBOX_DIR}";;
+    (--) shift; try;;
+    (*) try;;
+esac
