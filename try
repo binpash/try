@@ -17,8 +17,6 @@ export start_dir="$PWD"
 debug "initializing sandbox directory: $SANDBOX_DIR"
 mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
-tree $SANDBOX_DIR
-
 # We overlay-mount each root directory separately 
 # (instead of all at once) because some directories cannot be overlayed. 
 #
@@ -31,14 +29,11 @@ chroot_executable=$(mktemp)
 cat >"$mount_and_execute" <<EOF
 #!/bin/sh
 
+# actually mount the overlays
 # TODO we may not need to ignore ALL of these (paltform dependent?)
 ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
 
-# TODO: use unshare instead of chroot
-# Alternatively, have a look at this
-# NOTE: installed version of unshare does not support --root option
-# chroot "$SANDBOX_DIR/temproot" /bin/bash -c "mount -t proc proc /proc && cd $start_dir && source $script_to_execute"
-chroot "$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable" 
+unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable" 
 EOF
 
 cat >"$chroot_executable" <<EOF
