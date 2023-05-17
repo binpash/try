@@ -4,8 +4,6 @@ usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
 Usage: $cmd [-n] [-D DIR] CMD [ARG ...]
-       $cmd summary DIR
-       $cmd commit DIR
 
   -n                don't prompt for commit
   -D DIR            work in DIR (implies -n)
@@ -25,10 +23,13 @@ do
         (n) NO_COMMIT=1;;
         (D) if ! [ -d "$OPTARG" ]
             then
-                printf "%s: no such directory $OPTARG\n" "$(basename $)"
+                printf "%s: no such directory $OPTARG\n" "$(basename $)" >&2
                 exit 2
-            fi;;
-        (h|*) usage();;
+            fi
+            SANDBOX_DIR="$OPTARG"
+            NO_COMMIT=1
+            ;;
+        (h|*) usage;;
     esac
 done
 
@@ -36,22 +37,18 @@ shift $(($OPTIND - 1))
 
 if [ "$#" -eq 0 ]
 then
-    usage()
+    usage
 fi
 
 START_DIR="$PWD"
 
-# TODO make SANDBOX_DIR an argument
-# when NOT given, we're in interactive mode and need to prompt for a commit with a summary of the changes
 [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
-
-debug "initializing sandbox directory: $SANDBOX_DIR"
 mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
-# We overlay-mount each root directory separately 
-# (instead of all at once) because some directories cannot be overlayed. 
+# we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
+# so we set up the mount points now
 #
-# TODO can we avoid the warnings
+# TODO can we avoid warnings?
 # TODO can we make this more uniform?
 ls / | xargs -I '{}' mkdir "$SANDBOX_DIR"/temproot/'{}' "$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/upperdir/'{}'
 
@@ -72,7 +69,7 @@ cat >"$chroot_executable" <<EOF
 
 mount -t proc proc /proc &&
 cd $START_DIR && 
-exec "$@"
+exec $@
 EOF
 
 echo
