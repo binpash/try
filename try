@@ -12,6 +12,7 @@ export script_to_execute=${1?Script to execute not given}
 export start_dir="$PWD"
 
 # TODO make SANDBOX_DIR an argument
+# when NOT given, we're in interactive mode and need to prompt for a commit with a summary of the changes
 [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
 
 debug "initializing sandbox directory: $SANDBOX_DIR"
@@ -41,7 +42,7 @@ cat >"$chroot_executable" <<EOF
 
 mount -t proc proc /proc &&
 cd $start_dir && 
-source $script_to_execute
+exec $script_to_execute
 EOF
 
 echo
