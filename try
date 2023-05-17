@@ -1,0 +1,67 @@
+#!/bin/sh
+
+debug() {
+    echo "$@" >&2
+}
+
+# Usage: try <script_to_execute>
+
+# TODO real usage message
+export script_to_execute=${1?Script to execute not given}
+
+export start_dir="$PWD"
+
+# TODO make SANDBOX_DIR an argument
+[ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
+
+debug "initializing sandbox directory: $SANDBOX_DIR"
+mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+
+tree $SANDBOX_DIR
+
+# We overlay-mount each root directory separately 
+# (instead of all at once) because some directories cannot be overlayed. 
+#
+# TODO can we avoid the warnings
+# TODO can we make this more uniform?
+ls / | xargs -I '{}' mkdir "$SANDBOX_DIR"/temproot/'{}' "$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/upperdir/'{}'
+
+mount_and_execute=$(mktemp)
+chroot_executable=$(mktemp)
+cat >"$mount_and_execute" <<EOF
+#!/bin/sh
+
+## TODO: Figure out if we need these directories and if we do, we need to get them some other way than the overlay
+ubuntu22_ignore_directories=" -e snap -e swap.img"
+ignore_directories="-e proc -e dev -e proj -e run -e sys"$ubuntu22_ignore_directories
+ls / | grep -v $ignore_directories | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
+
+# TODO: use unshare instead of chroot
+# Alternatively, have a look at this
+# NOTE: installed version of unshare does not support --root option
+# chroot "$SANDBOX_DIR/temproot" /bin/bash -c "mount -t proc proc /proc && cd $start_dir && source $script_to_execute"
+chroot "$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable" 
+EOF
+
+cat >"$chroot_executable" <<EOF
+#!/bin/sh
+
+mount -t proc proc /proc &&
+cd $start_dir && 
+source $script_to_execute
+EOF
+
+echo
+cat $mount_and_execute
+echo
+cat $chroot_executable
+
+# --mount: mounting and unmounting filesystems will not affect the rest of the system inside the unshare
+# --map-root-user: map to the superuser UID and GID in the newly created user namespace.
+# --user: the process will have a distinct set of UIDs, GIDs and capabilities.
+# --pid: create a new process namespace (needed fr procfs to work right)
+# --fork: necessary if we do --pid
+#        "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
+unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+
+
