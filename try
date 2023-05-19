@@ -146,16 +146,18 @@ EOF
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-n] [-D DIR] CMD [ARG ...]
+Usage: $cmd [-nvh] [-D DIR] CMD [ARG ...]
 
   -n                don't prompt for commit
   -D DIR            work in DIR (implies -n)
+
+  -v                show version information (and exit)
+  -h                show this usage message (and exit)
 
 Subcommands:
   $cmd summary DIR   show the summary for the overlay in DIR
   $cmd commit DIR    commit the overlay in DIR
 EOF
-    exit 2
 }
 
 # "interactive" - show nothing, interactively prompt on commit
@@ -169,13 +171,14 @@ do
         (n) NO_COMMIT="show";;
         (D) if ! [ -d "$OPTARG" ]
             then
-                printf "%s: no such directory $OPTARG\n" "$(basename $)" >&2
+                printf "%s: no such directory $OPTARG\n" "$(basename $0)" >&2
                 exit 2
             fi
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (h|*) usage;;
+        (v) printf "%s version 0.1\n" "$(basename $0)" >&2; exit 0;;
+        (h|*) usage; exit 0;;
     esac
 done
 
@@ -184,6 +187,7 @@ shift $(($OPTIND - 1))
 if [ "$#" -eq 0 ]
 then
     usage
+    exit 2
 fi
 
 case "$1" in
