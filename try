@@ -157,6 +157,7 @@ Usage: $cmd [-nvh] [-D DIR] CMD [ARG ...]
 Subcommands:
   $cmd summary DIR   show the summary for the overlay in DIR
   $cmd commit DIR    commit the overlay in DIR
+  $cmd explore DIR   start a shell inside the overlay in DIR
 EOF
 }
 
@@ -193,6 +194,7 @@ fi
 case "$1" in
     (summary) : ${SANDBOX_DIR=$2}; summary;;
     (commit) : ${SANDBOX_DIR=$2}; commit;;
+    (explore) : ${SANDBOX_DIR=$2}; try bash;;
     (--) shift; try "$@";;
     (*) try "$@";;
 esac
