@@ -97,7 +97,7 @@ Commit these changes? [y/N] y
 Sometimes, you might want to pre-execute a command and commit its result at a later time.
 
 ```
-try -D try_gunzip amendments.txt.gz
+try -D try_dir gunzip file.txt.gz
 ```
 
 Inspect the changhes made as follows (note that *try_dir* already exists):
