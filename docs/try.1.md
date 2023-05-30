@@ -6,8 +6,11 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-nvh] [-D DIR] CMD [ARG ...]
-
+| try [-n] [-D DIR] CMD [ARG ...]
+| try summary [DIR]
+| try commit [DIR]
+| try -v
+| try -h
 
 # DESCRIPTION
 
@@ -34,7 +37,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -D *DIR*
 
-: Sets DIR as the working directory (implies -n)
+: Specifies DIR as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
 ## Subcommands
 
@@ -72,7 +75,42 @@ try commit *DIR*
 
 # EXAMPLES
 
-TODO
+The general workflow is to *try* a command before commiting its results to your workspace. 
+
+To uncompress a gzip file, you can invoke *try* as follows
+
+```
+try gunzip file.txt.gz
+```
+
+By default, *try* will ask you to commit the changes made at the end of its execution.
+
+```
+Changes detected in the following files:
+
+/tmp/tmp.0caZdxnHuR/upperdir/home/me/file.txt
+/tmp/tmp.0caZdxnHuR/upperdir/home/me/file.txt.gz
+
+Commit these changes? [y/N] y
+```
+
+Sometimes, you might want to pre-execute a command and commit its result at a later time.
+
+```
+try -D try_gunzip amendments.txt.gz
+```
+
+Inspect the changhes made as follows (note that *try_dir* already exists):
+
+```
+try summary try_dir
+```
+
+You can commit the overlay directory contents as follows:
+
+```
+try commit try_dir
+```
 
 # SEE ALSO
 
@@ -85,4 +123,4 @@ See
 
 # LICENSE
 
-Copyright (c) 2020 The PaSh Authors. MIT licensed.
+Copyright (c) 2023 The PaSh Authors. MIT licensed.
