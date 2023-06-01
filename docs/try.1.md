@@ -22,7 +22,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -n
 
-: Don't prompt for commit
+: Don't prompt for commit. Just return the overlay directory.
 
 -v
 
