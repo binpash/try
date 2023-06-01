@@ -94,19 +94,25 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, wothout committing the result.
+
+```
+try -n gunzip file.txt.gz
+```
+
+Alternatively, you can specify your own overlay directory as follows (note that *try_dir* already exists):
 
 ```
 try -D try_dir gunzip file.txt.gz
 ```
 
-Inspect the changhes made as follows (note that *try_dir* already exists):
+You can inspect the changhes made inside a given overlay directory:
 
 ```
 try summary try_dir
 ```
 
-You can commit the overlay directory contents as follows:
+You can also choose to commit the overlay directory contents:
 
 ```
 try commit try_dir
