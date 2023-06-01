@@ -30,7 +30,7 @@ Optionally, consider adding the `try` directory to *PATH*.
 echo 'export PATH="<path_to_try_directory>:$PATH"' >> ~/.bashrc
 ```
 
-## Examples
+## Example Usage
 
 The general workflow is to *try* a command before commiting its results to your workspace. 
 
