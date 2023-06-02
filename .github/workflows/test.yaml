@@ -18,10 +18,10 @@ jobs:
       runs-on: ${{ matrix.os }}
       if: github.event.pull_request.draft == false
       steps:
-        - uses: actions/checkout@v2 
-          with:
-            ref: ${{ github.event.pull_request.head.sha }}
-        - name: Running Correctness Tests
+      - uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Running Correctness Tests
         run: |
           uname -a
           bash ./test/run_tests.sh  
