@@ -17,13 +17,13 @@ bash="bash"
 try="$TRY_TOP/try"
 
 try_workspace="$TRY_TOP/test/try_workspace"
-test_workspace="$TRY_TOP/test/test_workspace"
+bash_workspace="$TRY_TOP/test/bash_workspace"
 
 # Results saved here
 output_dir="$TRY_TOP/test/results"
 
-echo "Bash test workspace:      $try_workspace"
-echo "try test workspace:       $test_workspace"
+echo "Bash test workspace:      $bash_workspace"
+echo "try test workspace:       $try_workspace"
 echo "Results saved at:         $output_dir"
 echo "================================================="
 
@@ -36,8 +36,8 @@ cleanup()
 {
     rm -rf "$try_workspace"
     mkdir "$try_workspace"
-    rm -rf "$test_workspace"
-    mkdir "$test_workspace"
+    rm -rf "$bash_workspace"
+    mkdir "$bash_workspace"
 }
 
 run_test()
@@ -53,14 +53,14 @@ run_test()
     echo -n "Running $test..."
 
     # cd $try_workspace
-    $test "$bash" "$test_workspace"
+    $test "$bash" "$bash_workspace"
     test_bash_ec=$?
     # Run test
     $test "$try" "$try_workspace"
     test_try_ec=$?
     # Check test EC
     
-    diff -q "$test_workspace/" "$try_workspace/" > /dev/null
+    diff -q "$bash_workspace/" "$try_workspace/" > /dev/null
     test_diff_ec=$?
     if [ $test_diff_ec -ne 0 ]; then
         echo -n " (!) output mismatch"
@@ -84,12 +84,76 @@ test1()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    yes 2>/dev/null | $shell gunzip $2/file.txt.gz
+    if [ $shell == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        yes 2>/dev/null | $shell gunzip $2/file.txt.gz
+    fi
+}
+
+test2_1()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        tempdir=$($shell -n gunzip $2/file.txt.gz)
+        cp "$tempdir/upperdir$try_workspace/file.txt" $try_workspace/
+    fi
+}
+
+test2_2()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        tempdir=$($shell -n gunzip $2/file.txt.gz)
+        $shell commit $tempdir
+    fi
+}
+
+test3_1()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        try_example_dir="$WORKING_DIR/example"
+        mkdir -p $try_example_dir
+        $shell -D $try_example_dir gunzip $2/file.txt.gz
+        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
+    fi
+}
+
+test3_2()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        try_example_dir="$WORKING_DIR/example"
+        mkdir -p $try_example_dir
+        $shell -D $try_example_dir gunzip $2/file.txt.gz
+        $shell commit $try_example_dir
+    fi
 }
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test1
+    # run_test test2_1
+    run_test test2_2
+    # run_test test3_1
+    run_test test3_2
 
 else
     for testname in $@
