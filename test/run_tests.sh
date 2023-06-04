@@ -79,7 +79,7 @@ run_test()
     fi
 }
 
-test1()
+test_untar_no_flag()
 {
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
@@ -91,7 +91,7 @@ test1()
     fi
 }
 
-test2_1()
+test_untar_n_flag_cp()
 {
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
@@ -104,7 +104,7 @@ test2_1()
     fi
 }
 
-test2_2()
+test_untar_n_flag_commit()
 {
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
@@ -117,7 +117,7 @@ test2_2()
     fi
 }
 
-test3_1()
+test_untar_D_flag_cp()
 {
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
@@ -125,14 +125,13 @@ test3_1()
     if [ $shell == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
-        try_example_dir="$WORKING_DIR/example"
-        mkdir -p $try_example_dir
+        try_example_dir=$(mktemp -d)
         $shell -D $try_example_dir gunzip $2/file.txt.gz
         cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
     fi
 }
 
-test3_2()
+test_untar_D_flag_commit()
 {
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
@@ -140,20 +139,86 @@ test3_2()
     if [ $shell == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
-        try_example_dir="$WORKING_DIR/example"
-        mkdir -p $try_example_dir
+        try_example_dir=$(mktemp -d)
         $shell -D $try_example_dir gunzip $2/file.txt.gz
+        $shell commit $try_example_dir
+    fi
+}
+
+test_touch_and_rm_no_flag()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        yes 2>/dev/null | $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    fi
+}
+
+test_touch_and_rm_n_flag_cp()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
+        cp "$tempdir/upperdir$try_workspace/file.txt" $try_workspace/
+    fi
+}
+
+test_touch_and_rm_n_flag_commit()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
+        $shell commit $tempdir
+    fi
+}
+
+test_touch_and_rm_D_flag_cp()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        try_example_dir=$(mktemp -d)
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
+    fi
+}
+
+test_touch_and_rm_D_flag_commit()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ $shell == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        try_example_dir=$(mktemp -d)
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
         $shell commit $try_example_dir
     fi
 }
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
-    run_test test1
-    # run_test test2_1
-    run_test test2_2
-    # run_test test3_1
-    run_test test3_2
+    run_test test_untar_no_flag
+    run_test test_untar_n_flag_commit
+    run_test test_untar_D_flag_commit
+    run_test test_touch_and_rm_no_flag
+    run_test test_touch_and_rm_n_flag_commit
+    run_test test_touch_and_rm_D_flag_commit
 
 else
     for testname in $@
