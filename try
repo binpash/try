@@ -105,9 +105,9 @@ summary() {
         echo "Changes detected in the following files:"
         echo
         echo "$changed_files"
-    return 0
+        return 0
     else
-    return 1
+        return 1
     fi
 }
 
