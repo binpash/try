@@ -67,16 +67,16 @@ EOF
         (interactive)
             summary "$SANDBOX_DIR" >&2
 
-	    if [ "$?" -eq 0 ]
-	    then
-		echo
-		read -p "Commit these changes? [y/N] " DO_COMMIT >&2
-		case "$DO_COMMIT" in
-                    (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                    (*) printf "Not commiting.\n" >&2
-			echo "$SANDBOX_DIR";;
-		esac
-	    fi
+        if [ "$?" -eq 0 ]
+        then
+            echo
+            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+            case "$DO_COMMIT" in
+                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
+                (*) printf "Not commiting.\n" >&2
+                echo "$SANDBOX_DIR";;
+            esac
+        fi
         ;;
     esac
 }
@@ -101,13 +101,13 @@ summary() {
 
     if [ "$changed_files" ]
     then
-	echo
+        echo
         echo "Changes detected in the following files:"
         echo
         echo "$changed_files"
-	return 0
+    return 0
     else
-	return 1
+    return 1
     fi
 }
 
@@ -129,16 +129,17 @@ commit() {
         then # whiteout file
             rm "${changed_file#$SANDBOX_DIR/upperdir}"
         elif [ -f "$changed_file" ]
-	    then # normal file
+        then # normal file
             dest_path="${changed_file#$SANDBOX_DIR/upperdir}"
+            ## Create the directory if neede dbefore copying the file
             dirname=$(dirname "$dest_path")
             mkdir -p "$dirname"
             cp "$changed_file" "$dest_path"
         fi
-	
+    
         if [ $? -ne 0 ]
-	    then
-	    # TODO collect errors and summarize later
+        then
+        # TODO collect errors and summarize later
             printf "couldn't commit $changed_file\n"
             exit 1
         fi
