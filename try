@@ -129,12 +129,15 @@ commit() {
         then # whiteout file
             rm "${changed_file#$SANDBOX_DIR/upperdir}"
         elif [ -f "$changed_file" ]
-	then # normal file
-            cp "$changed_file" "${changed_file#$SANDBOX_DIR/upperdir}"
+	    then # normal file
+            dest_path="${changed_file#$SANDBOX_DIR/upperdir}"
+            dirname=$(dirname "$dest_path")
+            mkdir -p "$dirname"
+            cp "$changed_file" "$dest_path"
         fi
 	
         if [ $? -ne 0 ]
-	then
+	    then
 	    # TODO collect errors and summarize later
             printf "couldn't commit $changed_file\n"
             exit 1
