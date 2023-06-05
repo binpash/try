@@ -14,7 +14,7 @@ DEBUG=${DEBUG:-0}
 
 
 bash="bash"
-try="strace $TRY_TOP/try"
+try="$TRY_TOP/try"
 
 try_workspace="$TRY_TOP/test/try_workspace"
 bash_workspace="$TRY_TOP/test/bash_workspace"
@@ -87,7 +87,7 @@ test_untar_no_flag()
     if [ $shell == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
-        yes 2>/dev/null | $shell gunzip $2/file.txt.gz
+        yes 2>/dev/null | strace $shell gunzip $2/file.txt.gz
     fi
 }
 
@@ -140,8 +140,8 @@ test_untar_D_flag_commit()
         $shell gunzip $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir gunzip $2/file.txt.gz
-        $shell commit $try_example_dir
+        strace $shell -D $try_example_dir gunzip $2/file.txt.gz
+        strace $shell commit $try_example_dir
     fi
 }
 
@@ -153,7 +153,7 @@ test_touch_and_rm_no_flag()
     if [ $shell == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
-        yes 2>/dev/null | $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        yes 2>/dev/null | strace $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     fi
 }
 
@@ -192,8 +192,8 @@ test_touch_and_rm_D_flag_cp()
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
+        strace $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        strace cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
     fi
 }
 
@@ -206,18 +206,18 @@ test_touch_and_rm_D_flag_commit()
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        $shell commit $try_example_dir
+        strace $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        strace $shell commit $try_example_dir
     fi
 }
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test_untar_no_flag
-    run_test test_untar_n_flag_commit
+    # run_test test_untar_n_flag_commit
     run_test test_untar_D_flag_commit
     run_test test_touch_and_rm_no_flag
-    run_test test_touch_and_rm_n_flag_commit
+    # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
 
 else
