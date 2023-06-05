@@ -27,7 +27,7 @@ jobs:
           uname -a
           sudo apt-get update
           sudo apt-get install strace
-          strace bash ./test/run_tests.sh  
+          bash ./test/run_tests.sh  
           # get the timer
           timer=$(LANG=en_us_88591; date)
           echo "VERSION<<EOF" >> $GITHUB_ENV

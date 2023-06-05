@@ -14,7 +14,7 @@ DEBUG=${DEBUG:-0}
 
 
 bash="bash"
-try="$TRY_TOP/try"
+try="strace $TRY_TOP/try"
 
 try_workspace="$TRY_TOP/test/try_workspace"
 bash_workspace="$TRY_TOP/test/bash_workspace"
