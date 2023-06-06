@@ -32,6 +32,11 @@ try() {
 # TODO we may not need to ignore ALL of these (paltform dependent?)
 ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
 
+## Bind the udev mount so that the containerized process has access to /dev
+## KK 2023-05-06 Are there any secutiry/safety implications by binding the whole /dev?
+##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
+mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
+
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 EOF
 
@@ -62,16 +67,16 @@ EOF
         (interactive)
             summary "$SANDBOX_DIR" >&2
 
-	    if [ "$?" -eq 0 ]
-	    then
-		echo
-		read -p "Commit these changes? [y/N] " DO_COMMIT >&2
-		case "$DO_COMMIT" in
-                    (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                    (*) printf "Not commiting.\n" >&2
-			echo "$SANDBOX_DIR";;
-		esac
-	    fi
+        if [ "$?" -eq 0 ]
+        then
+            echo
+            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+            case "$DO_COMMIT" in
+                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
+                (*) printf "Not commiting.\n" >&2
+                echo "$SANDBOX_DIR";;
+            esac
+        fi
         ;;
     esac
 }
@@ -92,17 +97,18 @@ summary() {
     fi
     
     # TODO let people control what's ignored
+    # We don't include directories here since that would be too verbose for the summary.
     changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | grep -v -e .rkr -e Rikerfile)
 
     if [ "$changed_files" ]
     then
-	echo
+        echo
         echo "Changes detected in the following files:"
         echo
         echo "$changed_files"
-	return 0
+        return 0
     else
-	return 1
+        return 1
     fi
 }
 
@@ -111,26 +117,27 @@ summary() {
 ################################################################################
 
 commit() {
-    if ! [ "$changed_files" ]
-    then
-        changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
-    fi
+    # This is different from the one in summary because it also includes all directories.
+    # TODO: Could be made more efficient by only appending directories to the already computed
+    #       changed_files from summary.
+    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
 
     while IFS= read -r changed_file; do
-        if [ -d "$changed_file" ] && ! [ -d "${changed_file#$SANDBOX_DIR/upperdir}" ]
+        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
+        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
-            mkdir "${changed_file#$SANDBOX_DIR/upperdir}"
+            mkdir "${local_file}"
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
         then # whiteout file
-            rm "${changed_file#$SANDBOX_DIR/upperdir}"
+            rm "${local_file}"
         elif [ -f "$changed_file" ]
-	then # normal file
-            cp "$changed_file" "${changed_file#$SANDBOX_DIR/upperdir}"
+        then # normal file
+            cp "$changed_file" "${local_file}"
         fi
-	
+    
         if [ $? -ne 0 ]
-	then
-	    # TODO collect errors and summarize later
+        then
+        # TODO collect errors and summarize later
             printf "couldn't commit $changed_file\n"
             exit 1
         fi
