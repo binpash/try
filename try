@@ -97,6 +97,7 @@ summary() {
     fi
     
     # TODO let people control what's ignored
+    # We don't include directories here since that would be too verbose for the summary.
     changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | grep -v -e .rkr -e Rikerfile)
 
     if [ "$changed_files" ]
@@ -116,25 +117,22 @@ summary() {
 ################################################################################
 
 commit() {
-    if ! [ "$changed_files" ]
-    then
-        changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
-    fi
+    # This is different from the one in summary because it also includes all directories.
+    # TODO: Could be made more efficient by only appending directories to the already computed
+    #       changed_files from summary.
+    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
 
     while IFS= read -r changed_file; do
-        if [ -d "$changed_file" ] && ! [ -d "${changed_file#$SANDBOX_DIR/upperdir}" ]
+        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
+        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
-            mkdir "${changed_file#$SANDBOX_DIR/upperdir}"
+            mkdir "${local_file}"
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
         then # whiteout file
-            rm "${changed_file#$SANDBOX_DIR/upperdir}"
+            rm "${local_file}"
         elif [ -f "$changed_file" ]
         then # normal file
-            dest_path="${changed_file#$SANDBOX_DIR/upperdir}"
-            ## Create the directory if neede dbefore copying the file
-            dirname=$(dirname "$dest_path")
-            mkdir -p "$dirname"
-            cp "$changed_file" "$dest_path"
+            cp "$changed_file" "${local_file}"
         fi
     
         if [ $? -ne 0 ]
