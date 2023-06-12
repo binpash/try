@@ -59,4 +59,4 @@ jobs:
       - name: Exit Code
         run: |
           # check if everything executed without errors
-          cd test && bash exit_code.sh
+          cd ~/try/test && bash exit_code.sh
