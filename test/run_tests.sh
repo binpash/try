@@ -84,7 +84,7 @@ test_untar_no_flag()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
         yes 2>/dev/null | strace $shell gunzip $2/file.txt.gz
@@ -96,7 +96,7 @@ test_untar_n_flag_cp()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
         tempdir=$($shell -n gunzip $2/file.txt.gz)
@@ -109,7 +109,7 @@ test_untar_n_flag_commit()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
         tempdir=$($shell -n gunzip $2/file.txt.gz)
@@ -122,7 +122,7 @@ test_untar_D_flag_cp()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
@@ -136,7 +136,7 @@ test_untar_D_flag_commit()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
@@ -150,7 +150,7 @@ test_touch_and_rm_no_flag()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         yes 2>/dev/null | strace $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
@@ -162,7 +162,7 @@ test_touch_and_rm_n_flag_cp()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
@@ -175,7 +175,7 @@ test_touch_and_rm_n_flag_commit()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
@@ -188,7 +188,7 @@ test_touch_and_rm_D_flag_cp()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
@@ -202,7 +202,7 @@ test_touch_and_rm_D_flag_commit()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     # Will always commit the result in case of try
-    if [ $shell == "bash" ]; then
+    if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
