@@ -24,6 +24,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Running Correctness Tests
         run: |
+          cd ..
+          mv try ~
+          cd ~/try
           uname -a
           sudo apt-get update
           sudo apt-get install strace
