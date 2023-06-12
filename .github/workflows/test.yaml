@@ -8,6 +8,7 @@ on:
     branches:
       - main
       - future
+      - *
 # Jobs section
 jobs:
     LocalTests:
@@ -25,7 +26,7 @@ jobs:
       - name: Running Correctness Tests
         run: |
           cd ..
-          mv try ~
+          cp -r try ~
           cd ~/try
           uname -a
           sudo apt-get update
@@ -57,6 +58,7 @@ jobs:
       #         body: body,
       #       })     
       - name: Exit Code
+        working-directory: /home/runner/try/test
         run: |
           # check if everything executed without errors
-          cd ~/try/test && bash exit_code.sh
+          bash exit_code.sh
