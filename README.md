@@ -8,7 +8,7 @@ We're setting out to change that.
 
 ## Description
 
-`try` lets you run a command inside an overlay without modifying the state of the filesystem. While using `try` you can choose to commit the result to the filesystem or completely ignore it without any side-effect to the main file system.
+`try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 
 ## Getting Started
 
@@ -18,31 +18,40 @@ We're setting out to change that.
 
 ### Installing
 
-Clone this repository:
+You should only need the [`try` script](https://raw.githubusercontent.com/binpash/try/main/try).
 
-```
-git clone https://github.com/binpash/try.git
+```ShellSession
+$ curl https://raw.githubusercontent.com/binpash/try/main/try -o try
+$ sudo cp try /usr/local/bin
 ```
 
-Optionally, consider adding the `try` directory to *PATH*.
+You can also get the script by cloning this repository:
 
-```
-echo 'export PATH="<path_to_try_directory>:$PATH"' >> ~/.bashrc
+```ShellSession
+$ git clone https://github.com/binpash/try.git
+Cloning into 'try'...
+remote: Enumerating objects: 190, done.
+remote: Counting objects: 100% (12/12), done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 190 (delta 4), reused 4 (delta 4), pack-reused 178
+Receiving objects: 100% (190/190), 29.99 KiB | 1.67 MiB/s, done.
+Resolving deltas: 100% (83/83), done.
+$ sudo cp try/try /usr/local/bin
 ```
 
 ## Example Usage
 
-The general workflow is to *try* a command before commiting its results to your workspace. 
+`try` is a higher-order command, like `xargs`, `exec`, `nohup`, or `find`. For example, to ungzip file, you can invoke `try` as follows:
 
-To uncompress a gzip file, you can invoke *try* as follows:
-
-```
-try gunzip file.txt.gz
+```ShellSession
+$ try gunzip file.txt.gz
+...
 ```
 
 By default, *try* will ask you to commit the changes made at the end of its execution.
 
-```
+```ShellSession
+...
 Changes detected in the following files:
 
 /tmp/tmp.0caZdxnHuR/upperdir/home/me/file.txt
@@ -53,14 +62,14 @@ Commit these changes? [y/N] y
 
 Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, wothout committing the result.
 
-```
-try -n gunzip file.txt.gz
+```ShellSession
+$ try -n gunzip file.txt.gz
 ```
 
 Alternatively, you can specify your own overlay directory as follows (note that *try_dir* already exists):
 
-```
-try -D try_dir gunzip file.txt.gz
+```ShellSession
+$ try -D try_dir gunzip file.txt.gz
 ```
 
 You can inspect the changhes made inside a given overlay directory:
