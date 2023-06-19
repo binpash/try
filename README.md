@@ -49,7 +49,7 @@ $ sudo cp try/try /usr/local/bin
 
 ```ShellSession
 $ try gunzip file.txt.gz
-...
+... # output continued below
 ```
 
 By default, *try* will ask you to commit the changes made at the end of its execution.
@@ -68,24 +68,42 @@ Sometimes, you might want to pre-execute a command and commit its result at a la
 
 ```ShellSession
 $ try -n gunzip file.txt.gz
+/tmp/tmp.uCThKq7LBK
 ```
 
-Alternatively, you can specify your own overlay directory as follows (note that *try_dir* already exists):
+Alternatively, you can specify your own overlay directory as follows (note that *gunzip_try_sandbox* already exists):
 
 ```ShellSession
-$ try -D try_dir gunzip file.txt.gz
+$ try -D gunzip_try_sandbox gunzip file.txt.gz
+$ ls gunzip_try_sandbox
+temproot  upperdir  workdir
 ```
 
-You can inspect the changhes made inside a given overlay directory:
+As you can see from the output above, *try* has created an overlay environment in the *gunzip_try_sandbox* directory.
 
+Manually inspecting upperdir reveals the changes to the files made inside the overlay during the execution of the previous command with *try*:
+
+```ShellSession
+$ ls -l gunzip_try_sandbox/upperdir/home/me/
+total 40
+-rw-rw-r-- 1 me me 38704 Jun 19 16:46 file.txt
+c--------- 2 me me  0, 0 Jun 19 16:52 file.txt.gz
 ```
-try summary try_dir
+
+You can inspect the changhes made inside a given overlay directory using *try*:
+
+```ShellSession
+$ try summary gunzip_try_sandbox
+Changes detected in the following files:
+
+gunzip_try_sandbox/upperdir/home/gliargo/try/file.txt.gz
+gunzip_try_sandbox/upperdir/home/gliargo/try/file.txt
 ```
 
 You can also choose to commit the overlay directory contents:
 
-```
-try commit try_dir
+```ShellSession
+$ try commit gunzip_try_sandbox
 ```
 
 ## Version History
