@@ -10,11 +10,13 @@ We're setting out to change that.
 
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 
+<img src="docs/try_pip_install_example.gif" alt="try gif">
+
 ## Getting Started
 
 ### Dependencies
 
-* `Ubuntu 18.04 LTS` or later
+* `Ubuntu 20.04 LTS` or later
 
 ### Installing
 
