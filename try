@@ -133,7 +133,8 @@ commit() {
             rm "${local_file}"
         elif [ -f "$changed_file" ]
         then # normal file
-            cp "$changed_file" "${local_file}"
+            # -f to commit the file if the target file is readonly, and -a to preserve permissions
+            cp -fa "$changed_file" "${local_file}"
         fi
     
         if [ $? -ne 0 ]
