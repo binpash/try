@@ -101,7 +101,7 @@ summary() {
     
     # TODO let people control what's ignored
     # We don't include directories here since that would be too verbose for the summary.
-    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | grep -v -e .rkr -e Rikerfile)
+    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | grep -v -e .rkr -e Rikerfile -e resolv.conf)
 
     if [ "$changed_files" ]
     then
