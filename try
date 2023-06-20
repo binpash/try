@@ -25,6 +25,7 @@ try() {
 
     mount_and_execute=$(mktemp)
     chroot_executable=$(mktemp)
+    resolvconf=$(cat /etc/resolv.conf)
     cat >"$mount_and_execute" <<EOF
 #!/bin/sh
 
@@ -43,6 +44,8 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
                               
+rm /etc/resolv.conf &&
+echo "$resolvconf" > /etc/resolv.conf &&
 mount -t proc proc /proc &&   
 cd $START_DIR && 
 exec $@
