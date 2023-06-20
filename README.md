@@ -152,8 +152,26 @@ You can inspect the changhes made inside a given overlay directory using *try*:
 $ try summary pip_try_sandbox
 Changes detected in the following files:
 
-pip_try_sandbox/upperdir/home/gliargo/try/file.txt.gz
-pip_try_sandbox/upperdir/home/gliargo/try/file.txt
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/ast.py (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/_dash.py (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__init__.py (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/printer.cpython-310.pyc (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/ast.cpython-310.pyc (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/__init__.cpython-310.pyc (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/parser.cpython-310.pyc (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/_dash.cpython-310.pyc (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/printer.py (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/libdash.so (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/parser.py (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/INSTALLER (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/WHEEL (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/COPYING (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/METADATA (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/REQUESTED (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/RECORD (modified/added)
+sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/top_level.txt (modified/added)
+sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4/0/e/3/f40e360665950eda8309f6341a788c506584b57c23789004ba8305aa (modified/added)
+sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0/0/7/0/f00703c6e1f8a1d0ff85030b4557c24be6d9cdd1430c2700d4af934d (modified/added)
 ```
 
 You can also choose to commit the overlay directory contents:
