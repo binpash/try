@@ -123,7 +123,7 @@ commit() {
     # This is different from the one in summary because it also includes all directories.
     # TODO: Could be made more efficient by only appending directories to the already computed
     #       changed_files from summary.
-    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile)
+    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | grep -v -e .rkr -e Rikerfile -e resolv.conf)
 
     while IFS= read -r changed_file; do
         local_file="${changed_file#$SANDBOX_DIR/upperdir}"
