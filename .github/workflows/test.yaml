@@ -58,4 +58,4 @@ jobs:
       - name: Exit Code
         run: |
           # check if everything executed without errors
-          bash exit_code.sh
+          bash test/exit_code.sh
