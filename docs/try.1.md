@@ -24,6 +24,10 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Don't prompt for commit. Just return the overlay directory.
 
+-y
+
+: Assume yes to all prompts (implies -n is not used)
+
 -v
 
 : Show version information (and exit)
