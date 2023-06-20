@@ -36,6 +36,7 @@ ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs 
 ## KK 2023-05-06 Are there any secutiry/safety implications by binding the whole /dev?
 ##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
 mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
+mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run"
 
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 EOF
@@ -132,7 +133,8 @@ commit() {
             rm "${local_file}"
         elif [ -f "$changed_file" ]
         then # normal file
-            cp "$changed_file" "${local_file}"
+            # -f to commit the file if the target file is readonly, and -a to preserve permissions
+            cp -fa "$changed_file" "${local_file}"
         fi
     
         if [ $? -ne 0 ]
