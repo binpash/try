@@ -1,0 +1,64 @@
+name: LocalTests
+on: 
+  pull_request:
+    branches:
+    - main
+    types: [assigned, opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
+      - future
+      - '*'
+# Jobs section
+jobs:
+    LocalTests:
+      strategy:
+        fail-fast: false
+        matrix:
+          os: 
+            - ubuntu-latest
+      runs-on: ${{ matrix.os }}
+      if: github.event.pull_request.draft == false
+      steps:
+      - uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Running Correctness Tests
+        run: |
+          cd ..
+          cp -r try ~
+          cd ~/try
+          uname -a
+          sudo apt-get update
+          sudo apt-get install strace
+          bash ./test/run_tests.sh  
+          # get the timer
+          timer=$(LANG=en_us_88591; date)
+          echo "VERSION<<EOF" >> $GITHUB_ENV
+          echo "OS:${{matrix.os}}" >> $GITHUB_ENV
+          echo "$timer" >> $GITHUB_ENV
+          # Parse the results and construct a github message post
+          # we append the data to the global env
+          cat ./test/results/results.log >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      # - name: Comment on PR
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       let body = `${{ env.VERSION }}`
+      #       console.log(context)
+      #       // if we are directly pushing on main/future, we cannot push comments -> exit
+      #       if (context.eventName === "push" && (context.ref === "refs/heads/main" || context.ref === "refs/heads/future")) {
+      #         return 0;
+      #       }
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: body,
+      #       })     
+      - name: Exit Code
+        working-directory: /home/runner/try/test
+        run: |
+          # check if everything executed without errors
+          bash exit_code.sh
