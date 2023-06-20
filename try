@@ -14,7 +14,7 @@ set -x
 mapper() {
     nc -l localhost 8887 > /dev/null
     pid=$(ps | grep unshare | awk '{print $1;}')
-    ./gidmapper $pid 0 $(id -u) 1 0 $(id -g) 65535
+    ./gidmapper $pid 0 $(id -u) 1 0 0 65535
     echo a | nc localhost -q0 8888
 }
 
