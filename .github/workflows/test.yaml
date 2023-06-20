@@ -56,7 +56,6 @@ jobs:
       #         body: body,
       #       })     
       - name: Exit Code
-        working-directory: /home/runner/try/test
         run: |
           # check if everything executed without errors
           bash exit_code.sh
