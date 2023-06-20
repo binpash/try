@@ -14,23 +14,35 @@ try() {
     START_DIR="$PWD"
 
     [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
+    export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
-    #
-    # TODO can we avoid warnings?
-    # TODO can we make this more uniform?
-    ls / | xargs -I '{}' mkdir "$SANDBOX_DIR"/temproot/'{}' "$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/upperdir/'{}'
+    for top_dir in $(ls /)
+    do
+        top_dir_abs="/$top_dir"
+        ## Only make the directory if the original is a directory too
+        if [ -d "$top_dir_abs" ]; then
+            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+        fi
+    done
 
     mount_and_execute=$(mktemp)
-    chroot_executable=$(mktemp)
-    cat >"$mount_and_execute" <<EOF
+    export chroot_executable=$(mktemp)
+    cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
 # actually mount the overlays
-# TODO we may not need to ignore ALL of these (paltform dependent?)
-ls / | grep -v -e proc -e dev -e proj -e run -e sys -e snap -e swap.img | xargs -I '{}' mount -t overlay overlay -o lowerdir=/'{}',upperdir="$SANDBOX_DIR"/upperdir/'{}',workdir="$SANDBOX_DIR"/workdir/'{}' "$SANDBOX_DIR"/temproot/'{}'
+for top_dir in $(ls /)
+do
+    top_dir_abs="/$top_dir"
+    ## If the directory is not a mountpoint
+    if [ -d "$top_dir_abs" ] && ! mountpoint -q "$top_dir_abs"; then
+        ## TODO: The 
+        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2> /tmp/try.log || echo "Warning: Failed mounting $top_dir_abs as an overlay..." 1>&2
+    fi
+done
 
 ## Bind the udev mount so that the containerized process has access to /dev
 ## KK 2023-05-06 Are there any secutiry/safety implications by binding the whole /dev?
