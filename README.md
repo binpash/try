@@ -20,29 +20,10 @@ We're setting out to change that.
 
 ### Installing
 
-You should only need the [`try` script](https://raw.githubusercontent.com/binpash/try/main/try).
-
-```ShellSession
-$ curl https://raw.githubusercontent.com/binpash/try/main/try -o try
-$ chmod +x try
-$ sudo chown root:wheel try
-$ sudo cp try /usr/local/bin
-```
-
-You can also get the script by cloning this repository:
+You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/main/try), which you can download by cloning this repository:
 
 ```ShellSession
 $ git clone https://github.com/binpash/try.git
-Cloning into 'try'...
-remote: Enumerating objects: 190, done.
-remote: Counting objects: 100% (12/12), done.
-remote: Compressing objects: 100% (8/8), done.
-remote: Total 190 (delta 4), reused 4 (delta 4), pack-reused 178
-Receiving objects: 100% (190/190), 29.99 KiB | 1.67 MiB/s, done.
-Resolving deltas: 100% (83/83), done.
-$ # try/try should already be executable
-$ sudo chown root:wheel try
-$ sudo cp try/try /usr/local/bin
 ```
 
 ## Example Usage
