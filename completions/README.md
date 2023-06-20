@@ -1,8 +1,20 @@
 # Shell completions
 
-This directory holds completions for the `bash` and `zsh` shells.
+This directory holds completions for the `bash` shell.
 
-You can generate completions locally by running `make`.
+You can apply completions locally by running:
 
-<!-- `try --completions
-<SHELL>`, where `<SHELL>` is either `bash` or `zsh`. -->
+```Bash
+source try.bash
+```
+
+Alternatively, to enable *try* shell completion by default, consider adding the following line to your `.bashrc`:
+```Bash
+source <path-to-your-script>/dothis-completion.bash
+```
+
+To enable *try* shell completion for all users,
+consider copying the bash completion script to the `/etc/bash_completion.d/` directory:
+```Bash
+sudo cp try.bash /etc/bash_completion.d/
+```
