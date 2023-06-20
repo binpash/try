@@ -31,6 +31,7 @@ jobs:
           uname -a
           sudo apt-get update
           sudo apt-get install strace
+          bash ./test.sh
           bash ./test/run_tests.sh  
           # get the timer
           timer=$(LANG=en_us_88591; date)

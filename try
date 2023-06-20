@@ -1,10 +1,22 @@
 #!/bin/sh
+set -x
 
 # exit status invariants
 #
 # 0 -- command ran
 # 1 -- consistency error/failure
 # 2 -- input error
+
+################################################################################
+# Change uid/gid mapping
+################################################################################
+
+mapper() {
+    nc -l localhost 8887 > /dev/null
+    pid=$(ps | grep unshare | awk '{print $1;}')
+    ./gidmapper $pid 0 $(id -u) 1 0 $(id -g) 65535
+    echo a | nc localhost -q0 8888
+}
 
 ################################################################################
 # Run a command in an overlay
@@ -32,6 +44,13 @@ try() {
     export chroot_executable=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
+
+# start gid mapping
+echo a | nc localhost -q0 8887
+
+# Wait for gid to be mapped
+nc -l localhost 8888 > /dev/null
+
 
 # actually mount the overlays
 for top_dir in $(ls /)
@@ -71,7 +90,9 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+
+    mapper&
+    unshare --mount --user --pid --fork "$mount_and_execute"
 
     ################################################################################
     # commit?
