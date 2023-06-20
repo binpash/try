@@ -64,9 +64,9 @@ EOF
     case "$NO_COMMIT" in
         (quiet) ;;
         (show) printf "%s\n" "$SANDBOX_DIR";;
+        (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
-
         if [ "$?" -eq 0 ]
         then
             echo
@@ -153,13 +153,15 @@ EOF
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvh] [-D DIR] CMD [ARG ...]
+Usage: $cmd [-nvhy] [-D DIR] CMD [ARG ...]
 
   -n                don't prompt for commit
+  -y                assume yes to all prompts (implies -n is not used)
   -D DIR            work in DIR (implies -n)
-
+  
   -v                show version information (and exit)
   -h                show this usage message (and exit)
+
 
 Subcommands:
   $cmd summary DIR   show the summary for the overlay in DIR
@@ -171,11 +173,13 @@ EOF
 # "interactive" - show nothing, interactively prompt on commit
 # "show"        - show the resulting directory on stdout when we're done
 # "quiet"       - do not show the result directory on stdout when we're done
+# "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":nD:" opt
+while getopts ":ynD:" opt
 do
     case "$opt" in
+        (y) NO_COMMIT="commit";;
         (n) NO_COMMIT="show";;
         (D) if ! [ -d "$OPTARG" ]
             then
