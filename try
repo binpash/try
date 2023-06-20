@@ -8,17 +8,6 @@ set -x
 # 2 -- input error
 
 ################################################################################
-# Change uid/gid mapping
-################################################################################
-
-mapper() {
-    nc -l localhost 8887 > /dev/null
-    pid=$(ps | grep unshare | awk '{print $1;}')
-    ./gidmapper $pid 0 $(id -u) 1 0 0 65535
-    echo a | nc localhost -q0 8888
-}
-
-################################################################################
 # Run a command in an overlay
 ################################################################################
 
@@ -46,10 +35,10 @@ try() {
 #!/bin/sh
 
 # start gid mapping
-echo a | nc localhost -q0 8887
+echo a | nc localhost -q0 "$port1"
 
 # Wait for gid to be mapped
-nc -l localhost 8888 > /dev/null
+nc -l localhost "$port2" > /dev/null
 
 
 # actually mount the overlays
@@ -90,6 +79,10 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
+
+    freeports="$(shuf -n 2 -i 49152-65535)"
+    export port1="$(echo $freeports | tr ' ' '\n' | head -1)"
+    export port2="$(echo $freeports | tr ' ' '\n' | tail -1)"
 
     mapper&
     unshare --mount --user --pid --fork "$mount_and_execute"
@@ -199,13 +192,23 @@ $changed_files
 EOF
 }
 
+################################################################################
+# Change uid/gid mapping
+################################################################################
+
+mapper() {
+    nc -l localhost "$port1" > /dev/null
+    pid=$(ps | grep unshare | awk '{print $1;}')
+    ./gidmapper $pid 0 $(id -u) 1 0 0 65535
+    echo a | nc localhost -q0 "$port2"
+}
+
 
 ## Defines which changes we want to ignore in the summary and commit
 ## TODO: Make this be parametrizable, through a file for example
 ignore_changes() {
     grep -v -e .rkr -e Rikerfile
 }
-
 
 ################################################################################
 # Argument parsing
