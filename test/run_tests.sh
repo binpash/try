@@ -87,7 +87,7 @@ test_untar_no_flag()
     if [ "$shell" == "bash" ]; then
         $shell gunzip $2/file.txt.gz
     else
-        yes 2>/dev/null | strace $shell gunzip $2/file.txt.gz
+        $shell -y gunzip $2/file.txt.gz
     fi
 }
 
@@ -140,8 +140,8 @@ test_untar_D_flag_commit()
         $shell gunzip $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        strace $shell -D $try_example_dir gunzip $2/file.txt.gz
-        strace $shell commit $try_example_dir
+        $shell -D $try_example_dir gunzip $2/file.txt.gz
+        $shell commit $try_example_dir
     fi
 }
 
@@ -153,7 +153,7 @@ test_touch_and_rm_no_flag()
     if [ "$shell" == "bash" ]; then
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
-        yes 2>/dev/null | strace $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        $shell -y $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     fi
 }
 
@@ -192,8 +192,8 @@ test_touch_and_rm_D_flag_cp()
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        strace $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        strace cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
     fi
 }
 
@@ -206,8 +206,8 @@ test_touch_and_rm_D_flag_commit()
         $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         try_example_dir=$(mktemp -d)
-        strace $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        strace $shell commit $try_example_dir
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        $shell commit $try_example_dir
     fi
 }
 
