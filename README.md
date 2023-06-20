@@ -73,7 +73,7 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, wothout committing the result.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
 
 ```ShellSession
 $ try -n pip3 install libdash
