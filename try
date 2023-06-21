@@ -195,9 +195,13 @@ EOF
 ################################################################################
 
 mapper() {
+    # Wait for unshare process to start
     nc -Ul "$socket1" > /dev/null
-    pid=$(ps | grep unshare | awk '{print $1;}')
+    # Get the pid of the unshare process with current pid as parent
+    pid=$(pgrep -P $$ -f unshare)
+    # Map root user to current user, and all groups
     ./gidmapper $pid 0 $(id -u) 1 0 0 65535
+    # Notify the unshare process that we have finished
     echo a | nc -Uq0 "$socket2"
 }
 
