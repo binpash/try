@@ -34,9 +34,13 @@ try() {
 #!/bin/sh
 
 # start gid mapping
+# -U: use unix domain socket
+# -q0: don't wait after EOF on stdin
 echo a | nc -Uq0 "$socket1"
 
 # Wait for gid to be mapped
+# -l: listen
+# -U: use unix socket
 nc -lU "$socket2" > /dev/null
 
 
@@ -196,12 +200,16 @@ EOF
 
 mapper() {
     # Wait for unshare process to start
+    # -U: use unix domain socket
+    # -l: listen
     nc -Ul "$socket1" > /dev/null
     # Get the pid of the unshare process with current pid as parent
     pid=$(pgrep -P $$ -f unshare)
     # Map root user to current user, and all groups
     ./gidmapper $pid 0 $(id -u) 1 0 0 65535
     # Notify the unshare process that we have finished
+    # -U: use unix domain socket
+    # -q0: don't wait after EOF
     echo a | nc -Uq0 "$socket2"
 }
 
