@@ -16,7 +16,13 @@ We're setting out to change that.
 
 ### Dependencies
 
+Has been tested on the following distributions:
 * `Ubuntu 20.04 LTS` or later
+* `Debian 12`
+* `Centos 9 Stream 5.14.0-325.el9`
+* `Arch 6.1.33-1-lts`
+* `Alpine 6.1.34-1-lts`
+* `Rocky 9 5.14.0-284.11.1.el9_2`
 
 ### Installing
 
@@ -187,6 +193,6 @@ $ try commit pip_try_sandbox
 
 ## License
 
-This project is licensed under the MIT License - see LICENSE.md for details.
+This project is licensed under the MIT License - see LICENSE for details.
 
 Copyright (c) 2023 The PaSh Authors.
