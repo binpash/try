@@ -53,6 +53,12 @@ mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
 ##               seemingly not impactful warning.
 mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2> /dev/null
 
+## Check if chroot_executable exists, #29
+if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
+    cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
+fi
+
+
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 EOF
 
