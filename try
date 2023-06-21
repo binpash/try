@@ -73,6 +73,7 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+    exitcode=$?
 
     ################################################################################
     # commit?
@@ -250,3 +251,5 @@ case "$1" in
     (--) shift; try "$@";;
     (*) try "$@";;
 esac
+
+exit $exitcode
