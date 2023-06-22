@@ -90,8 +90,8 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
 
-    export socket1="$(mktemp -u)"
-    export socket2="$(mktemp -u)"
+    export socket1="$(mktemp)"
+    export socket2="$(mktemp)"
 
     mapper&
     unshare --mount --user --pid --fork "$mount_and_execute"
