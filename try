@@ -37,6 +37,7 @@ try() {
 # start gid mapping
 # -U: use unix domain socket
 # -q0: don't wait after EOF on stdin
+# Sometimes this will run first before the other nc starts listening, so we will retry
 while ! echo a | nc -Uq0 "$socket1" 2> /dev/null; do sleep 0.25 ; done
 
 # Wait for gid to be mapped
