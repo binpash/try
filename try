@@ -1,4 +1,5 @@
 #!/bin/sh
+set -m
 
 # exit status invariants
 #
