@@ -16,6 +16,8 @@ We're setting out to change that.
 
 ### Dependencies
 
+Requires `netcat-openbsd` and `procps`.
+
 Has been tested on the following distributions:
 * `Ubuntu 20.04 LTS` or later
 * `Debian 12`
@@ -31,6 +33,8 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 ```ShellSession
 $ git clone https://github.com/binpash/try.git
 ```
+
+You would also want to install the `gidmapper`, simply run `sh setup.sh`.
 
 ## Example Usage
 

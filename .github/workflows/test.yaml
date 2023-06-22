@@ -25,12 +25,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Running Correctness Tests
         run: |
-          cd ..
-          cp -r try ~
-          cd ~/try
           uname -a
           sudo apt-get update
           sudo apt-get install strace
+          bash ./setup.sh
           bash ./test/run_tests.sh  
           # get the timer
           timer=$(LANG=en_us_88591; date)
@@ -58,7 +56,6 @@ jobs:
       #         body: body,
       #       })     
       - name: Exit Code
-        working-directory: /home/runner/try/test
         run: |
           # check if everything executed without errors
-          bash exit_code.sh
+          bash test/exit_code.sh
