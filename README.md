@@ -118,6 +118,8 @@ branch](https://github.com/binpash/try/tree/future) has support for uid/mapping,
 please refer to the that branch's readme for installation instructions for the
 uid/gidmapper.
 
+Please also report any issue you run into while using the future branch!
+
 ## Version History
 
 * 0.1.0
