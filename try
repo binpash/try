@@ -1,4 +1,12 @@
 #!/bin/sh
+
+# Copyright (c) 2023 The PaSh Authors. 
+#
+# Usage of this source code is governed by the MIT license, you can find the
+# LICENSE file in the root directory of this project.
+#
+# https://github.com/binpash/try
+
 ver="0.1.0"
 
 # exit status invariants
