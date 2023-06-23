@@ -34,7 +34,7 @@ $ git clone https://github.com/binpash/try.git
 
 ## Example Usage
 
-`try` is a higher-order command, like `xargs`, `exec`, `nohup`, or `find`. For example, to ungzip file, you can invoke `try` as follows:
+`try` is a higher-order command, like `xargs`, `exec`, `nohup`, or `find`. For example, to install a package via `pip3`, you can invoke `try` as follows:
 
 ```ShellSession
 $ try pip3 install libdash
@@ -60,21 +60,7 @@ Changes detected in the following files:
 /tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__init__.py (modified/added)
 /tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/printer.cpython-310.pyc (modified/added)
 /tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/ast.cpython-310.pyc (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/__init__.cpython-310.pyc (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/parser.cpython-310.pyc (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/_dash.cpython-310.pyc (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/printer.py (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/libdash.so (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/parser.py (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/INSTALLER (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/WHEEL (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/COPYING (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/METADATA (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/REQUESTED (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/RECORD (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/top_level.txt (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.cache/pip/http/f/4/0/e/3/f40e360665950eda8309f6341a788c506584b57c23789004ba8305aa (modified/added)
-/tmp/tmp.zHCkY9jtIT/upperdir/home/gliargovas/.cache/pip/http/f/0/0/7/0/f00703c6e1f8a1d0ff85030b4557c24be6d9cdd1430c2700d4af934d (modified/added)
+<snip>
 
 Commit these changes? [y/N] y
 ```
@@ -82,113 +68,59 @@ Commit these changes? [y/N] y
 Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
 
 ```ShellSession
-$ try -n pip3 install libdash
+$ try -n "curl https://sh.rustup.rs | sh"
 /tmp/tmp.uCThKq7LBK
 ```
 
 Alternatively, you can specify your own overlay directory as follows (note that *pip_try_sandbox* already exists):
 
 ```ShellSession
-$ try -D pip_try_sandbox pip3 install libdash
-$ ls pip_try_sandbox
+$ try -D rustup-sandbox "curl https://sh.rustup.rs | sh"
+$ ls rustup-sandbox
 temproot  upperdir  workdir
 ```
 
-As you can see from the output above, *try* has created an overlay environment in the *pip_try_sandbox* directory.
+As you can see from the output above, *try* has created an overlay environment in the *rustup-sandbox* directory.
 
 Manually inspecting upperdir reveals the changes to the files made inside the overlay during the execution of the previous command with *try*:
 
 ```ShellSession
-$ ls -lR pip_try_sandbox/upperdir/home/me/.cache
-total 40
-ls -lR sandbox/upperdir/home/gliargovas/.cache/
-sandbox/upperdir/home/gliargovas/.cache/:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 pip
-
-sandbox/upperdir/home/gliargovas/.cache/pip:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 http
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http:
-total 4
-drwxrwxr-x 4 gliargovas gliargovas 4096 Jun 21 00:38 f
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f:
-total 8
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 0
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 4
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 0
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0/0:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 7
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0/0/7:
-total 4
-drwxrwxr-x 2 gliargovas gliargovas 4096 Jun 21 00:38 0
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0/0/7/0:
-total 252
--rw------- 1 gliargovas gliargovas 255766 Jun 21 00:38 f00703c6e1f8a1d0ff85030b4557c24be6d9cdd1430c2700d4af934d
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 0
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4/0:
-total 4
-drwxrwxr-x 3 gliargovas gliargovas 4096 Jun 21 00:38 e
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4/0/e:
-total 4
-drwxrwxr-x 2 gliargovas gliargovas 4096 Jun 21 00:38 3
-
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4/0/e/3:
-total 8
--rw------- 1 gliargovas gliargovas 6966 Jun 21 00:38 f40e360665950eda8309f6341a788c506584b57c23789004ba8305aa
+~/try/rustup-sandbox/upperdir$ du -hs .
+1.2G    .
 ```
 
-You can inspect the changhes made inside a given overlay directory using *try*:
+You can inspect the changes made inside a given overlay directory using *try*:
 
 ```ShellSession
-$ try summary pip_try_sandbox
+$ try summary rustup-sandbox/ | head
+
 Changes detected in the following files:
 
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/ast.py (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/_dash.py (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__init__.py (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/printer.cpython-310.pyc (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/ast.cpython-310.pyc (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/__init__.cpython-310.pyc (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/parser.cpython-310.pyc (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/__pycache__/_dash.cpython-310.pyc (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/printer.py (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/libdash.so (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash/parser.py (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/INSTALLER (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/WHEEL (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/COPYING (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/METADATA (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/REQUESTED (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/RECORD (modified/added)
-sandbox/upperdir/home/gliargovas/.local/lib/python3.10/site-packages/libdash-0.3.1.dist-info/top_level.txt (modified/added)
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/4/0/e/3/f40e360665950eda8309f6341a788c506584b57c23789004ba8305aa (modified/added)
-sandbox/upperdir/home/gliargovas/.cache/pip/http/f/0/0/7/0/f00703c6e1f8a1d0ff85030b4557c24be6d9cdd1430c2700d4af934d (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.profile (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.bashrc (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/update-hashes/stable-x86_64-unknown-linux-gnu (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/settings.toml (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/libstd-8389830094602f5a.so (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/etc/lldb_commands (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/etc/gdb_lookup.py (modified/added)
 ```
 
 You can also choose to commit the overlay directory contents:
 
 ```ShellSession
-$ try commit pip_try_sandbox
+$ try commit rustup-sandbox
 ```
+
+## Known Issues
+Any command that interacts with other users/groups will fail since only the
+current user's UID/GID are mapped. However, the [future
+branch](https://github.com/binpash/try/tree/future) has support for uid/mapping,
+please refer to the that branch's readme for installation instructions for the
+uid/gidmapper.
 
 ## Version History
 
-* 0.1
+* 0.1.0
     * Initial Release
 
 ## License
