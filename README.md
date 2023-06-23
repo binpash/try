@@ -72,7 +72,7 @@ $ try -n "curl https://sh.rustup.rs | sh"
 /tmp/tmp.uCThKq7LBK
 ```
 
-Alternatively, you can specify your own overlay directory as follows (note that *pip_try_sandbox* already exists):
+Alternatively, you can specify your own overlay directory as follows (note that you'll have to create the sandbox directory first)
 
 ```ShellSession
 $ try -D rustup-sandbox "curl https://sh.rustup.rs | sh"
