@@ -19,12 +19,26 @@ try() {
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
-    for top_dir in $(ls /)
+    for top_dir in /*
     do
-        top_dir_abs="/$top_dir"
         ## Only make the directory if the original is a directory too
-        if [ -d "$top_dir_abs" ]; then
-            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+        if [ -d "$top_dir" ]; then
+            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+        fi
+    done
+
+    # Now we will handle custom mounts, e.g., mounts on /home
+    # findmnt
+    # --real: only list real filesystems
+    # -n: no header
+    # -r: raw output
+    # -o target: only print the mount target
+    # then we want to exclude the root partition "/"
+    for mount_dir in $(findmnt --real -nro target | grep -v "^/$")
+    do
+        ## Only make the directory if the original is a directory too
+        if [ -d "$mount_dir" ]; then
+            mkdir "$SANDBOX_DIR"/upperdir/"$mount_dir" "$SANDBOX_DIR"/workdir/"$mount_dir" "$SANDBOX_DIR"/temproot/"$mount_dir"
         fi
     done
 
@@ -35,14 +49,18 @@ try() {
 #!/bin/sh
 
 # actually mount the overlays
-for top_dir in $(ls /)
+for top_dir in /*
 do
-    top_dir_abs="/$top_dir"
     ## If the directory is not a mountpoint
-    if [ -d "$top_dir_abs" ] && ! mountpoint -q "$top_dir_abs"; then
+    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"; then
         ## TODO: The 
-        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir_abs as an overlay, see "$try_mount_log"" 1>&2
+        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" 1>&2
     fi
+done
+
+for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
+do
+    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
 done
 
 ## Bind the udev mount so that the containerized process has access to /dev
