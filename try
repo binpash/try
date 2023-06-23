@@ -1,4 +1,5 @@
 #!/bin/sh
+ver="0.1.0"
 
 # exit status invariants
 #
@@ -224,7 +225,7 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":ynD:" opt
+while getopts ":yvnD:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -237,7 +238,7 @@ do
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version 0.1\n" "$(basename $0)" >&2; exit 0;;
+        (v) printf "%s version $ver\n" "$(basename $0)" >&2; exit 0;;
         (h|*) usage; exit 0;;
     esac
 done
