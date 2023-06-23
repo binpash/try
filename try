@@ -27,21 +27,6 @@ try() {
         fi
     done
 
-    # Now we will handle custom mounts, e.g., mounts on /home
-    # findmnt
-    # --real: only list real filesystems
-    # -n: no header
-    # -r: raw output
-    # -o target: only print the mount target
-    # then we want to exclude the root partition "/"
-    for mount_dir in $(findmnt --real -nro target | grep -v "^/$")
-    do
-        ## Only make the directory if the original is a directory too
-        if [ -d "$mount_dir" ]; then
-            mkdir "$SANDBOX_DIR"/upperdir/"$mount_dir" "$SANDBOX_DIR"/workdir/"$mount_dir" "$SANDBOX_DIR"/temproot/"$mount_dir"
-        fi
-    done
-
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
@@ -58,6 +43,13 @@ do
     fi
 done
 
+# Now we will handle custom mounts, e.g., mounts on /home
+# findmnt
+# --real: only list real filesystems
+# -n: no header
+# -r: raw output
+# -o target: only print the mount target
+# then we want to exclude the root partition "/"
 for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
 do
     mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
