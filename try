@@ -7,7 +7,7 @@
 #
 # https://github.com/binpash/try
 
-ver="0.1.0"
+TRY_VERSION="0.1.0"
 
 # exit status invariants
 #
@@ -246,7 +246,7 @@ do
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version $ver\n" "$(basename $0)" >&2; exit 0;;
+        (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
         (h|*) usage; exit 0;;
     esac
 done
