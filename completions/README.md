@@ -10,7 +10,7 @@ source try.bash
 
 Alternatively, to enable *try* shell completion by default, consider adding the following line to your `.bashrc`:
 ```Bash
-source <path-to-your-script>/dothis-completion.bash
+source <path-to-try-dir>/completions/try.bash
 ```
 
 To enable *try* shell completion for all users,
