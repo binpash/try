@@ -156,7 +156,7 @@ total 8
 -rw------- 1 gliargovas gliargovas 6966 Jun 21 00:38 f40e360665950eda8309f6341a788c506584b57c23789004ba8305aa
 ```
 
-You can inspect the changhes made inside a given overlay directory using *try*:
+You can inspect the changes made inside a given overlay directory using *try*:
 
 ```ShellSession
 $ try summary pip_try_sandbox
