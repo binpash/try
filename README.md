@@ -8,6 +8,8 @@ We're setting out to change that.
 
 ## Description
 [![LocalTests](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
+[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
+[![issues - try](https://img.shields.io/github/issues/binpash/try)](https://github.com/binpash/try/issues)
 
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 
