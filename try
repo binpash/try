@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# Copyright (c) 2023 The PaSh Authors. 
+#
+# Usage of this source code is governed by the MIT license, you can find the
+# LICENSE file in the root directory of this project.
+#
+# https://github.com/binpash/try
+
+ver="0.1.0"
+
 # exit status invariants
 #
 # 0 -- command ran
@@ -224,7 +233,7 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":ynD:" opt
+while getopts ":yvnD:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -237,7 +246,7 @@ do
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version 0.1\n" "$(basename $0)" >&2; exit 0;;
+        (v) printf "%s version $ver\n" "$(basename $0)" >&2; exit 0;;
         (h|*) usage; exit 0;;
     esac
 done
