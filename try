@@ -70,7 +70,6 @@ do
     mergerfs $mount_dir $merger_dir
     echo mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
 done
-bash
 
 ## Bind the udev mount so that the containerized process has access to /dev
 ## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
