@@ -32,7 +32,7 @@ try() {
     do
         ## Only make the directory if the original is a directory too
         if [ -d "$top_dir" ]; then
-            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
         fi
     done
 
@@ -184,7 +184,7 @@ commit() {
         local_file="${changed_file#$SANDBOX_DIR/upperdir}"
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
-            mkdir "${local_file}"
+            mkdir -p "${local_file}"
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
         then # whiteout file
             rm "${local_file}"
