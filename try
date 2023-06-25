@@ -68,7 +68,7 @@ for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
 do
     merger_dir=$(mktemp -d)
     mergerfs $mount_dir $merger_dir
-    echo mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
+    mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
 done
 
 ## Bind the udev mount so that the containerized process has access to /dev
