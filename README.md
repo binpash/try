@@ -131,8 +131,8 @@ Please also report any issue you run into while using the future branch!
 
 ## Version History
 
-* 0.1.0
-    * Initial Release
+* 0.1.0 - 2023-06-25
+    * Initial release.
 
 ## License
 
