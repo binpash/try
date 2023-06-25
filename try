@@ -36,6 +36,11 @@ try() {
         fi
     done
 
+    for top_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
+    do
+        mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+    done
+
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
@@ -61,8 +66,11 @@ done
 # then we want to exclude the root partition "/"
 for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
 do
-    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
+    merger_dir=$(mktemp -d)
+    mergerfs $mount_dir $merger_dir
+    echo mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
 done
+bash
 
 ## Bind the udev mount so that the containerized process has access to /dev
 ## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
