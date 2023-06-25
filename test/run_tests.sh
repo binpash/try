@@ -60,7 +60,7 @@ run_test()
     test_try_ec=$?
     # Check test EC
     
-    diff -q "$bash_workspace/" "$try_workspace/" > /dev/null
+    diff "$bash_workspace/" "$try_workspace/" #> /dev/null
     test_diff_ec=$?
     if [ $test_diff_ec -ne 0 ]; then
         echo -n " (!) output mismatch"
@@ -211,6 +211,22 @@ test_touch_and_rm_D_flag_commit()
     fi
 }
 
+test_D_flag_sandbox_reuse_commit()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ "$shell" == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        $shell $MISC_SCRIPT_DIR/word_count_and_write.sh $2/file_2.txt $2/lines.txt
+    else
+        try_example_dir=$(mktemp -d)
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        $shell -D $try_example_dir $MISC_SCRIPT_DIR/word_count_and_write.sh $2/file_2.txt $2/lines.txt
+        $shell commit $try_example_dir
+    fi
+}
+
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test_untar_no_flag
@@ -219,6 +235,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_no_flag
     # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_D_flag_sandbox_reuse_commit
 
 else
     for testname in $@
