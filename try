@@ -22,7 +22,11 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
-    [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
+    if [ -d "$SANDBOX_DIR" ]; then
+        SANDBOX_DIR_EXISTS=1
+    else
+        SANDBOX_DIR=$(mktemp -d)
+    fi
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
@@ -39,6 +43,13 @@ try() {
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
+
+    # Cleanup the temporary files
+    CLEANUP="rm -rf $mount_and_execute $chroot_executable $try_mount_log"
+    if [ "$SANDBOX_DIR_EXISTS" != "1" ]; then
+        CLEANUP="$CLEANUP $SANDBOX_DIR"
+    fi
+
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -77,7 +88,6 @@ if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 EOF
 
@@ -90,6 +100,8 @@ exec $@
 EOF
 
     chmod +x "$mount_and_execute" "$chroot_executable"
+
+    trap "$CLEANUP" EXIT 
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
@@ -109,7 +121,7 @@ EOF
         (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
-        if [ "$?" -eq 0 ]
+        if [ "$exitcode" -eq 0 ] && [ "$?" -eq 0 ]
         then
             echo
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
@@ -121,6 +133,7 @@ EOF
         fi
         ;;
     esac
+    $CLEANUP
 }
 
 ################################################################################
@@ -278,3 +291,4 @@ case "$1" in
 esac
 
 exit $exitcode
+
