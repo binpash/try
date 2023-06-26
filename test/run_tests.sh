@@ -3,7 +3,6 @@
 export TRY_TOP=${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}
 export WORKING_DIR="$TRY_TOP/test"
 export RESOURCE_DIR="$WORKING_DIR/resources"
-export MISC_SCRIPT_DIR="$WORKING_DIR/misc"
 
 echo "=================| Try Tests |==================="
 echo "Test directory:           $WORKING_DIR"
@@ -13,16 +12,13 @@ echo "Resource directory:       $RESOURCE_DIR"
 DEBUG=${DEBUG:-0}
 
 
-bash="bash"
 try="$TRY_TOP/try"
 
 try_workspace="$TRY_TOP/test/try_workspace"
-bash_workspace="$TRY_TOP/test/bash_workspace"
 
 # Results saved here
 output_dir="$TRY_TOP/test/results"
 
-echo "Bash test workspace:      $bash_workspace"
 echo "try test workspace:       $try_workspace"
 echo "Results saved at:         $output_dir"
 echo "================================================="
@@ -36,8 +32,6 @@ cleanup()
 {
     rm -rf "$try_workspace"
     mkdir "$try_workspace"
-    rm -rf "$bash_workspace"
-    mkdir "$bash_workspace"
 }
 
 run_test()
@@ -52,173 +46,105 @@ run_test()
 
     echo -n "Running $test..."
 
-    # cd $try_workspace
-    $test "$bash" "$bash_workspace"
-    test_bash_ec=$?
     # Run test
-    $test "$try" "$try_workspace"
+    $test "$try_workspace"
     test_try_ec=$?
-    # Check test EC
     
-    diff -q "$bash_workspace/" "$try_workspace/" > /dev/null
-    test_diff_ec=$?
-    if [ $test_diff_ec -ne 0 ]; then
-        echo -n " (!) output mismatch"
+    if [ $test_try_ec -eq 0 ]; then
+        echo -ne '\t\t\t'
+        echo "$test are identical" >> $output_dir/result_status
+        echo -e '\tOK'        
+    else
+        echo -n " (!) EC mismatch"
         echo "$test are not identical" >> $output_dir/result_status
         echo -e '\t\tFAIL'
-    else
-        if [ $test_bash_ec != $test_try_ec ]; then
-            echo -n " (!) EC mismatch"
-            echo "$test are not identical" >> $output_dir/result_status
-            echo -e '\t\tFAIL'
-        else
-            echo -ne '\t\t\t'
-            echo "$test are identical" >> $output_dir/result_status
-            echo -e '\tOK'
-        fi
     fi
 }
 
 test_untar_no_flag()
 {
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        $shell -y gunzip $2/file.txt.gz
-    fi
-}
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'Hello World!' >expected.out 
 
-test_untar_n_flag_cp()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        tempdir=$($shell -n gunzip $2/file.txt.gz)
-        cp "$tempdir/upperdir$try_workspace/file.txt" $try_workspace/
-    fi
-}
-
-test_untar_n_flag_commit()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        tempdir=$($shell -n gunzip $2/file.txt.gz)
-        $shell commit $tempdir
-    fi
-}
-
-test_untar_D_flag_cp()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir gunzip $2/file.txt.gz
-        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
-    fi
+    "$try" -y gunzip file.txt.gz
+    diff -q expected.out file.txt
 }
 
 test_untar_D_flag_commit()
 {
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir gunzip $2/file.txt.gz
-        $shell commit $try_example_dir
-    fi
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'Hello World!' >expected.out 
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir gunzip file.txt.gz
+    $try commit $try_example_dir
+    diff -q expected.out file.txt
 }
 
 test_touch_and_rm_no_flag()
 {
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        $shell -y $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    fi
-}
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    touch expected1.txt
+    echo 'test' >expected2.txt 
 
-test_touch_and_rm_n_flag_cp()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
-        cp "$tempdir/upperdir$try_workspace/file.txt" $try_workspace/
-    fi
-}
-
-test_touch_and_rm_n_flag_commit()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        tempdir=$($shell -n $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz)
-        $shell commit $tempdir
-    fi
-}
-
-test_touch_and_rm_D_flag_cp()
-{
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        cp "/$try_example_dir/upperdir$bash_workspace/file.txt" $bash_workspace/
-    fi
+    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    
+    diff -q expected1.txt file_1.txt &&
+        diff -q expected2.txt file_2.txt &&
+        [ ! -f file.txt.gz ]
 }
 
 test_touch_and_rm_D_flag_commit()
 {
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" == "bash" ]; then
-        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        $shell commit $try_example_dir
-    fi
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    touch expected1.txt
+    echo 'test' >expected2.txt 
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    $try commit $try_example_dir
+    
+    diff -q expected1.txt file_1.txt &&
+        diff -q expected2.txt file_2.txt &&
+        [ ! -f file.txt.gz ]
+}
+
+test_pipeline()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'TesT' >expected.out 
+
+    "$try" 'echo test | tr t T' > out.txt
+    
+    diff -q expected.out out.txt
 }
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test_untar_no_flag
-    # run_test test_untar_n_flag_commit
     run_test test_untar_D_flag_commit
     run_test test_touch_and_rm_no_flag
-    # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_pipeline
 
 else
     for testname in $@
