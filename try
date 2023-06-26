@@ -130,7 +130,7 @@ EOF
 summary() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
