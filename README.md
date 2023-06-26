@@ -32,6 +32,7 @@ Has been tested on the following distributions:
 * `Arch 6.1.33-1-lts`
 * `Alpine 6.1.34-1-lts`
 * `Rocky 9 5.14.0-284.11.1.el9_2`
+* `SteamOS 3.4.8 5.13.0-valve36-1-neptune`
 
 ### Installing
 
