@@ -39,6 +39,7 @@ try() {
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
+    export script_to_execute=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -86,8 +87,10 @@ EOF
                               
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-exec $@
+source "$script_to_execute"
 EOF
+
+    echo "$@" >"$script_to_execute"
 
     chmod +x "$mount_and_execute" "$chroot_executable"
 
