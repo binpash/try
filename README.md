@@ -41,9 +41,9 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 $ git clone https://github.com/binpash/try.git
 ```
 
-#### Archlinux
+#### Arch linux
 
-`Try` is present in aur, you can install it with your preferred aur helper:
+`Try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
 
 ```shellsession
 yay -s try
