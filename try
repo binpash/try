@@ -156,13 +156,13 @@ summary() {
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## KK 2023-06-20 This is not reachable since the `type -d` option is not given to find above.
-            echo "$changed_file (created)"
+            echo "$local_file (created)"
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
         then # whiteout file
-            echo "$changed_file (deleted)"
+            echo "$local_file (deleted)"
         elif [ -f "$changed_file" ]
         then # normal file
-            echo "$changed_file (modified/added)"
+            echo "$local_file (modified/added)"
         fi
     done <<EOF
 $changed_files
