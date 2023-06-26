@@ -42,6 +42,22 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 $ git clone https://github.com/binpash/try.git
 ```
 
+#### Arch Linux
+
+`Try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
+
+```shellsession
+yay -s try
+```
+
+or manually:
+
+```shellsession
+git clone https://aur.archlinux.org/try.git
+cd try
+makepkg -sic
+```
+
 ## Example Usage
 
 `try` is a higher-order command, like `xargs`, `exec`, `nohup`, or `find`. For example, to install a package via `pip3`, you can invoke `try` as follows:
