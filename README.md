@@ -41,7 +41,7 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 $ git clone https://github.com/binpash/try.git
 ```
 
-#### Arch linux
+#### Arch Linux
 
 `Try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
 
