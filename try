@@ -68,10 +68,11 @@ do
     fi
 done
 
-## Bind the udev mount so that the containerized process has access to /dev
-## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
-##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
-mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
+for dev in tty null zero full random urandom
+do
+    touch "$SANDBOX_DIR/temproot/dev/$dev"
+    mount -o bind /dev/$dev "$SANDBOX_DIR/temproot/dev/$dev"
+done
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
