@@ -115,7 +115,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not commiting.\n" >&2
+                (*) printf "Not committing.\n" >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
