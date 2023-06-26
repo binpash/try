@@ -67,7 +67,7 @@ $ try pip3 install libdash
 ... # output continued below
 ```
 
-By default, *try* will ask you to commit the changes made at the end of its execution.
+By default, `try` will ask you to commit the changes made at the end of its execution.
 
 ```ShellSession
 ...
@@ -91,22 +91,23 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Running `try -n` will print the overlay directory on STDOUT without committing the result.
 
 ```ShellSession
 $ try -n "curl https://sh.rustup.rs | sh"
 /tmp/tmp.uCThKq7LBK
 ```
 
-Alternatively, you can specify your own overlay directory as follows (note that you'll have to create the sandbox directory first)
+Alternatively, you can specify your own existing overlay directory using the `-D [dir]` flag:
 
 ```ShellSession
+$ mkdir rustup-sandbox
 $ try -D rustup-sandbox "curl https://sh.rustup.rs | sh"
 $ ls rustup-sandbox
 temproot  upperdir  workdir
 ```
 
-As you can see from the output above, *try* has created an overlay environment in the *rustup-sandbox* directory.
+As you can see from the output above, `try` has created an overlay environment in the `rustup-sandbox` directory.
 
 Manually inspecting upperdir reveals the changes to the files made inside the overlay during the execution of the previous command with *try*:
 
@@ -115,7 +116,7 @@ Manually inspecting upperdir reveals the changes to the files made inside the ov
 1.2G    .
 ```
 
-You can inspect the changes made inside a given overlay directory using *try*:
+You can inspect the changes made inside a given overlay directory using `try`:
 
 ```ShellSession
 $ try summary rustup-sandbox/ | head
@@ -140,7 +141,7 @@ $ try commit rustup-sandbox
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
-branch](https://github.com/binpash/try/tree/future) has support for uid/mapping,
+branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
 uid/gidmapper.
 
