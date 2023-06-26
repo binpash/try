@@ -28,17 +28,19 @@ try() {
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
-    for top_dir in /*
+    #
+    # findmnt
+    # --real: only list real filesystems
+    # -n: no header
+    # -r: raw output
+    # -o target: only print the mount target
+    # then we want to exclude the root partition "/"
+    for top_dir in /* $(findmnt --real -r -o target -n | grep -v "^/$")
     do
         ## Only make the directory if the original is a directory too
         if [ -d "$top_dir" ]; then
-            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
         fi
-    done
-
-    for top_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
-    do
-        mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
     done
 
     mount_and_execute=$(mktemp)
@@ -48,27 +50,22 @@ try() {
 #!/bin/sh
 
 # actually mount the overlays
-for top_dir in /*
+for top_dir in /* $(findmnt --real -r -o target -n | grep -v "^/$")
 do
     ## If the directory is not a mountpoint
-    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"; then
-        ## TODO: The 
-        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" 1>&2
+    if [ -d "$top_dir" ]; then 
+        # skip if it is /dev or /proc
+        if [ "$top_dir" = "/dev" ] || [ "$top_dir" = "/proc" ]; then
+            continue
+        fi
+        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log"
+        if [ $? -ne 0 ]; then
+            merger_dir=$(mktemp -d)
+            mergerfs $top_dir $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $top_dir via mergerfs" 1>&2 &&
+            mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$top_dir",workdir="$SANDBOX_DIR"/workdir"$top_dir" "$SANDBOX_DIR"/temproot"$top_dir" 2>> "$try_mount_log" ||
+            echo "Warning: Failed mounting $top_dir as an overlay via mergerfs, see "$try_mount_log"" 1>&2
+        fi
     fi
-done
-
-# Now we will handle custom mounts, e.g., mounts on /home
-# findmnt
-# --real: only list real filesystems
-# -n: no header
-# -r: raw output
-# -o target: only print the mount target
-# then we want to exclude the root partition "/"
-for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
-do
-    merger_dir=$(mktemp -d)
-    mergerfs $mount_dir $merger_dir
-    mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
 done
 
 ## Bind the udev mount so that the containerized process has access to /dev
@@ -76,25 +73,17 @@ done
 ##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
 mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
 
-## KK 2023-06-20 Redirecting to /dev/null to suppress a yet uninvestigated but
-##               seemingly not impactful warning.
-
-run_merger_dir=$(mktemp -d)
-mergerfs /run $run_merger_dir
-mount -t overlay overlay -o lowerdir="$run_merger_dir",upperdir="$SANDBOX_DIR"/upperdir/run,workdir="$SANDBOX_DIR"/workdir/run "$SANDBOX_DIR"/temproot/run 2>> "$try_mount_log" || echo "Warning: Failed mounting /run as an overlay, see "$try_mount_log"" 1>&2
-
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
-
 
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 EOF
 
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
-                              
+
 mount -t proc proc /proc &&   
 cd $START_DIR && 
 exec $@
