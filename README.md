@@ -26,7 +26,9 @@ disks.
 ### Dependencies
 
 Try relies on the following dependencies
+
 `util-linux`
+
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). Try should be able to autodetect them, but you can specify the path to mergerfs or unionfs via `try -U ~/.local/bin/unionfs`
 
