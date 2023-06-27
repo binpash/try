@@ -44,19 +44,21 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
-    - name: Install pandoc
-      run: |
-        sudo apt-get update
-        sudo apt-get install pandoc
 
-    - name: Build manpage
-      run: make -C man
-
-    - name: Upload script
-      uses: actions/upload-artifact@v2
-      with:
-        name: try.1
-        path: man/try.1
+    steps:
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install pandoc
+  
+      - name: Build manpage
+        run: make -C man
+  
+      - name: Upload script
+        uses: actions/upload-artifact@v2
+        with:
+          name: try.1
+          path: man/try.1
 
   prerelease:
     needs:
