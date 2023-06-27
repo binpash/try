@@ -13,11 +13,9 @@ jobs:
       if: github.event.pull_request.draft == false
 
     steps:
-        
       - name: Install dependencies
         run: |
           uname -a
-
           sudo apt-get update
           sudo apt-get install strace
 
@@ -29,7 +27,6 @@ jobs:
       - name: Run tests
         run: |         
           bash ./test/run_tests.sh  
-
           if [ -s "$TRY_TOP/test/results/failed.log" ]
           then
             exit 1
