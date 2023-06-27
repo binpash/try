@@ -1,64 +1,90 @@
-name: LocalTests
+name: Main workflow
+  
 on: 
   pull_request:
-    branches:
-    - main
-    types: [assigned, opened, synchronize, reopened, ready_for_review]
   push:
-    branches:
-      - main
-      - future
-      - '*'
-# Jobs section
+  schedule:
+    - cron: '17 14 * * *'
+
 jobs:
-    LocalTests:
-      strategy:
-        fail-fast: false
-        matrix:
-          os: 
-            - ubuntu-latest
-      runs-on: ${{ matrix.os }}
-      if: github.event.pull_request.draft == false
-      steps:
-      - uses: actions/checkout@v2 
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Running Correctness Tests
+  test:
+    strategy:
+      fail-fast: false
+        
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Install dependencies
         run: |
-          cd ..
-          cp -r try ~
-          cd ~/try
           uname -a
           sudo apt-get update
           sudo apt-get install strace
-          bash ./test/run_tests.sh  
-          # get the timer
-          timer=$(LANG=en_us_88591; date)
-          echo "VERSION<<EOF" >> $GITHUB_ENV
-          echo "OS:${{matrix.os}}" >> $GITHUB_ENV
-          echo "$timer" >> $GITHUB_ENV
-          # Parse the results and construct a github message post
-          # we append the data to the global env
-          cat ./test/results/results.log >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      # - name: Comment on PR
-      #   uses: actions/github-script@v3
-      #   with:
-      #     script: |
-      #       let body = `${{ env.VERSION }}`
-      #       console.log(context)
-      #       // if we are directly pushing on main/future, we cannot push comments -> exit
-      #       if (context.eventName === "push" && (context.ref === "refs/heads/main" || context.ref === "refs/heads/future")) {
-      #         return 0;
-      #       }
-      #       github.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: body,
-      #       })     
-      - name: Exit Code
-        working-directory: /home/runner/try/test
+
+      - name: Checkout
+        uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Run tests
         run: |
-          # check if everything executed without errors
-          bash exit_code.sh
+          cd ..
+          cp -r try ~
+          cd ~/try            
+          bash ./test/run_tests.sh
+
+      - name: Upload script
+        uses: actions/upload-artifact@v2
+        with:
+          name: try
+          path: try
+
+  manpage:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+
+    steps:
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install pandoc
+
+      - name: Checkout
+        uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+            
+      - name: Build manpage
+        run: make -C man
+  
+      - name: Upload script
+        uses: actions/upload-artifact@v2
+        with:
+          name: try.1
+          path: man/try.1
+
+  prerelease:
+    needs:
+      - test
+      - manpage
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v2
+
+      - name: Collect artifacts
+        run: |
+            mv try.1/try.1 try/try.1
+          
+      - name: Deploy 'latest' release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Latest script and manpage"
+          files: |
+            try/*
