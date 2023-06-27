@@ -69,7 +69,7 @@ do
                 elif command -v unionfs > /dev/null; then
                     union_helper=unionfs
                 else
-                    echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found, see "$try_mount_log"" 1>&2
+                    echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mointpoint, see $try_mount_log" 1>&2
                     exit 1
                 fi
             fi
