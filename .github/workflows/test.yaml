@@ -23,6 +23,10 @@ jobs:
       - uses: actions/checkout@v2 
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install and run ShellCheck
+        run: |
+          sudo apt-get install -y shellcheck
+          shellcheck ./try
       - name: Running Correctness Tests
         run: |
           cd ..
