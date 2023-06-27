@@ -39,6 +39,7 @@ try() {
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
+    export script_to_execute=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -86,10 +87,15 @@ EOF
                               
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-exec $@
+source "$script_to_execute"
 EOF
 
+    echo "$@" >"$script_to_execute"
+
     chmod +x "$mount_and_execute" "$chroot_executable"
+
+    # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
+    set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
