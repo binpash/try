@@ -7,7 +7,7 @@
 We're setting out to change that.
 
 ## Description
-[![LocalTests](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
+[![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 [![issues - try](https://img.shields.io/github/issues/binpash/try)](https://github.com/binpash/try/issues)
 

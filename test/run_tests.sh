@@ -211,6 +211,17 @@ test_touch_and_rm_D_flag_commit()
     fi
 }
 
+# a test that deliberately fails (for testing CI changes)
+test_fail()
+{
+    if [ "$1" = "$bash" ]
+    then
+        (exit 1)
+    else
+        (exit 2)
+    fi
+}
+
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test_untar_no_flag
@@ -219,6 +230,9 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_no_flag
     # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
+
+# uncomment this to force a failure
+#    run_test test_fail
 
 else
     for testname in $@
@@ -257,3 +271,8 @@ TOTAL_TESTS=$(cat "$output_dir"/result_status | wc -l | xargs)
 PASSED_TESTS=$(grep -c "are identical" "$output_dir"/result_status)
 echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed." | tee $output_dir/results.log
 echo "========================================================"
+
+if [ $PASSED_TESTS -ne $TOTAL_TESTS ]
+then
+    exit 1
+fi
