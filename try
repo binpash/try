@@ -46,6 +46,7 @@ try() {
     mount_and_execute=$(mktemp)
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
+    export script_to_execute=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -102,10 +103,15 @@ EOF
 
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-exec $@
+source "$script_to_execute"
 EOF
 
+    echo "$@" >"$script_to_execute"
+
     chmod +x "$mount_and_execute" "$chroot_executable"
+
+    # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
+    set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
@@ -131,7 +137,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not commiting.\n" >&2
+                (*) printf "Not committing.\n" >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
@@ -146,7 +152,7 @@ EOF
 summary() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
@@ -172,13 +178,13 @@ summary() {
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## KK 2023-06-20 This is not reachable since the `type -d` option is not given to find above.
-            echo "$changed_file (created)"
+            echo "$local_file (created)"
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
         then # whiteout file
-            echo "$changed_file (deleted)"
+            echo "$local_file (deleted)"
         elif [ -f "$changed_file" ]
         then # normal file
-            echo "$changed_file (modified/added)"
+            echo "$local_file (modified/added)"
         fi
     done <<EOF
 $changed_files
