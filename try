@@ -62,7 +62,7 @@ do
         if [ $? -ne 0 ]; then
             # Here we use mergerfs/unionfs to be mounted into a single file system. Used to fix nested mounts #19
             merger_dir=$(mktemp -d)
-            mergerfs $mointpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mointpoint via mergerfs" 1>&2 &&
+            mergerfs $mointpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mointpoint via mergerfs, see $try_mount_log" 1>&2 &&
             mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mointpoint",workdir="$SANDBOX_DIR"/workdir"$mointpoint" "$SANDBOX_DIR"/temproot"$mointpoint" 2>> "$try_mount_log" ||
             echo "Warning: Failed mounting $mointpoint as an overlay via mergerfs, see "$try_mount_log"" 1>&2
         fi
