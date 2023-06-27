@@ -31,10 +31,11 @@ jobs:
           cd ..
           cp -r try ~
           cd ~/try            
-          bash ./test/run_tests.sh  
-          if read -r <"$TRY_TOP/test/results/failed.log"
+          bash ./test/run_tests.sh
+          ls -al test/results
+          if read -r <"test/results/failed.log"
           then
-            cat "$TRY_TOP/test/results/failed.log"
+            cat "test/results/failed.log"
             exit 1
           fi
 
