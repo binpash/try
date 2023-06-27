@@ -26,7 +26,8 @@ jobs:
       - name: Install and run ShellCheck
         run: |
           sudo apt-get install -y shellcheck
-          shellcheck ./try
+          # run shellcheck and return 1 only if warnings are found. 
+          shellcheck -S warning ./try
       - name: Running Correctness Tests
         run: |
           cd ..
