@@ -41,7 +41,7 @@ jobs:
           name: try
           path: try
 
-  build-manpage:
+  manpage:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
@@ -63,7 +63,7 @@ jobs:
   prerelease:
     needs:
       - test
-      - build-manpage
+      - manpage
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
