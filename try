@@ -45,7 +45,7 @@ try() {
     export try_mount_log=$(mktemp)
 
     # Cleanup the temporary files
-    CLEANUP="rm -rf $mount_and_execute $chroot_executable $try_mount_log"
+    CLEANUP="$mount_and_execute $chroot_executable"
     if [ "$SANDBOX_DIR_EXISTS" != "1" ]; then
         CLEANUP="$CLEANUP $SANDBOX_DIR"
     fi
@@ -101,8 +101,6 @@ EOF
 
     chmod +x "$mount_and_execute" "$chroot_executable"
 
-    trap "$CLEANUP" EXIT 
-
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
@@ -118,23 +116,36 @@ EOF
     case "$NO_COMMIT" in
         (quiet) ;;
         (show) printf "%s\n" "$SANDBOX_DIR";;
-        (commit) commit "$SANDBOX_DIR";;
+        (commit) commit "$SANDBOX_DIR"
+            cleanup $CLEANUP;;
         (interactive)
             summary "$SANDBOX_DIR" >&2
-        if [ "$exitcode" -eq 0 ] && [ "$?" -eq 0 ]
+        if [ "$?" -eq 0 ]
         then
             echo
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
-                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
+                (y|Y|yes|YES) commit "$SANDBOX_DIR"
+                    cleanup $CLEANUP;;
                 (*) printf "Not committing.\n" >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
         ;;
     esac
-    $CLEANUP
 }
+
+################################################################################
+# Cleanup temporary files
+################################################################################
+
+cleanup() {
+    if [ -n "$CLEANUP" ]; then
+        echo "Cleaning up temporary files: $CLEANUP"
+        rm -rf $CLEANUP
+    fi
+}
+
 
 ################################################################################
 # Summarize an overlay

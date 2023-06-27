@@ -145,6 +145,47 @@ test_untar_D_flag_commit()
     fi
 }
 
+test_untar_D_flag_commit_without_cleanup()
+{
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ "$shell" == "bash" ]; then
+        $shell gunzip $2/file.txt.gz
+    else
+        try_example_dir=$(mktemp -d)
+        $shell -D $try_example_dir gunzip $2/file.txt.gz
+        if ! [ -d "$try_example_dir" ]; then
+            echo "try_example_dir does not exist"
+            return 1
+        fi
+        $shell commit $try_example_dir
+        if ! [ -d "$try_example_dir" ]; then
+            echo "try_example_dir does not exist"
+            return 1
+        fi
+    fi
+}
+
+test_touch_and_rm_with_cleanup()
+{
+    TMPDIR="/tmp"
+    local shell=$1
+    cp $RESOURCE_DIR/* "$2/"
+    # Will always commit the result in case of try
+    if [ "$shell" == "bash" ]; then
+        $shell $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+    else
+        tmp_file_count1=$(ls $TMPDIR | wc -l)
+        $shell -y $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        tmp_file_count2=$(ls $TMPDIR | wc -l)
+        # We save try_mount_log in /tmp/ dir
+        if [ $tmp_file_count1 -ne $(($tmp_file_count2 - 1)) ]; then
+            return 1
+        fi
+    fi
+}
+
 test_touch_and_rm_no_flag()
 {
     local shell=$1
@@ -219,6 +260,8 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_no_flag
     # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_touch_and_rm_with_cleanup
+    run_test test_untar_D_flag_commit_without_cleanup
 
 else
     for testname in $@
