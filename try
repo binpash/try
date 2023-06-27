@@ -214,7 +214,7 @@ EOF
 ## Checks if a file is an overlayfs whiteout file
 is_whiteout_file()
 {
-    local file="$1"
+    file="$1"
     [ -c "$file" ] && ! [ -s "$file" ] && [ "$(stat -c %t,%T "$file")" = "0,0" ]
 }
 
