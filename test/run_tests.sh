@@ -230,7 +230,9 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_no_flag
     # run_test test_touch_and_rm_n_flag_commit
     run_test test_touch_and_rm_D_flag_commit
-    run_test test_fail
+
+# uncomment this to force a failure
+#    run_test test_fail
 
 else
     for testname in $@
