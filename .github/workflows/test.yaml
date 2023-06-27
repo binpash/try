@@ -38,46 +38,46 @@ jobs:
           name: try
           path: try
 
-  manpage:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
-
-
-    - name: Install pandoc
-      run: |
-        sudo apt-get update
-        sudo apt-get install pandoc
-
-    - name: Build manpage
-      run: make -C man
-
-    - name: Upload script
-      uses: actions/upload-artifact@v2
-      with:
-        name: try.1
-        path: man/try.1
-
-  prerelease:
-    needs:
-      - test
-      - manpage
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
-
-    steps:
-      - name: Download binaries
-        uses: actions/download-artifact@v2
-
-      - name: Collect artifacts
-        run: |
-            mv try.1/try.1 try/try.1
-          
-      - name: Deploy 'latest' release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Latest script and manpage"
-          files: |
-            try/*
+#  manpage:
+#    runs-on: ubuntu-latest
+#    if: github.event.pull_request.draft == false
+#
+#
+#    - name: Install pandoc
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install pandoc
+#
+#    - name: Build manpage
+#      run: make -C man
+#
+#    - name: Upload script
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: try.1
+#        path: man/try.1
+#
+#  prerelease:
+#    needs:
+#      - test
+#      - manpage
+#    runs-on: ubuntu-latest
+#    if: ${{ github.ref == 'refs/heads/main' }}
+#
+#    steps:
+#      - name: Download binaries
+#        uses: actions/download-artifact@v2
+#
+#      - name: Collect artifacts
+#        run: |
+#            mv try.1/try.1 try/try.1
+#          
+#      - name: Deploy 'latest' release
+#        uses: "marvinpinto/action-automatic-releases@latest"
+#        with:
+#          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#          automatic_release_tag: "latest"
+#          prerelease: true
+#          title: "Latest script and manpage"
+#          files: |
+#            try/*
