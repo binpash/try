@@ -278,7 +278,7 @@ fi
 case "$1" in
     (summary) : ${SANDBOX_DIR=$2}; summary;;
     (commit) : ${SANDBOX_DIR=$2}; commit;;
-    (explore) : ${SANDBOX_DIR=$2}; try bash;;
+    (explore) : ${SANDBOX_DIR=$2}; try "$SHELL";;
     (--) shift; try "$@";;
     (*) try "$@";;
 esac
