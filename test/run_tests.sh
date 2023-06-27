@@ -138,6 +138,24 @@ test_pipeline()
     diff -q expected.out out.txt
 }
 
+test_cmd_sbst_and_var()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    echo $(pwd) >expected.out
+
+    cat >script.sh <<"EOF"
+echo $(pwd)
+EOF
+
+    "$try" sh script.sh >out.txt
+
+    diff -q expected.out out.txt
+}
+
+
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
     run_test test_untar_no_flag
@@ -145,6 +163,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
     run_test test_pipeline
+    run_test test_cmd_sbst_and_var
 
 else
     for testname in $@
