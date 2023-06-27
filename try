@@ -58,13 +58,27 @@ do
         if [ "$mointpoint" = "/dev" ] || [ "$mointpoint" = "/proc" ]; then
             continue
         fi
+        # Try mounting everything normally
         mount -t overlay overlay -o lowerdir=/"$mointpoint",upperdir="$SANDBOX_DIR"/upperdir/"$mointpoint",workdir="$SANDBOX_DIR"/workdir/"$mointpoint" "$SANDBOX_DIR"/temproot/"$mointpoint" 2>> "$try_mount_log"
+        # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
         if [ $? -ne 0 ]; then
+            # Detect if union_helper is set, if not, we try to autodetect them
+            if [ -z ${union_helper+x} ]; then
+                if command -v mergerfs > /dev/null; then
+                    union_helper=mergerfs
+                elif command -v unionfs > /dev/null; then
+                    union_helper=unionfs
+                else
+                    echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found, see "$try_mount_log"" 1>&2
+                    exit 1
+                fi
+            fi
+
             # Here we use mergerfs/unionfs to be mounted into a single file system. Used to fix nested mounts #19
             merger_dir=$(mktemp -d)
-            mergerfs $mointpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mointpoint via mergerfs, see $try_mount_log" 1>&2 &&
+            "$union_helper" $mointpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mointpoint via $union_helper, see $try_mount_log" 1>&2 &&
             mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mointpoint",workdir="$SANDBOX_DIR"/workdir"$mointpoint" "$SANDBOX_DIR"/temproot"$mointpoint" 2>> "$try_mount_log" ||
-            echo "Warning: Failed mounting $mointpoint as an overlay via mergerfs, see "$try_mount_log"" 1>&2
+            echo "Warning: Failed mounting $mointpoint as an overlay via $union_helper, see "$try_mount_log"" 1>&2
         fi
     fi
 done
@@ -222,11 +236,12 @@ ignore_changes() {
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-D DIR] CMD [ARG ...]
+Usage: $cmd [-nvhy] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
   -D DIR            work in DIR (implies -n)
+  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   
   -v                show version information (and exit)
   -h                show this usage message (and exit)
@@ -245,7 +260,7 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":yvnD:" opt
+while getopts ":yvnD:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -259,6 +274,13 @@ do
             NO_COMMIT="quiet"
             ;;
         (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (U) if ! [ -x "$OPTARG" ]
+            then
+                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
+                exit 2
+            fi
+            union_helper="$OPTARG" 
+            ;;
         (h|*) usage; exit 0;;
     esac
 done
