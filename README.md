@@ -138,6 +138,8 @@ You can also choose to commit the overlay directory contents:
 $ try commit rustup-sandbox
 ```
 
+You can also run `try explore` to open your current shell in try!
+
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
