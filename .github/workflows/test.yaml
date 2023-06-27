@@ -32,7 +32,7 @@ jobs:
           cp -r try ~
           cd ~/try            
           bash ./test/run_tests.sh  
-          if [ -s "$TRY_TOP/test/results/failed.log" ]
+          if ! [ -s "$TRY_TOP/test/results/failed.log" ]
           then
             exit 1
           fi
