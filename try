@@ -94,6 +94,9 @@ EOF
 
     chmod +x "$mount_and_execute" "$chroot_executable"
 
+    # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
+    set -m
+
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
