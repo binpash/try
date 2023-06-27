@@ -147,8 +147,10 @@ EOF
 ################################################################################
 
 cleanup() {
-    if [ -n "$CLEANUP" ]
+    if [ "$CLEANUP" ]
     then
+        echo "cleaning up $CLEANUP"
+        ls /tmp
         rm -rf $CLEANUP
     fi
 }
