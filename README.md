@@ -47,7 +47,7 @@ $ git clone https://github.com/binpash/try.git
 `Try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
 
 ```shellsession
-yay -s try
+yay -S try
 ```
 
 or manually:
