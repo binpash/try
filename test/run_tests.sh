@@ -216,9 +216,9 @@ test_fail()
 {
     if [ "$1" = "$bash" ]
     then
-        echo hi
+        (exit 1)
     else
-        echo bye
+        (exit 2)
     fi
 }
 
