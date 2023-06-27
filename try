@@ -22,10 +22,11 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
-    if [ -d "$SANDBOX_DIR" ]; then
-        SANDBOX_DIR_EXISTS=1
-    else
+    CLEANUP=""
+    if ! [ -d "$SANDBOX_DIR" ]
+    then
         SANDBOX_DIR=$(mktemp -d)
+        CLEANUP="$CLEANUP $SANDBOX_DIR"
     fi
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
@@ -35,7 +36,8 @@ try() {
     for top_dir in /*
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$top_dir" ]; then
+        if [ -d "$top_dir" ]
+        then
             mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
         fi
     done
@@ -46,10 +48,7 @@ try() {
     export script_to_execute=$(mktemp)
 
     # Cleanup the temporary files
-    CLEANUP="$mount_and_execute $chroot_executable $script_to_execute"
-    if [ "$SANDBOX_DIR_EXISTS" != "1" ]; then
-        CLEANUP="$CLEANUP $SANDBOX_DIR"
-    fi
+    CLEANUP="$CLEANUP $mount_and_execute $chroot_executable $script_to_execute"
 
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
@@ -58,7 +57,8 @@ try() {
 for top_dir in /*
 do
     ## If the directory is not a mountpoint
-    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"; then
+    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"
+    then
         ## TODO: The 
         mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" 1>&2
     fi
@@ -85,7 +85,8 @@ mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
 mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2> /dev/null
 
 ## Check if chroot_executable exists, #29
-if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
+if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
+then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
@@ -123,7 +124,7 @@ EOF
         (quiet) ;;
         (show) printf "%s\n" "$SANDBOX_DIR";;
         (commit) commit "$SANDBOX_DIR"
-            cleanup $CLEANUP;;
+            cleanup;;
         (interactive)
             summary "$SANDBOX_DIR" >&2
         if [ "$?" -eq 0 ]
@@ -132,7 +133,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR"
-                    cleanup $CLEANUP;;
+                    cleanup;;
                 (*) printf "Not committing.\n" >&2
                 echo "$SANDBOX_DIR";;
             esac
@@ -146,8 +147,8 @@ EOF
 ################################################################################
 
 cleanup() {
-    if [ -n "$CLEANUP" ]; then
-        echo "Cleaning up temporary files: $CLEANUP"
+    if [ -n "$CLEANUP" ]
+    then
         rm -rf $CLEANUP
     fi
 }
@@ -179,7 +180,8 @@ summary() {
     echo
     echo "Changes detected in the following files:"
     echo
-    while IFS= read -r changed_file; do
+    while IFS= read -r changed_file
+    do
         local_file="${changed_file#$SANDBOX_DIR/upperdir}"
         ## KK 2023-06-20 Could print local_file instead of changed file for
         ##               cleaner output.
@@ -210,7 +212,8 @@ commit() {
     #       changed_files from summary.
     changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes)
 
-    while IFS= read -r changed_file; do
+    while IFS= read -r changed_file
+    do
         local_file="${changed_file#$SANDBOX_DIR/upperdir}"
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
