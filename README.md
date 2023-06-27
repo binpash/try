@@ -138,7 +138,8 @@ You can also choose to commit the overlay directory contents:
 $ try commit rustup-sandbox
 ```
 
-You can also run `try explore` to open your current shell in try!
+You can also run `try explore` to open your current shell in try, or `/try -D
+/tmp/tmp.X6OQb5tJwr explore` to explore an existing sandbox.
 
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
