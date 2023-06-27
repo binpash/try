@@ -22,6 +22,11 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
+    if ! command -v findmnt > /dev/null; then
+        echo "findmnt not found, please install util-linux" 1>&2
+        exit 1
+    fi
+
     [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
