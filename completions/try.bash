@@ -32,7 +32,7 @@ _try() {
                     return 0
                     ;;
                 -U)
-                    COMPREPLY=($(compgen -W "$(findmnt --all -l | awk 'NR>1 {print $3}' | sort -u)" -- "${cur}"))
+                    COMPREPLY=($(compgen -c "${cur}"))
                     return 0
                     ;;
                 commit)
