@@ -2,12 +2,14 @@ name: ShellCheck workflow
   
 on:
   workflow_run:
-    workflows: [Main workflow] 
+    workflows:
+      - "Main workflow" 
     types: 
       - completed
 
 jobs:
   on-success:
+    name: ShellCheck on test success
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
@@ -15,7 +17,7 @@ jobs:
         run: |
           sudo apt-get install shellcheck
 
-      - name: Run ShellChecks
+      - name: Run ShellCheck
         run: |
           cd ~/try            
           shellcheck ./try -S warning 
