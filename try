@@ -144,42 +144,11 @@ summary() {
         exit 1
     fi
     
+    ## Finds all potential changes
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
-
-    ## The summary output needs to be gathered in a file so that we can check and only print 
-    ## the header if it is non-empty
-    summary_output=$(mktemp)
-
-    ## KK 2023-06-28 Maybe move that to its own function and refactor to use its output
-    while IFS= read -r changed_file; do
-        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
-        then # new directory
-            ## If something exists there, we need to delete it first
-            if [ -e "$local_file" ]
-            then
-                echo "$local_file (replaced with dir)" 
-            else
-                echo "$local_file (created dir)"
-            fi
-        elif is_whiteout_file "$changed_file"
-        then # whiteout file
-            echo "$local_file (deleted)"
-        elif [ -f "$changed_file" ]
-        then # normal file
-            if [ -e "$local_file" ]
-            then
-                echo "$local_file (modified)"
-            else
-                echo "$local_file (added)"
-            fi
-        fi
-    done >"$summary_output" <<EOF
-$changed_files
-EOF
-
-    # if [ -z "$(cat "$summary_output")" ];
-    if ! [ -s "$summary_output" ];
+    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+    
+    if [ -z "$summary_output" ];
     then
         return 1
     fi
@@ -188,7 +157,18 @@ EOF
     echo "Changes detected in the following files:"
     echo
 
-    cat "$summary_output"
+    while IFS= read -r summary_line; do
+        local_file="$(echo "$summary_line" | cut -c 4- )"
+        case "$summary_line" in
+        (rd*) echo "$local_file (replaced with dir)";;
+        (md*) echo "$local_file (created dir)";;
+        (de*) echo "$local_file (deleted)";;
+        (mo*) echo "$local_file (modified)";;
+        (ad*) echo "$local_file (added)"
+        esac
+    done <<EOF
+$summary_output
+EOF
 
     return 0
 }
@@ -199,27 +179,18 @@ EOF
 
 commit() {
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
+    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
-    while IFS= read -r changed_file; do
-        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
-        then # new directory
-            ## If something exists there, we need to delete it first
-            if [ -e "$local_file" ]
-            then
-                ## KK 2023-06-28 I think that there is no need for -r since the `if ! -d` check would have caught it
-                rm -f "$local_file"
-            fi
-            ## TODO: Properly add permissions
-            mkdir "${local_file}"
-        elif is_whiteout_file "$changed_file"
-        then # whiteout file
-            rm "${local_file}"
-        elif [ -f "$changed_file" ]
-        then # normal file
-            # -f to commit the file if the target file is readonly, and -a to preserve permissions
-            cp -fa "$changed_file" "${local_file}"
-        fi
+    while IFS= read -r summary_line; do
+        local_file="$(echo "$summary_line" | cut -c 4-)"
+        changed_file="$SANDBOX_DIR/upperdir$local_file"
+        case $summary_line in
+        (rd*) rm -f "$local_file"; mkdir "$local_file";;
+        (md*) mkdir "$local_file";;
+        (de*) rm "$local_file";;
+        (mo*) cp -fa "$changed_file" "$local_file";;
+        (ad*) cp -fa "$changed_file" "$local_file"
+        esac
     
         if [ $? -ne 0 ]
         then
@@ -228,7 +199,7 @@ commit() {
             exit 1
         fi
     done <<EOF
-$changed_files
+$summary_output
 EOF
 }
 
@@ -244,9 +215,52 @@ ignore_changes() {
     grep -v -e .rkr -e Rikerfile
 }
 
+## Lists all upperdir changes in raw format
 find_upperdir_changes() {
     sandbox_dir="$1"
     find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes
+}
+
+## Processes upperdir changes to an internal format that can be processed by summary and commit
+## Format:
+## XX PATH
+## where:
+##  XX is a two character code for the modification
+##  - rd: Replaced with a directory
+##  - md: Created a directory
+##  - de: Deleted a file
+##  - mo: Modified a file
+##  - ad: Added a file
+##  PATH is the local path
+process_changes() {
+    sandbox_dir="$1"
+    changed_files="$2"
+    while IFS= read -r changed_file; do
+        local_file="${changed_file#$sandbox_dir/upperdir}"
+        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
+        then # new directory
+            ## If something exists there, we need to delete it first
+            if [ -e "$local_file" ]
+            then
+                echo "rd $local_file" 
+            else
+                echo "md $local_file"
+            fi
+        elif is_whiteout_file "$changed_file"
+        then # whiteout file
+            echo "de $local_file"
+        elif [ -f "$changed_file" ]
+        then # normal file
+            if [ -e "$local_file" ]
+            then
+                echo "mo $local_file"
+            else
+                echo "ad $local_file"
+            fi
+        fi
+    done <<EOF
+$changed_files
+EOF
 }
 
 
