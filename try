@@ -53,6 +53,7 @@ try() {
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
+MOUNTED=""
 # actually mount the overlays
 for top_dir in /*
 do
@@ -60,7 +61,13 @@ do
     if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"
     then
         ## TODO: The 
-        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" 1>&2
+        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log"
+        if [ "$?" -eq 0 ]
+        then
+            MOUNTED="$MOUNTED $SANDBOX_DIR/temproot/$top_dir"
+        else
+            $echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" >&2
+        fi
     fi
 done
 
@@ -73,16 +80,22 @@ done
 # then we want to exclude the root partition "/"
 for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
 do
-    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
+    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log"
+    if [ "$?" -eq 0 ]
+    then
+        MOUNTED="$MOUNTED $SANDBOX_DIR/temproot$mount_dir"
+    else
+        echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
+    fi
 done
 
 ## Bind the udev mount so that the containerized process has access to /dev
 ## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
 ##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
-mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
+mount --rbind /dev "$SANDBOX_DIR/temproot/dev" && MOUNTED="$MOUNTED $SANDBOX_DIR/temproot/dev"
 ## KK 2023-06-20 Redirecting to /dev/null to suppress a yet uninvestigated but
 ##               seemingly not impactful warning.
-mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2> /dev/null
+mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2>/dev/null && MOUNTED="$MOUNTED $SANDBOX_DIR/temproot/run"
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
@@ -91,6 +104,15 @@ then
 fi
 
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+exitcode="$?"
+
+# unmount
+for m in $MOUNTED
+do
+    umount "$m"
+done
+
+exit $exitcode
 EOF
 
     cat >"$chroot_executable" <<EOF
