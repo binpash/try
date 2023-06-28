@@ -53,11 +53,11 @@ run_test()
     
     if [ $test_try_ec -eq 0 ]; then
         echo -ne '\t\t\t'
-        echo "$test are identical" >> $output_dir/result_status
+        echo "$test passed" >> $output_dir/result_status
         echo -e '\tOK'        
     else
-        echo -n " (!) EC mismatch"
-        echo "$test are not identical" >> $output_dir/result_status
+        echo -n " non-zero ec ($test_try_ec)"
+        echo "$test failed" >> $output_dir/result_status
         echo -e '\t\tFAIL'
     fi
 }
@@ -92,51 +92,47 @@ test_untar_D_flag_commit()
 
 test_untar_D_flag_commit_without_cleanup()
 {
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
-    # Will always commit the result in case of try
-    if [ "$shell" = "bash" ]; then
-        $shell gunzip $2/file.txt.gz
-    else
-        try_example_dir=$(mktemp -d)
-        $shell -D $try_example_dir gunzip $2/file.txt.gz
-        if ! [ -d "$try_example_dir" ]; then
-            echo "try_example_dir does not exist"
-            return 1
-        fi
-        $shell commit $try_example_dir
-        if ! [ -d "$try_example_dir" ]; then
-            echo "try_example_dir does not exist"
-            return 1
-        fi
+    local try_workspace=$1
+    cp $RESOURCE_DIR/* "$try_workspace/"
+    cd "$try_workspace/"
+    
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir gunzip file.txt.gz
+    if ! [ -d "$try_example_dir" ]; then
+        echo "try_example_dir disappeared with no commit"
+        return 1
+    fi
+    "$try" commit $try_example_dir
+    if ! [ -d "$try_example_dir" ]; then
+        echo "try_example_dir disappeared after manual commit"
+        return 1
     fi
 }
 
 test_touch_and_rm_with_cleanup()
 {
-    TMPDIR="/tmp"
-    local shell=$1
-    cp $RESOURCE_DIR/* "$2/"
+    local try_workspace=$1
+    cp $RESOURCE_DIR/* "$try_workspace/"
+    cd "$try_workspace/"
+
+    : ${TMPDIR=/tmp}
+
     SCRIPT=$(mktemp)
     cat >$SCRIPT <<'EOF'
     touch $1
     cat $2
     rm $3
 EOF
-    cat $SCRIPT
-    # Will always commit the result in case of try
-    if [ "$shell" = "bash" ]; then
-        $shell $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-    else
-        orig_tmp=$(ls $TMPDIR)
-        ls $2
-        $shell -y -- $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
-        
-        # We save try_mount_log in /tmp/ dir
-        if diff --color -u <(echo "$orig_tmp") <(ls $TMPDIR)
-        then
-            return 47
-        fi
+
+    orig_tmp=$(ls "$TMPDIR")
+    $shell -y -- $SCRIPT file_1.txt file_2.txt file.txt.gz
+    new_tmp=$(ls "$TMPDIR")
+    
+    if ! diff -q <(echo "$orig_tmp") <(echo "$new_tmp")
+    then
+        echo "temporary directory was not cleaned up; diff:"
+        diff --color -u <(echo "$orig_tmp") <(echo "$new_tmp")
+        return 47
     fi
 }
 
