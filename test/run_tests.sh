@@ -191,7 +191,7 @@ send -- "y\r"
 expect eof
 EOF
     ## Debug using the -d flag
-    expect -d explore.exp >/dev/null
+    expect explore.exp >/dev/null
 
     diff -q expected.out test.txt
 }
