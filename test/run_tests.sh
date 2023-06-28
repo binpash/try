@@ -68,7 +68,7 @@ run_test()
     fi
 }
 
-test_untar_no_flag()
+test_unzip_no_flag()
 {
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
@@ -77,11 +77,11 @@ test_untar_no_flag()
     ## Set up expected output
     echo 'Hello World!' >expected.out 
 
-    "$try" -y gunzip file.txt.gz
+    "$try" -y gunzip file.txt.gz || return 1
     diff -q expected.out file.txt
 }
 
-test_untar_D_flag_commit()
+test_unzip_D_flag_commit()
 {
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
@@ -91,24 +91,24 @@ test_untar_D_flag_commit()
     echo 'Hello World!' >expected.out 
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir gunzip file.txt.gz
+    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
     $try commit $try_example_dir
     diff -q expected.out file.txt
 }
 
-test_untar_D_flag_commit_without_cleanup()
+test_unzip_D_flag_commit_without_cleanup()
 {
     local try_workspace=$1
     cp $RESOURCE_DIR/* "$try_workspace/"
     cd "$try_workspace/"
     
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir gunzip file.txt.gz
+    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
     if ! [ -d "$try_example_dir" ]; then
         echo "try_example_dir disappeared with no commit"
         return 1
     fi
-    "$try" commit $try_example_dir
+    "$try" commit $try_example_dir || return 1
     if ! [ -d "$try_example_dir" ]; then
         echo "try_example_dir disappeared after manual commit"
         return 1
@@ -123,22 +123,15 @@ test_touch_and_rm_with_cleanup()
 
     : ${TMPDIR=/tmp}
 
-    SCRIPT=$(mktemp)
-    cat >$SCRIPT <<'EOF'
-    touch $1
-    cat $2
-    rm $3
-EOF
-
     orig_tmp=$(ls "$TMPDIR")
-    $shell -y -- $SCRIPT file_1.txt file_2.txt file.txt.gz
+    "$try" -y -- "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     new_tmp=$(ls "$TMPDIR")
     
     if ! diff -q <(echo "$orig_tmp") <(echo "$new_tmp")
     then
         echo "temporary directory was not cleaned up; diff:"
         diff --color -u <(echo "$orig_tmp") <(echo "$new_tmp")
-        return 47
+        return 1
     fi
 }
 
@@ -152,7 +145,7 @@ test_touch_and_rm_no_flag()
     touch expected1.txt
     echo 'test' >expected2.txt 
 
-    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
@@ -170,7 +163,7 @@ test_touch_and_rm_D_flag_commit()
     echo 'test' >expected2.txt 
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     $try commit $try_example_dir
     
     diff -q expected1.txt file_1.txt &&
@@ -186,7 +179,7 @@ test_pipeline()
     ## Set up expected output
     echo 'TesT' >expected.out 
 
-    "$try" 'echo test | tr t T' > out.txt
+    "$try" 'echo test | tr t T' > out.txt || return 1
     
     diff -q expected.out out.txt
 }
@@ -203,7 +196,7 @@ test_cmd_sbst_and_var()
 echo $(pwd)
 EOF
 
-    "$try" sh script.sh >out.txt
+    "$try" sh script.sh >out.txt || return 1
 
     diff -q expected.out out.txt
 }
@@ -221,12 +214,12 @@ test_fail()
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
-    run_test test_untar_no_flag
-    run_test test_untar_D_flag_commit
+    run_test test_unzip_no_flag
+    run_test test_unzip_D_flag_commit
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
     run_test test_touch_and_rm_with_cleanup
-    run_test test_untar_D_flag_commit_without_cleanup
+    run_test test_unzip_D_flag_commit_without_cleanup
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
 
