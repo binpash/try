@@ -121,7 +121,7 @@ test_touch_and_rm_with_cleanup()
     touch $1
     cat $2
     rm $3
-    EOF
+EOF
     # Will always commit the result in case of try
     if [ "$shell" = "bash" ]; then
         $shell $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
