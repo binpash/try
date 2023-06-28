@@ -109,7 +109,7 @@ exitcode="$?"
 # unmount
 for m in $MOUNTED
 do
-    umount "$m"
+    umount "$m" || echo "Couldn't unmount $m" >&2
 done
 
 exit $exitcode
@@ -171,8 +171,6 @@ EOF
 cleanup() {
     if [ "$CLEANUP" ]
     then
-        echo "cleaning up $CLEANUP"
-        ls /tmp
         rm -rf $CLEANUP
     fi
 }
