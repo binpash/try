@@ -34,6 +34,9 @@ cleanup()
     mkdir "$try_workspace"
 }
 
+TOTAL_TESTS=0
+PASSED_TEST=0
+FAILING_TESTS=""
 run_test()
 {
     cleanup
@@ -48,14 +51,17 @@ run_test()
     echo -n "Running $test..."
 
     # Run test
+    : $((TOTAL_TESTS += 1))
     $test "$try_workspace"
     test_try_ec=$?
     
     if [ $test_try_ec -eq 0 ]; then
+        : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
         echo "$test passed" >> $output_dir/result_status
         echo -e '\tOK'        
     else
+        FAILING_TESTS="$FAILING_TESTS $test"
         echo -n " non-zero ec ($test_try_ec)"
         echo "$test failed" >> $output_dir/result_status
         echo -e '\t\tFAIL'
@@ -253,16 +259,10 @@ case "$distro" in
         ;;
 esac
 
-echo -e "\n====================| Test Summary |====================\n"
-echo "> Below follow the identical outputs:"
-grep "are identical" "$output_dir"/result_status | awk '{print $1}' | tee $output_dir/passed.log
-
-echo "> Below follow the non-identical outputs:"     
-grep "are not identical" "$output_dir"/result_status | awk '{print $1}' | tee $output_dir/failed.log
-echo "========================================================"
-TOTAL_TESTS=$(cat "$output_dir"/result_status | wc -l | xargs)
-PASSED_TESTS=$(grep -c "are identical" "$output_dir"/result_status)
-echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed." | tee $output_dir/results.log
+echo
+echo "====================| Test Summary |===================="
+echo "Failing tests:${FAILING_TESTS}"
+echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed."
 echo "========================================================"
 
 if [ $PASSED_TESTS -ne $TOTAL_TESTS ]
