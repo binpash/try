@@ -3,7 +3,8 @@ name: ShellCheck workflow
 on:
   workflow_run:
     workflows: [Main workflow] 
-    types: [completed]
+    types: 
+      - completed
 
 jobs:
   on-success:
