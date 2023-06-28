@@ -107,6 +107,7 @@ unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 exitcode="$?"
 
 # unmount
+fsync
 for m in $MOUNTED
 do
     umount "$m" || echo "Couldn't unmount $m" >&2
