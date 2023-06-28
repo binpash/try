@@ -20,7 +20,6 @@ jobs:
           uname -a
           sudo apt-get update
           sudo apt-get install strace expect
-          expect -v
 
       - name: Checkout
         uses: actions/checkout@v2 
@@ -32,7 +31,7 @@ jobs:
           cd ..
           cp -r try ~
           cd ~/try            
-          bash ./test/run_tests.sh test_explore
+          bash ./test/run_tests.sh
 
       - name: Upload script
         uses: actions/upload-artifact@v2

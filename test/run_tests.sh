@@ -184,42 +184,12 @@ expect "#"
 ## Send `exit`
 send \x04
 
+## Ignore all output and just send a y at the end
 expect ""
-
-# expect {
-#     "Commit these changes?" {
-#         send -- "y\r"
-#     }
-#     timeout {
-#         error "nothing happened after $timeout seconds" 
-#     }
-#     * {
-#         exp_continue
-#     }
-# }
-# ## Commit changes
-# expect {
-#     "" {
-#         exp_continue
-#     }
-#     "Changes detected" {
-#         exp_continue
-#     }
-#     ## Assumes its running with bash
-#     "bash_history" {
-#         exp_continue
-#     }
-#     "test.txt" {
-#         exp_continue
-#     }
-#     "Commit these changes" {
-#         send -- "y\r"
-#     }
-# }
 send -- "y\r"
 expect eof
 EOF
-    expect -d explore.exp #>/dev/null
+    expect explore.exp #>/dev/null
 
     diff -q expected.out test.txt
 }
