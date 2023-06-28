@@ -44,6 +44,7 @@ run_test()
         return 1
     fi
 
+    echo
     echo -n "Running $test..."
 
     # Run test
@@ -117,11 +118,12 @@ test_touch_and_rm_with_cleanup()
     local shell=$1
     cp $RESOURCE_DIR/* "$2/"
     SCRIPT=$(mktemp)
-    cat >$SCRIPT <<EOF
+    cat >$SCRIPT <<'EOF'
     touch $1
     cat $2
     rm $3
 EOF
+    cat $SCRIPT
     # Will always commit the result in case of try
     if [ "$shell" = "bash" ]; then
         $shell $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
