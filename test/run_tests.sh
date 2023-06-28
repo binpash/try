@@ -129,7 +129,8 @@ EOF
         $shell $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
         orig_tmp=$(ls $TMPDIR)
-        $shell -y $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
+        ls $2
+        $shell -y -- $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
         
         # We save try_mount_log in /tmp/ dir
         if diff --color -u <(echo "$orig_tmp") <(ls $TMPDIR)
