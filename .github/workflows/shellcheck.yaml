@@ -9,7 +9,7 @@ on:
     branches:
       - '**'
 jobs:
-  run-shellcheck::
+  run-shellcheck:
     name: ShellCheck on test success
     runs-on: ubuntu-latest
     steps:
