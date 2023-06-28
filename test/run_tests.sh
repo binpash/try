@@ -186,11 +186,12 @@ send \x04
 
 ## Ignore all output and just send a y at the end
 expect ""
+expect "Commit*"
 send -- "y\r"
 expect eof
 EOF
     ## Debug using the -d flag
-    expect explore.exp >/dev/null
+    expect -d explore.exp >/dev/null
 
     diff -q expected.out test.txt
 }
