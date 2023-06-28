@@ -13,22 +13,13 @@ jobs:
         
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
-
+    needs: test
     steps:
       - name: Install dependencies
         run: |
-          uname -a
-          sudo apt-get update
           sudo apt-get install shellcheck
 
-      - name: Checkout
-        uses: actions/checkout@v2 
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          
       - name: Run ShellChecks
         run: |
-          cd ..
-          cp -r try ~
           cd ~/try            
           shellcheck ./try -S warning 
