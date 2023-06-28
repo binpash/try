@@ -1,4 +1,4 @@
-name: ShellCheck
+name: ShellCheck workflow
   
 on:
   workflow_run:
@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v2
       - name: Install ShellCheck
         run: |
           sudo apt-get install shellcheck
