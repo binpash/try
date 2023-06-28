@@ -123,6 +123,7 @@ test_touch_and_rm_with_cleanup()
         tmp_file_count1=$(ls $TMPDIR | wc -l)
         $shell -y $MISC_SCRIPT_DIR/touch_echo_and_rm.sh $2/file_1.txt $2/file_2.txt $2/file.txt.gz
         tmp_file_count2=$(ls $TMPDIR | wc -l)
+        echo "original count ${tmp_file_count1} final count ${tmp_file_count2}"
         # We save try_mount_log in /tmp/ dir
         if [ $tmp_file_count1 -ne $(($tmp_file_count2 - 1)) ]; then
             return 1
