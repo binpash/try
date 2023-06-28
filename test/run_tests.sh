@@ -155,6 +155,48 @@ EOF
     diff -q expected.out out.txt
 }
 
+test_explore()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    echo hi >expected.out
+
+    cat >explore.exp <<EOF
+#!/usr/bin/expect
+
+spawn "$try" explore
+expect {
+    ## Ignore the warnings
+    "Warning" {
+        exp_continue
+    }
+    ## When we get the prompt, send the command
+    "#" {
+        send -- "echo hi>test.txt\r"
+    }
+  }
+expect "#"
+## Send `exit`
+send \x04
+
+## Commit changes
+expect ""
+expect "Changes detected"
+expect ""
+## Assumes its running with bash
+expect "bash_history"
+expect "test.txt"
+expect ""
+expect "Commit these changes"
+send -- "y\r"
+expect eof
+EOF
+    expect explore.exp >/dev/null
+
+    diff -q expected.out test.txt
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -174,6 +216,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_D_flag_commit
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
+    run_test test_explore
 
 # uncomment this to force a failure
 #    run_test test_fail
