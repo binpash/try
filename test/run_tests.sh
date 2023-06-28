@@ -167,14 +167,16 @@ test_explore()
     cat >explore.exp <<EOF
 #!/usr/bin/expect
 
+set timeout 3
+
 spawn "$try" explore
 expect {
     ## Ignore the warnings
-    "Warning" {
+    "Warning*" {
         exp_continue
     }
     ## When we get the prompt, send the command
-    "#" {
+    "#*" {
         send -- "echo hi>test.txt\r"
     }
   }
@@ -182,9 +184,14 @@ expect "#"
 ## Send `exit`
 send \x04
 
+expect ""
+
 # expect {
-#     "Commit these changes" {
+#     "Commit these changes?" {
 #         send -- "y\r"
+#     }
+#     timeout {
+#         error "nothing happened after $timeout seconds" 
 #     }
 #     * {
 #         exp_continue
@@ -212,7 +219,7 @@ send \x04
 send -- "y\r"
 expect eof
 EOF
-    expect explore.exp #>/dev/null
+    expect -d explore.exp #>/dev/null
 
     diff -q expected.out test.txt
 }
