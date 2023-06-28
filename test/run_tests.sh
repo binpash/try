@@ -165,14 +165,47 @@ test_summary()
     touch expected1.txt
     echo 'test' >expected2.txt
 
+    echo 'fail' >file_2.txt
+    touch target
+
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
     "$try" summary $try_example_dir > summary.out
 
     ## Check that the summary correctly identifies every change
-    grep -x "$PWD/file_1.txt (modified/added)" <summary.out &&
-        grep -x "$PWD/file_2.txt (modified/added)" <summary.out &&
-        grep -x "$PWD/file.txt.gz (deleted)" <summary.out
+    grep -qx "$PWD/file_1.txt (added)" <summary.out &&
+        grep -qx "$PWD/file_2.txt (modified)" <summary.out &&
+        grep -qx "$PWD/file.txt.gz (deleted)" <summary.out &&
+        grep -qx "$PWD/target (replaced with dir)" <summary.out &&
+        grep -qx "$PWD/new_dir (created dir)" <summary.out
+}
+
+test_empty_summary()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "echo hi" > /dev/null
+    "$try" summary $try_example_dir > summary.out
+
+    ## We want to return true if the following line is not found!
+    ! grep -q "Changes detected in the following files:" <summary.out
+}
+
+test_mkdir_on_file()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    touch target
+    mkdir expected
+
+    "$try" -y "rm target; mkdir target"
+    diff -qr expected target
 }
 
 # a test that deliberately fails (for testing CI changes)
@@ -195,6 +228,8 @@ if [ "$#" -eq 0 ]; then
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
     run_test test_summary
+    run_test test_empty_summary
+    run_test test_mkdir_on_file
 
 # uncomment this to force a failure
 #    run_test test_fail
