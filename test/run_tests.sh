@@ -187,7 +187,7 @@ test_empty_summary()
     cd "$try_workspace/"
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "echo hi"
+    "$try" -D $try_example_dir "echo hi" > /dev/null
     "$try" summary $try_example_dir > summary.out
 
     ## We want to return true if the following line is not found!
@@ -205,7 +205,6 @@ test_mkdir_on_file()
     mkdir expected
 
     "$try" -y "rm target; mkdir target"
-    ls -R .
     diff -qr expected target
 }
 
