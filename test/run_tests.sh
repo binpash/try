@@ -189,7 +189,7 @@ expect ""
 send -- "y\r"
 expect eof
 EOF
-    expect -d explore.exp #>/dev/null
+    expect explore.exp #>/dev/null
 
     diff -q expected.out test.txt
 }
@@ -233,8 +233,8 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_D_flag_commit
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
-    run_test test_explore
     run_test test_summary
+    run_test test_explore
 
 # uncomment this to force a failure
 #    run_test test_fail
