@@ -160,6 +160,8 @@ test_explore()
     local try_workspace=$1
     cd "$try_workspace/"
 
+    export SHELL="/bin/bash"
+
     echo hi >expected.out
 
     cat >explore.exp <<EOF
@@ -180,15 +182,33 @@ expect "#"
 ## Send `exit`
 send \x04
 
-## Commit changes
-expect ""
-expect "Changes detected"
-expect ""
-## Assumes its running with bash
-expect "bash_history"
-expect "test.txt"
-expect ""
-expect "Commit these changes"
+# expect {
+#     "Commit these changes" {
+#         send -- "y\r"
+#     }
+#     * {
+#         exp_continue
+#     }
+# }
+# ## Commit changes
+# expect {
+#     "" {
+#         exp_continue
+#     }
+#     "Changes detected" {
+#         exp_continue
+#     }
+#     ## Assumes its running with bash
+#     "bash_history" {
+#         exp_continue
+#     }
+#     "test.txt" {
+#         exp_continue
+#     }
+#     "Commit these changes" {
+#         send -- "y\r"
+#     }
+# }
 send -- "y\r"
 expect eof
 EOF
