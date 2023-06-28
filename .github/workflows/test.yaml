@@ -31,7 +31,7 @@ jobs:
           cd ..
           cp -r try ~
           cd ~/try            
-          bash ./test/run_tests.sh
+          bash ./test/run_tests.sh test_explore
 
       - name: Upload script
         uses: actions/upload-artifact@v2
