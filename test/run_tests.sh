@@ -192,7 +192,7 @@ expect "Commit these changes"
 send -- "y\r"
 expect eof
 EOF
-    expect explore.exp >/dev/null
+    expect explore.exp #>/dev/null
 
     diff -q expected.out test.txt
 }
