@@ -128,10 +128,13 @@ EOF
     if [ "$shell" = "bash" ]; then
         $shell $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
     else
+        orig_tmp=$(ls $TMPDIR)
         tmp_file_count1=$(ls $TMPDIR | wc -l)
         $shell -y $SCRIPT $2/file_1.txt $2/file_2.txt $2/file.txt.gz
         tmp_file_count2=$(ls $TMPDIR | wc -l)
         echo "original count ${tmp_file_count1} final count ${tmp_file_count2}"
+        echo DIFF:
+        diff --color -u <(echo "$orig_tmp") <(ls $TMPDIR) 
         # We save try_mount_log in /tmp/ dir
         if [ $tmp_file_count1 -ne $(($tmp_file_count2 - 1)) ]; then
             return 1
