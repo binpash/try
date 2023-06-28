@@ -1,5 +1,5 @@
-name: ShellCheck workflow
-  
+name: "ShellCheck workflow"
+
 on:
   workflow_run:
     workflows:
@@ -8,6 +8,7 @@ on:
       - completed
     branches:
       - '**'
+
 jobs:
   run-shellcheck:
     name: ShellCheck on test success
