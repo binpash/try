@@ -197,6 +197,26 @@ EOF
     diff -q expected.out test.txt
 }
 
+test_summary()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    touch expected1.txt
+    echo 'test' >expected2.txt
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" summary $try_example_dir > summary.out
+
+    ## Check that the summary correctly identifies every change
+    grep -x "$PWD/file_1.txt (modified/added)" <summary.out &&
+        grep -x "$PWD/file_2.txt (modified/added)" <summary.out &&
+        grep -x "$PWD/file.txt.gz (deleted)" <summary.out
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -217,6 +237,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
     run_test test_explore
+    run_test test_summary
 
 # uncomment this to force a failure
 #    run_test test_fail
