@@ -6,7 +6,8 @@ on:
       - "Main workflow" 
     types: 
       - completed
-
+    branches:
+      - '*'
 jobs:
   run-shellcheck::
     name: ShellCheck on test success
