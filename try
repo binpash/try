@@ -163,7 +163,7 @@ summary() {
         then # new directory
             ## KK 2023-06-20 This is not reachable since the `type -d` option is not given to find above.
             echo "$local_file (created)"
-        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
+        elif is_whiteout_file "$changed_file"
         then # whiteout file
             echo "$local_file (deleted)"
         elif [ -f "$changed_file" ]
@@ -191,7 +191,7 @@ commit() {
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             mkdir "${local_file}"
-        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
+        elif is_whiteout_file "$changed_file"
         then # whiteout file
             rm "${local_file}"
         elif [ -f "$changed_file" ]
@@ -211,6 +211,12 @@ $changed_files
 EOF
 }
 
+## Checks if a file is an overlayfs whiteout file
+is_whiteout_file()
+{
+    file="$1"
+    [ -c "$file" ] && ! [ -s "$file" ] && [ "$(stat -c %t,%T "$file")" = "0,0" ]
+}
 
 ## Defines which changes we want to ignore in the summary and commit
 ## TODO: Make this be parametrizable, through a file for example
