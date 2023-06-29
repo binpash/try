@@ -81,13 +81,24 @@ make_overlay() {
     mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
 
-## Mounts a few select devices instead of the whole `/dev`
+devices_to_mount="tty null zero full random urandom"
+
+## Mounts and unmounts a few select devices instead of the whole `/dev`
 mount_devices() {
     sandbox_dir="$1"
-    for dev in tty null zero full random urandom
+    for dev in $devices_to_mount
     do
         touch "$sandbox_dir/temproot/dev/$dev"
         mount -o bind /dev/$dev "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+unmount_devices() {
+    sandbox_dir="$1"
+    for dev in $devices_to_mount
+    do
+        umount "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
+        rm -f "$sandbox_dir/temproot/dev/$dev"
     done
 }
 
@@ -102,7 +113,7 @@ autodetect_union_helper() {
 }
 
 # actually mount the overlays
-for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
+for mountpoint in /* $(findmnt --real -r -o target -n)
 do
     ## We are not interested in mounts that are not directories
     if [ ! -d "$mountpoint" ]
@@ -110,11 +121,13 @@ do
         continue
     fi
 
-    # skip if it is /dev or /proc, we will mount it later
-    if [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
+    ## Don't do anything for the root
+    ##   and skip if it is /dev or /proc, we will mount it later
+    if [ "$mountpoint" = "/" ] ||
+        [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
     then
         continue
-    fi
+    fi    
 
     # Try mounting everything normally
     make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
@@ -142,6 +155,7 @@ do
     fi
 done
 
+## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
@@ -151,6 +165,13 @@ then
 fi
 
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+exitcode="$?"
+
+# unmount the devices
+sync
+unmount_devices "$SANDBOX_DIR"
+
+exit $exitcode
 EOF
 
     cat >"$chroot_executable" <<EOF
