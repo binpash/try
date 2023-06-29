@@ -48,6 +48,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
 This option is recommended in case OverlayFS fails.
+
 ## Subcommands
 
 try summary *DIR*
