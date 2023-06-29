@@ -251,6 +251,7 @@ EOF
 ################################################################################
 
 cleanup() {
+    echo "Before cleanup: $CLEANUP" 1>&2
     if [ "$CLEANUP" ]
     then
         rm -rf $CLEANUP
