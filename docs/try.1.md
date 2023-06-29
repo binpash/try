@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-n] [-D DIR] CMD [ARG ...]
+| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -39,6 +39,10 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 
 ## Options
+
+-i PATTERN
+
+: Ignore paths that match PATTERN on summary and commit. This option can be passed multiple times and it behaves the same as the `-v -e` for `grep`.
 
 -D *DIR*
 

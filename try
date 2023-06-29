@@ -253,7 +253,7 @@ summary() {
     fi
     
     ## Finds all potential changes
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
     
     if [ -z "$summary_output" ]
@@ -296,7 +296,7 @@ commit() {
         exit 1
     fi
 
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
     while IFS= read -r summary_line; do
@@ -328,15 +328,16 @@ is_whiteout_file() {
 }
 
 ## Defines which changes we want to ignore in the summary and commit
-## TODO: Make this be parametrizable, through a file for example
 ignore_changes() {
-    grep -v -e .rkr -e Rikerfile
+    ignore_file="$1"
+    grep -v -f "$ignore_file"
 }
 
 ## Lists all upperdir changes in raw format
 find_upperdir_changes() {
     sandbox_dir="$1"
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes
+    ignore_file="$2"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes "$ignore_file"
 }
 
 
@@ -415,10 +416,11 @@ sandbox_valid_or_empty() {
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-D DIR] [-U PATH] CMD [ARG ...]
+Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
+  -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   
@@ -439,11 +441,16 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":yvnD:U:" opt
+# Includes all patterns given using the `-i` flag
+# Each pattern is preceded by an -e so as to be immediately passed to grep.
+IGNORE_FILE=$(mktemp)
+
+while getopts ":yvni:D:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
         (n) NO_COMMIT="show";;
+        (i) echo $OPTARG >>"$IGNORE_FILE";;
         (D) if ! [ -d "$OPTARG" ]
             then
                 printf "%s: no such directory $OPTARG\n" "$(basename $0)" >&2
