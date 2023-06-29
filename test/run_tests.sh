@@ -35,7 +35,7 @@ cleanup()
 }
 
 TOTAL_TESTS=0
-PASSED_TEST=0
+PASSED_TESTS=0
 FAILING_TESTS=""
 
 test_read_from_run_dir()
