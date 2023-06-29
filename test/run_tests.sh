@@ -177,7 +177,7 @@ test_reuse_problematic_sandbox()
     ##               but it doesn't seem to both overlayfs at all.
     ## TODO: Extend this with more problematic overlayfs modifications.
     touch "$try_example_dir/temproot/bin/foo"
-    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
 }
 
 test_non_existent_sandbox()
