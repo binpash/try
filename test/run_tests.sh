@@ -34,15 +34,27 @@ cleanup()
     mkdir "$try_workspace"
 }
 
+test_read_from_run_dir()
+{
+    ls /run/systemd > /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Cannot read from /run/systemd."
+        return 1
+    fi
+}
+
 run_test()
 {
     cleanup
     local test=$1
-
+    
     if [ "$(type -t $test)" != "function" ]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
+    
+    # Check if we can read from /run dir
+    test_read_from_run_dir
 
     echo -n "Running $test..."
 
@@ -165,7 +177,7 @@ test_reuse_problematic_sandbox()
     ##               but it doesn't seem to both overlayfs at all.
     ## TODO: Extend this with more problematic overlayfs modifications.
     touch "$try_example_dir/temproot/bin/foo"
-    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
 }
 
 test_non_existent_sandbox()
@@ -305,6 +317,16 @@ test_mkdir_on_file()
     diff -qr expected target
 }
 
+test_dev()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    "$try" -y "head -c 5 /dev/urandom > target"
+    [ -s target ]
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -331,6 +353,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_explore
     run_test test_empty_summary
     run_test test_mkdir_on_file
+    run_test test_dev
 
 # uncomment this to force a failure
 #    run_test test_fail

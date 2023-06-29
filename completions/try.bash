@@ -20,7 +20,7 @@ _try() {
 
     case "${cmd}" in
         try)
-            opts="-n -y -v -h -D summary commit explore"
+            opts="-n -y -v -h -D -U summary commit explore"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -31,7 +31,10 @@ _try() {
                     COMPREPLY=($(compgen -d "${cur}"))
                     return 0
                     ;;
-                
+                -U)
+                    COMPREPLY=($(compgen -c "${cur}"))
+                    return 0
+                    ;;
                 commit)
                     COMPREPLY=($(compgen -d "${cur}"))
                     return 0

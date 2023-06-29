@@ -19,7 +19,7 @@ jobs:
         run: |
           uname -a
           sudo apt-get update
-          sudo apt-get install strace expect
+          sudo apt-get install expect mergerfs
 
       - name: Checkout
         uses: actions/checkout@v2 

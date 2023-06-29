@@ -22,6 +22,12 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
+    if ! command -v findmnt > /dev/null
+    then
+        printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
+        exit 1
+    fi
+
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
@@ -45,11 +51,21 @@ try() {
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
-    for top_dir in /*
+    #
+    # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
+    #               However, this might be solveable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
+    #
+    # findmnt
+    # --real: only list real filesystems
+    # -n: no header
+    # -r: raw output
+    # -o target: only print the mount target
+    # then we want to exclude the root partition "/"
+    for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$top_dir" ]; then
-            mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+        if [ -d "$mountpoint" ]; then
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
         fi
     done
 
@@ -60,48 +76,123 @@ try() {
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
+## A wrapper of `mount -t overlay` to have cleaner looking code
+make_overlay() {
+    sandbox_dir="$1"
+    lowerdir="$2"
+    mountpoint="$3"
+    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+}
+
+devices_to_mount="tty null zero full random urandom"
+
+## Mounts and unmounts a few select devices instead of the whole `/dev`
+mount_devices() {
+    sandbox_dir="$1"
+    for dev in $devices_to_mount
+    do
+        touch "$sandbox_dir/temproot/dev/$dev"
+        mount -o bind /dev/$dev "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+unmount_devices() {
+    sandbox_dir="$1"
+    for dev in $devices_to_mount
+    do
+        umount "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
+        rm -f "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+## Try to autodetect union helper: {mergerfs | unionfs}
+## Returns an empty string if no union helper is found
+autodetect_union_helper() {
+    if command -v mergerfs > /dev/null; then
+        echo mergerfs
+    elif command -v unionfs > /dev/null; then
+        echo unionfs
+    fi
+}
+
 # actually mount the overlays
-for top_dir in /*
+for mountpoint in /* $(findmnt --real -r -o target -n)
 do
-    ## If the directory is not a mountpoint
-    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"; then
-        ## TODO: The 
-        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" 1>&2
+    ## We are not interested in mounts that are not directories
+    if [ ! -d "$mountpoint" ]
+    then
+        continue
+    fi
+
+    ## Don't do anything for the root
+    ##   and skip if it is /dev or /proc, we will mount it later
+    if [ "$mountpoint" = "/" ] ||
+        [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
+    then
+        continue
+    fi    
+
+    # Try mounting everything normally
+    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
+    # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
+    if [ "$?" -ne 0 ]
+    then
+        # Detect if union_helper is set, if not, we try to autodetect them
+        if [ -z ${union_helper+x} ]
+        then
+            union_helper="$(autodetect_union_helper)"
+            if [ -z "$union_helper" ]
+            then
+                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
+                exit 1
+            fi
+        fi
+
+
+        ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
+        ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
+        ## Then we can normally make the overlay on the new union directory.
+        ##
+        ## KK 2023-06-29 Since this uses findmnt, it performs the union+overlay for both the outside and the inside mount.
+        ##               In the best case scenario this is only causing extra work (the internal mount is already shown through the unionfs),
+        ##                 but in the worst case this could lead to bugs due to the extra complexity (e.g., because we are doing mounts on top of each other).
+        ##               We should try to investigate either:
+        ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
+        ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
+        merger_dir=$(mktemp -d)
+
+        ## Create a union directory
+        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
+            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        
+        ## Make the overlay on the union directory which works as a lowerdir for overlay
+        make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
     fi
 done
 
-# Now we will handle custom mounts, e.g., mounts on /home
-# findmnt
-# --real: only list real filesystems
-# -n: no header
-# -r: raw output
-# -o target: only print the mount target
-# then we want to exclude the root partition "/"
-for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
-do
-    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log" || echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
-done
-
-## Bind the udev mount so that the containerized process has access to /dev
-## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
-##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
-mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
-## KK 2023-06-20 Redirecting to /dev/null to suppress a yet uninvestigated but
-##               seemingly not impactful warning.
-mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2> /dev/null
+## Mount a few select devices in /dev
+mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
-if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
+if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
+then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+exitcode="$?"
+
+# unmount the devices
+sync
+unmount_devices "$SANDBOX_DIR"
+
+exit $exitcode
 EOF
 
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
-                              
+
 mount -t proc proc /proc &&   
 cd $START_DIR && 
 source "$script_to_execute"
@@ -165,7 +256,7 @@ summary() {
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
     
-    if [ -z "$summary_output" ];
+    if [ -z "$summary_output" ]
     then
         return 1
     fi
@@ -248,6 +339,7 @@ find_upperdir_changes() {
     find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes
 }
 
+
 ## Processes upperdir changes to an internal format that can be processed by summary and commit
 ## Format:
 ## XX PATH
@@ -323,11 +415,12 @@ sandbox_valid_or_empty() {
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-D DIR] CMD [ARG ...]
+Usage: $cmd [-nvhy] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
   -D DIR            work in DIR (implies -n)
+  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   
   -v                show version information (and exit)
   -h                show this usage message (and exit)
@@ -346,7 +439,7 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":yvnD:" opt
+while getopts ":yvnD:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -360,6 +453,13 @@ do
             NO_COMMIT="quiet"
             ;;
         (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (U) if ! [ -x "$OPTARG" ]
+            then
+                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
+                exit 2
+            fi
+            union_helper="$OPTARG" 
+            ;;
         (h|*) usage; exit 0;;
     esac
 done

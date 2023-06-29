@@ -25,6 +25,13 @@ disks.
 
 ### Dependencies
 
+`try` relies on the following dependencies
+
+* `util-linux`
+
+In cases where overlayfs doesn't work on nested mounts, you will need either
+[mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
+
 Has been tested on the following distributions:
 * `Ubuntu 20.04 LTS` or later
 * `Debian 12`
@@ -44,7 +51,7 @@ $ git clone https://github.com/binpash/try.git
 
 #### Arch Linux
 
-`Try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
+`try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
 
 ```shellsession
 yay -S try
