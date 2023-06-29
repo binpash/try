@@ -317,6 +317,16 @@ test_mkdir_on_file()
     diff -qr expected target
 }
 
+test_dev()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    "$try" -y "head -c 5 /dev/urandom > target"
+    [ -s target ]
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -343,6 +353,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_explore
     run_test test_empty_summary
     run_test test_mkdir_on_file
+    run_test test_dev
 
 # uncomment this to force a failure
 #    run_test test_fail
