@@ -22,7 +22,8 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt > /dev/null; then
+    if ! command -v findmnt > /dev/null
+    then
         printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
         exit 1
     fi
@@ -110,7 +111,8 @@ do
     fi
 
     # skip if it is /dev or /proc, we will mount it later
-    if [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]; then
+    if [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
+    then
         continue
     fi
 
@@ -143,7 +145,8 @@ done
 mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
-if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
+if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
+then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
@@ -216,7 +219,7 @@ summary() {
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
     
-    if [ -z "$summary_output" ];
+    if [ -z "$summary_output" ]
     then
         return 1
     fi
