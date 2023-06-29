@@ -160,7 +160,10 @@ test_reuse_problematic_sandbox()
     try_example_dir=$(mktemp -d)
     "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
 
-    ## This test should do something that is actually problematic
+    ## KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
+    ##               at the moment, this modification will be caught as illegal by `try`,
+    ##               but it doesn't seem to both overlayfs at all.
+    ## TODO: Extend this with more problematic overlayfs modifications.
     touch "$try_example_dir/temproot/bin/foo"
     ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
 }
