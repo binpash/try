@@ -9,6 +9,7 @@ try - run a command in an overlay
 | try [-n] [-D DIR] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
+| try explore
 | try -v
 | try -h
 
@@ -56,6 +57,10 @@ try summary *DIR*
 try commit *DIR*
 
 : Commit the overlay in DIR
+
+try explore
+
+: Run in interactive mode
 
 ## Arguments
  
