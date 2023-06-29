@@ -118,7 +118,7 @@ test_unzip_D_flag_commit_without_cleanup()
 test_touch_and_rm_with_cleanup()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/* "$try_workspace/"
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     : ${TMPDIR=/tmp}
