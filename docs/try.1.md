@@ -42,7 +42,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -i PATTERN
 
-: Ignore paths that match PATTERN on summary and commit. This option can be passed multiple times and it behaves the same as the `-v -e` for `grep`.
+: Ignore paths that match PATTERN on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
 
 -D *DIR*
 
