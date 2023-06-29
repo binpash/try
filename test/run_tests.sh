@@ -211,6 +211,47 @@ EOF
     diff -q expected.out out.txt
 }
 
+test_explore()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    export SHELL="/bin/bash"
+
+    echo hi >expected.out
+
+    cat >explore.exp <<EOF
+#!/usr/bin/expect
+
+set timeout 3
+
+spawn "$try" explore
+expect {
+    ## Ignore the warnings
+    "Warning*" {
+        exp_continue
+    }
+    ## When we get the prompt, send the command
+    "#*" {
+        send -- "echo hi>test.txt\r"
+    }
+  }
+expect "#"
+## Send `exit`
+send \x04
+
+## Ignore all output and just send a y at the end
+expect ""
+expect "Commit*"
+send -- "y\r"
+expect eof
+EOF
+    ## Debug using the -d flag
+    expect explore.exp >/dev/null
+
+    diff -q expected.out test.txt
+}
+
 test_summary()
 {
     local try_workspace=$1
@@ -287,6 +328,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
     run_test test_summary
+    run_test test_explore
     run_test test_empty_summary
     run_test test_mkdir_on_file
 
