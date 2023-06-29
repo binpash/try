@@ -77,7 +77,27 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdir="$2"
     mountpoint="$3"
-    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$SANDBOX_DIR/upperdir/$mountpoint,workdir=$SANDBOX_DIR/workdir/$mountpoint" "$SANDBOX_DIR/temproot/$mountpoint"
+    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+}
+
+## Mounts a few select devices instead of the whole `/dev`
+mount_devices() {
+    sandbox_dir="$1"
+    for dev in tty null zero full random urandom
+    do
+        touch "$sandbox_dir/temproot/dev/$dev"
+        mount -o bind /dev/$dev "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+## Try to autodetect union helper: {mergerfs | unionfs}
+## Returns an empty string if no union helper is found
+autodetect_union_helper() {
+    if command -v mergerfs > /dev/null; then
+        echo mergerfs
+    elif command -v unionfs > /dev/null; then
+        echo unionfs
+    fi
 }
 
 # actually mount the overlays
@@ -100,30 +120,27 @@ do
     if [ "$?" -ne 0 ]
     then
         # Detect if union_helper is set, if not, we try to autodetect them
-        if [ -z ${union_helper+x} ]; then
-            if command -v mergerfs > /dev/null; then
-                union_helper=mergerfs
-            elif command -v unionfs > /dev/null; then
-                union_helper=unionfs
-            else
-                echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log" 1>&2
+        if [ -z ${union_helper+x} ]
+        then
+            union_helper="$(autodetect_union_helper)"
+            if [ -z "$union_helper" ]
+            then
+                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
                 exit 1
             fi
         fi
 
         # Here we use mergerfs/unionfs to be mounted into a single file system. Used to fix nested mounts #19
         merger_dir=$(mktemp -d)
-        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mountpoint via $union_helper, see $try_mount_log" 1>&2 &&
+        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
+            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        
         make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
-        echo "Warning: Failed mounting $mountpoint as an overlay via $union_helper, see "$try_mount_log"" 1>&2
+        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
     fi
 done
 
-for dev in tty null zero full random urandom
-do
-    touch "$SANDBOX_DIR/temproot/dev/$dev"
-    mount -o bind /dev/$dev "$SANDBOX_DIR/temproot/dev/$dev"
-done
+mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]; then
