@@ -4,10 +4,10 @@
 
 "Do, or do not. There is no try."
 
-We're setting out to change that.
+We're setting out to change that: `try cmd` and commit---or not. 
 
 ## Description
-[![LocalTests](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
+[![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 [![issues - try](https://img.shields.io/github/issues/binpash/try)](https://github.com/binpash/try/issues)
 
@@ -26,6 +26,13 @@ disks.
 ### Dependencies
 
 Requires `netcat-openbsd` and `procps`.
+=======
+`try` relies on the following dependencies
+
+* `util-linux`
+
+In cases where overlayfs doesn't work on nested mounts, you will need either
+[mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
 
 Has been tested on the following distributions:
 * `Ubuntu 20.04 LTS` or later
@@ -34,6 +41,7 @@ Has been tested on the following distributions:
 * `Arch 6.1.33-1-lts`
 * `Alpine 6.1.34-1-lts`
 * `Rocky 9 5.14.0-284.11.1.el9_2`
+* `SteamOS 3.4.8 5.13.0-valve36-1-neptune`
 
 ### Installing
 
@@ -44,6 +52,22 @@ $ git clone https://github.com/binpash/try.git
 ```
 
 You would also want to install the `gidmapper`, simply run `sh setup.sh`.
+=======
+#### Arch Linux
+
+`try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
+
+```shellsession
+yay -S try
+```
+
+or manually:
+
+```shellsession
+git clone https://aur.archlinux.org/try.git
+cd try
+makepkg -sic
+```
 
 ## Example Usage
 
@@ -54,7 +78,7 @@ $ try pip3 install libdash
 ... # output continued below
 ```
 
-By default, *try* will ask you to commit the changes made at the end of its execution.
+By default, `try` will ask you to commit the changes made at the end of its execution.
 
 ```ShellSession
 ...
@@ -78,22 +102,23 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Running `try -n` will print the overlay directory on STDOUT without committing the result.
 
 ```ShellSession
 $ try -n "curl https://sh.rustup.rs | sh"
 /tmp/tmp.uCThKq7LBK
 ```
 
-Alternatively, you can specify your own overlay directory as follows (note that you'll have to create the sandbox directory first)
+Alternatively, you can specify your own existing overlay directory using the `-D [dir]` flag:
 
 ```ShellSession
+$ mkdir rustup-sandbox
 $ try -D rustup-sandbox "curl https://sh.rustup.rs | sh"
 $ ls rustup-sandbox
 temproot  upperdir  workdir
 ```
 
-As you can see from the output above, *try* has created an overlay environment in the *rustup-sandbox* directory.
+As you can see from the output above, `try` has created an overlay environment in the `rustup-sandbox` directory.
 
 Manually inspecting upperdir reveals the changes to the files made inside the overlay during the execution of the previous command with *try*:
 
@@ -102,7 +127,7 @@ Manually inspecting upperdir reveals the changes to the files made inside the ov
 1.2G    .
 ```
 
-You can inspect the changes made inside a given overlay directory using *try*:
+You can inspect the changes made inside a given overlay directory using `try`:
 
 ```ShellSession
 $ try summary rustup-sandbox/ | head
@@ -124,10 +149,13 @@ You can also choose to commit the overlay directory contents:
 $ try commit rustup-sandbox
 ```
 
+You can also run `try explore` to open your current shell in try, or `/try
+explore /tmp/tmp.X6OQb5tJwr` to explore an existing sandbox.
+
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
-branch](https://github.com/binpash/try/tree/future) has support for uid/mapping,
+branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
 uid/gidmapper.
 
@@ -135,8 +163,8 @@ Please also report any issue you run into while using the future branch!
 
 ## Version History
 
-* 0.1.0
-    * Initial Release
+* 0.1.0 - 2023-06-25
+    * Initial release.
 
 ## License
 

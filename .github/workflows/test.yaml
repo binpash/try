@@ -1,29 +1,32 @@
-name: LocalTests
+name: Main workflow
+  
 on: 
   pull_request:
-    branches:
-    - main
-    types: [assigned, opened, synchronize, reopened, ready_for_review]
   push:
-    branches:
-      - main
-      - future
-      - '*'
-# Jobs section
+  schedule:
+    - cron: '17 14 * * *'
+
 jobs:
-    LocalTests:
-      strategy:
-        fail-fast: false
-        matrix:
-          os: 
-            - ubuntu-latest
-      runs-on: ${{ matrix.os }}
-      if: github.event.pull_request.draft == false
-      steps:
-      - uses: actions/checkout@v2 
+  test:
+    strategy:
+      fail-fast: false
+        
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Install dependencies
+        run: |
+          uname -a
+          sudo apt-get update
+          sudo apt-get install expect mergerfs
+
+      - name: Checkout
+        uses: actions/checkout@v2 
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Running Correctness Tests
+          
+      - name: Run tests
         run: |
           uname -a
           sudo apt-get update
@@ -59,3 +62,59 @@ jobs:
         run: |
           # check if everything executed without errors
           bash test/exit_code.sh
+
+      - name: Upload script
+        uses: actions/upload-artifact@v2
+        with:
+          name: try
+          path: try
+
+  manpage:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+
+    steps:
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install pandoc
+
+      - name: Checkout
+        uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+            
+      - name: Build manpage
+        run: make -C man
+  
+      - name: Upload script
+        uses: actions/upload-artifact@v2
+        with:
+          name: try.1
+          path: man/try.1
+
+  prerelease:
+    needs:
+      - test
+      - manpage
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v2
+
+      - name: Collect artifacts
+        run: |
+            mv try.1/try.1 try/try.1
+          
+      - name: Deploy 'latest' release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Latest script and manpage"
+          files: |
+            try/*
