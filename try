@@ -57,11 +57,11 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
-    for mointpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
+    for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mointpoint" ]; then
-            mkdir -p "$SANDBOX_DIR"/upperdir/"$mointpoint" "$SANDBOX_DIR"/workdir"/$mointpoint" "$SANDBOX_DIR"/temproot/"$mointpoint"
+        if [ -d "$mountpoint" ]; then
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
         fi
     done
 
@@ -72,37 +72,50 @@ try() {
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
-# actually mount the overlays
-for mointpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
-do
-    ## If the directory is not a mountpoint
-    if [ -d "$mointpoint" ]; then 
-        # skip if it is /dev or /proc, we will mount it later
-        if [ "$mointpoint" = "/dev" ] || [ "$mointpoint" = "/proc" ]; then
-            continue
-        fi
-        # Try mounting everything normally
-        mount -t overlay overlay -o lowerdir=/"$mointpoint",upperdir="$SANDBOX_DIR"/upperdir/"$mointpoint",workdir="$SANDBOX_DIR"/workdir/"$mointpoint" "$SANDBOX_DIR"/temproot/"$mointpoint" 2>> "$try_mount_log"
-        # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
-        if [ $? -ne 0 ]; then
-            # Detect if union_helper is set, if not, we try to autodetect them
-            if [ -z ${union_helper+x} ]; then
-                if command -v mergerfs > /dev/null; then
-                    union_helper=mergerfs
-                elif command -v unionfs > /dev/null; then
-                    union_helper=unionfs
-                else
-                    echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mointpoint, see $try_mount_log" 1>&2
-                    exit 1
-                fi
-            fi
+## A wrapper of `mount -t overlay` to have cleaner looking code
+make_overlay() {
+    sandbox_dir="$1"
+    lowerdir="$2"
+    mountpoint="$3"
+    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$SANDBOX_DIR/upperdir/$mountpoint,workdir=$SANDBOX_DIR/workdir/$mountpoint" "$SANDBOX_DIR/temproot/$mountpoint"
+}
 
-            # Here we use mergerfs/unionfs to be mounted into a single file system. Used to fix nested mounts #19
-            merger_dir=$(mktemp -d)
-            "$union_helper" $mointpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mointpoint via $union_helper, see $try_mount_log" 1>&2 &&
-            mount -t overlay overlay -o lowerdir="$merger_dir",upperdir="$SANDBOX_DIR"/upperdir"$mointpoint",workdir="$SANDBOX_DIR"/workdir"$mointpoint" "$SANDBOX_DIR"/temproot"$mointpoint" 2>> "$try_mount_log" ||
-            echo "Warning: Failed mounting $mointpoint as an overlay via $union_helper, see "$try_mount_log"" 1>&2
+# actually mount the overlays
+for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
+do
+    ## We are not interested in mounts that are not directories
+    if [ ! -d "$mountpoint" ]
+    then
+        continue
+    fi
+
+    # skip if it is /dev or /proc, we will mount it later
+    if [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]; then
+        continue
+    fi
+
+    # Try mounting everything normally
+    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
+    # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
+    if [ "$?" -ne 0 ]
+    then
+        # Detect if union_helper is set, if not, we try to autodetect them
+        if [ -z ${union_helper+x} ]; then
+            if command -v mergerfs > /dev/null; then
+                union_helper=mergerfs
+            elif command -v unionfs > /dev/null; then
+                union_helper=unionfs
+            else
+                echo "Error: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log" 1>&2
+                exit 1
+            fi
         fi
+
+        # Here we use mergerfs/unionfs to be mounted into a single file system. Used to fix nested mounts #19
+        merger_dir=$(mktemp -d)
+        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || echo "Warning: Failed to mount $mountpoint via $union_helper, see $try_mount_log" 1>&2 &&
+        make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+        echo "Warning: Failed mounting $mountpoint as an overlay via $union_helper, see "$try_mount_log"" 1>&2
     fi
 done
 
@@ -268,6 +281,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes
 }
+
 
 ## Processes upperdir changes to an internal format that can be processed by summary and commit
 ## Format:
