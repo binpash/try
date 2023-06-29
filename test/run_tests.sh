@@ -34,15 +34,27 @@ cleanup()
     mkdir "$try_workspace"
 }
 
+test_read_from_run_dir()
+{
+    ls /run/systemd > /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Cannot read from /run/systemd."
+        return 1
+    fi
+}
+
 run_test()
 {
     cleanup
     local test=$1
-
+    
     if [ "$(type -t $test)" != "function" ]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
+    
+    # Check if we can read from /run dir
+    test_read_from_run_dir
 
     echo -n "Running $test..."
 
