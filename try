@@ -21,7 +21,7 @@ TRY_VERSION="0.1.0"
 
 try() {
     START_DIR="$PWD"
-    CLEANUP=""
+    CLEANUP="$IGNORE_FILE"
 
     if ! command -v findmnt > /dev/null
     then
