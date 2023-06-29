@@ -125,6 +125,62 @@ test_touch_and_rm_D_flag_commit()
         [ ! -f file.txt.gz ]
 }
 
+test_reuse_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'test' >expected2.txt 
+    echo 'test2' >>expected2.txt 
+    touch expected3.out
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    $try commit $try_example_dir
+    
+    [ ! -f file_1.txt ] &&
+        diff -q expected2.txt file_2.txt &&
+        diff -q expected3.out file.txt.gz
+}
+
+test_reuse_problematic_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'test' >expected2.txt 
+    echo 'test2' >>expected2.txt 
+    touch expected3.out
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+
+    ## KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
+    ##               at the moment, this modification will be caught as illegal by `try`,
+    ##               but it doesn't seem to both overlayfs at all.
+    ## TODO: Extend this with more problematic overlayfs modifications.
+    touch "$try_example_dir/temproot/bin/foo"
+    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+}
+
+test_non_existent_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    try_example_dir="non-existent"
+    ! "$try" -D $try_example_dir "touch file_1.txt" 2>/dev/null &&
+    ! "$try" summary $try_example_dir 2>/dev/null &&
+    ! "$try" commit $try_example_dir 2>/dev/null &&
+    ! "$try" explore $try_example_dir 2>/dev/null 
+}
+
 test_pipeline()
 {
     local try_workspace=$1
@@ -266,6 +322,9 @@ if [ "$#" -eq 0 ]; then
     run_test test_untar_D_flag_commit
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_reuse_sandbox
+    run_test test_reuse_problematic_sandbox
+    run_test test_non_existent_sandbox
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
     run_test test_summary

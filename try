@@ -22,7 +22,24 @@ TRY_VERSION="0.1.0"
 try() {
     START_DIR="$PWD"
 
-    [ "$SANDBOX_DIR" ] || SANDBOX_DIR=$(mktemp -d)
+    if [ "$SANDBOX_DIR" ]
+    then
+        ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
+        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2; exit 2; } 
+    else
+        ## Create a new sandbox if one was not given
+        SANDBOX_DIR=$(mktemp -d)
+    fi
+
+    ## If the sandbox is not valid we exit early
+    if ! sandbox_valid_or_empty "$SANDBOX_DIR"
+    then
+        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename $0)" >&2
+        exit 1 
+    fi
+
+    ## Make any directories that don't already exist, this is OK to do here
+    ##  because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
@@ -32,7 +49,7 @@ try() {
     do
         ## Only make the directory if the original is a directory too
         if [ -d "$top_dir" ]; then
-            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
         fi
     done
 
@@ -140,7 +157,7 @@ summary() {
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
         exit 1
     fi
     
@@ -178,6 +195,16 @@ EOF
 ################################################################################
 
 commit() {
+    if ! [ -d "$SANDBOX_DIR" ]
+    then
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        exit 2
+    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+    then
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
+        exit 1
+    fi
+
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
@@ -262,6 +289,31 @@ process_changes() {
 $changed_files
 EOF
 }
+
+## Returns 0 if a sandbox is empty (fresh for use)
+## or if it already exists, and is well-formed 
+sandbox_valid_or_empty() {
+    sandbox_dir="$1"
+    if [ ! -d "$sandbox_dir/upperdir" ] && [ ! -d "$sandbox_dir/workdir" ] && [ ! -d "$sandbox_dir/temproot" ]
+    then
+        ## No sandbox directory exists so we can happily return
+        return 0
+    fi
+
+    ## The sandbox already exists so we now need to check if it is valid
+    ## Validity requirements:
+    ## - no file exists in the temproot tree, i.e., all directories are empty
+    ##
+    ## TODO: Make this validity assertion tighter
+    ## KK 2023-06-28 workdir seems to be non-empty after a single use, is that expected?
+    if [ ! -z "$(find "$sandbox_dir/temproot" -depth -not -type d)" ]
+    then
+        return 1
+    fi
+
+    return 0
+}
+
 
 
 ################################################################################
