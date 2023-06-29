@@ -37,15 +37,28 @@ cleanup()
 TOTAL_TESTS=0
 PASSED_TEST=0
 FAILING_TESTS=""
+
+test_read_from_run_dir()
+{
+    ls /run/systemd > /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Cannot read from /run/systemd."
+        return 1
+    fi
+}
+
 run_test()
 {
     cleanup
     local test=$1
-
+    
     if [ "$(type -t $test)" != "function" ]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
+    
+    # Check if we can read from /run dir
+    test_read_from_run_dir
 
     echo
     echo -n "Running $test..."
@@ -171,6 +184,62 @@ test_touch_and_rm_D_flag_commit()
         [ ! -f file.txt.gz ]
 }
 
+test_reuse_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'test' >expected2.txt 
+    echo 'test2' >>expected2.txt 
+    touch expected3.out
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    $try commit $try_example_dir
+    
+    [ ! -f file_1.txt ] &&
+        diff -q expected2.txt file_2.txt &&
+        diff -q expected3.out file.txt.gz
+}
+
+test_reuse_problematic_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'test' >expected2.txt 
+    echo 'test2' >>expected2.txt 
+    touch expected3.out
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+
+    ## KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
+    ##               at the moment, this modification will be caught as illegal by `try`,
+    ##               but it doesn't seem to both overlayfs at all.
+    ## TODO: Extend this with more problematic overlayfs modifications.
+    touch "$try_example_dir/temproot/bin/foo"
+    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
+}
+
+test_non_existent_sandbox()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    try_example_dir="non-existent"
+    ! "$try" -D $try_example_dir "touch file_1.txt" 2>/dev/null &&
+    ! "$try" summary $try_example_dir 2>/dev/null &&
+    ! "$try" commit $try_example_dir 2>/dev/null &&
+    ! "$try" explore $try_example_dir 2>/dev/null 
+}
+
 test_pipeline()
 {
     local try_workspace=$1
@@ -201,6 +270,110 @@ EOF
     diff -q expected.out out.txt
 }
 
+test_explore()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    export SHELL="/bin/bash"
+
+    echo hi >expected.out
+
+    cat >explore.exp <<EOF
+#!/usr/bin/expect
+
+set timeout 3
+
+spawn "$try" explore
+expect {
+    ## Ignore the warnings
+    "Warning*" {
+        exp_continue
+    }
+    ## When we get the prompt, send the command
+    "#*" {
+        send -- "echo hi>test.txt\r"
+    }
+  }
+expect "#"
+## Send `exit`
+send \x04
+
+## Ignore all output and just send a y at the end
+expect ""
+expect "Commit*"
+send -- "y\r"
+expect eof
+EOF
+    ## Debug using the -d flag
+    expect explore.exp >/dev/null
+
+    diff -q expected.out test.txt
+}
+
+test_summary()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    touch expected1.txt
+    echo 'test' >expected2.txt
+
+    echo 'fail' >file_2.txt
+    touch target
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
+    "$try" summary $try_example_dir > summary.out
+
+    ## Check that the summary correctly identifies every change
+    grep -qx "$PWD/file_1.txt (added)" <summary.out &&
+        grep -qx "$PWD/file_2.txt (modified)" <summary.out &&
+        grep -qx "$PWD/file.txt.gz (deleted)" <summary.out &&
+        grep -qx "$PWD/target (replaced with dir)" <summary.out &&
+        grep -qx "$PWD/new_dir (created dir)" <summary.out
+}
+
+test_empty_summary()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir "echo hi" > /dev/null
+    "$try" summary $try_example_dir > summary.out
+
+    ## We want to return true if the following line is not found!
+    ! grep -q "Changes detected in the following files:" <summary.out
+}
+
+test_mkdir_on_file()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    touch target
+    mkdir expected
+
+    "$try" -y "rm target; mkdir target"
+    diff -qr expected target
+}
+
+test_dev()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    "$try" -y "head -c 5 /dev/urandom > target"
+    [ -s target ]
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -220,8 +393,16 @@ if [ "$#" -eq 0 ]; then
     run_test test_touch_and_rm_D_flag_commit
     run_test test_touch_and_rm_with_cleanup
     run_test test_unzip_D_flag_commit_without_cleanup
+    run_test test_reuse_sandbox
+    run_test test_reuse_problematic_sandbox
+    run_test test_non_existent_sandbox
     run_test test_pipeline
     run_test test_cmd_sbst_and_var
+    run_test test_summary
+    run_test test_explore
+    run_test test_empty_summary
+    run_test test_mkdir_on_file
+    run_test test_dev
 
 # uncomment this to force a failure
 #    run_test test_fail

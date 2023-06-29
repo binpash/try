@@ -21,24 +21,54 @@ TRY_VERSION="0.1.0"
 
 try() {
     START_DIR="$PWD"
-
     CLEANUP=""
-    if ! [ -d "$SANDBOX_DIR" ]
+
+    if ! command -v findmnt > /dev/null
     then
+        printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
+        exit 1
+    fi
+
+    if [ "$SANDBOX_DIR" ]
+    then
+        ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
+        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2; exit 2; } 
+    else
+        ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
         CLEANUP="$CLEANUP $SANDBOX_DIR"
     fi
+
+    ## If the sandbox is not valid we exit early
+    if ! sandbox_valid_or_empty "$SANDBOX_DIR"
+    then
+        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename $0)" >&2
+        exit 1 
+    fi
+
+    ## Make any directories that don't already exist, this is OK to do here
+    ##  because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
-    for top_dir in /*
+    #
+    # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
+    #               However, this might be solveable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
+    #
+    # findmnt
+    # --real: only list real filesystems
+    # -n: no header
+    # -r: raw output
+    # -o target: only print the mount target
+    # then we want to exclude the root partition "/"
+    for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$top_dir" ]
+        if [ -d "$mountpoint" ]
         then
-            mkdir "$SANDBOX_DIR"/upperdir/"$top_dir" "$SANDBOX_DIR"/workdir"/$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir"
+            mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
         fi
     done
 
@@ -53,44 +83,103 @@ try() {
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
+## A wrapper of `mount -t overlay` to have cleaner looking code
+make_overlay() {
+    sandbox_dir="$1"
+    lowerdir="$2"
+    mountpoint="$3"
+    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+}
+
+devices_to_mount="tty null zero full random urandom"
+
+## Mounts and unmounts a few select devices instead of the whole `/dev`
+mount_devices() {
+    sandbox_dir="$1"
+    for dev in $devices_to_mount
+    do
+        touch "$sandbox_dir/temproot/dev/$dev"
+        mount -o bind /dev/$dev "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+unmount_devices() {
+    sandbox_dir="$1"
+    for dev in $devices_to_mount
+    do
+        umount "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
+        rm -f "$sandbox_dir/temproot/dev/$dev"
+    done
+}
+
+## Try to autodetect union helper: {mergerfs | unionfs}
+## Returns an empty string if no union helper is found
+autodetect_union_helper() {
+    if command -v mergerfs > /dev/null; then
+        echo mergerfs
+    elif command -v unionfs > /dev/null; then
+        echo unionfs
+    fi
+}
+
 # actually mount the overlays
-for top_dir in /*
+for mountpoint in /* $(findmnt --real -r -o target -n)
 do
-    ## If the directory is not a mountpoint
-    if [ -d "$top_dir" ] && ! mountpoint -q "$top_dir"
+    ## We are not interested in mounts that are not directories
+    if [ ! -d "$mountpoint" ]
     then
-        ## TODO: The 
-        mount -t overlay overlay -o lowerdir=/"$top_dir",upperdir="$SANDBOX_DIR"/upperdir/"$top_dir",workdir="$SANDBOX_DIR"/workdir/"$top_dir" "$SANDBOX_DIR"/temproot/"$top_dir" 2>> "$try_mount_log"
-        if ! [ "$?" -eq 0 ]
+        continue
+    fi
+
+    ## Don't do anything for the root
+    ##   and skip if it is /dev or /proc, we will mount it later
+    if [ "$mountpoint" = "/" ] ||
+        [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
+    then
+        continue
+    fi    
+
+    # Try mounting everything normally
+    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
+    # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
+    if [ "$?" -ne 0 ]
+    then
+        # Detect if union_helper is set, if not, we try to autodetect them
+        if [ -z ${union_helper+x} ]
         then
-            $echo "Warning: Failed mounting $top_dir as an overlay, see "$try_mount_log"" >&2
+            union_helper="$(autodetect_union_helper)"
+            if [ -z "$union_helper" ]
+            then
+                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
+                exit 1
+            fi
         fi
+
+
+        ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
+        ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
+        ## Then we can normally make the overlay on the new union directory.
+        ##
+        ## KK 2023-06-29 Since this uses findmnt, it performs the union+overlay for both the outside and the inside mount.
+        ##               In the best case scenario this is only causing extra work (the internal mount is already shown through the unionfs),
+        ##                 but in the worst case this could lead to bugs due to the extra complexity (e.g., because we are doing mounts on top of each other).
+        ##               We should try to investigate either:
+        ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
+        ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
+        merger_dir=$(mktemp -d)
+
+        ## Create a union directory
+        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
+            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        
+        ## Make the overlay on the union directory which works as a lowerdir for overlay
+        make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
     fi
 done
 
-# Now we will handle custom mounts, e.g., mounts on /home
-# findmnt
-# --real: only list real filesystems
-# -n: no header
-# -r: raw output
-# -o target: only print the mount target
-# then we want to exclude the root partition "/"
-for mount_dir in $(findmnt --real -r -o target -n | grep -v "^/$")
-do
-    mount -t overlay overlay -o lowerdir="$mount_dir",upperdir="$SANDBOX_DIR"/upperdir"$mount_dir",workdir="$SANDBOX_DIR"/workdir"$mount_dir" "$SANDBOX_DIR"/temproot"$mount_dir" 2>> "$try_mount_log"
-    if ! [ "$?" -eq 0 ]
-    then
-        echo "Warning: Failed mounting $mount_dir as an overlay, see "$try_mount_log"" 1>&2
-    fi
-done
-
-## Bind the udev mount so that the containerized process has access to /dev
-## KK 2023-05-06 Are there any security/safety implications by binding the whole /dev?
-##               Maybe we just want to bind a few files in it like /dev/null, /dev/zero?
-mount --rbind /dev "$SANDBOX_DIR/temproot/dev"
-## KK 2023-06-20 Redirecting to /dev/null to suppress a yet uninvestigated but
-##               seemingly not impactful warning.
-mount --rbind --read-only /run "$SANDBOX_DIR/temproot/run" 2>/dev/null
+## Mount a few select devices in /dev
+mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
@@ -99,11 +188,18 @@ then
 fi
 
 unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+exitcode="$?"
+
+# unmount the devices
+sync
+unmount_devices "$SANDBOX_DIR"
+
+exit $exitcode
 EOF
 
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
-                              
+
 mount -t proc proc /proc &&   
 cd $START_DIR && 
 source "$script_to_execute"
@@ -173,14 +269,15 @@ summary() {
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
         exit 1
     fi
     
-    # We don't include directories here (like in commit) since that would be too verbose for the summary.
-    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -or \( -type c -size 0 \) | ignore_changes)
-
-    if [ -z "$changed_files" ];
+    ## Finds all potential changes
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
+    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+    
+    if [ -z "$summary_output" ]
     then
         return 1
     fi
@@ -188,25 +285,20 @@ summary() {
     echo
     echo "Changes detected in the following files:"
     echo
-    while IFS= read -r changed_file
-    do
-        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
-        ## KK 2023-06-20 Could print local_file instead of changed file for
-        ##               cleaner output.
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
-        then # new directory
-            ## KK 2023-06-20 This is not reachable since the `type -d` option is not given to find above.
-            echo "$local_file (created)"
-        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
-        then # whiteout file
-            echo "$local_file (deleted)"
-        elif [ -f "$changed_file" ]
-        then # normal file
-            echo "$local_file (modified/added)"
-        fi
+
+    while IFS= read -r summary_line; do
+        local_file="$(echo "$summary_line" | cut -c 4- )"
+        case "$summary_line" in
+        (rd*) echo "$local_file (replaced with dir)";;
+        (md*) echo "$local_file (created dir)";;
+        (de*) echo "$local_file (deleted)";;
+        (mo*) echo "$local_file (modified)";;
+        (ad*) echo "$local_file (added)"
+        esac
     done <<EOF
-$changed_files
+$summary_output
 EOF
+
     return 0
 }
 
@@ -215,25 +307,29 @@ EOF
 ################################################################################
 
 commit() {
-    # This is different from the one in summary because it also includes all directories.
-    # TODO: Could be made more efficient by only appending directories to the already computed
-    #       changed_files from summary.
-    changed_files=$(find "$SANDBOX_DIR/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes)
+    if ! [ -d "$SANDBOX_DIR" ]
+    then
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        exit 2
+    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+    then
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
+        exit 1
+    fi
 
-    while IFS= read -r changed_file
-    do
-        local_file="${changed_file#$SANDBOX_DIR/upperdir}"
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
-        then # new directory
-            mkdir "${local_file}"
-        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ]
-        then # whiteout file
-            rm "${local_file}"
-        elif [ -f "$changed_file" ]
-        then # normal file
-            # -f to commit the file if the target file is readonly, and -a to preserve permissions
-            cp -fa "$changed_file" "${local_file}"
-        fi
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR")
+    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+
+    while IFS= read -r summary_line; do
+        local_file="$(echo "$summary_line" | cut -c 4-)"
+        changed_file="$SANDBOX_DIR/upperdir$local_file"
+        case $summary_line in
+        (rd*) rm -f "$local_file"; mkdir "$local_file";;
+        (md*) mkdir "$local_file";;
+        (de*) rm "$local_file";;
+        (mo*) cp -fa "$changed_file" "$local_file";;
+        (ad*) cp -fa "$changed_file" "$local_file"
+        esac
     
         if [ $? -ne 0 ]
         then
@@ -242,16 +338,95 @@ commit() {
             exit 1
         fi
     done <<EOF
-$changed_files
+$summary_output
 EOF
 }
 
+## Checks if a file is an overlayfs whiteout file
+is_whiteout_file() {
+    file="$1"
+    [ -c "$file" ] && ! [ -s "$file" ] && [ "$(stat -c %t,%T "$file")" = "0,0" ]
+}
 
 ## Defines which changes we want to ignore in the summary and commit
 ## TODO: Make this be parametrizable, through a file for example
 ignore_changes() {
     grep -v -e .rkr -e Rikerfile
 }
+
+## Lists all upperdir changes in raw format
+find_upperdir_changes() {
+    sandbox_dir="$1"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes
+}
+
+
+## Processes upperdir changes to an internal format that can be processed by summary and commit
+## Format:
+## XX PATH
+## where:
+##  XX is a two character code for the modification
+##  - rd: Replaced with a directory
+##  - md: Created a directory
+##  - de: Deleted a file
+##  - mo: Modified a file
+##  - ad: Added a file
+##  PATH is the local path
+process_changes() {
+    sandbox_dir="$1"
+    changed_files="$2"
+    while IFS= read -r changed_file; do
+        local_file="${changed_file#$sandbox_dir/upperdir}"
+        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
+        then # new directory
+            ## If something exists there, we need to delete it first
+            if [ -e "$local_file" ]
+            then
+                echo "rd $local_file" 
+            else
+                echo "md $local_file"
+            fi
+        elif is_whiteout_file "$changed_file"
+        then # whiteout file
+            echo "de $local_file"
+        elif [ -f "$changed_file" ]
+        then # normal file
+            if [ -e "$local_file" ]
+            then
+                echo "mo $local_file"
+            else
+                echo "ad $local_file"
+            fi
+        fi
+    done <<EOF
+$changed_files
+EOF
+}
+
+## Returns 0 if a sandbox is empty (fresh for use)
+## or if it already exists, and is well-formed 
+sandbox_valid_or_empty() {
+    sandbox_dir="$1"
+    if [ ! -d "$sandbox_dir/upperdir" ] && [ ! -d "$sandbox_dir/workdir" ] && [ ! -d "$sandbox_dir/temproot" ]
+    then
+        ## No sandbox directory exists so we can happily return
+        return 0
+    fi
+
+    ## The sandbox already exists so we now need to check if it is valid
+    ## Validity requirements:
+    ## - no file exists in the temproot tree, i.e., all directories are empty
+    ##
+    ## TODO: Make this validity assertion tighter
+    ## KK 2023-06-28 workdir seems to be non-empty after a single use, is that expected?
+    if [ ! -z "$(find "$sandbox_dir/temproot" -depth -not -type d)" ]
+    then
+        return 1
+    fi
+
+    return 0
+}
+
 
 
 ################################################################################
@@ -261,11 +436,12 @@ ignore_changes() {
 usage() {
     cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-D DIR] CMD [ARG ...]
+Usage: $cmd [-nvhy] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
   -D DIR            work in DIR (implies -n)
+  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   
   -v                show version information (and exit)
   -h                show this usage message (and exit)
@@ -284,7 +460,7 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-while getopts ":yvnD:" opt
+while getopts ":yvnD:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -298,6 +474,13 @@ do
             NO_COMMIT="quiet"
             ;;
         (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (U) if ! [ -x "$OPTARG" ]
+            then
+                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
+                exit 2
+            fi
+            union_helper="$OPTARG" 
+            ;;
         (h|*) usage; exit 0;;
     esac
 done
@@ -313,7 +496,7 @@ fi
 case "$1" in
     (summary) : ${SANDBOX_DIR=$2}; summary;;
     (commit) : ${SANDBOX_DIR=$2}; commit;;
-    (explore) : ${SANDBOX_DIR=$2}; try bash;;
+    (explore) : ${SANDBOX_DIR=$2}; try "$SHELL";;
     (--) shift; try "$@";;
     (*) try "$@";;
 esac

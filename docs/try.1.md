@@ -9,6 +9,7 @@ try - run a command in an overlay
 | try [-n] [-D DIR] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
+| try explore
 | try -v
 | try -h
 
@@ -43,15 +44,24 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Specifies DIR as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
+-U *PATH* 
+
+: Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
+This option is recommended in case OverlayFS fails.
+
 ## Subcommands
 
-try summary *DIR*   
+try summary *DIR*
 
 : Show the summary for the overlay in DIR
 
 try commit *DIR*
 
 : Commit the overlay in DIR
+
+try explore
+
+: Run in interactive mode
 
 ## Arguments
  
