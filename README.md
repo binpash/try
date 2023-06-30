@@ -35,6 +35,7 @@ In cases where overlayfs doesn't work on nested mounts, you will need either
 Has been tested on the following distributions:
 * `Ubuntu 20.04 LTS` or later
 * `Debian 12`
+* `Fedora 38`
 * `Centos 9 Stream 5.14.0-325.el9`
 * `Arch 6.1.33-1-lts`
 * `Alpine 6.1.34-1-lts`
