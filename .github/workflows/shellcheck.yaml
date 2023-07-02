@@ -1,0 +1,23 @@
+name: ShellCheck workflow
+
+on:
+    pull_request:
+    push:
+
+jobs:
+  run-shellcheck:
+    name: 'Run ShellCheck'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Install ShellCheck package'
+        run: |
+          sudo apt-get install shellcheck
+
+      - name: 'Checkout repo'
+        uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}      
+
+      - name: 'Run ShellCheck to report warnings and errors'
+        run: |
+          shellcheck ./try -S warning 
