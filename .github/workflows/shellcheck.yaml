@@ -1,0 +1,37 @@
+name: ShellCheck workflow
+
+on:
+    pull_request:
+    push:
+
+jobs:
+  run-shellcheck:
+    name: 'Run ShellCheck'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Install dependencies'
+        run: |
+          sudo apt-get install curl wget
+
+      - name: 'Install ShellCheck package'
+        run: |
+          curl -s https://api.github.com/repos/koalaman/shellcheck/releases/latest | grep "linux.x86_64.tar.xz" | grep url | cut -d : -f 2,3 | tr -d \" | wget -qi -
+          tar -xvf shellcheck*.xz
+          sudo cp shellcheck*/shellcheck /usr/bin/
+
+      - name: 'Checkout repo'
+        uses: actions/checkout@v2 
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}      
+
+      - name: 'Show ShellCheck version and platform information'
+        run: |
+          shellcheck -V
+          uname -a
+
+      - name: 'Run ShellCheck to report warnings and errors'
+        run: |
+          shellcheck ./try -S warning 
+        # ignore errors: unused variable union_helper (2034) and posix read -p (3045)
+        env: 
+          SHELLCHECK_OPTS: "-e SC2034 -e SC3045"
