@@ -64,6 +64,24 @@ jobs:
           name: try.1
           path: man/try.1
 
+  version-check:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check version in script against manpage
+        run: |
+          SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
+          MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
+          echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
+          echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
+
   prerelease:
     needs:
       - test
