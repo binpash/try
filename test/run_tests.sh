@@ -34,6 +34,10 @@ cleanup()
     mkdir "$try_workspace"
 }
 
+TOTAL_TESTS=0
+PASSED_TESTS=0
+FAILING_TESTS=""
+
 test_read_from_run_dir()
 {
     ls /run/systemd > /dev/null
@@ -56,24 +60,28 @@ run_test()
     # Check if we can read from /run dir
     test_read_from_run_dir
 
+    echo
     echo -n "Running $test..."
 
     # Run test
+    : $((TOTAL_TESTS += 1))
     $test "$try_workspace"
     test_try_ec=$?
     
     if [ $test_try_ec -eq 0 ]; then
+        : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
-        echo "$test are identical" >> $output_dir/result_status
+        echo "$test passed" >> $output_dir/result_status
         echo -e '\tOK'        
     else
-        echo -n " (!) EC mismatch"
-        echo "$test are not identical" >> $output_dir/result_status
+        FAILING_TESTS="$FAILING_TESTS $test"
+        echo -n " non-zero ec ($test_try_ec)"
+        echo "$test failed" >> $output_dir/result_status
         echo -e '\t\tFAIL'
     fi
 }
 
-test_untar_no_flag()
+test_unzip_no_flag()
 {
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
@@ -82,11 +90,11 @@ test_untar_no_flag()
     ## Set up expected output
     echo 'Hello World!' >expected.out 
 
-    "$try" -y gunzip file.txt.gz
+    "$try" -y gunzip file.txt.gz || return 1
     diff -q expected.out file.txt
 }
 
-test_untar_D_flag_commit()
+test_unzip_D_flag_commit()
 {
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
@@ -96,10 +104,52 @@ test_untar_D_flag_commit()
     echo 'Hello World!' >expected.out 
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir gunzip file.txt.gz
+    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
     $try commit $try_example_dir
     diff -q expected.out file.txt
 }
+
+test_unzip_D_flag_commit_without_cleanup()
+{
+    local try_workspace=$1
+    cp $RESOURCE_DIR/* "$try_workspace/"
+    cd "$try_workspace/"
+    
+    try_example_dir=$(mktemp -d)
+    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
+    if ! [ -d "$try_example_dir" ]; then
+        echo "try_example_dir disappeared with no commit"
+        return 1
+    fi
+    "$try" commit $try_example_dir || return 1
+    if ! [ -d "$try_example_dir" ]; then
+        echo "try_example_dir disappeared after manual commit"
+        return 1
+    fi
+}
+
+# KK 2023-07-06 This test checks whether try has correctly cleaned up its temporary directories
+#               but is not working now. I am leaving it in so that its logic can be reused for a new test.
+#
+# test_touch_and_rm_with_cleanup()
+# {
+#     local try_workspace=$1
+#     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+#     cd "$try_workspace/"
+
+#     : ${TMPDIR=/tmp}
+
+#     orig_tmp=$(ls "$TMPDIR")
+#     "$try" -y -- "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
+#     new_tmp=$(ls "$TMPDIR")
+    
+#     if ! diff -q <(echo "$orig_tmp") <(echo "$new_tmp")
+#     then
+#         echo "temporary directory was not cleaned up; diff:"
+#         diff --color -u <(echo "$orig_tmp") <(echo "$new_tmp")
+#         return 1
+#     fi
+# }
 
 test_touch_and_rm_no_flag()
 {
@@ -111,7 +161,7 @@ test_touch_and_rm_no_flag()
     touch expected1.txt
     echo 'test' >expected2.txt 
 
-    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
@@ -129,7 +179,7 @@ test_touch_and_rm_D_flag_commit()
     echo 'test' >expected2.txt 
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     $try commit $try_example_dir
     
     diff -q expected1.txt file_1.txt &&
@@ -201,7 +251,7 @@ test_pipeline()
     ## Set up expected output
     echo 'TesT' >expected.out 
 
-    "$try" 'echo test | tr t T' > out.txt
+    "$try" 'echo test | tr t T' > out.txt || return 1
     
     diff -q expected.out out.txt
 }
@@ -218,7 +268,7 @@ test_cmd_sbst_and_var()
 echo $(pwd)
 EOF
 
-    "$try" sh script.sh >out.txt
+    "$try" sh script.sh >out.txt || return 1
 
     diff -q expected.out out.txt
 }
@@ -354,10 +404,12 @@ test_fail()
 
 # We run all tests composed with && to exit on the first that fails
 if [ "$#" -eq 0 ]; then 
-    run_test test_untar_no_flag
-    run_test test_untar_D_flag_commit
+    run_test test_unzip_no_flag
+    run_test test_unzip_D_flag_commit
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
+    # run_test test_touch_and_rm_with_cleanup
+    run_test test_unzip_D_flag_commit_without_cleanup
     run_test test_reuse_sandbox
     run_test test_reuse_problematic_sandbox
     run_test test_non_existent_sandbox
@@ -399,16 +451,10 @@ case "$distro" in
         ;;
 esac
 
-echo -e "\n====================| Test Summary |====================\n"
-echo "> Below follow the identical outputs:"
-grep "are identical" "$output_dir"/result_status | awk '{print $1}' | tee $output_dir/passed.log
-
-echo "> Below follow the non-identical outputs:"     
-grep "are not identical" "$output_dir"/result_status | awk '{print $1}' | tee $output_dir/failed.log
-echo "========================================================"
-TOTAL_TESTS=$(cat "$output_dir"/result_status | wc -l | xargs)
-PASSED_TESTS=$(grep -c "are identical" "$output_dir"/result_status)
-echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed." | tee $output_dir/results.log
+echo
+echo "====================| Test Summary |===================="
+echo "Failing tests:${FAILING_TESTS}"
+echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed."
 echo "========================================================"
 
 if [ $PASSED_TESTS -ne $TOTAL_TESTS ]

@@ -64,7 +64,8 @@ try() {
     for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mountpoint" ]; then
+        if [ -d "$mountpoint" ]
+        then
             mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
         fi
     done
