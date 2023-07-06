@@ -196,7 +196,7 @@ EOF
 
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-source "$script_to_execute"
+. "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
