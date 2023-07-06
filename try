@@ -49,6 +49,12 @@ try() {
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
+    ## Find all the directories and mounts that need to be mounted
+    export DIRS_AND_MOUNTS=$(mktemp)
+    ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
+    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
+    sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
+
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
     #
@@ -61,7 +67,7 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
-    for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
+    for mountpoint in $(cat "$DIRS_AND_MOUNTS")
     do
         ## Only make the directory if the original is a directory too
         if [ -d "$mountpoint" ]
@@ -125,9 +131,8 @@ then
     union_helper="$(autodetect_union_helper)"
 fi
 
-
 # actually mount the overlays
-for mountpoint in /* $(findmnt --real -r -o target -n)
+for mountpoint in $(cat "$DIRS_AND_MOUNTS")
 do
     ## We are not interested in mounts that are not directories
     if [ ! -d "$mountpoint" ]
