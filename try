@@ -81,7 +81,7 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdir="$2"
     mountpoint="$3"
-    mount -t overlay overlay -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
 
 devices_to_mount="tty null zero full random urandom"
