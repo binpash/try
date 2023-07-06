@@ -237,7 +237,7 @@ EOF
         if [ "$?" -eq 0 ]
         then
             echo
-            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+            read -r -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
                 (*) echo "Not committing." >&2
