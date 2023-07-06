@@ -53,7 +53,7 @@ try() {
     # so we set up the mount points now
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
-    #               However, this might be solveable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
+    #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
     #
     # findmnt
     # --real: only list real filesystems
