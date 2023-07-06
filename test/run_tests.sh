@@ -402,15 +402,15 @@ test_echo_no_unionfs_mergerfs()
 
     ## Create a new /bin and /usr/bin without mergerfs and unionfs 
     new_bin_dir=$(mktemp -d)
-    cp -r /bin "$new_bin_dir/bin"
+    cp -rs /bin "$new_bin_dir/bin"
     mkdir "$new_bin_dir/usr"
-    cp -r /usr/bin "$new_bin_dir/usr/bin"
+    cp -rs /usr/bin "$new_bin_dir/usr/bin"
 
     ## Delete mergerfs and unionfs and set the new PATH to the temporary directory
-    rm -f "$new_bin_dir/bin/mergerfs"
-    rm -f "$new_bin_dir/bin/unionfs"
-    rm -f "$new_bin_dir/usr/bin/mergerfs"
-    rm -f "$new_bin_dir/usr/bin/unionfs"
+    rm -f "$new_bin_dir/bin/mergerfs" 2>/dev/null
+    rm -f "$new_bin_dir/bin/unionfs" 2>/dev/null
+    rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
+    rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
     export PATH="$new_bin_dir/bin:$new_bin_dir/usr/bin"
 
     echo hi >expected
