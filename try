@@ -181,7 +181,7 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
@@ -196,7 +196,7 @@ EOF
 
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-source "$script_to_execute"
+. "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
