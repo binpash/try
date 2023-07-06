@@ -93,7 +93,7 @@ try explore
 
 # EXAMPLES
 
-The general workflow is to *try* a command before commiting its results to your workspace. 
+The general workflow is to *try* a command before committing its results to your workspace. 
 
 To uncompress a gzip file, you can invoke *try* as follows
 
@@ -112,7 +112,7 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, wothout committing the result.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
 
 ```
 try -n gunzip file.txt.gz
@@ -124,7 +124,7 @@ Alternatively, you can specify your own overlay directory as follows (note that 
 try -D try_dir gunzip file.txt.gz
 ```
 
-You can inspect the changhes made inside a given overlay directory:
+You can inspect the changes made inside a given overlay directory:
 
 ```
 try summary try_dir
