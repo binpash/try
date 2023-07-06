@@ -205,7 +205,7 @@ EOF
 #!/bin/sh
 
 mount -t proc proc /proc &&   
-cd $START_DIR && 
+cd "$START_DIR" && 
 . "$script_to_execute"
 EOF
 
@@ -317,7 +317,7 @@ commit() {
         (ad*) cp -fa "$changed_file" "$local_file"
         esac
     
-        if [ $? -ne 0 ]
+        if [ "$?" -ne 0 ]
         then
 	    warn "couldn't commit $changed_file"
         fi
@@ -504,4 +504,4 @@ case "$1" in
     (*) try "$@";;
 esac
 
-exit $exitcode
+exit "$exitcode"
