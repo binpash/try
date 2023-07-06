@@ -278,7 +278,8 @@ test_summary()
     touch target
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
+    rm target
+    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; strace mkdir target; mkdir new_dir"
     "$try" summary $try_example_dir > summary.out
 
     ## Check that the summary correctly identifies every change

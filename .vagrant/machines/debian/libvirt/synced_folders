@@ -1,0 +1,1 @@
+{"nfs":{"/vagrant":{"type":"nfs","nfs_version":"4","nfs_udp":false,"guestpath":"/vagrant","hostpath":"/home/eric/try","disabled":false,"__vagrantfile":true,"map_uid":1000,"map_gid":1000,"uuid":"945260288","linux__nfs_options":["rw","no_subtree_check","all_squash","anonuid=1000","anongid=1000","fsid=945260288"]}}}
