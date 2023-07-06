@@ -1,6 +1,6 @@
 name: Main workflow
-  
-on: 
+
+on:
   pull_request:
   push:
   schedule:
@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-        
+
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
@@ -22,15 +22,15 @@ jobs:
           sudo apt-get install expect mergerfs
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
       - name: Run tests
         run: |
           cd ..
           cp -r try ~
-          cd ~/try            
+          cd ~/try
           bash ./test/run_tests.sh
 
       - name: Upload script
@@ -51,13 +51,13 @@ jobs:
           sudo apt-get install pandoc
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-            
+
       - name: Build manpage
         run: make -C man
-  
+
       - name: Upload script
         uses: actions/upload-artifact@v2
         with:
@@ -78,7 +78,7 @@ jobs:
       - name: Collect artifacts
         run: |
             mv try.1/try.1 try/try.1
-          
+
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
