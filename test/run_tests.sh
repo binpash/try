@@ -410,8 +410,8 @@ test_echo_no_unionfs_mergerfs()
     rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
     export PATH="$new_bin_dir/usr/bin"
 
+    cd $(mktemp -d)
     echo hi >expected
-
     "$try" -y "echo hi" >target 2>/dev/null
     diff -q expected target
 }
