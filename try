@@ -28,7 +28,7 @@ try() {
         exit 1
     fi
 
-    if [ "$SANDBOX_DIR" ]
+    if [ -n "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
         [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2; exit 2; } 
