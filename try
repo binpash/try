@@ -313,7 +313,7 @@ commit() {
         if [ "$?" -ne 0 ]
         then
         # TODO collect errors and summarize later
-            printf "couldn't commit $changed_file\n"
+            printf "couldn't commit %s\n" "$changed_file"
             exit 1
         fi
     done <<EOF
