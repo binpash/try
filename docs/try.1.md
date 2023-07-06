@@ -40,13 +40,13 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 ## Options
 
--i PATTERN
+-i *PATTERN*
 
-: Ignore paths that match PATTERN on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
+: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
 
 -D *DIR*
 
-: Specifies DIR as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Specifies *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
 -U *PATH* 
 
@@ -57,11 +57,11 @@ This option is recommended in case OverlayFS fails.
 
 try summary *DIR*
 
-: Show the summary for the overlay in DIR
+: Show the summary for the overlay in *DIR*
 
 try commit *DIR*
 
-: Commit the overlay in DIR
+: Commit the overlay in *DIR*
 
 try explore
 
