@@ -222,7 +222,7 @@ EOF
 
     case "$NO_COMMIT" in
         (quiet) ;;
-        (show) printf "%s\n" "$SANDBOX_DIR";;
+        (show) echo "$SANDBOX_DIR";;
         (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
@@ -232,7 +232,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not committing.\n" >&2
+                (*) echo "Not committing." >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
@@ -311,9 +311,7 @@ commit() {
     
         if [ $? -ne 0 ]
         then
-        # TODO collect errors and summarize later
-            printf "couldn't commit $changed_file\n"
-            exit 1
+	    warn "couldn't commit $changed_file"
         fi
     done <<EOF
 $summary_output
@@ -410,8 +408,12 @@ sandbox_valid_or_empty() {
 # Error messaging
 ################################################################################
 
-error() {
+warn() {
     printf "%s: %s\n" "$TRY_COMMAND" "$1" >&2
+}
+
+error() {
+    warn "$1"
     exit "$2"
 }
 
@@ -467,7 +469,7 @@ do
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version $TRY_VERSION\n" "$TRY_COMMAND" >&2; exit 0;;
+        (v) echo "$TRY_COMMAND version $TRY_VERSION" >&2; exit 0;;
         (U) if ! [ -x "$OPTARG" ]
             then
                 error "could not find executable union helper '$OPTARG'" 2
