@@ -70,12 +70,12 @@ run_test()
     if [ $test_try_ec -eq 0 ]; then
         : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
-        echo "$test passed" >> "$output_dir"/result_status
+        echo "$test passed" >>"$output_dir"/result_status
         echo -e '\tOK'
     else
         FAILING_TESTS="$FAILING_TESTS $test"
         echo -n " non-zero ec ($test_try_ec)"
-        echo "$test failed" >> "$output_dir"/result_status
+        echo "$test failed" >>"$output_dir"/result_status
         echo -e '\t\tFAIL'
     fi
 }
@@ -160,7 +160,7 @@ test_touch_and_rm_no_flag()
     touch expected1.txt
     echo 'test' >expected2.txt
 
-    "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
+    "$try" -y "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || return 1
 
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
@@ -178,7 +178,7 @@ test_touch_and_rm_D_flag_commit()
     echo 'test' >expected2.txt
 
     try_example_dir=$(mktemp -d)
-    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || return 1
     $try commit "$try_example_dir"
 
     diff -q expected1.txt file_1.txt &&
@@ -198,8 +198,8 @@ test_reuse_sandbox()
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
-    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
-    "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz"
+    "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz"
     $try commit "$try_example_dir"
 
     [ ! -f file_1.txt ] &&
@@ -219,14 +219,14 @@ test_reuse_problematic_sandbox()
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
-    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz"
 
     ## KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
     ##               at the moment, this modification will be caught as illegal by `try`,
     ##               but it doesn't seem to both overlayfs at all.
     ## TODO: Extend this with more problematic overlayfs modifications.
     touch "$try_example_dir/temproot/bin/foo"
-    ! "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
+    ! "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" 2>/dev/null
 }
 
 test_non_existent_sandbox()
@@ -250,7 +250,7 @@ test_pipeline()
     ## Set up expected output
     echo 'TesT' >expected.out
 
-    "$try" 'echo test | tr t T' > out.txt || return 1
+    "$try" 'echo test | tr t T' >out.txt || return 1
 
     diff -q expected.out out.txt
 }
@@ -330,8 +330,8 @@ test_summary()
     touch target
 
     try_example_dir=$(mktemp -d)
-    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
-    "$try" summary "$try_example_dir" > summary.out
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
+    "$try" summary "$try_example_dir" >summary.out
 
     ## Check that the summary correctly identifies every change
     grep -qx "$PWD/file_1.txt (added)" <summary.out &&
@@ -348,8 +348,8 @@ test_empty_summary()
     cd "$try_workspace/"
 
     try_example_dir=$(mktemp -d)
-    "$try" -D "$try_example_dir" "echo hi" > /dev/null
-    "$try" summary "$try_example_dir" > summary.out
+    "$try" -D "$try_example_dir" "echo hi" >/dev/null
+    "$try" summary "$try_example_dir" >summary.out
 
     ## We want to return true if the following line is not found!
     ! grep -q "Changes detected in the following files:" <summary.out
@@ -389,7 +389,7 @@ test_dev()
     local try_workspace=$1
     cd "$try_workspace/"
 
-    "$try" -y "head -c 5 /dev/urandom > target"
+    "$try" -y "head -c 5 /dev/urandom >target"
     [ -s target ]
 }
 
@@ -470,7 +470,7 @@ else
     done
 fi
 
-if type lsb_release > /dev/null ; then
+if type lsb_release >/dev/null ; then
    distro=$(lsb_release -i -s)
 elif [ -e /etc/os-release ] ; then
    distro=$(awk -F= '$1 == "ID" {print $2}' /etc/os-release)
