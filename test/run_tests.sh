@@ -37,7 +37,7 @@ cleanup()
 test_read_from_run_dir()
 {
     ls /run/systemd > /dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo "Cannot read from /run/systemd."
         return 1
     fi
@@ -48,7 +48,7 @@ run_test()
     cleanup
     local test=$1
     
-    if [ "$(type -t $test)" != "function" ]; then
+    if [[ "$(type -t $test)" != "function" ]]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
@@ -62,7 +62,7 @@ run_test()
     $test "$try_workspace"
     test_try_ec=$?
     
-    if [ $test_try_ec -eq 0 ]; then
+    if [[ $test_try_ec -eq 0 ]]; then
         echo -ne '\t\t\t'
         echo "$test are identical" >> $output_dir/result_status
         echo -e '\tOK'        
@@ -115,7 +115,7 @@ test_touch_and_rm_no_flag()
     
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
-        [ ! -f file.txt.gz ]
+        [[ ! -f file.txt.gz ]]
 }
 
 test_touch_and_rm_D_flag_commit()
@@ -134,7 +134,7 @@ test_touch_and_rm_D_flag_commit()
     
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
-        [ ! -f file.txt.gz ]
+        [[ ! -f file.txt.gz ]]
 }
 
 test_reuse_sandbox()
@@ -153,7 +153,7 @@ test_reuse_sandbox()
     "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
     $try commit $try_example_dir
     
-    [ ! -f file_1.txt ] &&
+    [[ ! -f file_1.txt ]] &&
         diff -q expected2.txt file_2.txt &&
         diff -q expected3.out file.txt.gz
 }
@@ -328,8 +328,8 @@ test_ignore_flag()
     "$try" -y -i foo1 -i foo2 "touch foo1.txt; touch foo2.txt; touch bar.txt"
 
     diff -q expected.bar bar.txt &&
-        [ ! -f foo1.txt ] &&
-        [ ! -f foo2.txt ]
+        [[ ! -f foo1.txt ]] &&
+        [[ ! -f foo2.txt ]]
 }
 
 test_dev()
@@ -338,13 +338,13 @@ test_dev()
     cd "$try_workspace/"
 
     "$try" -y "head -c 5 /dev/urandom > target"
-    [ -s target ]
+    [[ -s target ]]
 }
 
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
-    if [ "$1" = "$bash" ]
+    if [[ "$1" = "$bash" ]]
     then
         (exit 1)
     else
@@ -353,7 +353,7 @@ test_fail()
 }
 
 # We run all tests composed with && to exit on the first that fails
-if [ "$#" -eq 0 ]; then 
+if [[ "$#" -eq 0 ]]; then 
     run_test test_untar_no_flag
     run_test test_untar_D_flag_commit
     run_test test_touch_and_rm_no_flag
@@ -382,7 +382,7 @@ fi
 
 if type lsb_release > /dev/null ; then
    distro=$(lsb_release -i -s)
-elif [ -e /etc/os-release ] ; then
+elif [[ -e /etc/os-release ]] ; then
    distro=$(awk -F= '$1 == "ID" {print $2}' /etc/os-release)
 fi
 
@@ -411,7 +411,7 @@ PASSED_TESTS=$(grep -c "are identical" "$output_dir"/result_status)
 echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed." | tee $output_dir/results.log
 echo "========================================================"
 
-if [ $PASSED_TESTS -ne $TOTAL_TESTS ]
+if [[ $PASSED_TESTS -ne $TOTAL_TESTS ]]
 then
     exit 1
 fi
