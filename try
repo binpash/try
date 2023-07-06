@@ -29,7 +29,7 @@ try() {
         error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
 
-    if [ "$SANDBOX_DIR" ]
+    if [ -n "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
         ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
