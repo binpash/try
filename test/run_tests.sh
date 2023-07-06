@@ -412,7 +412,7 @@ test_echo_no_unionfs_mergerfs()
 
     echo hi >expected
 
-    "$try" -y "echo hi >target" 2>/dev/null
+    "$try" -y "echo hi" >target 2>/dev/null
     diff -q expected target
 }
 
