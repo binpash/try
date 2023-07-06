@@ -373,7 +373,7 @@ if [[ $# -eq 0 ]]; then
 #    run_test test_fail
 
 else
-    for testname in $@
+    for testname in "$@"
     do
         run_test "$testname" "$2"
     done
@@ -391,7 +391,7 @@ case "$distro" in
     freebsd*)  
         # change sed to gsed
         sed () {
-            gsed $@
+            gsed "$@"
         }
         ;;
     *)
