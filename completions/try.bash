@@ -12,7 +12,7 @@ _try() {
             try)
                 cmd="try"
                 ;;
-            
+
             *)
                 ;;
         esac
@@ -49,7 +49,7 @@ _try() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        
+
     esac
 }
 
