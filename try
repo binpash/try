@@ -8,6 +8,8 @@
 # https://github.com/binpash/try
 
 TRY_VERSION="0.1.0"
+TRY_COMMAND="$(basename $0)"
+export TRY_COMMAND
 
 # exit status invariants
 #
@@ -24,14 +26,13 @@ try() {
 
     if ! command -v findmnt > /dev/null
     then
-        printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
-        exit 1
+        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
 
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2; exit 2; } 
+        [ ! -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
@@ -40,8 +41,7 @@ try() {
     ## If the sandbox is not valid we exit early
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
     then
-        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename $0)" >&2
-        exit 1 
+        error "given sandbox '$SANDBOX_DIR' is invalid" 1
     fi
 
     ## Make any directories that don't already exist, this is OK to do here
@@ -76,6 +76,8 @@ try() {
     export script_to_execute=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
+
+TRY_COMMAND="$TRY_COMMAND($0)"
 
 ## A wrapper of `mount -t overlay` to have cleaner looking code
 make_overlay() {
@@ -144,7 +146,7 @@ do
             union_helper="$(autodetect_union_helper)"
             if [ -z "$union_helper" ]
             then
-                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
+                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$TRY_COMMAND" >&2
                 exit 1
             fi
         fi
@@ -164,11 +166,11 @@ do
 
         ## Create a union directory
         "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
-            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         
         ## Make the overlay on the union directory which works as a lowerdir for overlay
         make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
-        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
     fi
 done
 
@@ -220,7 +222,7 @@ EOF
 
     case "$NO_COMMIT" in
         (quiet) ;;
-        (show) printf "%s\n" "$SANDBOX_DIR";;
+        (show) echo "$SANDBOX_DIR";;
         (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
@@ -230,7 +232,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not committing.\n" >&2
+                (*) echo "Not committing." >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
@@ -245,12 +247,10 @@ EOF
 summary() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
-        exit 2
+        error "could not find directory $SANDBOX_DIR" 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
-        exit 1
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
     
     ## Finds all potential changes
@@ -289,12 +289,10 @@ EOF
 commit() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
-        exit 2
+        error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
-        exit 1
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
 
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
@@ -313,9 +311,7 @@ commit() {
     
         if [ $? -ne 0 ]
         then
-        # TODO collect errors and summarize later
-            printf "couldn't commit $changed_file\n"
-            exit 1
+	    warn "couldn't commit $changed_file"
         fi
     done <<EOF
 $summary_output
@@ -408,16 +404,26 @@ sandbox_valid_or_empty() {
     return 0
 }
 
+################################################################################
+# Error messaging
+################################################################################
 
+warn() {
+    printf "%s: %s\n" "$TRY_COMMAND" "$1" >&2
+}
+
+error() {
+    warn "$1"
+    exit "$2"
+}
 
 ################################################################################
 # Argument parsing
 ################################################################################
 
 usage() {
-    cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
@@ -430,11 +436,15 @@ Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
 
 Subcommands:
-  $cmd summary DIR   show the summary for the overlay in DIR
-  $cmd commit DIR    commit the overlay in DIR
-  $cmd explore DIR   start a shell inside the overlay in DIR
+  $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
+  $TRY_COMMAND commit DIR    commit the overlay in DIR
+  $TRY_COMMAND explore DIR   start a shell inside the overlay in DIR
 EOF
 }
+
+################################################################################
+# Main entry point
+################################################################################
 
 # "interactive" - show nothing, interactively prompt on commit
 # "show"        - show the resulting directory on stdout when we're done
@@ -454,17 +464,15 @@ do
         (i) echo $OPTARG >>"$IGNORE_FILE";;
         (D) if ! [ -d "$OPTARG" ]
             then
-                printf "%s: no such directory $OPTARG\n" "$(basename $0)" >&2
-                exit 2
+                error "could not find sandbox directory '$OPTARG'" 2
             fi
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (v) echo "$TRY_COMMAND version $TRY_VERSION" >&2; exit 0;;
         (U) if ! [ -x "$OPTARG" ]
             then
-                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
-                exit 2
+                error "could not find executable union helper '$OPTARG'" 2
             fi
             union_helper="$OPTARG" 
             ;;
