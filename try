@@ -24,14 +24,14 @@ try() {
 
     if ! command -v findmnt >/dev/null
     then
-        printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
+        printf "%s: findmnt not found, please install util-linux\n" "$(basename "$0")" >&2
         exit 1
     fi
 
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2; exit 2; } 
+        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2; exit 2; } 
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
@@ -40,7 +40,7 @@ try() {
     ## If the sandbox is not valid we exit early
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
     then
-        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename $0)" >&2
+        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename "$0")" >&2
         exit 1 
     fi
 
@@ -143,7 +143,7 @@ do
             union_helper="$(autodetect_union_helper)"
             if [ -z "$union_helper" ]
             then
-                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
+                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename "$0")" >&2
                 exit 1
             fi
         fi
@@ -163,11 +163,11 @@ do
 
         ## Create a union directory
         "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" || 
-            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename "$0")" >&2
         
         ## Make the overlay on the union directory which works as a lowerdir for overlay
         make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
-        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename "$0")" >&2
     fi
 done
 
@@ -244,11 +244,11 @@ EOF
 summary() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename "$0")" >&2
         exit 1
     fi
     
@@ -288,11 +288,11 @@ EOF
 commit() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2
         exit 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
+        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename "$0")" >&2
         exit 1
     fi
 
@@ -414,7 +414,7 @@ sandbox_valid_or_empty() {
 ################################################################################
 
 usage() {
-    cmd="$(basename $0)"
+    cmd="$(basename "$0")"
     cat >&2 <<EOF
 Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
@@ -453,16 +453,16 @@ do
         (i) echo $OPTARG >>"$IGNORE_FILE";;
         (D) if ! [ -d "$OPTARG" ]
             then
-                printf "%s: no such directory $OPTARG\n" "$(basename $0)" >&2
+                printf "%s: no such directory $OPTARG\n" "$(basename "$0")" >&2
                 exit 2
             fi
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (v) printf "%s version $TRY_VERSION\n" "$(basename "$0")" >&2; exit 0;;
         (U) if ! [ -x "$OPTARG" ]
             then
-                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
+                printf "%s: no such executable $OPTARG\n" "$(basename "$0")" >&2
                 exit 2
             fi
             union_helper="$OPTARG" 
