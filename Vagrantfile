@@ -4,6 +4,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "debian" do |debian|
     debian.vm.box = "debian/testing64"
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    debian.vm.provision "file", source: "./.git", destination: "/home/vagrant/try/.git"
     debian.vm.provision "shell", inline: "
       sudo apt update
       sudo apt install -y git
