@@ -17,7 +17,7 @@ jobs:
         run: vagrant --version
 
       - name: Run vagrant up
-        run: vagrant up --parallel
+        run: vagrant up
 
       - name: ssh into box after boot
         run: vagrant ssh -c "echo 'hello world!'"
