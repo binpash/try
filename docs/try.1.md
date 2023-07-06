@@ -46,7 +46,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -D *DIR*
 
-: Specifies *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
 -U *PATH* 
 
