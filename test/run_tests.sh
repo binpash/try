@@ -470,9 +470,9 @@ else
     done
 fi
 
-if type lsb_release >/dev/null ; then
+if type lsb_release >/dev/null; then
    distro=$(lsb_release -i -s)
-elif [ -e /etc/os-release ] ; then
+elif [ -e /etc/os-release ]; then
    distro=$(awk -F= '$1 == "ID" {print $2}' /etc/os-release)
 fi
 
