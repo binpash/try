@@ -116,6 +116,14 @@ autodetect_union_helper() {
     fi
 }
 
+# Detect if union_helper is set, if not, we try to autodetect them
+if [ -z "$union_helper" ]
+then
+    ## Try to detect the union_helper (the variable could still be empty afterwards).
+    union_helper="$(autodetect_union_helper)"
+fi
+
+
 # actually mount the overlays
 for mountpoint in /* $(findmnt --real -r -o target -n)
 do
@@ -138,18 +146,6 @@ do
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
-        # Detect if union_helper is set, if not, we try to autodetect them
-        if [ -z ${union_helper+x} ]
-        then
-            union_helper="$(autodetect_union_helper)"
-            if [ -z "$union_helper" ]
-            then
-                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
-                exit 1
-            fi
-        fi
-
-
         ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
         ## Then we can normally make the overlay on the new union directory.
@@ -160,15 +156,22 @@ do
         ##               We should try to investigate either:
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
-        merger_dir=$(mktemp -d)
 
-        ## Create a union directory
-        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
-            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
-        
-        ## Make the overlay on the union directory which works as a lowerdir for overlay
-        make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
-        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        if [ -z "$union_helper" ]
+        then
+            ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        else
+            merger_dir=$(mktemp -d)
+
+            ## Create a union directory
+            "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" ||
+                printf "%s: Warning: Failed mounting $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+
+            ## Make the overlay on the union directory which works as a lowerdir for overlay
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        fi
     fi
 done
 
