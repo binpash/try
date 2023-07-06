@@ -40,8 +40,7 @@ FAILING_TESTS=""
 
 test_read_from_run_dir()
 {
-    ls /run/systemd > /dev/null
-    if [ $? -ne 0 ]; then
+    if ls /run/systemd >/dev/null 2>&1; then
         echo "Cannot read from /run/systemd."
         return 1
     fi
