@@ -4,7 +4,7 @@
 
 "Do, or do not. There is no try."
 
-We're setting out to change that: `try cmd` and commit---or not. 
+We're setting out to change that: `try cmd` and commit---or not.
 
 ## Description
 [![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
