@@ -7,7 +7,8 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "shell", inline: "
       sudo apt update
       sudo apt install -y git
-      TRY_TOP=$(pwd) bash /home/vagrant/try/test/run_tests.sh"
+      cd try
+      TRY_TOP=$(pwd) bash test/run_tests.sh"
   end
 
   # Arch Linux Box Configuration
