@@ -301,7 +301,7 @@ expect {
     }
   }
 expect "#"
-## Send `exit`
+## Send \`exit\`
 send \x04
 
 ## Ignore all output and just send a y at the end
