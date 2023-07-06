@@ -21,7 +21,6 @@ TRY_VERSION="0.1.0"
 
 try() {
     START_DIR="$PWD"
-    CLEANUP="$IGNORE_FILE"
 
     if ! command -v findmnt > /dev/null
     then
@@ -36,7 +35,6 @@ try() {
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
-        CLEANUP="$CLEANUP $SANDBOX_DIR"
     fi
 
     ## If the sandbox is not valid we exit early
@@ -76,10 +74,6 @@ try() {
     export chroot_executable=$(mktemp)
     export try_mount_log=$(mktemp)
     export script_to_execute=$(mktemp)
-
-    # Cleanup the temporary files
-    CLEANUP="$CLEANUP $mount_and_execute $chroot_executable $script_to_execute"
-
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -227,8 +221,7 @@ EOF
     case "$NO_COMMIT" in
         (quiet) ;;
         (show) printf "%s\n" "$SANDBOX_DIR";;
-        (commit) commit "$SANDBOX_DIR"
-            cleanup;;
+        (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
         if [ "$?" -eq 0 ]
@@ -236,8 +229,7 @@ EOF
             echo
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
-                (y|Y|yes|YES) commit "$SANDBOX_DIR"
-                    cleanup;;
+                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
                 (*) printf "Not committing.\n" >&2
                 echo "$SANDBOX_DIR";;
             esac
@@ -245,19 +237,6 @@ EOF
         ;;
     esac
 }
-
-################################################################################
-# Cleanup temporary files
-################################################################################
-
-cleanup() {
-    echo "Before cleanup: $CLEANUP" 1>&2
-    if [ "$CLEANUP" ]
-    then
-        rm -rf $CLEANUP
-    fi
-}
-
 
 ################################################################################
 # Summarize an overlay
@@ -510,4 +489,3 @@ case "$1" in
 esac
 
 exit $exitcode
-
