@@ -278,7 +278,10 @@ test_explore()
     local try_workspace=$1
     cd "$try_workspace/"
 
-    export SHELL="/bin/bash"
+    SHELL="/bin/bash --norc"
+    export SHELL
+    PS1="# "
+    export PS1
 
     echo hi >expected.out
 
