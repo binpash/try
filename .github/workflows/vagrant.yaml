@@ -1,4 +1,4 @@
-name: Main workflow
+name: Vagrant
   
 on: 
   pull_request:
@@ -7,21 +7,17 @@ on:
     - cron: '17 14 * * *'
 
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-        
   vagrant:
     runs-on: macos-10.15
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Show Vagrant version
-      run: vagrant --version
+      - name: Show Vagrant version
+        run: vagrant --version
 
-    - name: Run vagrant up
-      run: vagrant up
+      - name: Run vagrant up
+        run: vagrant up
 
-    - name: ssh into box after boot
-      run: vagrant ssh -c "echo 'hello world!'"
+      - name: ssh into box after boot
+        run: vagrant ssh -c "echo 'hello world!'"
