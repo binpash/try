@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2023 The PaSh Authors. 
+# Copyright (c) 2023 The PaSh Authors.
 #
 # Usage of this source code is governed by the MIT license, you can find the
 # LICENSE file in the root directory of this project.
@@ -31,7 +31,7 @@ try() {
     if [ -n "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2; exit 2; } 
+        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename "$0")" >&2; exit 2; }
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
@@ -41,7 +41,7 @@ try() {
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
     then
         printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename "$0")" >&2
-        exit 1 
+        exit 1
     fi
 
     ## Make any directories that don't already exist, this is OK to do here
@@ -130,7 +130,7 @@ do
         [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
     then
         continue
-    fi    
+    fi
 
     # Try mounting everything normally
     make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
@@ -162,9 +162,9 @@ do
         merger_dir=$(mktemp -d)
 
         ## Create a union directory
-        "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" || 
+        "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename "$0")" >&2
-        
+
         ## Make the overlay on the union directory which works as a lowerdir for overlay
         make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
         printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename "$0")" >&2
@@ -193,8 +193,8 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-mount -t proc proc /proc &&   
-cd "$START_DIR" && 
+mount -t proc proc /proc &&
+cd "$START_DIR" &&
 source "$script_to_execute"
 EOF
 
@@ -251,11 +251,11 @@ summary() {
         printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename "$0")" >&2
         exit 1
     fi
-    
+
     ## Finds all potential changes
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-    
+
     if [ -z "$summary_output" ]
     then
         return 1
@@ -309,7 +309,7 @@ commit() {
         (mo*) cp -fa "$changed_file" "$local_file";;
         (ad*) cp -fa "$changed_file" "$local_file"
         esac
-    
+
         if [ "$?" -ne 0 ]
         then
         # TODO collect errors and summarize later
@@ -362,7 +362,7 @@ process_changes() {
             ## If something exists there, we need to delete it first
             if [ -e "$local_file" ]
             then
-                echo "rd $local_file" 
+                echo "rd $local_file"
             else
                 echo "md $local_file"
             fi
@@ -384,7 +384,7 @@ EOF
 }
 
 ## Returns 0 if a sandbox is empty (fresh for use)
-## or if it already exists, and is well-formed 
+## or if it already exists, and is well-formed
 sandbox_valid_or_empty() {
     sandbox_dir="$1"
     if [ ! -d "$sandbox_dir/upperdir" ] && [ ! -d "$sandbox_dir/workdir" ] && [ ! -d "$sandbox_dir/temproot" ]
@@ -423,7 +423,7 @@ Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
-  
+
   -v                show version information (and exit)
   -h                show this usage message (and exit)
 
@@ -465,7 +465,7 @@ do
                 printf "%s: no such executable $OPTARG\n" "$(basename "$0")" >&2
                 exit 2
             fi
-            union_helper="$OPTARG" 
+            union_helper="$OPTARG"
             ;;
         (h|*) usage; exit 0;;
     esac
