@@ -51,7 +51,7 @@ run_test()
     cleanup
     local test=$1
 
-    if [ "$(type -t $test)" != "function" ]; then
+    if [ "$(type -t "$test")" != "function" ]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
@@ -70,12 +70,12 @@ run_test()
     if [ $test_try_ec -eq 0 ]; then
         : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
-        echo "$test passed" >> $output_dir/result_status
+        echo "$test passed" >> "$output_dir"/result_status
         echo -e '\tOK'
     else
         FAILING_TESTS="$FAILING_TESTS $test"
         echo -n " non-zero ec ($test_try_ec)"
-        echo "$test failed" >> $output_dir/result_status
+        echo "$test failed" >> "$output_dir"/result_status
         echo -e '\t\tFAIL'
     fi
 }
@@ -83,7 +83,7 @@ run_test()
 test_unzip_no_flag()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -96,15 +96,15 @@ test_unzip_no_flag()
 test_unzip_D_flag_commit()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
     echo 'Hello World!' >expected.out
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
-    $try commit $try_example_dir
+    "$try" -D "$try_example_dir" gunzip file.txt.gz || return 1
+    $try commit "$try_example_dir"
     diff -q expected.out file.txt
 }
 
@@ -153,7 +153,7 @@ test_unzip_D_flag_commit_without_cleanup()
 test_touch_and_rm_no_flag()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -170,7 +170,7 @@ test_touch_and_rm_no_flag()
 test_touch_and_rm_D_flag_commit()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -178,8 +178,8 @@ test_touch_and_rm_D_flag_commit()
     echo 'test' >expected2.txt
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
-    $try commit $try_example_dir
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
+    $try commit "$try_example_dir"
 
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
@@ -189,7 +189,7 @@ test_touch_and_rm_D_flag_commit()
 test_reuse_sandbox()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -198,9 +198,9 @@ test_reuse_sandbox()
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
-    "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
-    $try commit $try_example_dir
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
+    $try commit "$try_example_dir"
 
     [ ! -f file_1.txt ] &&
         diff -q expected2.txt file_2.txt &&
@@ -210,7 +210,7 @@ test_reuse_sandbox()
 test_reuse_problematic_sandbox()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -219,27 +219,27 @@ test_reuse_problematic_sandbox()
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
 
     ## KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
     ##               at the moment, this modification will be caught as illegal by `try`,
     ##               but it doesn't seem to both overlayfs at all.
     ## TODO: Extend this with more problematic overlayfs modifications.
     touch "$try_example_dir/temproot/bin/foo"
-    ! "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
+    ! "$try" -D "$try_example_dir" "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz" 2> /dev/null
 }
 
 test_non_existent_sandbox()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     try_example_dir="non-existent"
-    ! "$try" -D $try_example_dir "touch file_1.txt" 2>/dev/null &&
-    ! "$try" summary $try_example_dir 2>/dev/null &&
-    ! "$try" commit $try_example_dir 2>/dev/null &&
-    ! "$try" explore $try_example_dir 2>/dev/null
+    ! "$try" -D "$try_example_dir" "touch file_1.txt" 2>/dev/null &&
+    ! "$try" summary "$try_example_dir" 2>/dev/null &&
+    ! "$try" commit "$try_example_dir" 2>/dev/null &&
+    ! "$try" explore "$try_example_dir" 2>/dev/null
 }
 
 test_pipeline()
@@ -319,7 +319,7 @@ EOF
 test_summary()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -330,8 +330,8 @@ test_summary()
     touch target
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
-    "$try" summary $try_example_dir > summary.out
+    "$try" -D "$try_example_dir" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir"
+    "$try" summary "$try_example_dir" > summary.out
 
     ## Check that the summary correctly identifies every change
     grep -qx "$PWD/file_1.txt (added)" <summary.out &&
@@ -344,12 +344,12 @@ test_summary()
 test_empty_summary()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir "echo hi" > /dev/null
-    "$try" summary $try_example_dir > summary.out
+    "$try" -D "$try_example_dir" "echo hi" > /dev/null
+    "$try" summary "$try_example_dir" > summary.out
 
     ## We want to return true if the following line is not found!
     ! grep -q "Changes detected in the following files:" <summary.out
@@ -358,7 +358,7 @@ test_empty_summary()
 test_mkdir_on_file()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
