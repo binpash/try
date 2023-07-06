@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt update
-      sudo apt install -y git except
+      sudo apt install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) bash test/run_tests.sh"
