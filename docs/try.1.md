@@ -32,7 +32,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 -v
 
 : Show version information (and exit)
-  
+
 -h
 
 : Show a usage message (and exit)
@@ -48,7 +48,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
--U *PATH* 
+-U *PATH*
 
 : Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
 This option is recommended in case OverlayFS fails.
@@ -68,7 +68,7 @@ try explore
 : Run in interactive mode
 
 ## Arguments
- 
+
 *CMD*
 
 : Specifies the command to execute inside the overlay
@@ -93,7 +93,7 @@ try explore
 
 # EXAMPLES
 
-The general workflow is to *try* a command before committing its results to your workspace. 
+The general workflow is to *try* a command before committing its results to your workspace.
 
 To uncompress a gzip file, you can invoke *try* as follows
 
