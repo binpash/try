@@ -48,7 +48,7 @@ run_test()
     cleanup
     local test=$1
     
-    if [[ "$(type -t $test)" != "function" ]]; then
+    if [[ $(type -t $test) != "function" ]]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
@@ -344,7 +344,7 @@ test_dev()
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
-    if [[ "$1" = "$bash" ]]
+    if [[ $1 = "$bash" ]]
     then
         (exit 1)
     else
@@ -353,7 +353,7 @@ test_fail()
 }
 
 # We run all tests composed with && to exit on the first that fails
-if [[ "$#" -eq 0 ]]; then 
+if [[ $# -eq 0 ]]; then 
     run_test test_untar_no_flag
     run_test test_untar_D_flag_commit
     run_test test_touch_and_rm_no_flag
