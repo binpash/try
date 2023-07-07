@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
       sudo apt install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) bash test/run_tests.sh"
+      bash test/run_tests.sh"
   end
 
   # Reguar debian testing box with LVM
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      TRY_TOP=$(pwd) bash test/run_tests.sh"
+      bash test/run_tests.sh"
   end
 
   #Reguar rocky testing box
@@ -46,7 +46,6 @@ Vagrant.configure("2") do |config|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
-      sudo yum update
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
@@ -58,8 +57,7 @@ Vagrant.configure("2") do |config|
     rocky9lvm.vm.box = "generic/rocky9"
     rocky9lvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky9lvm.vm.provision "shell", privileged: false, inline: "
-      sudo yum update
-      sudo yum install -y git expect lvm2 mergerfs
+      sudo yum install -y git expect lvm2 funionfs
 
       sudo fallocate -l 2G /root/lvm_disk.img
       sudo losetup /dev/loop0 /root/lvm_disk.img
@@ -79,6 +77,6 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      TRY_TOP=$(pwd) bash test/run_tests.sh"
+      bash test/run_tests.sh"
   end
 end
