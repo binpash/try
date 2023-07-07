@@ -80,15 +80,4 @@ Vagrant.configure("2") do |config|
       cd try
       TRY_TOP=$(pwd) bash test/run_tests.sh"
   end
-
-  # Reguar alpine testing box
-  config.vm.define "alpine" do |alpine|
-    alpine.vm.box = "generic/alpine38"
-    alpine.vm.provision "file", source: "./", destination: "/home/vagrant/try"
-    alpine.vm.provision "shell", privileged: false, inline: "
-      sudo apk add git expect unionfs-fuse
-      sudo chown -R vagrant:vagrant try
-      cd try
-      bash test/run_tests.sh"
-  end
 end
