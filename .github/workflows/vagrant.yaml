@@ -1,10 +1,10 @@
 name: Vagrant
   
-on: 
-  pull_request:
+on:
   push:
-  schedule:
-    - cron: '17 14 * * *'
+    branches:
+    - main
+  pull_request:
 
 jobs:
   debian:
