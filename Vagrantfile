@@ -9,7 +9,23 @@ Vagrant.configure("2") do |config|
       sudo apt install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      bash test/run_tests.sh"
+      bash test/run_tests.sh
+    "
+  end
+
+  #Reguar debian testing box but we try the rustup oneliner
+  config.vm.define "debianrustup" do |debianrustup|
+    debianrustup.vm.box = "debian/testing64"
+    debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    debianrustup.vm.provision "shell", privileged: false, inline: "
+      sudo apt update
+      sudo apt install -y curl
+      sudo chown -R vagrant:vagrant try
+      cd try
+      mkdir rustup
+      ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
+      ls rustup/upperdir/home/vagrant/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin
+    "
   end
 
   # Reguar debian testing box with LVM
@@ -44,7 +60,8 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      bash test/run_tests.sh"
+      bash test/run_tests.sh
+    "
   end
 
   # Reguar rocky testing box
@@ -55,7 +72,8 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) bash test/run_tests.sh"
+      TRY_TOP=$(pwd) bash test/run_tests.sh
+    "
   end
   #
   # Reguar rocky testing box
@@ -66,6 +84,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) bash test/run_tests.sh"
+      TRY_TOP=$(pwd) bash test/run_tests.sh
+    "
   end
 end
