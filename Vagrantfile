@@ -20,12 +20,18 @@ Vagrant.configure("2") do |config|
       sudo apt update
       sudo apt install -y git expect lvm2 mergerfs
 
+      # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
+
+      # Setup a loopback device
       sudo losetup /dev/loop0 /root/lvm_disk.img
+
+      # Create the lv physicalvolume, volumegroup, and logicalvolumes
       sudo pvcreate /dev/loop0
       sudo vgcreate vg0 /dev/loop0
       sudo lvcreate -n lv0 -l 50%FREE vg0
       sudo lvcreate -n lv1 -l 100%FREE vg0
+
       sudo mkfs.ext4 /dev/vg0/lv0
       sudo mkfs.ext4 /dev/vg0/lv1
       sudo mkdir /mnt/lv0
@@ -46,6 +52,17 @@ Vagrant.configure("2") do |config|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
+      sudo yum install -y git expect
+      sudo chown -R vagrant:vagrant try
+      cd try
+      TRY_TOP=$(pwd) bash test/run_tests.sh"
+  end
+  #
+  # Reguar rocky testing box
+  config.vm.define "fedora" do |fedora|
+    fedora.vm.box = "generic/fedora33"
+    fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    fedora.vm.provision "shell", privileged: false, inline: "
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
