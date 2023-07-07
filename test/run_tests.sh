@@ -394,6 +394,28 @@ test_dev()
     [ -s target ]
 }
 
+## This test is checking if try works when mergerfs/unionfs are not present (but also not necessary)
+test_echo_no_unionfs_mergerfs()
+{
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    ## Create a new /bin and /usr/bin without mergerfs and unionfs 
+    new_bin_dir=$(mktemp -d)
+    mkdir "$new_bin_dir/usr"
+    cp -rs /usr/bin "$new_bin_dir/usr/bin"
+
+    ## Delete mergerfs and unionfs and set the new PATH to the temporary directory
+    rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
+    rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
+    export PATH="$new_bin_dir/usr/bin"
+
+    cd $(mktemp -d)
+    echo hi >expected
+    "$try" -y "echo hi" >target 2>/dev/null
+    diff -q expected target
+}
+
 # a test that deliberately fails (for testing CI changes)
 test_fail()
 {
@@ -424,6 +446,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_mkdir_on_file
     run_test test_ignore_flag
     run_test test_dev
+    run_test test_echo_no_unionfs_mergerfs
 
 # uncomment this to force a failure
 #    run_test test_fail
