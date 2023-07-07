@@ -32,7 +32,13 @@ disks.
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
 
-Has been tested on the following distributions:
+To run `try`'s test suite (`test/run_tests.sh`), you will need:
+
+* `bash`
+* `expect`
+
+`try` has been tested on the following distributions:
+
 * `Ubuntu 20.04 LTS` or later
 * `Debian 12`
 * `Fedora 38`

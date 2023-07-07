@@ -8,6 +8,8 @@
 # https://github.com/binpash/try
 
 TRY_VERSION="0.1.0"
+TRY_COMMAND="$(basename $0)"
+export TRY_COMMAND
 
 # exit status invariants
 #
@@ -24,14 +26,13 @@ try() {
 
     if ! command -v findmnt > /dev/null
     then
-        printf "%s: findmnt not found, please install util-linux\n" "$(basename $0)" >&2
-        exit 1
+        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
 
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        [ ! -d "$SANDBOX_DIR" ] && { printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2; exit 2; } 
+        [ ! -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
@@ -40,14 +41,19 @@ try() {
     ## If the sandbox is not valid we exit early
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
     then
-        printf "%s: given sandbox $SANDBOX_DIR is invalid\n" "$(basename $0)" >&2
-        exit 1 
+        error "given sandbox '$SANDBOX_DIR' is invalid" 1
     fi
 
     ## Make any directories that don't already exist, this is OK to do here
     ##  because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+
+    ## Find all the directories and mounts that need to be mounted
+    export DIRS_AND_MOUNTS=$(mktemp)
+    ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
+    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
+    sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
@@ -61,10 +67,11 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
-    for mountpoint in /* $(findmnt --real -r -o target -n | grep -v "^/$")
+    for mountpoint in $(cat "$DIRS_AND_MOUNTS")
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mountpoint" ]; then
+        if [ -d "$mountpoint" ]
+        then
             mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
         fi
     done
@@ -75,6 +82,8 @@ try() {
     export script_to_execute=$(mktemp)
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
+
+TRY_COMMAND="$TRY_COMMAND($0)"
 
 ## A wrapper of `mount -t overlay` to have cleaner looking code
 make_overlay() {
@@ -115,8 +124,15 @@ autodetect_union_helper() {
     fi
 }
 
+# Detect if union_helper is set, if not, we try to autodetect them
+if [ -z "$union_helper" ]
+then
+    ## Try to detect the union_helper (the variable could still be empty afterwards).
+    union_helper="$(autodetect_union_helper)"
+fi
+
 # actually mount the overlays
-for mountpoint in /* $(findmnt --real -r -o target -n)
+for mountpoint in $(cat "$DIRS_AND_MOUNTS")
 do
     ## We are not interested in mounts that are not directories
     if [ ! -d "$mountpoint" ]
@@ -137,18 +153,6 @@ do
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
-        # Detect if union_helper is set, if not, we try to autodetect them
-        if [ -z ${union_helper+x} ]
-        then
-            union_helper="$(autodetect_union_helper)"
-            if [ -z "$union_helper" ]
-            then
-                printf "%s: Failed to mount overlayfs normally, mergerfs or unionfs not found for $mountpoint, see $try_mount_log\n" "$(basename $0)" >&2
-                exit 1
-            fi
-        fi
-
-
         ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
         ## Then we can normally make the overlay on the new union directory.
@@ -159,15 +163,22 @@ do
         ##               We should try to investigate either:
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
-        merger_dir=$(mktemp -d)
 
-        ## Create a union directory
-        "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" || 
-            printf "%s: Warning: Failed to mount $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
-        
-        ## Make the overlay on the union directory which works as a lowerdir for overlay
-        make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
-        printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$(basename $0)" >&2
+        if [ -z "$union_helper" ]
+        then
+            ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+        else
+            merger_dir=$(mktemp -d)
+
+            ## Create a union directory
+            "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" ||
+                printf "%s: Warning: Failed mounting $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+
+            ## Make the overlay on the union directory which works as a lowerdir for overlay
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+        fi
     fi
 done
 
@@ -180,7 +191,7 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-unshare --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
+unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
@@ -195,7 +206,7 @@ EOF
 
 mount -t proc proc /proc &&   
 cd $START_DIR && 
-source "$script_to_execute"
+. "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -219,7 +230,7 @@ EOF
 
     case "$NO_COMMIT" in
         (quiet) ;;
-        (show) printf "%s\n" "$SANDBOX_DIR";;
+        (show) echo "$SANDBOX_DIR";;
         (commit) commit "$SANDBOX_DIR";;
         (interactive)
             summary "$SANDBOX_DIR" >&2
@@ -229,7 +240,7 @@ EOF
             read -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) printf "Not committing.\n" >&2
+                (*) echo "Not committing." >&2
                 echo "$SANDBOX_DIR";;
             esac
         fi
@@ -244,12 +255,10 @@ EOF
 summary() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
-        exit 2
+        error "could not find directory $SANDBOX_DIR" 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
-        exit 1
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
     
     ## Finds all potential changes
@@ -288,12 +297,10 @@ EOF
 commit() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR\n" "$(basename $0)" >&2
-        exit 2
+        error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
     elif ! [ -d "$SANDBOX_DIR/upperdir" ]
     then
-        printf "%s: could not find directory $SANDBOX_DIR/upperdir\n" "$(basename $0)" >&2
-        exit 1
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
 
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
@@ -312,9 +319,7 @@ commit() {
     
         if [ $? -ne 0 ]
         then
-        # TODO collect errors and summarize later
-            printf "couldn't commit $changed_file\n"
-            exit 1
+	    warn "couldn't commit $changed_file"
         fi
     done <<EOF
 $summary_output
@@ -407,16 +412,26 @@ sandbox_valid_or_empty() {
     return 0
 }
 
+################################################################################
+# Error messaging
+################################################################################
 
+warn() {
+    printf "%s: %s\n" "$TRY_COMMAND" "$1" >&2
+}
+
+error() {
+    warn "$1"
+    exit "$2"
+}
 
 ################################################################################
 # Argument parsing
 ################################################################################
 
 usage() {
-    cmd="$(basename $0)"
     cat >&2 <<EOF
-Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't prompt for commit
   -y                assume yes to all prompts (implies -n is not used)
@@ -429,11 +444,15 @@ Usage: $cmd [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
 
 Subcommands:
-  $cmd summary DIR   show the summary for the overlay in DIR
-  $cmd commit DIR    commit the overlay in DIR
-  $cmd explore DIR   start a shell inside the overlay in DIR
+  $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
+  $TRY_COMMAND commit DIR    commit the overlay in DIR
+  $TRY_COMMAND explore DIR   start a shell inside the overlay in DIR
 EOF
 }
+
+################################################################################
+# Main entry point
+################################################################################
 
 # "interactive" - show nothing, interactively prompt on commit
 # "show"        - show the resulting directory on stdout when we're done
@@ -453,17 +472,15 @@ do
         (i) echo $OPTARG >>"$IGNORE_FILE";;
         (D) if ! [ -d "$OPTARG" ]
             then
-                printf "%s: no such directory $OPTARG\n" "$(basename $0)" >&2
-                exit 2
+                error "could not find sandbox directory '$OPTARG'" 2
             fi
             SANDBOX_DIR="$OPTARG"
             NO_COMMIT="quiet"
             ;;
-        (v) printf "%s version $TRY_VERSION\n" "$(basename $0)" >&2; exit 0;;
+        (v) echo "$TRY_COMMAND version $TRY_VERSION" >&2; exit 0;;
         (U) if ! [ -x "$OPTARG" ]
             then
-                printf "%s: no such executable $OPTARG\n" "$(basename $0)" >&2
-                exit 2
+                error "could not find executable union helper '$OPTARG'" 2
             fi
             union_helper="$OPTARG" 
             ;;
