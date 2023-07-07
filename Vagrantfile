@@ -53,10 +53,11 @@ Vagrant.configure("2") do |config|
   end
 
   # Reguar rocky testing box with LVM
-  config.vm.define "rocky9lvm" do |rocky9lvm|
-    rocky9lvm.vm.box = "generic/rocky9"
-    rocky9lvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
-    rocky9lvm.vm.provision "shell", privileged: false, inline: "
+  # only rhel7 has funionfs :(
+  config.vm.define "rocky7lvm" do |rocky7lvm|
+    rocky7lvm.vm.box = "generic/rocky7"
+    rocky7lvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    rocky7lvm.vm.provision "shell", privileged: false, inline: "
       sudo yum install -y git expect lvm2 funionfs
 
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -77,6 +78,17 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
+      bash test/run_tests.sh"
+  end
+
+  #Reguar alpine testing box
+  config.vm.define "alpine" do |alpine|
+    alpine.vm.box = "generic/alpine38"
+    alpine.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    alpine.vm.provision "shell", privileged: false, inline: "
+      sudo apk add git expect
+      sudo chown -R vagrant:vagrant try
+      cd try
       bash test/run_tests.sh"
   end
 end
