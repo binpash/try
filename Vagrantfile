@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
 
-  #Reguar debian testing box
+  #Regular debian testing box
   config.vm.define "debian" do |debian|
     debian.vm.box = "debian/testing64"
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
     "
   end
 
-  #Reguar debian testing box but we try the rustup oneliner
+  #Regular debian testing box but we try the rustup oneliner
   config.vm.define "debianrustup" do |debianrustup|
     debianrustup.vm.box = "debian/testing64"
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
     "
   end
 
-  # Reguar debian testing box with LVM
+  # Regular debian testing box with LVM
   config.vm.define "debianlvm" do |debianlvm|
     debianlvm.vm.box = "debian/testing64"
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
@@ -64,7 +64,7 @@ Vagrant.configure("2") do |config|
     "
   end
 
-  # Reguar rocky testing box
+  # Regular rocky testing box
   config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
@@ -76,7 +76,7 @@ Vagrant.configure("2") do |config|
     "
   end
   #
-  # Reguar rocky testing box
+  # Regular rocky testing box
   config.vm.define "fedora33" do |fedora|
     fedora.vm.box = "generic/fedora33"
     fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
