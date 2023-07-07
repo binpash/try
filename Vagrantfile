@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
       cd try
       mkdir rustup
       ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
-      ls rustup/upperdir/home/vagrant/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin
+      ls -lah rustup/upperdir/home/vagrant/.cargo/bin
     "
   end
 
