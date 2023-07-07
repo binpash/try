@@ -1,5 +1,10 @@
 Vagrant.configure("2") do |config|
 
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 8192
+    vb.cpus = 2
+  end
+
   # Regular debian testing box
   config.vm.define "debian" do |debian|
     debian.vm.box = "debian/testing64"
