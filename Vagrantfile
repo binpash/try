@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Reguar rocky testing box
-  config.vm.define "rocky" do |rocky|
+  config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
   end
   #
   # Reguar rocky testing box
-  config.vm.define "fedora" do |fedora|
+  config.vm.define "fedora33" do |fedora|
     fedora.vm.box = "generic/fedora33"
     fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     fedora.vm.provision "shell", privileged: false, inline: "

@@ -7,14 +7,37 @@ on:
     - cron: '17 14 * * *'
 
 jobs:
-  vagrant:
+  debian:
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v2
+      - name: Start vagrant box
+        run: vagrant up debian
 
-      - name: Show Vagrant version
-        run: vagrant --version
+  debianrustup:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Start vagrant box
+        run: vagrant up debianrustup
 
-      - name: Run vagrant up
-        run: vagrant up
+  debianlvm:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Start vagrant box
+        run: vagrant up debianlvm
+
+  rocky9:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Start vagrant box
+        run: vagrant up rocky9
+
+  fedora33:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Start vagrant box
+        run: vagrant up fedora33
