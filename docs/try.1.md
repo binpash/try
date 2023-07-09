@@ -139,6 +139,7 @@ try commit try_dir
 # SEE ALSO
 
 chroot(1), unshare(1)
+Alternative tool [checkinstall](http://checkinstall.izto.org/)
 
 # BUGS
 
