@@ -1,4 +1,4 @@
-name: Vagrant
+name: Distro and LVM tests
   
 on:
   push:
@@ -6,38 +6,47 @@ on:
     - main
   pull_request:
 
+strategy:
+  matrix:
+    vagrant_target:
+      - debian
+      - debianrustup
+      - debianlvm
+      - rocky9
+      - fedora33
+
 jobs:
   debian:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Start vagrant box
-        run: vagrant up debian
+        run: vagrant up ${{ matrix.vagrant_target }}
 
   debianrustup:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Start vagrant box
-        run: vagrant up debianrustup
+        run: vagrant up ${{ matrix.vagrant_target }}
 
   debianlvm:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Start vagrant box
-        run: vagrant up debianlvm
+        run: vagrant up ${{ matrix.vagrant_target }}
 
   rocky9:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Start vagrant box
-        run: vagrant up rocky9
+        run: vagrant up ${{ matrix.vagrant_target }}
 
   fedora33:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Start vagrant box
-        run: vagrant up fedora33
+        run: vagrant up ${{ matrix.vagrant_target }}
