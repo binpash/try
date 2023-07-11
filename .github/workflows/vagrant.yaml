@@ -16,37 +16,12 @@ strategy:
       - fedora33
 
   jobs:
-    debian:
+    vagrant:
       runs-on: macos-latest
       steps:
+        - name: Checkout
         - uses: actions/checkout@v2
-        - name: Start vagrant box
-          run: vagrant up ${{ matrix.vagrant_target }}
-  
-    debianrustup:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Start vagrant box
-          run: vagrant up ${{ matrix.vagrant_target }}
-  
-    debianlvm:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Start vagrant box
-          run: vagrant up ${{ matrix.vagrant_target }}
-  
-    rocky9:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Start vagrant box
-          run: vagrant up ${{ matrix.vagrant_target }}
-  
-    fedora33:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Start vagrant box
-          run: vagrant up ${{ matrix.vagrant_target }}
+         
+        - name: Run VM in Vagrant
+        - run: vagrant up ${{ matrix.vagrant_target }}
+
