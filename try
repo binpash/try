@@ -50,7 +50,8 @@ try() {
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
-    export DIRS_AND_MOUNTS=$(mktemp)
+    DIRS_AND_MOUNTS="$(mktemp)"
+    export DIRS_AND_MOUNTS
     ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
@@ -76,10 +77,15 @@ try() {
         fi
     done
 
-    mount_and_execute=$(mktemp)
-    export chroot_executable=$(mktemp)
-    export try_mount_log=$(mktemp)
-    export script_to_execute=$(mktemp)
+    mount_and_execute="$(mktemp)"
+    chroot_executable="$(mktemp)"
+    try_mount_log="$(mktemp)"
+    script_to_execute="$(mktemp)"
+
+    export chroot_executable
+    export try_mount_log
+    export script_to_execute
+
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -211,6 +217,7 @@ EOF
 
     echo "$@" >"$script_to_execute"
 
+    # `$script_to_execute` need not be +x to be sourced
     chmod +x "$mount_and_execute" "$chroot_executable"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
@@ -229,22 +236,21 @@ EOF
     # commit?
 
     case "$NO_COMMIT" in
-        (quiet) ;;
-        (show) echo "$SANDBOX_DIR";;
-        (commit) commit "$SANDBOX_DIR";;
-        (interactive)
-            summary "$SANDBOX_DIR" >&2
-        if [ "$?" -eq 0 ]
-        then
-            echo
-            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
-            case "$DO_COMMIT" in
-                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) echo "Not committing." >&2
-                echo "$SANDBOX_DIR";;
-            esac
-        fi
-        ;;
+        (quiet)       ;;
+        (show)        echo "$SANDBOX_DIR";;
+        (commit)      commit;;
+        (interactive) summary >&2
+                      if [ "$?" -eq 0 ]
+                      then
+                          echo
+			  printf "Commit these changes? [y/N] " >&2
+                          read -r DO_COMMIT
+                          case "$DO_COMMIT" in
+                              (y|Y|yes|YES) commit;;
+                              (*)           echo "Not committing." >&2
+                                            echo "$SANDBOX_DIR";;
+                          esac
+                      fi;;
     esac
 }
 
@@ -277,11 +283,11 @@ summary() {
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4- )"
         case "$summary_line" in
-        (rd*) echo "$local_file (replaced with dir)";;
-        (md*) echo "$local_file (created dir)";;
-        (de*) echo "$local_file (deleted)";;
-        (mo*) echo "$local_file (modified)";;
-        (ad*) echo "$local_file (added)"
+            (rd*) echo "$local_file (replaced with dir)";;
+            (md*) echo "$local_file (created dir)";;
+            (de*) echo "$local_file (deleted)";;
+            (mo*) echo "$local_file (modified)";;
+            (ad*) echo "$local_file (added)";;
         esac
     done <<EOF
 $summary_output
@@ -310,11 +316,11 @@ commit() {
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
         case $summary_line in
-        (rd*) rm -f "$local_file"; mkdir "$local_file";;
-        (md*) mkdir "$local_file";;
-        (de*) rm "$local_file";;
-        (mo*) cp -fa "$changed_file" "$local_file";;
-        (ad*) cp -fa "$changed_file" "$local_file"
+            (rd*) rm -f "$local_file"; mkdir "$local_file";;
+            (md*) mkdir "$local_file";;
+            (de*) rm "$local_file";;
+            (mo*) cp -fa "$changed_file" "$local_file";;
+            (ad*) cp -fa "$changed_file" "$local_file";;
         esac
 
         if [ $? -ne 0 ]
@@ -374,7 +380,6 @@ find_upperdir_changes() {
 #     - ad: Added a file
 #
 #     PATH is the local/host path (i.e., without the upper
-#
 ################################################################################
 
 process_changes() {
@@ -494,9 +499,8 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-# Includes all patterns given using the `-i` flag
-# Each pattern is preceded by an -e so as to be immediately passed to grep.
-IGNORE_FILE=$(mktemp)
+# Includes all patterns given using the `-i` flag; will be used with `grep -f`
+IGNORE_FILE="$(mktemp)"
 
 while getopts ":yvni:D:U:" opt
 do
@@ -509,16 +513,14 @@ do
                   error "could not find sandbox directory '$OPTARG'" 2
               fi
               SANDBOX_DIR="$OPTARG"
-              NO_COMMIT="quiet"
-              ;;
+              NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
               then
                   error "could not find executable union helper '$OPTARG'" 2
               fi
-              union_helper="$OPTARG"
-              ;;
+              union_helper="$OPTARG";;
         (h|*) usage
               exit 0;;
     esac

@@ -6,7 +6,8 @@ is a tricky programming language. Here are the style guidelines for
 # Indentation and whitespace
 
 Indent four spaces. Do not use tabs. Blank lines should have no
-whitespace; there should be no trailing whitespace on lines.
+whitespace; there should be no trailing whitespace on lines. Try to
+avoid line continuations.
 
 Align the commands of a case:
 
@@ -63,36 +64,18 @@ correctly parse `"$SANDBOX_DIR/workdir"` with `SANDBOX_DIR` as the
 variable name. You only need braces when sticking on valid variable
 name characters, like in `${SANDBOX_DIR}2`.
 
-# Semicolons
-
-Avoid semicolons in control flow. Write:
-
-```sh
-if [ ... ]
-then
-    ...
-fi
-```
-
-The shell is terse enough without any effort on your part. Don't write `c1; c2`; write:
-
-```sh
-c1
-c2
-```
-
 # Command substitutions
 
 Always use `$(...)`; never use backticks.
 
 # Function definitions
 
-Put a function header above function definitions. (Exception:
-generated scripts can be terser, but should still include important
-comments.) Always use braces in a function definition, starting on the
-same line after a space. Unless you are using `$@`, rename positional
-parameters. Avoid obscure calling conventions: either use `$@` or name
-your parameters.
+Function names are `in_lowercase_please`. Put a function header above
+function definitions. (Exception: generated scripts can be terser, but
+should still include important comments.) Always use braces in a
+function definition, starting on the same line after a space. Unless
+you are using `$@`, rename positional parameters. Avoid obscure
+calling conventions: either use `$@` or name your parameters.
 
 ```sh
 ################################################################################
@@ -106,4 +89,31 @@ summary() {
 
 # Commands
 
-Call it `[`, not `test`. Prefer `&&` and `||` over `-a` and `-o` when using `[`.
+Redirections go at the end of commands.
+
+Prefer `echo` when possible (but only use POSIX flags).
+
+Call it `[`, not `test`. Prefer `&&` and `||` over `-a` and `-o` when
+using `[`, but definitely use them for `find`.
+
+When using `case`, put the `;;` on the last command (not its own
+line). Do not omit the `;;` on the last case.
+
+## Semicolons
+
+Avoid semicolons in control flow. Write:
+
+```sh
+if [ ... ]
+then
+    ...
+fi
+```
+
+The shell is terse enough without any effort on your part. Don't write
+`c1; c2`; write:
+
+```sh
+c1
+c2
+```
