@@ -89,8 +89,10 @@ Always use `$(...)`; never use backticks.
 
 Put a function header above function definitions. (Exception:
 generated scripts can be terser, but should still include important
-comments.) Always use braces in a function definition. If possible,
-rename positional parameters.
+comments.) Always use braces in a function definition, starting on the
+same line after a space. Unless you are using `$@`, rename positional
+parameters. Avoid obscure calling conventions: either use `$@` or name
+your parameters.
 
 ```sh
 ################################################################################

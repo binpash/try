@@ -416,9 +416,21 @@ test_echo_no_unionfs_mergerfs()
     diff -q expected target
 }
 
+test_exit_status() {
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+    
+    ## Set up expected output
+    echo 'Hello World!' >expected.out 
+
+    "$try" exit 3
+
+    [ "$?" -eq 3 ]
+}
+
 # a test that deliberately fails (for testing CI changes)
-test_fail()
-{
+test_fail() {
     if [ "$1" = "$bash" ]
     then
         (exit 1)
@@ -428,11 +440,12 @@ test_fail()
 }
 
 # We run all tests composed with && to exit on the first that fails
-if [ "$#" -eq 0 ]; then 
+if [ "$#" -eq 0 ]; then
     run_test test_unzip_no_flag
     run_test test_unzip_D_flag_commit
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_exit_status
     # run_test test_touch_and_rm_with_cleanup
     run_test test_unzip_D_flag_commit_without_cleanup
     run_test test_reuse_sandbox

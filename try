@@ -223,7 +223,7 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
-    exitcode=$?
+    TRY_EXIT_STATUS=$?
 
     ################################################################################
     # commit?
@@ -453,10 +453,10 @@ warn() {
 
 error() {
     msg="$1"
-    exitcode="$2"
+    exit_status="$2"
 
     warn "$msg"
-    exit "$exitcode"
+    exit "$exit_status"
 }
 
 ################################################################################
@@ -544,4 +544,4 @@ case "$1" in
     (*)       try "$@";;
 esac
 
-exit $exitcode
+exit $TRY_EXIT_STATUS
