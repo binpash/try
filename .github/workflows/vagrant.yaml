@@ -6,15 +6,6 @@ on:
     - main
   pull_request:
 
-strategy:
-  matrix:
-    vagrant_target:
-      - debian
-      - debianrustup
-      - debianlvm
-      - rocky9
-      - fedora33
-
 jobs:
   vagrant:
     strategy:
