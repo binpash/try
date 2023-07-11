@@ -15,38 +15,38 @@ strategy:
       - rocky9
       - fedora33
 
-jobs:
-  debian:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Start vagrant box
-        run: vagrant up ${{ matrix.vagrant_target }}
-
-  debianrustup:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Start vagrant box
-        run: vagrant up ${{ matrix.vagrant_target }}
-
-  debianlvm:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Start vagrant box
-        run: vagrant up ${{ matrix.vagrant_target }}
-
-  rocky9:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Start vagrant box
-        run: vagrant up ${{ matrix.vagrant_target }}
-
-  fedora33:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Start vagrant box
-        run: vagrant up ${{ matrix.vagrant_target }}
+  jobs:
+    debian:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Start vagrant box
+          run: vagrant up ${{ matrix.vagrant_target }}
+  
+    debianrustup:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Start vagrant box
+          run: vagrant up ${{ matrix.vagrant_target }}
+  
+    debianlvm:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Start vagrant box
+          run: vagrant up ${{ matrix.vagrant_target }}
+  
+    rocky9:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Start vagrant box
+          run: vagrant up ${{ matrix.vagrant_target }}
+  
+    fedora33:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Start vagrant box
+          run: vagrant up ${{ matrix.vagrant_target }}
