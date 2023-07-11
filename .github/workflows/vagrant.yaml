@@ -27,8 +27,6 @@ jobs:
           - fedora33
     runs-on: macos-latest
     steps:
-      - name: Checkout
       - uses: actions/checkout@v2
-         
-      - name: Run VM in Vagrant
-      - run: vagrant up ${{ matrix.vagrant_target }}
+      - name: Start vagrant box
+        run: vagrant up ${{ matrix.vagrant_target }}
