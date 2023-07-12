@@ -1,5 +1,5 @@
-% TRY(1) Version 0.1 | Do, or do not. There is no *try*.
-% Michael Greenberg
+% TRY(1) try 0.1.0 | Do, or do not. There is no *try*.
+% The PaSh Authors
 
 # NAME
 
