@@ -468,7 +468,7 @@ NO_COMMIT="interactive"
 # Each pattern is preceded by an -e so as to be immediately passed to grep.
 IGNORE_FILE=$(mktemp)
 
-while getopts ":yvni:D:U:" opt
+while getopts ":yvnhi:D:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
