@@ -17,7 +17,6 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with: 
           severity: warning
-
-#        # ignore errors: unused variable union_helper (2034) and posix read -p (3045)
-#        env: 
-#          SHELLCHECK_OPTS: "-e SC2034 -e SC3045"
+          ignore_paths: >-
+            completions
+            test
