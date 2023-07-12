@@ -50,7 +50,8 @@ try() {
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
-    export DIRS_AND_MOUNTS=$(mktemp)
+    DIRS_AND_MOUNTS=$(mktemp)
+    export DIRS_AND_MOUNTS
     ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
@@ -70,14 +71,8 @@ try() {
     for mountpoint in $(cat "$DIRS_AND_MOUNTS")
     do
         ## Only make the directory if the original is a directory too
-<<<<<<< HEAD
         if [ -d "$mountpoint" ]; then
             mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
-=======
-        if [ -d "$mountpoint" ]
-        then
-            mkdir -p "$SANDBOX_DIR"/upperdir/"$mountpoint" "$SANDBOX_DIR"/workdir"/$mountpoint" "$SANDBOX_DIR"/temproot/"$mountpoint"
->>>>>>> main
         fi
     done
 
@@ -245,7 +240,8 @@ EOF
         if [ "$?" -eq 0 ]
         then
             echo
-            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+            printf "Commit these changes? [y/N] " 
+            read DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
                 (*) echo "Not committing." >&2
@@ -472,7 +468,7 @@ NO_COMMIT="interactive"
 # Each pattern is preceded by an -e so as to be immediately passed to grep.
 IGNORE_FILE=$(mktemp)
 
-while getopts ":yvni:h:D:U:" opt
+while getopts ":yvnih:D:U:" opt
 do
     case "$opt" in
         (y) NO_COMMIT="commit";;
@@ -490,6 +486,8 @@ do
             then
                 error "could not find executable union helper '$OPTARG'" 2
             fi
+            # shellcheck disable=SC2034
+            # ignore shellcheck warning about unused union_helper
             union_helper="$OPTARG" 
             ;;
         (h|*) usage; exit 0;;
