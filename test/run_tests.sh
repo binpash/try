@@ -51,12 +51,12 @@ run_test()
 {
     cleanup
     local test=$1
-    
+
     if [ "$(type -t $test)" != "function" ]; then
         echo "$test is not a function!   FAIL"
         return 1
     fi
-    
+
     # Check if we can read from /run dir
     test_read_from_run_dir
 
@@ -67,12 +67,12 @@ run_test()
     : $((TOTAL_TESTS += 1))
     $test "$try_workspace"
     test_try_ec=$?
-    
+
     if [ $test_try_ec -eq 0 ]; then
         : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
         echo "$test passed" >> $output_dir/result_status
-        echo -e '\tOK'        
+        echo -e '\tOK'
     else
         FAILING_TESTS="$FAILING_TESTS $test"
         echo -n " non-zero ec ($test_try_ec)"
@@ -86,9 +86,9 @@ test_unzip_no_flag()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
-    echo 'Hello World!' >expected.out 
+    echo 'Hello World!' >expected.out
 
     "$try" -y gunzip file.txt.gz || return 1
     diff -q expected.out file.txt
@@ -99,9 +99,9 @@ test_unzip_D_flag_commit()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
-    echo 'Hello World!' >expected.out 
+    echo 'Hello World!' >expected.out
 
     try_example_dir=$(mktemp -d)
     "$try" -D $try_example_dir gunzip file.txt.gz || return 1
@@ -114,7 +114,7 @@ test_unzip_D_flag_commit_without_cleanup()
     local try_workspace=$1
     cp $RESOURCE_DIR/* "$try_workspace/"
     cd "$try_workspace/"
-    
+
     try_example_dir=$(mktemp -d)
     "$try" -D $try_example_dir gunzip file.txt.gz || return 1
     if ! [ -d "$try_example_dir" ]; then
@@ -142,7 +142,7 @@ test_unzip_D_flag_commit_without_cleanup()
 #     orig_tmp=$(ls "$TMPDIR")
 #     "$try" -y -- "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
 #     new_tmp=$(ls "$TMPDIR")
-    
+
 #     if ! diff -q <(echo "$orig_tmp") <(echo "$new_tmp")
 #     then
 #         echo "temporary directory was not cleaned up; diff:"
@@ -156,13 +156,13 @@ test_touch_and_rm_no_flag()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
     touch expected1.txt
-    echo 'test' >expected2.txt 
+    echo 'test' >expected2.txt
 
     "$try" -y "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
-    
+
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
         [ ! -f file.txt.gz ]
@@ -173,15 +173,15 @@ test_touch_and_rm_D_flag_commit()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
     touch expected1.txt
-    echo 'test' >expected2.txt 
+    echo 'test' >expected2.txt
 
     try_example_dir=$(mktemp -d)
     "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || return 1
     $try commit $try_example_dir
-    
+
     diff -q expected1.txt file_1.txt &&
         diff -q expected2.txt file_2.txt &&
         [ ! -f file.txt.gz ]
@@ -192,17 +192,17 @@ test_reuse_sandbox()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
-    echo 'test' >expected2.txt 
-    echo 'test2' >>expected2.txt 
+    echo 'test' >expected2.txt
+    echo 'test2' >>expected2.txt
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
     "$try" -D $try_example_dir "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz"
     "$try" -D $try_example_dir "rm file_1.txt; echo test2 >> file_2.txt; touch file.txt.gz"
     $try commit $try_example_dir
-    
+
     [ ! -f file_1.txt ] &&
         diff -q expected2.txt file_2.txt &&
         diff -q expected3.out file.txt.gz
@@ -213,10 +213,10 @@ test_reuse_problematic_sandbox()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     ## Set up expected output
-    echo 'test' >expected2.txt 
-    echo 'test2' >>expected2.txt 
+    echo 'test' >expected2.txt
+    echo 'test2' >>expected2.txt
     touch expected3.out
 
     try_example_dir=$(mktemp -d)
@@ -235,24 +235,24 @@ test_non_existent_sandbox()
     local try_workspace=$1
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
-    
+
     try_example_dir="non-existent"
     ! "$try" -D $try_example_dir "touch file_1.txt" 2>/dev/null &&
     ! "$try" summary $try_example_dir 2>/dev/null &&
     ! "$try" commit $try_example_dir 2>/dev/null &&
-    ! "$try" explore $try_example_dir 2>/dev/null 
+    ! "$try" explore $try_example_dir 2>/dev/null
 }
 
 test_pipeline()
 {
     local try_workspace=$1
     cd "$try_workspace/"
-    
+
     ## Set up expected output
-    echo 'TesT' >expected.out 
+    echo 'TesT' >expected.out
 
     "$try" 'echo test | tr t T' > out.txt || return 1
-    
+
     diff -q expected.out out.txt
 }
 
@@ -400,7 +400,7 @@ test_echo_no_unionfs_mergerfs()
     local try_workspace=$1
     cd "$try_workspace/"
 
-    ## Create a new /bin and /usr/bin without mergerfs and unionfs 
+    ## Create a new /bin and /usr/bin without mergerfs and unionfs
     new_bin_dir=$(mktemp -d)
     mkdir "$new_bin_dir/usr"
     cp -rs /usr/bin "$new_bin_dir/usr/bin"
@@ -416,9 +416,21 @@ test_echo_no_unionfs_mergerfs()
     diff -q expected target
 }
 
+test_exit_status() {
+    local try_workspace=$1
+    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    echo 'Hello World!' >expected.out
+
+    "$try" exit 3
+
+    [ "$?" -eq 3 ]
+}
+
 # a test that deliberately fails (for testing CI changes)
-test_fail()
-{
+test_fail() {
     if [ "$1" = "$bash" ]
     then
         (exit 1)
@@ -428,11 +440,12 @@ test_fail()
 }
 
 # We run all tests composed with && to exit on the first that fails
-if [ "$#" -eq 0 ]; then 
+if [ "$#" -eq 0 ]; then
     run_test test_unzip_no_flag
     run_test test_unzip_D_flag_commit
     run_test test_touch_and_rm_no_flag
     run_test test_touch_and_rm_D_flag_commit
+    run_test test_exit_status
     # run_test test_touch_and_rm_with_cleanup
     run_test test_unzip_D_flag_commit_without_cleanup
     run_test test_reuse_sandbox
@@ -467,7 +480,7 @@ fi
 distro=$(printf '%s\n' "$distro" | LC_ALL=C tr '[:upper:]' '[:lower:]')
 # do different things depending on distro
 case "$distro" in
-    freebsd*)  
+    freebsd*)
         # change sed to gsed
         sed () {
             gsed $@

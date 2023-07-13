@@ -1,5 +1,5 @@
 name: Distro and LVM tests
-  
+
 on:
   push:
     branches:
@@ -18,6 +18,7 @@ jobs:
           - fedora33
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
       - name: Start vagrant box
         run: vagrant up ${{ matrix.vagrant_target }}
