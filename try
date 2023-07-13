@@ -8,7 +8,7 @@
 # https://github.com/binpash/try
 
 TRY_VERSION="0.1.0"
-TRY_COMMAND="$(basename $0)"
+TRY_COMMAND="$(basename "$0")"
 export TRY_COMMAND
 
 # exit status invariants
@@ -205,7 +205,7 @@ EOF
 #!/bin/sh
 
 mount -t proc proc /proc &&   
-cd $START_DIR && 
+cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
 
@@ -237,7 +237,7 @@ EOF
         if [ "$?" -eq 0 ]
         then
             echo
-            read -p "Commit these changes? [y/N] " DO_COMMIT >&2
+            read -r -p "Commit these changes? [y/N] " DO_COMMIT >&2
             case "$DO_COMMIT" in
                 (y|Y|yes|YES) commit "$SANDBOX_DIR";;
                 (*) echo "Not committing." >&2
@@ -287,7 +287,7 @@ summary() {
 $summary_output
 EOF
 
-    return 0
+    exitcode=0
 }
 
 ################################################################################
@@ -306,6 +306,7 @@ commit() {
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
+    exitcode=0
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
@@ -317,9 +318,10 @@ commit() {
         (ad*) cp -fa "$changed_file" "$local_file"
         esac
     
-        if [ $? -ne 0 ]
+        if [ "$?" -ne 0 ]
         then
 	    warn "couldn't commit $changed_file"
+	    exitcode=1
         fi
     done <<EOF
 $summary_output
@@ -496,6 +498,7 @@ then
     exit 2
 fi
 
+exitcode=1
 case "$1" in
     (summary) : ${SANDBOX_DIR=$2}; summary;;
     (commit) : ${SANDBOX_DIR=$2}; commit;;
@@ -504,4 +507,4 @@ case "$1" in
     (*) try "$@";;
 esac
 
-exit $exitcode
+exit "$exitcode"
