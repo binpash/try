@@ -24,7 +24,7 @@ export TRY_COMMAND
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt > /dev/null
+    if ! command -v findmnt >/dev/null
     then
         error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
@@ -123,9 +123,9 @@ unmount_devices() {
 ## Try to autodetect union helper: {mergerfs | unionfs}
 ## Returns an empty string if no union helper is found
 autodetect_union_helper() {
-    if command -v mergerfs > /dev/null; then
+    if command -v mergerfs >/dev/null; then
         echo mergerfs
-    elif command -v unionfs > /dev/null; then
+    elif command -v unionfs >/dev/null; then
         echo unionfs
     fi
 }
@@ -155,7 +155,7 @@ do
     fi
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
+    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
@@ -178,11 +178,11 @@ do
             merger_dir=$(mktemp -d)
 
             ## Create a union directory
-            "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" ||
+            "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
 
             ## Make the overlay on the union directory which works as a lowerdir for overlay
-            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi

@@ -89,7 +89,8 @@ summary() {
 
 # Commands
 
-Redirections go at the end of commands.
+Redirections go at the end of commands. There should be no spaces
+anywhere in a redirect: write `2>/dev/null`, not `2> /dev/null`.
 
 Prefer `echo` when possible (but only use POSIX flags).
 
