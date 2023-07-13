@@ -32,7 +32,7 @@ try() {
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        [ ! -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
+        ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR=$(mktemp -d)
@@ -52,7 +52,7 @@ try() {
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
-    ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
+    find / -maxdepth 1 | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
@@ -68,14 +68,14 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
-    for mountpoint in $(cat "$DIRS_AND_MOUNTS")
+    while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
         if [ -d "$mountpoint" ]
         then
             mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
-    done
+    done <"$DIRS_AND_MOUNTS"
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -131,7 +131,7 @@ autodetect_union_helper() {
 }
 
 # Detect if union_helper is set, if not, we try to autodetect them
-if [ -z "$union_helper" ]
+if [ -z "$UNION_HELPER" ]
 then
     ## Try to detect the union_helper (the variable could still be empty afterwards).
     union_helper="$(autodetect_union_helper)"
@@ -141,7 +141,7 @@ fi
 for mountpoint in $(cat "$DIRS_AND_MOUNTS")
 do
     ## We are not interested in mounts that are not directories
-    if [ ! -d "$mountpoint" ]
+    if ! [ -d "$mountpoint" ]
     then
         continue
     fi
@@ -170,7 +170,7 @@ do
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
 
-        if [ -z "$union_helper" ]
+        if [ -z "$UNION_HELPER" ]
         then
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
@@ -178,12 +178,12 @@ do
             merger_dir=$(mktemp -d)
 
             ## Create a union directory
-            "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" ||
-                printf "%s: Warning: Failed mounting $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+            "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
+                printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
 
             ## Make the overlay on the union directory which works as a lowerdir for overlay
             make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
-            printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi
 done
@@ -240,6 +240,7 @@ EOF
         (show)        echo "$SANDBOX_DIR";;
         (commit)      commit;;
         (interactive) summary >&2
+		      # shellcheck disable=SC2181
                       if [ "$?" -eq 0 ]
                       then
 			  printf "\nCommit these changes? [y/N] " >&2
@@ -323,6 +324,7 @@ commit() {
             (ad*) cp -fa "$changed_file" "$local_file";;
         esac
 
+	# shellcheck disable=SC2181
         if [ "$?" -ne 0 ]
         then
 	    warn "couldn't commit $changed_file"
@@ -389,7 +391,7 @@ process_changes() {
 
     while IFS= read -r changed_file
     do
-        local_file="${changed_file#$sandbox_dir/upperdir}"
+        local_file="${changed_file#"$sandbox_dir/upperdir"}"
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## If something exists there, we need to delete it first
@@ -423,7 +425,7 @@ EOF
 sandbox_valid_or_empty() {
     sandbox_dir="$1"
 
-    if [ ! -d "$sandbox_dir/upperdir" ] && [ ! -d "$sandbox_dir/workdir" ] && [ ! -d "$sandbox_dir/temproot" ]
+    if ! [ -d "$sandbox_dir/upperdir" ] && ! [ -d "$sandbox_dir/workdir" ] && ! [ -d "$sandbox_dir/temproot" ]
     then
         # No sandbox directory exists so we can happily return
         return 0
@@ -435,7 +437,7 @@ sandbox_valid_or_empty() {
     #
     # TODO: Make this validity assertion tighter
     # KK 2023-06-28 workdir seems to be non-empty after a single use, is that expected?
-    if [ ! -z "$(find "$sandbox_dir/temproot" -depth -not -type d)" ]
+    if [ "$(find "$sandbox_dir/temproot" -depth -not -type d)" ]
     then
         return 1
     fi
@@ -508,7 +510,7 @@ do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
-        (i)   echo $OPTARG >>"$IGNORE_FILE";;
+        (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
@@ -521,13 +523,14 @@ do
               then
                   error "could not find executable union helper '$OPTARG'" 2
               fi
-              union_helper="$OPTARG";;
+              UNION_HELPER="$OPTARG"
+	      export UNION_HELPER;;
         (h|*) usage
               exit 0;;
     esac
 done
 
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 if [ "$#" -eq 0 ]
 then
@@ -537,11 +540,11 @@ fi
 
 TRY_EXIT_STATUS=1
 case "$1" in
-    (summary) : ${SANDBOX_DIR=$2}
+    (summary) : "${SANDBOX_DIR=$2}"
               summary;;
-    (commit)  : ${SANDBOX_DIR=$2}
+    (commit)  : "${SANDBOX_DIR=$2}"
               commit;;
-    (explore) : ${SANDBOX_DIR=$2}
+    (explore) : "${SANDBOX_DIR=$2}"
               try "$SHELL";;
     (--)      shift
               try "$@";;

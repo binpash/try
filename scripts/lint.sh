@@ -9,7 +9,7 @@ NUM_WARNINGS=0
 warn() {
     msg="$1"
 
-    printf "%s\n" "$1" >&2
+    printf "%s\n" "$msg" >&2
 }
 
 ################################################################################
@@ -71,20 +71,21 @@ if [ "$#" -eq 0 ]
 then
     FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \! \( -name "*.png" -o -name "*.gif" \))
 else
+    # shellcheck disable=SC2124
     FILES="$@"
 fi
 
 
 num_files="$(echo "$FILES" | wc -l)"
-printf "Linting $num_files file$(plural $num_files) in parallel..."
+printf "Linting %s file%s in parallel..." "$num_files" "$(plural "$num_files")"
 OUTPUTS=""
 for file in $FILES
 do
     out=$(mktemp)
     printf "."
 
-    ( trailing_whitespace $file
-      trailing_newline $file ) >"$out" 2>&1 &
+    ( trailing_whitespace "$file"
+      trailing_newline "$file" ) >"$out" 2>&1 &
 
     OUTPUTS="$OUTPUTS $out"
 done
@@ -103,6 +104,6 @@ if [ "$NUM_WARNINGS" -eq 0 ]
 then
     printf "✓ \033[32;1mLINT CHECK PASSED\033[0m\n"
 else
-    printf "\n❌ \033[31;1mLINT CHECK FAILED ($NUM_WARNINGS warning$(plural $NUM_WARNINGS))\033[0m\n"
+    printf "\n❌ \033[31;1mLINT CHECK FAILED (%d warning%s)\033[0m\n" "$NUM_WARNINGS" "$(plural $NUM_WARNINGS)"
     exit 1
 fi
