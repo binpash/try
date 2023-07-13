@@ -52,7 +52,7 @@ try() {
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
-    find / -maxdepth 1 | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
+    find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
@@ -124,9 +124,9 @@ unmount_devices() {
 ## Returns an empty string if no union helper is found
 autodetect_union_helper() {
     if command -v mergerfs >/dev/null; then
-        echo mergerfs
+        UNION_HELPER=mergerfs
     elif command -v unionfs >/dev/null; then
-        echo unionfs
+        UNION_HELPER=unionfs
     fi
 }
 
@@ -134,7 +134,7 @@ autodetect_union_helper() {
 if [ -z "$UNION_HELPER" ]
 then
     ## Try to detect the union_helper (the variable could still be empty afterwards).
-    union_helper="$(autodetect_union_helper)"
+    autodetect_union_helper
 fi
 
 # actually mount the overlays
