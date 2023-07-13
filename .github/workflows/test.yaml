@@ -94,11 +94,28 @@ jobs:
           echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
           [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
 
+  shellcheck:
+    name: 'Run ShellCheck'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          ignore_paths: >-
+            completions
+            test
+
   prerelease:
     needs:
       - test
       - manpage
       - version-check
+      - lint
+      - shellcheck
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
