@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2023 The PaSh Authors. 
+# Copyright (c) 2023 The PaSh Authors.
 #
 # Usage of this source code is governed by the MIT license, you can find the
 # LICENSE file in the root directory of this project.
@@ -18,13 +18,13 @@ export TRY_COMMAND
 # 2 -- input error
 
 ################################################################################
-# Run a command in an overlay
+# Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt > /dev/null
+    if ! command -v findmnt >/dev/null
     then
         error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
@@ -50,7 +50,8 @@ try() {
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
-    export DIRS_AND_MOUNTS=$(mktemp)
+    DIRS_AND_MOUNTS="$(mktemp)"
+    export DIRS_AND_MOUNTS
     ls / | sed -e 's/^/\//' >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
@@ -76,10 +77,15 @@ try() {
         fi
     done
 
-    mount_and_execute=$(mktemp)
-    export chroot_executable=$(mktemp)
-    export try_mount_log=$(mktemp)
-    export script_to_execute=$(mktemp)
+    mount_and_execute="$(mktemp)"
+    chroot_executable="$(mktemp)"
+    try_mount_log="$(mktemp)"
+    script_to_execute="$(mktemp)"
+
+    export chroot_executable
+    export try_mount_log
+    export script_to_execute
+
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
 
@@ -117,9 +123,9 @@ unmount_devices() {
 ## Try to autodetect union helper: {mergerfs | unionfs}
 ## Returns an empty string if no union helper is found
 autodetect_union_helper() {
-    if command -v mergerfs > /dev/null; then
+    if command -v mergerfs >/dev/null; then
         echo mergerfs
-    elif command -v unionfs > /dev/null; then
+    elif command -v unionfs >/dev/null; then
         echo unionfs
     fi
 }
@@ -146,10 +152,10 @@ do
         [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
     then
         continue
-    fi    
+    fi
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>> "$try_mount_log"
+    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
@@ -172,11 +178,11 @@ do
             merger_dir=$(mktemp -d)
 
             ## Create a union directory
-            "$union_helper" $mountpoint $merger_dir 2>> "$try_mount_log" ||
+            "$union_helper" $mountpoint $merger_dir 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
 
             ## Make the overlay on the union directory which works as a lowerdir for overlay
-            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>> "$try_mount_log" ||
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $union_helper, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi
@@ -204,13 +210,14 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-mount -t proc proc /proc &&   
+mount -t proc proc /proc &&
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
 
+    # `$script_to_execute` need not be +x to be sourced
     chmod +x "$mount_and_execute" "$chroot_executable"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
@@ -223,33 +230,31 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
-    exitcode=$?
+    TRY_EXIT_STATUS=$?
 
     ################################################################################
     # commit?
 
     case "$NO_COMMIT" in
-        (quiet) ;;
-        (show) echo "$SANDBOX_DIR";;
-        (commit) commit "$SANDBOX_DIR";;
-        (interactive)
-            summary "$SANDBOX_DIR" >&2
-        if [ "$?" -eq 0 ]
-        then
-            echo
-            read -r -p "Commit these changes? [y/N] " DO_COMMIT >&2
-            case "$DO_COMMIT" in
-                (y|Y|yes|YES) commit "$SANDBOX_DIR";;
-                (*) echo "Not committing." >&2
-                echo "$SANDBOX_DIR";;
-            esac
-        fi
-        ;;
+        (quiet)       ;;
+        (show)        echo "$SANDBOX_DIR";;
+        (commit)      commit;;
+        (interactive) summary >&2
+                      if [ "$?" -eq 0 ]
+                      then
+			  printf "\nCommit these changes? [y/N] " >&2
+                          read -r DO_COMMIT
+                          case "$DO_COMMIT" in
+                              (y|Y|yes|YES) commit;;
+                              (*)           echo "Not committing." >&2
+                                            echo "$SANDBOX_DIR";;
+                          esac
+                      fi;;
     esac
 }
 
 ################################################################################
-# Summarize an overlay
+# Summarize the ovelray in `$SANDBOX_DIR`
 ################################################################################
 
 summary() {
@@ -260,11 +265,11 @@ summary() {
     then
         error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
-    
+
     ## Finds all potential changes
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-    
+
     if [ -z "$summary_output" ]
     then
         return 1
@@ -277,21 +282,21 @@ summary() {
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4- )"
         case "$summary_line" in
-        (rd*) echo "$local_file (replaced with dir)";;
-        (md*) echo "$local_file (created dir)";;
-        (de*) echo "$local_file (deleted)";;
-        (mo*) echo "$local_file (modified)";;
-        (ad*) echo "$local_file (added)"
+            (rd*) echo "$local_file (replaced with dir)";;
+            (md*) echo "$local_file (created dir)";;
+            (de*) echo "$local_file (deleted)";;
+            (mo*) echo "$local_file (modified)";;
+            (ad*) echo "$local_file (added)";;
         esac
     done <<EOF
 $summary_output
 EOF
 
-    exitcode=0
+    TRY_EXIT_STATUS=0
 }
 
 ################################################################################
-# Commit the results of an overlay
+# Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
 
 commit() {
@@ -306,70 +311,91 @@ commit() {
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
-    exitcode=0
+    TRY_EXIT_STATUS=0
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
         case $summary_line in
-        (rd*) rm -f "$local_file"; mkdir "$local_file";;
-        (md*) mkdir "$local_file";;
-        (de*) rm "$local_file";;
-        (mo*) cp -fa "$changed_file" "$local_file";;
-        (ad*) cp -fa "$changed_file" "$local_file"
+            (rd*) rm -f "$local_file"; mkdir "$local_file";;
+            (md*) mkdir "$local_file";;
+            (de*) rm "$local_file";;
+            (mo*) cp -fa "$changed_file" "$local_file";;
+            (ad*) cp -fa "$changed_file" "$local_file";;
         esac
-    
+
         if [ "$?" -ne 0 ]
         then
 	    warn "couldn't commit $changed_file"
-	    exitcode=1
+	    TRY_EXIT_STATUS=1
         fi
     done <<EOF
 $summary_output
 EOF
 }
 
-## Checks if a file is an overlayfs whiteout file
+################################################################################
+# Checks if a file is an overlayfs whiteout file
+################################################################################
+
 is_whiteout_file() {
     file="$1"
+
     [ -c "$file" ] && ! [ -s "$file" ] && [ "$(stat -c %t,%T "$file")" = "0,0" ]
 }
 
+################################################################################
 ## Defines which changes we want to ignore in the summary and commit
+################################################################################
+
 ignore_changes() {
     ignore_file="$1"
+
     grep -v -f "$ignore_file"
 }
 
+################################################################################
 ## Lists all upperdir changes in raw format
+################################################################################
+
 find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
+
     find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes "$ignore_file"
 }
 
 
-## Processes upperdir changes to an internal format that can be processed by summary and commit
-## Format:
-## XX PATH
-## where:
-##  XX is a two character code for the modification
-##  - rd: Replaced with a directory
-##  - md: Created a directory
-##  - de: Deleted a file
-##  - mo: Modified a file
-##  - ad: Added a file
-##  PATH is the local path
+################################################################################
+# Processes upperdir changes to an internal format that can be processed by summary and commit
+#
+# Output format:
+#
+#   XX PATH
+#
+#   where:
+#     XX is a two character code for the modification
+#     - rd: Replaced with a directory
+#     - md: Created a directory
+#     - de: Deleted a file
+#     - mo: Modified a file
+#     - ad: Added a file
+#
+#     PATH is the local/host path (i.e., without the upper
+################################################################################
+
 process_changes() {
     sandbox_dir="$1"
     changed_files="$2"
-    while IFS= read -r changed_file; do
+
+    while IFS= read -r changed_file
+    do
         local_file="${changed_file#$sandbox_dir/upperdir}"
         if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## If something exists there, we need to delete it first
             if [ -e "$local_file" ]
             then
-                echo "rd $local_file" 
+                echo "rd $local_file"
             else
                 echo "md $local_file"
             fi
@@ -390,22 +416,25 @@ $changed_files
 EOF
 }
 
-## Returns 0 if a sandbox is empty (fresh for use)
-## or if it already exists, and is well-formed 
+################################################################################
+# Returns 0 if a sandbox is empty (fresh for use) or pre-existing and well formed
+################################################################################
+
 sandbox_valid_or_empty() {
     sandbox_dir="$1"
+
     if [ ! -d "$sandbox_dir/upperdir" ] && [ ! -d "$sandbox_dir/workdir" ] && [ ! -d "$sandbox_dir/temproot" ]
     then
-        ## No sandbox directory exists so we can happily return
+        # No sandbox directory exists so we can happily return
         return 0
     fi
 
-    ## The sandbox already exists so we now need to check if it is valid
-    ## Validity requirements:
-    ## - no file exists in the temproot tree, i.e., all directories are empty
-    ##
-    ## TODO: Make this validity assertion tighter
-    ## KK 2023-06-28 workdir seems to be non-empty after a single use, is that expected?
+    # The sandbox already exists so we now need to check if it is valid
+    # Validity requirements:
+    # - no file exists in the temproot tree, i.e., all directories are empty
+    #
+    # TODO: Make this validity assertion tighter
+    # KK 2023-06-28 workdir seems to be non-empty after a single use, is that expected?
     if [ ! -z "$(find "$sandbox_dir/temproot" -depth -not -type d)" ]
     then
         return 1
@@ -415,16 +444,25 @@ sandbox_valid_or_empty() {
 }
 
 ################################################################################
-# Error messaging
+# Emit a warning
 ################################################################################
 
 warn() {
-    printf "%s: %s\n" "$TRY_COMMAND" "$1" >&2
+    msg="$1"
+
+    printf "%s: %s\n" "$TRY_COMMAND" "$msg" >&2
 }
 
+################################################################################
+# Emit a warning and exit
+################################################################################
+
 error() {
-    warn "$1"
-    exit "$2"
+    msg="$1"
+    exit_status="$2"
+
+    warn "$msg"
+    exit "$exit_status"
 }
 
 ################################################################################
@@ -440,7 +478,7 @@ Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
-  
+
   -v                show version information (and exit)
   -h                show this usage message (and exit)
 
@@ -462,31 +500,30 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-# Includes all patterns given using the `-i` flag
-# Each pattern is preceded by an -e so as to be immediately passed to grep.
-IGNORE_FILE=$(mktemp)
+# Includes all patterns given using the `-i` flag; will be used with `grep -f`
+IGNORE_FILE="$(mktemp)"
 
 while getopts ":yvni:D:U:" opt
 do
     case "$opt" in
-        (y) NO_COMMIT="commit";;
-        (n) NO_COMMIT="show";;
-        (i) echo $OPTARG >>"$IGNORE_FILE";;
-        (D) if ! [ -d "$OPTARG" ]
-            then
-                error "could not find sandbox directory '$OPTARG'" 2
-            fi
-            SANDBOX_DIR="$OPTARG"
-            NO_COMMIT="quiet"
-            ;;
-        (v) echo "$TRY_COMMAND version $TRY_VERSION" >&2; exit 0;;
-        (U) if ! [ -x "$OPTARG" ]
-            then
-                error "could not find executable union helper '$OPTARG'" 2
-            fi
-            union_helper="$OPTARG" 
-            ;;
-        (h|*) usage; exit 0;;
+        (y)   NO_COMMIT="commit";;
+        (n)   NO_COMMIT="show";;
+        (i)   echo $OPTARG >>"$IGNORE_FILE";;
+        (D)   if ! [ -d "$OPTARG" ]
+              then
+                  error "could not find sandbox directory '$OPTARG'" 2
+              fi
+              SANDBOX_DIR="$OPTARG"
+              NO_COMMIT="quiet";;
+        (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
+              exit 0;;
+        (U)   if ! [ -x "$OPTARG" ]
+              then
+                  error "could not find executable union helper '$OPTARG'" 2
+              fi
+              union_helper="$OPTARG";;
+        (h|*) usage
+              exit 0;;
     esac
 done
 
@@ -498,13 +535,17 @@ then
     exit 2
 fi
 
-exitcode=1
+TRY_EXIT_STATUS=1
 case "$1" in
-    (summary) : ${SANDBOX_DIR=$2}; summary;;
-    (commit) : ${SANDBOX_DIR=$2}; commit;;
-    (explore) : ${SANDBOX_DIR=$2}; try "$SHELL";;
-    (--) shift; try "$@";;
-    (*) try "$@";;
+    (summary) : ${SANDBOX_DIR=$2}
+              summary;;
+    (commit)  : ${SANDBOX_DIR=$2}
+              commit;;
+    (explore) : ${SANDBOX_DIR=$2}
+              try "$SHELL";;
+    (--)      shift
+              try "$@";;
+    (*)       try "$@";;
 esac
 
-exit "$exitcode"
+exit "$TRY_EXIT_STATUS"
