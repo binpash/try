@@ -105,4 +105,4 @@ then
 else
     printf "\n❌ \033[31;1mLINT CHECK FAILED ($NUM_WARNINGS warning$(plural $NUM_WARNINGS))\033[0m\n"
     exit 1
-fi
+fi 
