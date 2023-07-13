@@ -37,7 +37,7 @@ Do not use:
   - `brace{expansion,}`
   - `${param:offset}`, `${!matching}`, `${pattern/substi/tution}`
   - `source` (it's called `.`)
-  
+
 Do not use `LOCAL_ASSIGNMENT=foo f` when `f` could be a function.
 
 Write:

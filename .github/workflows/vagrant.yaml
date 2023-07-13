@@ -1,5 +1,5 @@
 name: Distro and LVM tests
-  
+
 on:
   push:
     branches:
