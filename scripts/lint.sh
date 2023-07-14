@@ -83,8 +83,10 @@ do
     out=$(mktemp)
     printf "."
 
-    ( trailing_whitespace "$file"
-      trailing_newline "$file" ) >"$out" 2>&1 &
+    (
+        trailing_whitespace "$file"
+        trailing_newline "$file"
+    ) >"$out" 2>&1 &
 
     OUTPUTS="$OUTPUTS $out"
 done
