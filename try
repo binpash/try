@@ -281,7 +281,7 @@ summary() {
     echo
 
     while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4- )"
+        local_file="$(echo "$summary_line" | cut -c 4-)"
         case "$summary_line" in
             (rd*) echo "$local_file (replaced with dir)";;
             (md*) echo "$local_file (created dir)";;
