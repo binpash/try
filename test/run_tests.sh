@@ -11,7 +11,6 @@ echo "Resource directory:       $RESOURCE_DIR"
 ## Set the DEBUG env variable to see detailed output
 DEBUG=${DEBUG:-0}
 
-
 try="$TRY_TOP/try"
 
 try_workspace="$TRY_TOP/test/try_workspace"
