@@ -104,6 +104,6 @@ if [ "$NUM_WARNINGS" -eq 0 ]
 then
     printf "✓ \033[32;1mLINT CHECK PASSED\033[0m\n"
 else
-    printf "\n❌ \033[31;1mLINT CHECK FAILED (%d warning%s)\033[0m\n" "$NUM_WARNINGS" "$(plural $NUM_WARNINGS)"
+    printf "\n❌ \033[31;1mLINT CHECK FAILED (%d warning%s)\033[0m\n" "$NUM_WARNINGS" "$(plural "$NUM_WARNINGS")"
     exit 1
 fi
