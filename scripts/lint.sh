@@ -19,9 +19,9 @@ warn() {
 plural() {
     if [ "$1" -eq 1 ]
     then
-	echo ""
+        echo ""
     else
-	echo "s"
+        echo "s"
     fi
 }
 
@@ -40,7 +40,7 @@ trailing_newline() {
     last="$(tail -c1 "$file")"
     if [ "$last" != "$(printf '\n')" ]
     then
-	warn "$file: missing a trailing newline"
+        warn "$file: missing a trailing newline"
     fi
 }
 
@@ -58,8 +58,8 @@ trailing_whitespace() {
 
     if grep -lq -e '[[:blank:]]$' "$file"
     then
-	warn "$file: trailing whitespace"
-	grep --line-number -e '[[:blank:]]$' "$file" | sed 's/[[:blank:]]\+$/\o33[41m&\o033[0m/'
+        warn "$file: trailing whitespace"
+        grep --line-number -e '[[:blank:]]$' "$file" | sed 's/[[:blank:]]\+$/\o33[41m&\o033[0m/'
     fi
 }
 
