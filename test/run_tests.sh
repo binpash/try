@@ -67,7 +67,7 @@ run_test()
     $test "$try_workspace"
     test_try_ec=$?
 
-    if [ $test_try_ec -eq 0 ]; then
+    if [ "$test_try_ec" -eq 0 ]; then
         : $((PASSED_TESTS += 1))
         echo -ne '\t\t\t'
         echo "$test passed" >>"$output_dir"/result_status
@@ -111,16 +111,16 @@ test_unzip_D_flag_commit()
 test_unzip_D_flag_commit_without_cleanup()
 {
     local try_workspace=$1
-    cp $RESOURCE_DIR/* "$try_workspace/"
+    cp "$RESOURCE_DIR"/* "$try_workspace/"
     cd "$try_workspace/"
 
     try_example_dir=$(mktemp -d)
-    "$try" -D $try_example_dir gunzip file.txt.gz || return 1
+    "$try" -D "$try_example_dir" gunzip file.txt.gz || return 1
     if ! [ -d "$try_example_dir" ]; then
         echo "try_example_dir disappeared with no commit"
         return 1
     fi
-    "$try" commit $try_example_dir || return 1
+    "$try" commit "$try_example_dir" || return 1
     if ! [ -d "$try_example_dir" ]; then
         echo "try_example_dir disappeared after manual commit"
         return 1
@@ -409,7 +409,7 @@ test_echo_no_unionfs_mergerfs()
     rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
     export PATH="$new_bin_dir/usr/bin"
 
-    cd $(mktemp -d)
+    cd "$(mktemp -d)"
     echo hi >expected
     "$try" -y "echo hi" >target 2>/dev/null
     diff -q expected target
@@ -417,7 +417,7 @@ test_echo_no_unionfs_mergerfs()
 
 test_exit_status() {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
+    cp "$RESOURCE_DIR"/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
@@ -495,7 +495,7 @@ echo "Failing tests:${FAILING_TESTS}"
 echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed."
 echo "========================================================"
 
-if [ $PASSED_TESTS -ne $TOTAL_TESTS ]
+if [ "$PASSED_TESTS" -ne "$TOTAL_TESTS" ]
 then
     exit 1
 fi
