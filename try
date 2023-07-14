@@ -327,8 +327,8 @@ commit() {
     # shellcheck disable=SC2181
         if [ "$?" -ne 0 ]
         then
-        warn "couldn't commit $changed_file"
-        TRY_EXIT_STATUS=1
+            warn "couldn't commit $changed_file"
+            TRY_EXIT_STATUS=1
         fi
     done <<EOF
 $summary_output
