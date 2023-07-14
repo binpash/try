@@ -240,10 +240,10 @@ EOF
         (show)        echo "$SANDBOX_DIR";;
         (commit)      commit;;
         (interactive) summary >&2
-		      # shellcheck disable=SC2181
+              # shellcheck disable=SC2181
                       if [ "$?" -eq 0 ]
                       then
-			  printf "\nCommit these changes? [y/N] " >&2
+              printf "\nCommit these changes? [y/N] " >&2
                           read -r DO_COMMIT
                           case "$DO_COMMIT" in
                               (y|Y|yes|YES) commit;;
@@ -324,11 +324,11 @@ commit() {
             (ad*) cp -fa "$changed_file" "$local_file";;
         esac
 
-	# shellcheck disable=SC2181
+    # shellcheck disable=SC2181
         if [ "$?" -ne 0 ]
         then
-	    warn "couldn't commit $changed_file"
-	    TRY_EXIT_STATUS=1
+        warn "couldn't commit $changed_file"
+        TRY_EXIT_STATUS=1
         fi
     done <<EOF
 $summary_output
@@ -524,7 +524,7 @@ do
                   error "could not find executable union helper '$OPTARG'" 2
               fi
               UNION_HELPER="$OPTARG"
-	      export UNION_HELPER;;
+          export UNION_HELPER;;
         (h|*) usage
               exit 0;;
     esac
