@@ -75,7 +75,6 @@ else
     FILES="$@"
 fi
 
-
 num_files="$(echo "$FILES" | wc -l)"
 printf "Linting %s file%s in parallel..." "$num_files" "$(plural "$num_files")"
 OUTPUTS=""
