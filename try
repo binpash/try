@@ -236,21 +236,32 @@ EOF
     # commit?
 
     case "$NO_COMMIT" in
-        (quiet)       ;;
-        (show)        echo "$SANDBOX_DIR";;
-        (commit)      commit;;
-        (interactive) summary >&2
-              # shellcheck disable=SC2181
-                      if [ "$?" -eq 0 ]
-                      then
-              printf "\nCommit these changes? [y/N] " >&2
-                          read -r DO_COMMIT
-                          case "$DO_COMMIT" in
-                              (y|Y|yes|YES) commit;;
-                              (*)           echo "Not committing." >&2
-                                            echo "$SANDBOX_DIR";;
-                          esac
-                      fi;;
+        quiet)
+            ;;
+        show)
+            echo "$SANDBOX_DIR"
+            ;;
+        commit)
+            commit
+            ;;
+        interactive)
+            summary >&2
+            # shellcheck disable=SC2181
+            if [ "$?" -eq 0 ]
+            then
+                printf "\nCommit these changes? [y/N] " >&2
+                read -r DO_COMMIT
+                case "$DO_COMMIT" in
+                    y|Y|yes|YES)
+                        commit
+                        ;;
+                    *)
+                        echo "Not committing." >&2
+                        echo "$SANDBOX_DIR"
+                        ;;
+                esac
+            fi
+            ;;
     esac
 }
 
@@ -283,11 +294,21 @@ summary() {
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4-)"
         case "$summary_line" in
-            (rd*) echo "$local_file (replaced with dir)";;
-            (md*) echo "$local_file (created dir)";;
-            (de*) echo "$local_file (deleted)";;
-            (mo*) echo "$local_file (modified)";;
-            (ad*) echo "$local_file (added)";;
+            rd*)
+                echo "$local_file (replaced with dir)"
+                ;;
+            md*)
+                echo "$local_file (created dir)"
+                ;;
+            de*)
+                echo "$local_file (deleted)"
+                ;;
+            mo*)
+                echo "$local_file (modified)"
+                ;;
+            ad*)
+                echo "$local_file (added)"
+                ;;
         esac
     done <<EOF
 $summary_output
@@ -317,11 +338,22 @@ commit() {
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
         case $summary_line in
-            (rd*) rm -f "$local_file"; mkdir "$local_file";;
-            (md*) mkdir "$local_file";;
-            (de*) rm "$local_file";;
-            (mo*) cp -fa "$changed_file" "$local_file";;
-            (ad*) cp -fa "$changed_file" "$local_file";;
+            rd*)
+                rm -f "$local_file"
+                mkdir "$local_file"
+                ;;
+            md*)
+                mkdir "$local_file"
+                ;;
+            de*)
+                rm "$local_file"
+                ;;
+            mo*)
+                cp -fa "$changed_file" "$local_file"
+                ;;
+            ad*)
+                cp -fa "$changed_file" "$local_file"
+                ;;
         esac
 
     # shellcheck disable=SC2181
@@ -508,25 +540,39 @@ IGNORE_FILE="$(mktemp)"
 while getopts ":yvnhi:D:U:" opt
 do
     case "$opt" in
-        (y)   NO_COMMIT="commit";;
-        (n)   NO_COMMIT="show";;
-        (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
-        (D)   if ! [ -d "$OPTARG" ]
-              then
-                  error "could not find sandbox directory '$OPTARG'" 2
-              fi
-              SANDBOX_DIR="$OPTARG"
-              NO_COMMIT="quiet";;
-        (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
-              exit 0;;
-        (U)   if ! [ -x "$OPTARG" ]
-              then
-                  error "could not find executable union helper '$OPTARG'" 2
-              fi
-              UNION_HELPER="$OPTARG"
-          export UNION_HELPER;;
-        (h|*) usage
-              exit 0;;
+        y)
+            NO_COMMIT="commit"
+            ;;
+        n)
+            NO_COMMIT="show"
+            ;;
+        i)
+            echo "$OPTARG" >>"$IGNORE_FILE"
+            ;;
+        D)
+            if ! [ -d "$OPTARG" ]
+            then
+                error "could not find sandbox directory '$OPTARG'" 2
+            fi
+            SANDBOX_DIR="$OPTARG"
+            NO_COMMIT="quiet"
+            ;;
+        v)
+            echo "$TRY_COMMAND version $TRY_VERSION" >&2
+            exit 0
+            ;;
+        U)
+            if ! [ -x "$OPTARG" ]
+            then
+                error "could not find executable union helper '$OPTARG'" 2
+            fi
+            UNION_HELPER="$OPTARG"
+            export UNION_HELPER
+            ;;
+        h|*)
+            usage
+            exit 0
+            ;;
     esac
 done
 
@@ -540,15 +586,25 @@ fi
 
 TRY_EXIT_STATUS=1
 case "$1" in
-    (summary) : "${SANDBOX_DIR=$2}"
-              summary;;
-    (commit)  : "${SANDBOX_DIR=$2}"
-              commit;;
-    (explore) : "${SANDBOX_DIR=$2}"
-              try "$SHELL";;
-    (--)      shift
-              try "$@";;
-    (*)       try "$@";;
+    summary)
+        : "${SANDBOX_DIR=$2}"
+        summary
+        ;;
+    commit)
+        : "${SANDBOX_DIR=$2}"
+        commit
+        ;;
+    explore)
+        : "${SANDBOX_DIR=$2}"
+        try "$SHELL"
+        ;;
+    --)
+        shift
+        try "$@"
+        ;;
+    *)
+        try "$@"
+        ;;
 esac
 
 exit "$TRY_EXIT_STATUS"
