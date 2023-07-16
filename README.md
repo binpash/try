@@ -179,7 +179,7 @@ system. This package can then be easily installed, managed, and removed using
 the package manager of your Linux distribution. It helps in maintaining a clean
 and organized system by keeping track of installed software and its
 dependencies.
- 
+
 ## License
 
 This project is licensed under the MIT License - see LICENSE for details.
