@@ -1,5 +1,5 @@
-% TRY(1) Version 0.1 | Do, or do not. There is no *try*.
-% Michael Greenberg
+% TRY(1) try 0.1.0 | Do, or do not. There is no *try*.
+% The PaSh Authors
 
 # NAME
 
@@ -32,7 +32,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 -v
 
 : Show version information (and exit)
-  
+
 -h
 
 : Show a usage message (and exit)
@@ -40,15 +40,15 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 ## Options
 
--i PATTERN
+-i *PATTERN*
 
-: Ignore paths that match PATTERN on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
+: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
 
 -D *DIR*
 
-: Specifies DIR as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
 
--U *PATH* 
+-U *PATH*
 
 : Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
 This option is recommended in case OverlayFS fails.
@@ -57,18 +57,18 @@ This option is recommended in case OverlayFS fails.
 
 try summary *DIR*
 
-: Show the summary for the overlay in DIR
+: Show the summary for the overlay in *DIR*
 
 try commit *DIR*
 
-: Commit the overlay in DIR
+: Commit the overlay in *DIR*
 
 try explore
 
 : Run in interactive mode
 
 ## Arguments
- 
+
 *CMD*
 
 : Specifies the command to execute inside the overlay
@@ -93,7 +93,7 @@ try explore
 
 # EXAMPLES
 
-The general workflow is to *try* a command before commiting its results to your workspace. 
+The general workflow is to *try* a command before committing its results to your workspace.
 
 To uncompress a gzip file, you can invoke *try* as follows
 
@@ -112,7 +112,7 @@ Changes detected in the following files:
 Commit these changes? [y/N] y
 ```
 
-Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, wothout committing the result.
+Sometimes, you might want to pre-execute a command and commit its result at a later time. Invoking *try* with the -n flag will return the overlay directory, without committing the result.
 
 ```
 try -n gunzip file.txt.gz
@@ -124,7 +124,7 @@ Alternatively, you can specify your own overlay directory as follows (note that 
 try -D try_dir gunzip file.txt.gz
 ```
 
-You can inspect the changhes made inside a given overlay directory:
+You can inspect the changes made inside a given overlay directory:
 
 ```
 try summary try_dir

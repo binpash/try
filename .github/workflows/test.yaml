@@ -1,6 +1,6 @@
 name: Main workflow
-  
-on: 
+
+on:
   pull_request:
   push:
   schedule:
@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-        
+
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
@@ -22,15 +22,15 @@ jobs:
           sudo apt-get install expect mergerfs
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
       - name: Run tests
         run: |
           cd ..
           cp -r try ~
-          cd ~/try            
+          cd ~/try
           bash ./test/run_tests.sh
 
       - name: Upload script
@@ -51,23 +51,71 @@ jobs:
           sudo apt-get install pandoc
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-            
+
       - name: Build manpage
         run: make -C man
-  
+
       - name: Upload script
         uses: actions/upload-artifact@v2
         with:
           name: try.1
           path: man/try.1
 
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run scripts/lint.sh
+        run: scripts/lint.sh
+
+  version-check:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check version in script against manpage
+        run: |
+          SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
+          MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
+          echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
+          echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
+
+  shellcheck:
+    name: 'Run ShellCheck'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          ignore_paths: >-
+            completions
+            test
+
   prerelease:
     needs:
       - test
       - manpage
+      - version-check
+      - lint
+      - shellcheck
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -78,7 +126,7 @@ jobs:
       - name: Collect artifacts
         run: |
             mv try.1/try.1 try/try.1
-          
+
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
