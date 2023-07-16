@@ -169,7 +169,7 @@ Please also report any issue you run into while using the future branch!
 * 0.1.0 - 2023-06-25
     * Initial release.
 
-## See Also ### Alternative tool 
+## See Also
 
 * [checkinstall](http://checkinstall.izto.org/) (not maintained)
 
