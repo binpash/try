@@ -171,7 +171,7 @@ Please also report any issue you run into while using the future branch!
 
 ## See Also
 
-[checkinstall](http://checkinstall.izto.org/) (not maintained)
+[checkinstall](http://checkinstall.izto.org/) (unmaintained)
 
 checkinstall keeps track of all the files created or modified by your
 installation script, builds a standard binary package and installs it in your
