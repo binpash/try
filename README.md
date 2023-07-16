@@ -170,7 +170,11 @@ Please also report any issue you run into while using the future branch!
     * Initial release.
 
 ## See Also
-Alternative tool ([checkinstall](http://checkinstall.izto.org/))
+### Alternative tool 
+  *[checkinstall](http://checkinstall.izto.org/)
+  checkinstall keeps track of all the files created or modified by your installation script, builds a standard binary package and installs it in your system.This package can then be easily installed, managed, and removed using the package manager of your Linux distribution.It helps in maintaining a clean and organized system by keeping track of installed software and its dependencies.
+  It is no longer maintained.
+ 
 
 ## License
 
