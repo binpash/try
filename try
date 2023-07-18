@@ -207,15 +207,15 @@ unmount_devices "$SANDBOX_DIR"
 exit $exitcode
 EOF
 
+    # NB we substitute in the heredoc, so the early unsets are okay!
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
-unset chroot_executable try_mount_log script_to_execute
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
 cd "$START_DIR" &&
-unset START_DIR &&
 . "$script_to_execute"
 EOF
 
