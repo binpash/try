@@ -19,9 +19,9 @@ warn() {
 plural() {
     if [ "$1" -eq 1 ]
     then
-	echo ""
+        echo ""
     else
-	echo "s"
+        echo "s"
     fi
 }
 
@@ -40,7 +40,7 @@ trailing_newline() {
     last="$(tail -c1 "$file")"
     if [ "$last" != "$(printf '\n')" ]
     then
-	warn "$file: missing a trailing newline"
+        warn "$file: missing a trailing newline"
     fi
 }
 
@@ -58,8 +58,32 @@ trailing_whitespace() {
 
     if grep -lq -e '[[:blank:]]$' "$file"
     then
-	warn "$file: trailing whitespace"
-	grep --line-number -e '[[:blank:]]$' "$file" | sed 's/[[:blank:]]\+$/\o33[41m&\o033[0m/'
+        warn "$file: trailing whitespace (tabs shown as underscores)"
+        grep --line-number -e '[[:blank:]]$' "$file" | sed 's/[[:blank:]]\+$/\o33[41m&\o033[0m/' | tr "$(printf '\t')" '____'
+    fi
+}
+
+################################################################################
+# check for tabs
+################################################################################
+
+tabs() {
+    file="$1"
+
+    # it's supposed to be there!
+    [ "$(basename "$file")" = "Makefile" ] && return
+
+    [ -f "$file" ] || warn "trailing_whitespace: '$file' is not a normal file"
+
+    # empty file is fine
+    [ -s "$file" ] || return
+
+    # so it doesn't literally appear here, lol
+    tab="$(printf '\t')"
+    if grep -lq -e "$tab" "$file"
+    then
+        warn "$file: tabs (shown as underscores here)"
+        grep --line-number -e "$tab" "$file" | sed 's/\t/\o33[41m____\o033[0m/'
     fi
 }
 
@@ -69,7 +93,7 @@ trailing_whitespace() {
 
 if [ "$#" -eq 0 ]
 then
-    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \! \( -name "*.png" -o -name "*.gif" \))
+    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \! \( -name "*.png" -o -name "*.gif" -o -name "*.gz" \))
 else
     # shellcheck disable=SC2124
     FILES="$@"
@@ -84,8 +108,11 @@ do
     out=$(mktemp)
     printf "."
 
-    ( trailing_whitespace "$file"
-      trailing_newline "$file" ) >"$out" 2>&1 &
+    (
+        trailing_whitespace "$file"
+        trailing_newline "$file"
+        tabs "$file"
+    ) >"$out" 2>&1 &
 
     OUTPUTS="$OUTPUTS $out"
 done
