@@ -441,7 +441,7 @@ test_hidden_variables() {
     cat expected.out
     echo got
     cat got.out
-    
+
     [ "$ec" -eq 0 ] && diff -q expected.out got.out
 
 }
