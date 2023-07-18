@@ -436,7 +436,7 @@ test_hidden_variables() {
     "$try" "echo \${SANDBOX_DIR-no sandbox}" >got.out
     echo $?
     ec=$?
-    
+
     cat expected.out
     cat got.out
     [ "$ec" -eq 0 ] && diff -q expected.out got.out
