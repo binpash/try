@@ -408,11 +408,12 @@ test_echo_no_unionfs_mergerfs()
     ## Delete mergerfs and unionfs and set the new PATH to the temporary directory
     rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
     rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
-    export PATH="$new_bin_dir/usr/bin"
 
+    ## We are running this in a mktemp since in some test machines,
+    ## the cwd is mounted, hence inaccessable.
     cd $(mktemp -d)
     echo hi >expected
-    "$try" -y "echo hi" >target 2>/dev/null
+    PATH="$new_bin_dir/usr/bin" "$try" -y "echo hi" >target 2>/dev/null
     diff -q expected target
 }
 
