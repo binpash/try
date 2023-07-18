@@ -434,6 +434,7 @@ test_hidden_variables() {
     ## Set up expected output
     echo 'no sandbox' >expected.out
 
+    ## SANDBOX_DIR should not be set in the final execution env
     "$try" -y -- "echo \${SANDBOX_DIR-no sandbox}" >got.out 2>/dev/null
     echo $?
     ec=$?
