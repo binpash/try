@@ -97,8 +97,12 @@ Prefer `echo` when possible (but only use POSIX flags).
 Call it `[`, not `test`. Prefer `&&` and `||` over `-a` and `-o` when
 using `[`, but definitely use them for `find`.
 
+Use `[ "..." ]` to test whether `...` is empty or not; there is no
+reason to use `-n`. Do not forget quotes, though!
+
 When using `case`, put the `;;` on the last command (not its own
-line). Do not omit the `;;` on the last case.
+line). Do not omit the `;;` on the last case. Use both parentheses for
+each case, even though the left-hand one is optional.
 
 ## Semicolons
 
