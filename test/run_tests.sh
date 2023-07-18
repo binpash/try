@@ -428,15 +428,18 @@ test_exit_status() {
 
 test_hidden_variables() {
     local try_workspace=$1
-    cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
     ## Set up expected output
     echo 'no sandbox' >expected.out
 
     "$try" "echo \${SANDBOX_DIR-no sandbox}" >got.out
-
-    [ "$?" -eq 0 ] && diff -q expected.out got.out
+    echo $?
+    ec=$?
+    
+    cat expected.out
+    cat got.out
+    [ "$ec" -eq 0 ] && diff -q expected.out got.out
 
 }
 
