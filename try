@@ -60,7 +60,7 @@ try() {
     # so we set up the mount points now
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
-    #               However, this might be solveable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
+    #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
     #
     # findmnt
     # --real: only list real filesystems
@@ -255,7 +255,7 @@ EOF
 }
 
 ################################################################################
-# Summarize the ovelray in `$SANDBOX_DIR`
+# Summarize the overlay in `$SANDBOX_DIR`
 ################################################################################
 
 summary() {
@@ -281,7 +281,7 @@ summary() {
     echo
 
     while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4- )"
+        local_file="$(echo "$summary_line" | cut -c 4-)"
         case "$summary_line" in
             (rd*) echo "$local_file (replaced with dir)";;
             (md*) echo "$local_file (created dir)";;
@@ -327,8 +327,8 @@ commit() {
 	# shellcheck disable=SC2181
         if [ "$?" -ne 0 ]
         then
-	    warn "couldn't commit $changed_file"
-	    TRY_EXIT_STATUS=1
+            warn "couldn't commit $changed_file"
+            TRY_EXIT_STATUS=1
         fi
     done <<EOF
 $summary_output
