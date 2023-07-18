@@ -433,12 +433,15 @@ test_hidden_variables() {
     ## Set up expected output
     echo 'no sandbox' >expected.out
 
-    "$try" -y -- "echo \${SANDBOX_DIR-no sandbox}" >got.out 2>/dev/null
+    "$try" -y -- "echo \${SANDBOX_DIR-no sandbox} >got.out" 2>/dev/null
     echo $?
     ec=$?
 
+    echo expected
     cat expected.out
+    echo got
     cat got.out
+    
     [ "$ec" -eq 0 ] && diff -q expected.out got.out
 
 }
