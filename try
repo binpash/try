@@ -210,8 +210,12 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
+unset SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset chroot_executable try_mount_log script_to_execute
+
 mount -t proc proc /proc &&
 cd "$START_DIR" &&
+unset START_DIR &&
 . "$script_to_execute"
 EOF
 
