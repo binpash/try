@@ -3,3 +3,4 @@ test/results/
 test/try_workspace/
 *~
 .vagrant/
+.vagrant
