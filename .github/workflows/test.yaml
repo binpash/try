@@ -31,7 +31,7 @@ jobs:
           cd ..
           cp -r try ~
           cd ~/try
-          bash ./test/run_tests.sh
+          scripts/run_tests.sh
 
       - name: Upload script
         uses: actions/upload-artifact@v2
@@ -107,7 +107,6 @@ jobs:
         with:
           ignore_paths: >-
             completions
-            test
 
   prerelease:
     needs:

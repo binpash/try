@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
       sudo apt install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      bash test/run_tests.sh
+      scripts/run_tests.sh
     "
   end
 
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      bash test/run_tests.sh
+      scripts/run_tests.sh
     "
   end
 
@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) bash test/run_tests.sh
+      TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
   #
@@ -89,7 +89,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) bash test/run_tests.sh
+      TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
 end
