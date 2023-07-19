@@ -207,8 +207,12 @@ unmount_devices "$SANDBOX_DIR"
 exit $exitcode
 EOF
 
+    # NB we substitute in the heredoc, so the early unsets are okay!
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
+
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
 cd "$START_DIR" &&
@@ -221,7 +225,7 @@ EOF
     chmod +x "$mount_and_execute" "$chroot_executable"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
-    set -m
+    [ -t 0 ] && set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.

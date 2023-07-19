@@ -408,11 +408,12 @@ test_echo_no_unionfs_mergerfs()
     ## Delete mergerfs and unionfs and set the new PATH to the temporary directory
     rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
     rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
-    export PATH="$new_bin_dir/usr/bin"
 
+    ## We are running this in a mktemp since in some test machines,
+    ## the cwd is mounted, hence inaccessable.
     cd $(mktemp -d)
     echo hi >expected
-    "$try" -y "echo hi" >target 2>/dev/null
+    PATH="$new_bin_dir/usr/bin" "$try" -y "echo hi" >target 2>/dev/null
     diff -q expected target
 }
 
@@ -421,12 +422,30 @@ test_exit_status() {
     cp $RESOURCE_DIR/file.txt.gz "$try_workspace/"
     cd "$try_workspace/"
 
-    ## Set up expected output
-    echo 'Hello World!' >expected.out
-
     "$try" exit 3
 
     [ "$?" -eq 3 ]
+}
+
+test_hidden_variables() {
+    local try_workspace=$1
+    cd "$try_workspace/"
+
+    ## Set up expected output
+    echo 'no sandbox' >expected.out
+
+    ## SANDBOX_DIR should not be set in the final execution env
+    "$try" -y -- "echo \${SANDBOX_DIR-no sandbox}" >got.out 2>/dev/null
+    echo $?
+    ec=$?
+
+    echo expected
+    cat expected.out
+    echo got
+    cat got.out
+
+    [ "$ec" -eq 0 ] && diff -q expected.out got.out
+
 }
 
 # a test that deliberately fails (for testing CI changes)
@@ -460,6 +479,7 @@ if [ "$#" -eq 0 ]; then
     run_test test_ignore_flag
     run_test test_dev
     run_test test_echo_no_unionfs_mergerfs
+    run_test test_hidden_variables
 
 # uncomment this to force a failure
 #    run_test test_fail
