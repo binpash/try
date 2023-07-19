@@ -10,8 +10,8 @@ Vagrant.configure("2") do |config|
     debian.vm.box = "debian/testing64"
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
-      sudo apt update
-      sudo apt install -y git expect
+      sudo apt-get update
+      sudo apt-get install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -23,8 +23,8 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.box = "debian/testing64"
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
-      sudo apt update
-      sudo apt install -y curl
+      sudo apt-get update
+      sudo apt-get install -y curl
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
@@ -38,8 +38,8 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.box = "debian/testing64"
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
-      sudo apt update
-      sudo apt install -y git expect lvm2 mergerfs
+      sudo apt-get update
+      sudo apt-get install -y git expect lvm2 mergerfs
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
