@@ -4,7 +4,7 @@
 
 "Do, or do not. There is no try."
 
-We're setting out to change that: `try cmd` and commit---or not. 
+We're setting out to change that: `try cmd` and commit---or not.
 
 ## Description
 [![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
@@ -34,9 +34,16 @@ Requires `netcat-openbsd` and `procps`.
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
 
-Has been tested on the following distributions:
+To run `try`'s test suite (`test/run_tests.sh`), you will need:
+
+* `bash`
+* `expect`
+
+`try` has been tested on the following distributions:
+
 * `Ubuntu 20.04 LTS` or later
 * `Debian 12`
+* `Fedora 38`
 * `Centos 9 Stream 5.14.0-325.el9`
 * `Arch 6.1.33-1-lts`
 * `Alpine 6.1.34-1-lts`
@@ -165,6 +172,17 @@ Please also report any issue you run into while using the future branch!
 
 * 0.1.0 - 2023-06-25
     * Initial release.
+
+## See Also
+
+[checkinstall](http://checkinstall.izto.org/) (unmaintained)
+
+checkinstall keeps track of all the files created or modified by your
+installation script, builds a standard binary package and installs it in your
+system. This package can then be easily installed, managed, and removed using
+the package manager of your Linux distribution. It helps in maintaining a clean
+and organized system by keeping track of installed software and its
+dependencies.
 
 ## License
 

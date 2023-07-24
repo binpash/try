@@ -1,6 +1,6 @@
 name: Main workflow
-  
-on: 
+
+on:
   pull_request:
   push:
   schedule:
@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-        
+
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
@@ -22,46 +22,12 @@ jobs:
           sudo apt-get install expect mergerfs
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
       - name: Run tests
-        run: |
-          uname -a
-          sudo apt-get update
-          sudo apt-get install strace
-          bash ./setup.sh
-          bash ./test/run_tests.sh  
-          # get the timer
-          timer=$(LANG=en_us_88591; date)
-          echo "VERSION<<EOF" >> $GITHUB_ENV
-          echo "OS:${{matrix.os}}" >> $GITHUB_ENV
-          echo "$timer" >> $GITHUB_ENV
-          # Parse the results and construct a github message post
-          # we append the data to the global env
-          cat ./test/results/results.log >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      # - name: Comment on PR
-      #   uses: actions/github-script@v3
-      #   with:
-      #     script: |
-      #       let body = `${{ env.VERSION }}`
-      #       console.log(context)
-      #       // if we are directly pushing on main/future, we cannot push comments -> exit
-      #       if (context.eventName === "push" && (context.ref === "refs/heads/main" || context.ref === "refs/heads/future")) {
-      #         return 0;
-      #       }
-      #       github.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: body,
-      #       })     
-      - name: Exit Code
-        run: |
-          # check if everything executed without errors
-          bash test/exit_code.sh
+        run: scripts/run_tests.sh
 
       - name: Upload script
         uses: actions/upload-artifact@v2
@@ -81,23 +47,70 @@ jobs:
           sudo apt-get install pandoc
 
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-            
+
       - name: Build manpage
         run: make -C man
-  
+
       - name: Upload script
         uses: actions/upload-artifact@v2
         with:
           name: try.1
           path: man/try.1
 
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run scripts/lint.sh
+        run: scripts/lint.sh
+
+  version-check:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check version in script against manpage
+        run: |
+          SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
+          MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
+          echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
+          echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
+
+  shellcheck:
+    name: 'Run ShellCheck'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          ignore_paths: >-
+            completions
+
   prerelease:
     needs:
       - test
       - manpage
+      - version-check
+      - lint
+      - shellcheck
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -108,7 +121,7 @@ jobs:
       - name: Collect artifacts
         run: |
             mv try.1/try.1 try/try.1
-          
+
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:

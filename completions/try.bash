@@ -9,48 +9,38 @@ _try() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            try)
-                cmd="try"
-                ;;
-            
-            *)
-                ;;
+            (try) cmd="try";;
+
+            (*) ;;
         esac
     done
 
     case "${cmd}" in
-        try)
-            opts="-n -y -v -h -D -U summary commit explore"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+        (try)
+            opts="-n -y -v -h -i -D -U summary commit explore"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]
+            then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                
-                -D)
+                (-D)
                     COMPREPLY=($(compgen -d "${cur}"))
-                    return 0
-                    ;;
-                -U)
+                    return 0;;
+                (-U)
                     COMPREPLY=($(compgen -c "${cur}"))
-                    return 0
-                    ;;
-                commit)
+                    return 0;;
+                (commit)
                     COMPREPLY=($(compgen -d "${cur}"))
-                    return 0
-                    ;;
-                summary)
+                    return 0;;
+                (summary)
                     COMPREPLY=($(compgen -d "${cur}"))
-                    return 0
-                    ;;
-                *)
-                    COMPREPLY=()
-                    ;;
+                    return 0;;
+                (*)
+                    COMPREPLY=();;
             esac
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        
+            return 0;;
     esac
 }
 
