@@ -245,7 +245,8 @@ EOF
     export socket1
     export socket2
 
-    mapper&
+    # Running mapper in a subshell to suppress job control [1] + Done message
+    (mapper&)
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
