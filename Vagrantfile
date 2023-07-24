@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
       sudo apt-get install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      ./setup.sh
+      sudo ./setup.sh
       scripts/run_tests.sh
     "
   end
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
       sudo apt-get install -y curl
       sudo chown -R vagrant:vagrant try
       cd try
-      ./setup.sh
+      sudo ./setup.sh
       mkdir rustup
       ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      ./setup.sh
+      sudo ./setup.sh
       scripts/run_tests.sh
     "
   end
@@ -80,7 +80,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      ./setup.sh
+      sudo ./setup.sh
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
@@ -93,7 +93,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect
       sudo chown -R vagrant:vagrant try
       cd try
-      ./setup.sh
+      sudo ./setup.sh
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end

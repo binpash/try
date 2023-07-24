@@ -1,5 +1,5 @@
 #!/bin/sh
 
-wget https://github.com/ericzty/gidmapper/releases/download/0.0.3/gidmapper
-chmod +x gidmapper
-sudo setcap 'CAP_SETGID=ep' gidmapper
+wget https://github.com/ericzty/gidmapper/releases/download/0.0.3/gidmapper -O /usr/local/bin/gidmapper
+chmod +x /usr/local/bin/gidmapper
+setcap 'CAP_SETGID=ep' /usr/local/bin/gidmapper

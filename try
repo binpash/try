@@ -506,10 +506,10 @@ mapper() {
     if [ "$(id -u)" = 0 ]
     then
         # If we're running as root, we can map all the users
-        ./gidmapper "$pid" 0 0 65535 0 0 65535
+        gidmapper "$pid" 0 0 65535 0 0 65535
     else
         # If not running as root, we can only mount the caller user
-        ./gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
+        gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
     fi
 
     # Notify the unshare process that we have finished
