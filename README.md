@@ -163,8 +163,21 @@ Please also report any issue you run into while using the future branch!
 
 ## Version History
 
-* 0.1.0 - 2023-06-25
-    * Initial release.
+* v0.2.0 - 2023-07-24
+  - Refactor tests.
+  - Improved linting.
+  - Hide `try`-internal variables from scripts.
+  - Style guide.
+  - Testing in Vagrant.
+  - Support nested mounts.
+  - Resolve issues with `userxattr`.
+  - Better support for `unionfs`.
+  - Use `/bin/sh`, not `/bin/bash`.
+  - `-i` flag to ignore paths.
+  - Interactive improvements.
+
+* v0.1.0 - 2023-06-25
+  - Initial release.
 
 ## See Also
 
