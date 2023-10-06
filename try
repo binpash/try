@@ -56,6 +56,33 @@ try() {
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
+    # Update DIRS_AND_MOUNTS based on LOWER_DIRS
+    UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
+    export UPDATED_DIRS_AND_MOUNTS
+    while IFS="" read -r mountpoint
+    do
+        new_mountpoint=""
+        # Split LOWER_DIRS into lines, then read each line in a loop
+        echo "$LOWER_DIRS" | tr ':' '\n' | while IFS="" read -r lower_dir
+        do
+            
+            # Form the new mountpoint
+            temp_mountpoint="$lower_dir/upperdir$mountpoint"
+            
+            # Check if the new mountpoint is a directory and is non-empty
+            if [ ! -d "$temp_mountpoint" ] || [ -z "$(find "$temp_mountpoint" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+                new_mountpoint="$mountpoint"
+            else
+                new_mountpoint="$new_mountpoint$temp_mountpoint:$mountpoint"
+            fi
+            echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
+
+        done
+    done <"$DIRS_AND_MOUNTS"
+    cat $UPDATED_DIRS_AND_MOUNTS
+
+    # mv "$UPDATED_DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"  # replace DIRS_AND_MOUNTS with the updated list
+
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
     #
@@ -70,12 +97,15 @@ try() {
     # then we want to exclude the root partition "/"
     while IFS="" read -r mountpoint
     do
+        echo $mountpoint
         ## Only make the directory if the original is a directory too
         if [ -d "$mountpoint" ]
         then
             mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
+    echo "---"
+    ls "${SANDBOX_DIR}/temproot/${mountpoint}"
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -94,10 +124,16 @@ TRY_COMMAND="$TRY_COMMAND($0)"
 ## A wrapper of `mount -t overlay` to have cleaner looking code
 make_overlay() {
     sandbox_dir="$1"
-    lowerdir="$2"
+    lowerdirs="$2"
     mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+    # echo "-"$lowerdirs
+    ls 
+
+    echo mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+    # exit
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
+
 
 devices_to_mount="tty null zero full random urandom"
 
@@ -138,24 +174,29 @@ then
 fi
 
 # actually mount the overlays
-for mountpoint in $(cat "$DIRS_AND_MOUNTS")
+for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
+    # echo $mountpoint
+    pure_mountpoint=$(echo "$mountpoint" | awk -F':' '{print $NF}')
+
+    # echo pure $pure_mountpoint
+
     ## We are not interested in mounts that are not directories
-    if ! [ -d "$mountpoint" ]
+    if ! [ -d "$pure_mountpoint" ]
     then
         continue
     fi
 
     ## Don't do anything for the root
     ##   and skip if it is /dev or /proc, we will mount it later
-    if [ "$mountpoint" = "/" ] ||
-        [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
+    if [ "$pure_mountpoint" = "/" ] ||
+        [ "$pure_mountpoint" = "/dev" ] || [ "$pure_mountpoint" = "/proc" ]
     then
         continue
     fi
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
+    make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
@@ -476,18 +517,18 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."] CMD [ARG ...]
 
-  -n                don't prompt for commit
-  -y                assume yes to all prompts (implies -n is not used)
-  -i PATTERN        ignore paths that match PATTERN on summary and commit
-  -D DIR            work in DIR (implies -n)
-  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
+  -n                 don't prompt for commit
+  -y                 assume yes to all prompts (implies -n is not used)
+  -i PATTERN         ignore paths that match PATTERN on summary and commit
+  -D DIR             work in DIR (implies -n)
+  -U PATH            path to unionfs helper (e.g., mergerfs, unionfs-fuse)
+  -L "dir1:dir2:..." specify multiple lower directories to merge (colon-separated)
 
-  -v                show version information (and exit)
-  -h                show this usage message (and exit)
-
-
+  -v                 show version information (and exit)
+  -h                 show this usage message (and exit)
+  
 Subcommands:
   $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
   $TRY_COMMAND commit DIR    commit the overlay in DIR
@@ -508,7 +549,7 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhi:D:U:" opt
+while getopts ":yvnhi:D:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -520,6 +561,7 @@ do
               fi
               SANDBOX_DIR="$OPTARG"
               NO_COMMIT="quiet";;
+        (L)   LOWER_DIRS="$OPTARG";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
