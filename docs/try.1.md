@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
+| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -52,6 +52,11 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
 This option is recommended in case OverlayFS fails.
+
+-L *LOWER_DIRS*
+
+: Specify a colon-separated list of directories to be used as lower directories for the overlay, formatted as "dir1:dir2:...:dirn".
+
 
 ## Subcommands
 
@@ -122,6 +127,12 @@ Alternatively, you can specify your own overlay directory as follows (note that 
 
 ```
 try -D try_dir gunzip file.txt.gz
+```
+
+To use multiple lower directories for overlay (by merging them), you can use the `-L` flag followed by a colon-separated list of directories. The directories on the left have higher precedence and can overwrite the directories on the right:
+
+```
+try -L /lowerdir1:/lowerdir2:/lowerdir3 gunzip file.txt.gz
 ```
 
 You can inspect the changes made inside a given overlay directory:
