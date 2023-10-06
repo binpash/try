@@ -155,6 +155,27 @@ $ try commit rustup-sandbox
 You can also run `try explore` to open your current shell in try, or `/try
 explore /tmp/tmp.X6OQb5tJwr` to explore an existing sandbox.
 
+To specify multiple lower directories for overlay (by merging them together), you can use the `-L` flag followed by a colon-separated list of directories. The directories on the left have higher precedence and can overwrite the directories on the right:
+
+```ShellSession
+$ try -D rustup-sandbox "curl https://sh.rustup.rs > rustup.sh"
+...
+$ try -L rustup-sandbox "sh rustup.sh"
+
+Changes detected in the following files:
+
+rustup-sandbox//upperdir/home/ubuntu/.profile (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.bashrc (modified/added)
+rustup-sandbox//upperdir/home/ubuntu/.rustup/update-hashes/stable-x86_64-unknown-linux-gnu (modified/added)
+...
+
+Commit these changes? [y/N] y
+
+```
+
+In this example, `try`` will merge `/lowerdir1`, `/lowerdir2` and `/lowerdir3` together before mounting the overlay. This way, you can combine the contents of multiple `try` sandboxes .
+
+
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
