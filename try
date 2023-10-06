@@ -45,7 +45,7 @@ try() {
     fi
 
     ## Make any directories that don't already exist, this is OK to do here
-    ##  because we have already checked if it valid.
+    ## because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
@@ -56,32 +56,35 @@ try() {
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
-    # Update DIRS_AND_MOUNTS based on LOWER_DIRS
+    # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS 
     UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
-        # Split LOWER_DIRS into lines, then read each line in a loop
-        echo "$LOWER_DIRS" | tr ':' '\n' | while IFS="" read -r lower_dir
+        temp_file=$(mktemp)
+        echo "$LOWER_DIRS" | tr ':' '\n' > "$temp_file" # Split LOWER_DIRS into lines
+        
+        while IFS="" read -r lower_dir
         do
-            
-            # Form the new mountpoint
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
-            
             # Check if the new mountpoint is a directory and is non-empty
-            if [ ! -d "$temp_mountpoint" ] || [ -z "$(find "$temp_mountpoint" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
-                new_mountpoint="$mountpoint"
-            else
-                new_mountpoint="$new_mountpoint$temp_mountpoint:$mountpoint"
+            if [ -d "$temp_mountpoint" ] && [ "$(find "$temp_mountpoint" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+                if [ -n "$new_mountpoint" ]; then
+                    new_mountpoint="$new_mountpoint:$temp_mountpoint" # If new_mountpoint is not empty, append : and the temp_mountpoint
+                else
+                    new_mountpoint="$temp_mountpoint" # If new_mountpoint is empty, just set it to temp_mountpoint
+                fi
             fi
-            echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
+        done < "$temp_file"
 
-        done
+        rm "$temp_file" # Clean up the temporary file
+
+        new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint" # Add the original mountpoint at the end
+
+        echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS" # Write the new mountpoint to the updated list
+
     done <"$DIRS_AND_MOUNTS"
-    cat $UPDATED_DIRS_AND_MOUNTS
-
-    # mv "$UPDATED_DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"  # replace DIRS_AND_MOUNTS with the updated list
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
@@ -97,15 +100,12 @@ try() {
     # then we want to exclude the root partition "/"
     while IFS="" read -r mountpoint
     do
-        echo $mountpoint
         ## Only make the directory if the original is a directory too
         if [ -d "$mountpoint" ]
         then
             mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
-    echo "---"
-    ls "${SANDBOX_DIR}/temproot/${mountpoint}"
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -126,11 +126,6 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     mountpoint="$3"
-    # echo "-"$lowerdirs
-    ls 
-
-    echo mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
-    # exit
     mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
 
@@ -176,10 +171,7 @@ fi
 # actually mount the overlays
 for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
-    # echo $mountpoint
     pure_mountpoint=$(echo "$mountpoint" | awk -F':' '{print $NF}')
-
-    # echo pure $pure_mountpoint
 
     ## We are not interested in mounts that are not directories
     if ! [ -d "$pure_mountpoint" ]
