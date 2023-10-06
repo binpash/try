@@ -56,7 +56,7 @@ try() {
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
-    # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS 
+    # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
@@ -64,7 +64,7 @@ try() {
         new_mountpoint=""
         temp_file=$(mktemp)
         echo "$LOWER_DIRS" | tr ':' '\n' > "$temp_file" # Split LOWER_DIRS into lines
-        
+
         while IFS="" read -r lower_dir
         do
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
@@ -520,7 +520,7 @@ Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."]
 
   -v                 show version information (and exit)
   -h                 show this usage message (and exit)
-  
+
 Subcommands:
   $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
   $TRY_COMMAND commit DIR    commit the overlay in DIR
