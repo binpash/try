@@ -68,18 +68,14 @@ try() {
         for lower_dir in $LOWER_DIRS
         do
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
-            # Check if the new mountpoint is a directory and is non-empty
-            if [ -d "$temp_mountpoint" ] && [ "$(find "$temp_mountpoint" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
-                if [ -n "$new_mountpoint" ]; then
-                    # If new_mountpoint is not empty, append : and the temp_mountpoint
-                    new_mountpoint="$new_mountpoint:$temp_mountpoint"
-                else
-                     # If new_mountpoint is empty, just set it to temp_mountpoint
-                    new_mountpoint="$temp_mountpoint"
-                fi
+            if [ -n "$new_mountpoint" ]; then
+                # If new_mountpoint is not empty, append : and the temp_mountpoint
+                new_mountpoint="$new_mountpoint:$temp_mountpoint"
+            else
+                # If new_mountpoint is empty, just set it to temp_mountpoint
+                new_mountpoint="$temp_mountpoint"
             fi
         done
-
         IFS=$OLDIFS
         # Add the original mountpoint at the end
         new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
