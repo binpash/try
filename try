@@ -62,7 +62,7 @@ try() {
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
-
+        OLDIFS=$IFS
         IFS=":"
 
         for lower_dir in $LOWER_DIRS
@@ -79,6 +79,8 @@ try() {
                 fi
             fi
         done
+
+        IFS=$OLDIFS
         # Add the original mountpoint at the end
         new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
         echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
@@ -170,7 +172,7 @@ fi
 # actually mount the overlays
 for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
-    pure_mountpoint=$(echo "$mountpoint" | awk -F':' '{print $NF}')
+    pure_mountpoint=${mountpoint##*:}
 
     ## We are not interested in mounts that are not directories
     if ! [ -d "$pure_mountpoint" ]
@@ -179,12 +181,11 @@ do
     fi
 
     ## Don't do anything for the root
-    ##   and skip if it is /dev or /proc, we will mount it later
-    if [ "$pure_mountpoint" = "/" ] ||
-        [ "$pure_mountpoint" = "/dev" ] || [ "$pure_mountpoint" = "/proc" ]
-    then
-        continue
-    fi
+    ## and skip if it is /dev or /proc, we will mount it later
+    case "$pure_mountpoint" in
+    (/|/dev|/proc) continue;;
+    esac
+
 
     # Try mounting everything normally
     make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
