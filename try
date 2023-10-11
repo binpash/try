@@ -62,29 +62,28 @@ try() {
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
-        temp_file=$(mktemp)
-        echo "$LOWER_DIRS" | tr ':' '\n' > "$temp_file" # Split LOWER_DIRS into lines
 
-        while IFS="" read -r lower_dir
+        IFS=":"
+
+        for lower_dir in $LOWER_DIRS
         do
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
             # Check if the new mountpoint is a directory and is non-empty
             if [ -d "$temp_mountpoint" ] && [ "$(find "$temp_mountpoint" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
                 if [ -n "$new_mountpoint" ]; then
-                    new_mountpoint="$new_mountpoint:$temp_mountpoint" # If new_mountpoint is not empty, append : and the temp_mountpoint
+                    # If new_mountpoint is not empty, append : and the temp_mountpoint
+                    new_mountpoint="$new_mountpoint:$temp_mountpoint"
                 else
-                    new_mountpoint="$temp_mountpoint" # If new_mountpoint is empty, just set it to temp_mountpoint
+                     # If new_mountpoint is empty, just set it to temp_mountpoint
+                    new_mountpoint="$temp_mountpoint"
                 fi
             fi
-        done < "$temp_file"
-
-        rm "$temp_file" # Clean up the temporary file
-
-        new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint" # Add the original mountpoint at the end
-
-        echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS" # Write the new mountpoint to the updated list
-
+        done
+        # Add the original mountpoint at the end
+        new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
+        echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
     done <"$DIRS_AND_MOUNTS"
+
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
