@@ -122,8 +122,8 @@ TRY_COMMAND="$TRY_COMMAND($0)"
 make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
-    mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+    overlay_mountpoint="$3"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
 
@@ -182,7 +182,6 @@ do
     (/|/dev|/proc) continue;;
     esac
 
-
     # Try mounting everything normally
     make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
@@ -209,9 +208,7 @@ do
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
-
-            ## Make the overlay on the union directory which works as a lowerdir for overlay
-            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi
