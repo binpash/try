@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - ci-macos-fix
   pull_request:
   schedule:
     - cron: '17 20 * * *'
