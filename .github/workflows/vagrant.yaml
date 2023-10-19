@@ -28,8 +28,10 @@ jobs:
          hdiutil attach parallels.dmg
          sudo open -a "/Volumes/Parallels Desktop "*"/Install.app"
          sudo cp -R "/Volumes/Parallels Desktop "*"/Parallels Desktop.app" /Applications
+         ls "/Applications/Parallels Desktop.app/Contents/MacOS"
 
       - name: Start vagrant box
         run: |
+          PATH="/Applications/Parallels Desktop.app/Contents/MacOS/:$PATH"
           vagrant plugin install vagrant-parallels
           vagrant up --provider parallels ${{ matrix.vagrant_target }}
