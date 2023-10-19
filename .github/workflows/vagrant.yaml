@@ -5,6 +5,8 @@ on:
     branches:
     - main
   pull_request:
+  schedule:
+    - cron: '17 20 * * *'
 
 jobs:
   vagrant:
