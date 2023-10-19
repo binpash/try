@@ -26,6 +26,7 @@ jobs:
         run: |
          curl -o parallels.dmg $PARALLELS_DMG_URL
          hdiutil attach parallels.dmg
+         sudo open -a "/Volumes/Parallels Desktop "*"/Install.app"
          sudo cp -R "/Volumes/Parallels Desktop "*"/Parallels Desktop.app" /Applications
          hdiutil unmount "/Volumes/Parallels Desktop "*
 
