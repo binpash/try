@@ -12,6 +12,7 @@ on:
 jobs:
   vagrant:
     strategy:
+      fail-fast: false
       matrix:
         vagrant_target:
           - debian
