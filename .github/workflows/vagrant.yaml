@@ -18,7 +18,7 @@ jobs:
           - debianlvm
           - rocky9
           - fedora33
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
 
