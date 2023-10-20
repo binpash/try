@@ -509,7 +509,7 @@ Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."]
   -i PATTERN         ignore paths that match PATTERN on summary and commit
   -D DIR             work in DIR (implies -n)
   -U PATH            path to unionfs helper (e.g., mergerfs, unionfs-fuse)
-  -L "dir1:dir2:..." specify multiple lower directories to merge (colon-separated)
+  -L "dir1:dir2:..." specify multiple lower directories to merge (colon-separated, implies -n)
 
   -v                 show version information (and exit)
   -h                 show this usage message (and exit)
@@ -546,7 +546,8 @@ do
               fi
               SANDBOX_DIR="$OPTARG"
               NO_COMMIT="quiet";;
-        (L)   LOWER_DIRS="$OPTARG";;
+        (L)   LOWER_DIRS="$OPTARG"
+              NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
