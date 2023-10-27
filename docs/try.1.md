@@ -37,6 +37,10 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Show a usage message (and exit).
 
+-x
+
+: Unshare the network namespace.
+
 
 ## Options
 
