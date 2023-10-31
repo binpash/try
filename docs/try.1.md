@@ -39,7 +39,7 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -x
 
-: Prevent network access (by unsharing the network namespace.)
+: Prevent network access (by unsharing the network namespace).
 
 
 ## Options
