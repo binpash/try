@@ -233,11 +233,7 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    if [ -z "$EXTRA_NS" ]; then
-        unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
-    else
-        unshare --mount --map-root-user --user --pid --fork --net "$mount_and_execute"
-    fi
+    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     ################################################################################
@@ -533,7 +529,7 @@ do
               fi
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
-        (x)   EXTRA_NS="net";;
+        (x)   EXTRA_NS="--net";;
         (h|*) usage
               exit 0;;
     esac
