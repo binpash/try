@@ -480,7 +480,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
-  -x                revent network access (by unsharing the network namespace.)
+  -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
