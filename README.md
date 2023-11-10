@@ -47,7 +47,7 @@ To run `try`'s test suite (`test/run_tests.sh`), you will need:
 
 *Note that try will only work on [Linux
 5.11](https://github.com/torvalds/linux/commit/92dbc9dedccb9759c7f9f2f0ae6242396376988f)
-or higher for overlayfs to work in a user namespace*
+or higher for overlayfs to work in a user namespace.*
 
 ### Installing
 
