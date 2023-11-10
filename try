@@ -227,13 +227,14 @@ EOF
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     [ -t 0 ] && set -m
 
+    # --keep-caps: capabilities granted in the user namespace are preserved in the child process.
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+    unshare --keep-caps --mount --map-root-user --user --pid --fork "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     ################################################################################
