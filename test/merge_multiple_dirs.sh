@@ -35,7 +35,6 @@ cleanup() {
     then
        rm "$expected2"
     fi
-    
     if [ -f "$expected3" ]
     then
        rm "$expected3"
