@@ -546,7 +546,11 @@ do
               fi
               SANDBOX_DIR="$OPTARG"
               NO_COMMIT="quiet";;
-        (L)   LOWER_DIRS="$OPTARG"
+        (L)   if [ -n "$LOWER_DIRS" ]; then
+                  error "the -L option has been specified multiple times." 2
+                  exit 1
+              fi
+              LOWER_DIRS="$OPTARG"
               NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
