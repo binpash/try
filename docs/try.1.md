@@ -55,7 +55,7 @@ This option is recommended in case OverlayFS fails.
 
 -L *LOWER_DIRS*
 
-: Specify a colon-separated list of directories to be used as lower directories for the overlay, formatted as "dir1:dir2:...:dirn".
+: Specify a colon-separated list of directories to be used as lower directories for the overlay, formatted as "dir1:dir2:...:dirn" (implies -n).
 
 
 ## Subcommands
