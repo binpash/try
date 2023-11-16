@@ -45,6 +45,10 @@ To run `try`'s test suite (`test/run_tests.sh`), you will need:
 * `Rocky 9 5.14.0-284.11.1.el9_2`
 * `SteamOS 3.4.8 5.13.0-valve36-1-neptune`
 
+*Note that try will only work on [Linux
+5.11](https://github.com/torvalds/linux/commit/92dbc9dedccb9759c7f9f2f0ae6242396376988f)
+or higher for overlayfs to work in a user namespace.*
+
 ### Installing
 
 You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/main/try), which you can download by cloning this repository:
