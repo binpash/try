@@ -5,10 +5,13 @@ on:
     branches:
     - main
   pull_request:
+  schedule:
+    - cron: '17 20 * * *'
 
 jobs:
   vagrant:
     strategy:
+      fail-fast: false
       matrix:
         vagrant_target:
           - debian
@@ -16,7 +19,7 @@ jobs:
           - debianlvm
           - rocky9
           - fedora33
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
 

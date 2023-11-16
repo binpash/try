@@ -7,7 +7,7 @@
 #
 # https://github.com/binpash/try
 
-TRY_VERSION="0.1.0"
+TRY_VERSION="0.2.0"
 TRY_COMMAND="$(basename "$0")"
 export TRY_COMMAND
 
@@ -259,7 +259,8 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    unshare --mount --map-root-user --user --pid --fork "$mount_and_execute"
+    # shellcheck disable=SC2086 # we want field splitting!
+    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     ################################################################################
@@ -502,15 +503,15 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhy] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."] CMD [ARG ...]
 
-  -n                 don't prompt for commit
-  -y                 assume yes to all prompts (implies -n is not used)
-  -i PATTERN         ignore paths that match PATTERN on summary and commit
+  -n                don't commit or prompt for commit (overrides -y)
+  -y                assume yes to all prompts (overrides -n)
+  -x                prevent network access (by unsharing the network namespace)
+  -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR             work in DIR (implies -n)
   -U PATH            path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L "dir1:dir2:..." specify multiple lower directories to merge (colon-separated, implies -n)
-
   -v                 show version information (and exit)
   -h                 show this usage message (and exit)
 
@@ -534,7 +535,8 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhi:D:U:L:" opt
+while getopts ":yvnhxi:D:U:L:" opt
+
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -559,6 +561,7 @@ do
               fi
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
+        (x)   EXTRA_NS="--net";;
         (h|*) usage
               exit 0;;
     esac

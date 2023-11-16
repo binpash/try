@@ -14,10 +14,7 @@ We're setting out to change that: `try cmd` and commit---or not.
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 
 Please note that `try` is a prototype and not a full sandbox, and should not be used to execute
-commands that you don't already trust on your system, (i.e. devices in `/dev` are
-mounted in the sandbox, and network calls are all allowed.) Please do not
-attempt any commands that will remove everything in /dev or write zeros to your
-disks.
+commands that you don't already trust on your system, (i.e. network calls are all allowed)
 
 <img src="docs/try_pip_install_example.gif" alt="try gif">
 
@@ -47,6 +44,10 @@ To run `try`'s test suite (`test/run_tests.sh`), you will need:
 * `Alpine 6.1.34-1-lts`
 * `Rocky 9 5.14.0-284.11.1.el9_2`
 * `SteamOS 3.4.8 5.13.0-valve36-1-neptune`
+
+*Note that try will only work on [Linux
+5.11](https://github.com/torvalds/linux/commit/92dbc9dedccb9759c7f9f2f0ae6242396376988f)
+or higher for overlayfs to work in a user namespace.*
 
 ### Installing
 
@@ -176,14 +177,27 @@ Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
 branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
-uid/gidmapper.
+uid/gidmapper (root access is required for installation).
 
 Please also report any issue you run into while using the future branch!
 
 ## Version History
 
-* 0.1.0 - 2023-06-25
-    * Initial release.
+* v0.2.0 - 2023-07-24
+  - Refactor tests.
+  - Improved linting.
+  - Hide `try`-internal variables from scripts.
+  - Style guide.
+  - Testing in Vagrant.
+  - Support nested mounts.
+  - Resolve issues with `userxattr`.
+  - Better support for `unionfs`.
+  - Use `/bin/sh`, not `/bin/bash`.
+  - `-i` flag to ignore paths.
+  - Interactive improvements.
+
+* v0.1.0 - 2023-06-25
+  - Initial release.
 
 ## See Also
 

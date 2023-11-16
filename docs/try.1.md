@@ -1,4 +1,4 @@
-% TRY(1) try 0.1.0 | Do, or do not. There is no *try*.
+% TRY(1) try 0.2.0 | Do, or do not. There is no *try*.
 % The PaSh Authors
 
 # NAME
@@ -23,19 +23,23 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 -n
 
-: Don't prompt for commit. Just return the overlay directory.
+: Don't commit or prompt for commit. Just return the overlay directory. Overrides -y.
 
 -y
 
-: Assume yes to all prompts (implies -n is not used)
+: Assume yes to all prompts. Overrides -n.
 
 -v
 
-: Show version information (and exit)
+: Show version information (and exit).
 
 -h
 
-: Show a usage message (and exit)
+: Show a usage message (and exit).
+
+-x
+
+: Prevent network access (by unsharing the network namespace).
 
 
 ## Options
@@ -62,39 +66,39 @@ This option is recommended in case OverlayFS fails.
 
 try summary *DIR*
 
-: Show the summary for the overlay in *DIR*
+: Show the summary for the overlay in *DIR*.
 
 try commit *DIR*
 
-: Commit the overlay in *DIR*
+: Commit the overlay in *DIR*.
 
 try explore
 
-: Run in interactive mode
+: Run in interactive mode, i.e., start a shell in the overlay.
 
 ## Arguments
 
 *CMD*
 
-: Specifies the command to execute inside the overlay
+: Specifies the command to execute inside the overlay.
 
 *ARG*
 
-: The arguments of *CMD*
+: The arguments of *CMD*.
 
 # EXIT STATUS
 
 0
 
-: Command ran successfully
+: Command ran successfully.
 
 1
 
-: Consistency error/failure
+: Consistency error/failure.
 
 2
 
-: Input error
+: Input or other internal error.
 
 # EXAMPLES
 
@@ -149,8 +153,7 @@ try commit try_dir
 
 # SEE ALSO
 
-chroot(1), unshare(1)
-Alternative tool [checkinstall](http://checkinstall.izto.org/) (unmaintained)
+checkinstall(1), chroot(1), unshare(1), mount_namespaces(7), namespaces(7), mount(8)
 
 # BUGS
 
