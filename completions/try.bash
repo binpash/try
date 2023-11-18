@@ -17,7 +17,7 @@ _try() {
 
     case "${cmd}" in
         (try)
-            opts="-n -y -v -h -x -i -D -U summary commit explore"
+            opts="-n -y -v -h -x -d -i -D -U summary commit explore"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]]
             then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

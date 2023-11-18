@@ -41,6 +41,10 @@ While using *try* you can choose to commit the result to the filesystem or compl
 
 : Prevent network access (by unsharing the network namespace).
 
+-d
+
+: Enable support of overlayfs backed systems i.e. docker.
+
 
 ## Options
 
