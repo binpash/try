@@ -85,6 +85,7 @@ try() {
     export chroot_executable
     export try_mount_log
     export script_to_execute
+    export docker
 
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
@@ -97,6 +98,20 @@ make_overlay() {
     lowerdir="$2"
     mountpoint="$3"
     mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+}
+
+make_overlay_docker() {
+    sandbox_dir="$1"
+    lowerdir="$2"
+    mountpoint="$3"
+
+    # the directory that upperdir and workdir sits on has to be tmpfs in a overlayfs backed filesystem
+    mkdir "$sandbox_dir/overlay"
+    mount -t tmpfs tmpfs "$sandbox_dir/overlay"
+    mkdir -p "$sandbox_dir/overlay/upperdir/$mountpoint"
+    mkdir -p "$sandbox_dir/overlay/workdir/$mountpoint"
+
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/overlay/upperdir/$mountpoint,workdir=$sandbox_dir/overlay/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
 
 devices_to_mount="tty null zero full random urandom"
@@ -155,7 +170,12 @@ do
     fi
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
+    if [ "$docker" -eq 1 ]
+    then
+        make_overlay_docker "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
+    else
+        make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
+    fi
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
@@ -482,6 +502,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
+  -d                docker support
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
@@ -507,10 +528,12 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
+docker=0
+
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhxi:D:U:" opt
+while getopts ":yvnhxdi:D:U:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -531,6 +554,7 @@ do
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
         (x)   EXTRA_NS="--net";;
+        (d)   docker=1;;
         (h|*) usage
               exit 0;;
     esac
