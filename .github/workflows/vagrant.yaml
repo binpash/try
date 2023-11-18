@@ -19,9 +19,13 @@ jobs:
           - debianlvm
           - rocky9
           - fedora33
-    runs-on: macos-12
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
 
       - name: Start vagrant box
         run: vagrant up ${{ matrix.vagrant_target }}
+
+      - name: Stop vagrant box
+        run: vagrant destroy -f ${{ matrix.vagrant_target }}
+        if: ${{ success() || failure() }} # we want to run this step even if the last step failed
