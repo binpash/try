@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect
+      sudo apt-get install -y git expect curl
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs
+      sudo apt-get install -y git expect lvm2 mergerfs curl
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect
+      sudo yum install -y git expect curl
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
@@ -86,7 +86,7 @@ Vagrant.configure("2") do |config|
     fedora.vm.box = "generic/fedora33"
     fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     fedora.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect
+      sudo yum install -y git expect curl
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
