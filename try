@@ -99,6 +99,22 @@ make_overlay() {
     mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
 }
 
+<<<<<<< Updated upstream
+=======
+make_overlay_docker() {
+    sandbox_dir="$1"
+    lowerdir="$2"
+    mountpoint="$3"
+
+    # the directory that upperdir and workdir sits on has to be tmpfs in a overlayfs backed filesystem
+    mkdir -p "$sandbox_dir/upperdir/$mountpoint"
+    mkdir -p "$sandbox_dir/workdir/$mountpoint"
+    mkdir -p "$sandbox_dir/temproot/$mountpoint"
+
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+}
+
+>>>>>>> Stashed changes
 devices_to_mount="tty null zero full random urandom"
 
 ## Mounts and unmounts a few select devices instead of the whole `/dev`
@@ -135,6 +151,13 @@ if [ -z "$UNION_HELPER" ]
 then
     ## Try to detect the union_helper (the variable could still be empty afterwards).
     autodetect_union_helper
+fi
+
+if [ "$docker" -eq 1 ]
+then
+   mount -t tmpfs tmpfs "$SANDBOX_DIR"
+   mkdir -p $SANDBOX_DIR/temproot/dev
+   mkdir -p $SANDBOX_DIR/temproot/proc
 fi
 
 # actually mount the overlays
