@@ -8,7 +8,7 @@
 # https://github.com/binpash/try
 
 TRY_VERSION="0.2.0"
-TRY_COMMAND="$(basename "$0")"
+TRY_COMMAND="${0##*/}"
 export TRY_COMMAND
 
 # exit status invariants
