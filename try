@@ -73,7 +73,7 @@ try() {
         ## Only make the directory if the original is a directory too
         if [ -d "$mountpoint" ]
         then
-            mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
 
