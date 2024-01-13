@@ -45,7 +45,7 @@ try() {
     fi
 
     ## Make any directories that don't already exist, this is OK to do here
-    ##  because we have already checked if it valid.
+    ## because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
@@ -55,6 +55,34 @@ try() {
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
+
+    # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
+    UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
+    export UPDATED_DIRS_AND_MOUNTS
+    while IFS="" read -r mountpoint
+    do
+        new_mountpoint=""
+        OLDIFS=$IFS
+        IFS=":"
+
+        for lower_dir in $LOWER_DIRS
+        do
+            temp_mountpoint="$lower_dir/upperdir$mountpoint"
+            if [ -n "$new_mountpoint" ]
+            then
+                # If new_mountpoint is not empty, append : and the temp_mountpoint
+                new_mountpoint="$new_mountpoint:$temp_mountpoint"
+            else
+                # If new_mountpoint is empty, just set it to temp_mountpoint
+                new_mountpoint="$temp_mountpoint"
+            fi
+        done
+        IFS=$OLDIFS
+        # Add the original mountpoint at the end
+        new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
+        echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
+    done <"$DIRS_AND_MOUNTS"
+
 
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
@@ -94,10 +122,11 @@ TRY_COMMAND="$TRY_COMMAND($0)"
 ## A wrapper of `mount -t overlay` to have cleaner looking code
 make_overlay() {
     sandbox_dir="$1"
-    lowerdir="$2"
-    mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdir,upperdir=$sandbox_dir/upperdir/$mountpoint,workdir=$sandbox_dir/workdir/$mountpoint" "$sandbox_dir/temproot/$mountpoint"
+    lowerdirs="$2"
+    overlay_mountpoint="$3"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
+
 
 devices_to_mount="tty null zero full random urandom"
 
@@ -138,24 +167,23 @@ then
 fi
 
 # actually mount the overlays
-for mountpoint in $(cat "$DIRS_AND_MOUNTS")
+for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
+    pure_mountpoint=${mountpoint##*:}
+
     ## We are not interested in mounts that are not directories
-    if ! [ -d "$mountpoint" ]
+    if ! [ -d "$pure_mountpoint" ]
     then
         continue
     fi
 
-    ## Don't do anything for the root
-    ##   and skip if it is /dev or /proc, we will mount it later
-    if [ "$mountpoint" = "/" ] ||
-        [ "$mountpoint" = "/dev" ] || [ "$mountpoint" = "/proc" ]
-    then
-        continue
-    fi
+    ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
+    case "$pure_mountpoint" in
+        (/|/dev|/proc) continue;;
+    esac
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "/$mountpoint" "$mountpoint" 2>>"$try_mount_log"
+    make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
@@ -180,9 +208,7 @@ do
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
-
-            ## Make the overlay on the union directory which works as a lowerdir for overlay
-            make_overlay "$SANDBOX_DIR" "$merger_dir" "$mountpoint" 2>>"$try_mount_log" ||
+            make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi
@@ -477,7 +503,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
@@ -485,10 +511,9 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] CMD [ARG ...]
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
-
+  -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -v                show version information (and exit)
   -h                show this usage message (and exit)
-
 
 Subcommands:
   $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
@@ -510,7 +535,8 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhxi:D:U:" opt
+while getopts ":yvnhxi:D:U:L:" opt
+
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -521,6 +547,12 @@ do
                   error "could not find sandbox directory '$OPTARG'" 2
               fi
               SANDBOX_DIR="$OPTARG"
+              NO_COMMIT="quiet";;
+        (L)   if [ -n "$LOWER_DIRS" ]
+              then
+                  error "the -L option has been specified multiple times" 2
+              fi
+              LOWER_DIRS="$OPTARG"
               NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
