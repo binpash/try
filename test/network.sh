@@ -12,7 +12,7 @@ TRY="$TRY_TOP/try"
 "$TRY" -x curl 1.1
 if [ $? -eq 7 ]
 then
-    return 0
+    exit 0
 else
-    return 1
+    exit 1
 fi
