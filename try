@@ -68,7 +68,8 @@ try() {
         for lower_dir in $LOWER_DIRS
         do
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
-            if [ -n "$new_mountpoint" ]; then
+            if [ -n "$new_mountpoint" ]
+            then
                 # If new_mountpoint is not empty, append : and the temp_mountpoint
                 new_mountpoint="$new_mountpoint:$temp_mountpoint"
             else
@@ -176,10 +177,9 @@ do
         continue
     fi
 
-    ## Don't do anything for the root
-    ## and skip if it is /dev or /proc, we will mount it later
+    ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
     case "$pure_mountpoint" in
-    (/|/dev|/proc) continue;;
+        (/|/dev|/proc) continue;;
     esac
 
     # Try mounting everything normally
@@ -503,17 +503,17 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L "dir1:dir2:..."] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
-  -D DIR             work in DIR (implies -n)
-  -U PATH            path to unionfs helper (e.g., mergerfs, unionfs-fuse)
-  -L "dir1:dir2:..." specify multiple lower directories to merge (colon-separated, implies -n)
-  -v                 show version information (and exit)
-  -h                 show this usage message (and exit)
+  -D DIR            work in DIR (implies -n)
+  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
+  -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
+  -v                show version information (and exit)
+  -h                show this usage message (and exit)
 
 Subcommands:
   $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
@@ -548,8 +548,9 @@ do
               fi
               SANDBOX_DIR="$OPTARG"
               NO_COMMIT="quiet";;
-        (L)   if [ -n "$LOWER_DIRS" ]; then
-                  error "the -L option has been specified multiple times." 2
+        (L)   if [ -n "$LOWER_DIRS" ]
+              then
+                  error "the -L option has been specified multiple times" 2
               fi
               LOWER_DIRS="$OPTARG"
               NO_COMMIT="quiet";;
