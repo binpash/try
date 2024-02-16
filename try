@@ -130,16 +130,10 @@ autodetect_union_helper() {
     fi
 }
 
-# start gid mapping
-# -U: use unix domain socket
-# -q0: don't wait after EOF on stdin
-# Sometimes this will run first before the other nc starts listening, so we will retry
-while ! echo a | nc -Uq0 "$socket1" 2> /dev/null; do sleep 0.25 ; done
+# tell main that we're up
+echo "a" > "$SOCKET"
 
-# Wait for gid to be mapped
-# -l: listen
-# -U: use unix socket
-nc -lU "$socket2" > /dev/null
+cat "$SOCKET" > /dev/null
 
 # Detect if union_helper is set, if not, we try to autodetect them
 if [ -z "$UNION_HELPER" ]
@@ -222,28 +216,34 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS SOCKET
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
 cd "$START_DIR" &&
-. "$script_to_execute"
+if [ $EUSER ]
+then
+    su - $EUSER -c "sh $script_to_execute"
+else
+    . "$script_to_execute"
+fi
 EOF
 
     echo "$@" >"$script_to_execute"
 
     # `$script_to_execute` need not be +x to be sourced
-    chmod +x "$mount_and_execute" "$chroot_executable"
+    # ez: now we do
+    chmod +x "$mount_and_execute" "$chroot_executable" "$script_to_execute"
+    chmod +r "$script_to_execute"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     [ -t 0 ] && set -m
 
     # TZ: Does this adhere to the styleguide?
     # TZ: TODO: un-export them later
-    socket1="$(mktemp)"
-    socket2="$(mktemp)"
-    export socket1
-    export socket2
+    SOCKET="$(mktemp -u)"
+    mkfifo $SOCKET
+    export SOCKET
 
     # Running mapper in a subshell to suppress job control [1] + Done message
     (mapper&)
@@ -495,15 +495,12 @@ error() {
 ################################################################################
 
 mapper() {
-    # TZ: TODO: fix check whether gidmapper exists
-    # Wait for unshare process to start
-    # -U: use unix domain socket
-    # -l: listen
-    nc -Ul "$socket1" > /dev/null
+    cat "$SOCKET" > /dev/null
     # Get the pid of the unshare process with current pid as parent
     pid=$(pgrep -P $$ -f unshare)
 
     # Map root user to current user, and all groups
+    # Usage: gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount
     if [ "$(id -u)" = 0 ]
     then
         # If we're running as root, we can map all the users
@@ -514,9 +511,7 @@ mapper() {
     fi
 
     # Notify the unshare process that we have finished
-    # -U: use unix domain socket
-    # -q0: don't wait after EOF
-    echo a | nc -Uq0 "$socket2"
+    echo "a" > "$SOCKET"
 }
 
 
@@ -558,12 +553,18 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhi:D:U:" opt
+while getopts ":yvnhu:i:D:U:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
+        (u)   if [ "$(id -u)" -ne "0" ]
+              then
+                  error "need root" 2
+              fi
+              EUSER="$OPTARG"
+              export EUSER;;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
