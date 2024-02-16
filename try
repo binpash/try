@@ -47,6 +47,13 @@ try() {
     ## Make any directories that don't already exist, this is OK to do here
     ## because we have already checked if it valid.
     export SANDBOX_DIR
+
+    # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
+    if [ -f /.dockerenv ] && [ "$(id -u)" -eq "0" ]
+    then
+        mount -t tmpfs tmpfs "$SANDBOX_DIR"
+    fi
+
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
