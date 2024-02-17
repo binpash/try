@@ -27,14 +27,15 @@ try_workspace="$(mktemp -d)"
 cd "$try_workspace" || return 9
 
 new_bin_dir="$(mktemp -d)"
-mkdir "$new_bin_dir/usr"
+mkdir -p "$new_bin_dir/usr/local"
 # -s makes symlinks
 cp -rs /usr/bin "$new_bin_dir/usr/bin"
+cp -rs /usr/local/bin "$new_bin_dir/usr/local/bin"
 
 # Delete mergerfs and unionfs and set the new PATH to the temporary directory
 rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
 rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
 
 echo hi >expected
-PATH="$new_bin_dir/usr/bin" "$TRY" -y "echo hi" >target 2>/dev/null || return 1
+PATH="$new_bin_dir/usr/bin:$new_bin_dir/usr/local/bin" "$TRY" -y "echo hi" >target 2>/dev/null || return 1
 diff -q expected target || return 2
