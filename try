@@ -106,9 +106,10 @@ try() {
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mountpoint" ]
+        if [ -d "$mountpoint" ] && [ ! -L "$mountpoint" ]
         then
-            mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
+            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
 
@@ -190,6 +191,12 @@ do
         continue
     fi
 
+    ## We will deal with symlinks later
+    if [ -L "$mountpoint" ]
+    then
+        continue
+    fi
+
     ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
     case "$pure_mountpoint" in
         (/|/dev|/proc) continue;;
@@ -225,6 +232,18 @@ do
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
     fi
+done
+
+## now we deal with symlinks
+for mountpoint in $(cat "$DIRS_AND_MOUNTS")
+do
+    ## We're only interested in symlinks
+    if ! [ -L "$mountpoint" ]
+    then
+        continue
+    fi
+    #ln -s "$sandbox_dir/temproot/$(readlink "$mountpoint")" "$sandbox_dir/temproot/$mountpoint"
+    ln -s $(readlink "$mountpoint") "$sandbox_dir/temproot/$mountpoint"
 done
 
 ## Mount a few select devices in /dev
