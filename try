@@ -220,11 +220,11 @@ unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS SOCKET
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
-cd "$START_DIR" &&
 if [ $EUSER ]
 then
-    su - $EUSER -c "sh $script_to_execute"
+    su - $EUSER -c "cd "$START_DIR" && sh $script_to_execute"
 else
+    cd "$START_DIR" &&
     . "$script_to_execute"
 fi
 EOF
@@ -242,7 +242,7 @@ EOF
     # TZ: Does this adhere to the styleguide?
     # TZ: TODO: un-export them later
     SOCKET="$(mktemp -u)"
-    mkfifo $SOCKET
+    mkfifo "$SOCKET"
     export SOCKET
 
     # Running mapper in a subshell to suppress job control [1] + Done message
