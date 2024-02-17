@@ -28,9 +28,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ..
-          cp -r try ~
-          cd ~/try
+          sudo ./setup.sh
           scripts/run_tests.sh
 
       - name: Upload script
