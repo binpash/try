@@ -159,6 +159,12 @@ autodetect_union_helper() {
     fi
 }
 
+# notify the mapper that we're up
+echo "a" > "$SOCKET"
+
+# wait for mapper to finish
+cat "$SOCKET" > /dev/null
+
 # Detect if union_helper is set, if not, we try to autodetect them
 if [ -z "$UNION_HELPER" ]
 then
@@ -237,12 +243,17 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS SOCKET
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
-cd "$START_DIR" &&
-. "$script_to_execute"
+if [ "$EUSER" ]
+then
+    su - $EUSER -c "cd "$START_DIR" && sh $script_to_execute"
+else
+    cd "$START_DIR" &&
+    . "$script_to_execute"
+fi
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -250,17 +261,28 @@ EOF
     # `$script_to_execute` need not be +x to be sourced
     chmod +x "$mount_and_execute" "$chroot_executable"
 
+    if [ "$EUSER" ]
+    then
+        chown "$EUSER" "$script_to_execute"
+    fi
+
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     [ -t 0 ] && set -m
 
+    SOCKET="$(mktemp -u)"
+    mkfifo "$SOCKET"
+    export SOCKET
+
+    # Running mapper in a subshell to suppress job control [1] + Done message
+    (mapper&)
+
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
-    # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
-    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
+    unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     ################################################################################
@@ -498,6 +520,30 @@ error() {
 }
 
 ################################################################################
+# Change uid/gid mapping
+################################################################################
+
+mapper() {
+    cat "$SOCKET" > /dev/null
+    # Get the pid of the unshare process with current pid as parent
+    pid=$(pgrep -P $$ -f unshare)
+
+    # Map root user to current user, and all groups
+    # Usage: gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount
+    if [ "$(id -u)" = 0 ]
+    then
+        # If we're running as root, we can map all the users
+        gidmapper "$pid" 0 0 65535 0 0 65535
+    else
+        # If not running as root, we can only mount the caller user
+        gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
+    fi
+
+    # Notify the unshare process that we have finished
+    echo "a" > "$SOCKET"
+}
+
+################################################################################
 # Argument parsing
 ################################################################################
 
@@ -508,6 +554,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
+  -u username       user to run the command with (requires root)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
@@ -535,13 +582,19 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhxi:D:U:L:" opt
+while getopts ":yvnhxu:i:D:U:L:" opt
 
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
+        (u)   if [ "$(id -u)" -ne "0" ]
+              then
+                  error "need root for -u" 2
+              fi
+              EUSER="$OPTARG"
+              export EUSER;;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
