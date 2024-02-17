@@ -35,5 +35,5 @@ ls -l >"$expected"
 # Set up target output
 target="$(mktemp)"
 
-sudo "$TRY" ls -l > "$target" || return 1
+sudo "$TRY" ls -l | tee "$target" || return 1
 diff -q "$expected" "$target"
