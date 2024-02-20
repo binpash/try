@@ -34,11 +34,11 @@ cd "$try_workspace" || return 9
 touch test
 
 cmd="$(mktemp)"
-echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print \$1, \$3, \$4, \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > $cmd
+echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print \$1, \$3, \$4, \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
 
 # Set up expected output
 expected="$(mktemp)"
-sh $cmd >"$expected"
+sh "$cmd" >"$expected"
 
 # Set up target output
 target="$(mktemp)"
