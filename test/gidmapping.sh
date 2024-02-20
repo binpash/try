@@ -4,7 +4,7 @@ TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-
 TRY="$TRY_TOP/try"
 
 control=$(id -G)
-testing=$("$TRY" id -G)
+testing=$("$TRY" id -G 2>/dev/null)
 
 if [ "$control" = "$testing" ]
 then
