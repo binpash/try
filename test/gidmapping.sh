@@ -3,8 +3,8 @@
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
 TRY="$TRY_TOP/try"
 
-control=$(id -G)
-testing=$("$TRY" id -G 2>/dev/null)
+control=$(id -Gn)
+testing=$("$TRY" -D "$(mktemp -d)" id -Gn 2>/dev/null)
 
 if [ "$control" = "$testing" ]
 then
