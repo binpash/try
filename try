@@ -48,6 +48,7 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+    chmod 755 "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
@@ -281,6 +282,15 @@ EOF
     # shellcheck disable=SC2086 # we want field splitting!
     unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
+
+    # remove symlink
+    while IFS="" read -r mountpoint
+    do
+        if [  -L "$mountpoint" ]
+        then
+            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+        fi
+    done <"$DIRS_AND_MOUNTS"
 
     ################################################################################
     # commit?
