@@ -230,7 +230,6 @@ do
     then
         continue
     fi
-    #ln -s "$sandbox_dir/temproot/$(readlink "$mountpoint")" "$sandbox_dir/temproot/$mountpoint"
     ln -s $(readlink "$mountpoint") "$sandbox_dir/temproot/$mountpoint"
 done
 
