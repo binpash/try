@@ -223,7 +223,7 @@ do
 done
 
 ## now we deal with symlinks
-for mountpoint in $(cat "$DIRS_AND_MOUNTS")
+while IFS="" read -r mountpoint
 do
     ## We're only interested in symlinks
     if ! [ -L "$mountpoint" ]
@@ -231,7 +231,7 @@ do
         continue
     fi
     ln -s $(readlink "$mountpoint") "$sandbox_dir/temproot/$mountpoint"
-done
+done <"$DIRS_AND_MOUNTS"
 
 ## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
