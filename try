@@ -48,6 +48,15 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
+    # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
+    tmpdirname=$(mktemp -d)
+    # tail -n +2 to ignore the first line with the column name
+    tmpfstype=$(df --output=fstype "$tmpdirname" | tail -n +2)
+    if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
+    then
+        mount -t tmpfs tmpfs "$SANDBOX_DIR"
+    fi
+
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
