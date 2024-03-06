@@ -47,6 +47,16 @@ try() {
     ## Make any directories that don't already exist, this is OK to do here
     ## because we have already checked if it valid.
     export SANDBOX_DIR
+
+    # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
+    tmpdirname=$(mktemp -d)
+    # tail -n +2 to ignore the first line with the column name
+    tmpfstype=$(df --output=fstype "$tmpdirname" | tail -n +2)
+    if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
+    then
+        mount -t tmpfs tmpfs "$SANDBOX_DIR"
+    fi
+
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
     chmod 755 "$SANDBOX_DIR/temproot"
 
@@ -342,6 +352,7 @@ summary() {
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4-)"
         case "$summary_line" in
+            (ln*) echo "$local_file (symlink)";;
             (rd*) echo "$local_file (replaced with dir)";;
             (md*) echo "$local_file (created dir)";;
             (de*) echo "$local_file (deleted)";;
@@ -376,6 +387,7 @@ commit() {
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
         case $summary_line in
+            (ln*) ln -s "$(readlink "$changed_file")" "$local_file";;
             (rd*) rm -f "$local_file"; mkdir "$local_file";;
             (md*) mkdir "$local_file";;
             (de*) rm "$local_file";;
@@ -422,7 +434,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
 
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file"
 }
 
 ################################################################################
@@ -450,7 +462,10 @@ process_changes() {
     while IFS= read -r changed_file
     do
         local_file="${changed_file#"$sandbox_dir/upperdir"}"
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
+        if [ -L "$changed_file" ]
+        then
+            echo "ln $local_file"
+        elif [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## If something exists there, we need to delete it first
             if [ -e "$local_file" ]
