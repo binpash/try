@@ -110,7 +110,7 @@ try() {
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mountpoint" ] && [ ! -L "$mountpoint" ]
+        if [ -d "$mountpoint" ] && ! [ -L "$mountpoint" ]
         then
             # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
             mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
