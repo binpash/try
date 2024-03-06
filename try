@@ -324,6 +324,7 @@ summary() {
     while IFS= read -r summary_line; do
         local_file="$(echo "$summary_line" | cut -c 4-)"
         case "$summary_line" in
+            (ln*) echo "$local_file (symlink)";;
             (rd*) echo "$local_file (replaced with dir)";;
             (md*) echo "$local_file (created dir)";;
             (de*) echo "$local_file (deleted)";;
@@ -358,6 +359,7 @@ commit() {
         local_file="$(echo "$summary_line" | cut -c 4-)"
         changed_file="$SANDBOX_DIR/upperdir$local_file"
         case $summary_line in
+            (ln*) ln -s "$(readlink "$changed_file")" "$local_file";;
             (rd*) rm -f "$local_file"; mkdir "$local_file";;
             (md*) mkdir "$local_file";;
             (de*) rm "$local_file";;
@@ -404,7 +406,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
 
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file"
 }
 
 ################################################################################
@@ -432,7 +434,10 @@ process_changes() {
     while IFS= read -r changed_file
     do
         local_file="${changed_file#"$sandbox_dir/upperdir"}"
-        if [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
+        if [ -L "$changed_file" ]
+        then
+            echo "ln $local_file"
+        elif [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
         then # new directory
             ## If something exists there, we need to delete it first
             if [ -e "$local_file" ]
