@@ -188,10 +188,11 @@ do
     then
         continue
     fi
-
-    ## We will deal with symlinks later
+    
+    ## Symlinks
     if [ -L "$mountpoint" ]
     then
+        ln -s $(readlink "$mountpoint") "$SANDBOX_DIR/temproot/$mountpoint"
         continue
     fi
 
@@ -231,17 +232,6 @@ do
         fi
     fi
 done
-
-## now we deal with symlinks
-while IFS="" read -r mountpoint
-do
-    ## We're only interested in symlinks
-    if ! [ -L "$mountpoint" ]
-    then
-        continue
-    fi
-    ln -s $(readlink "$mountpoint") "$sandbox_dir/temproot/$mountpoint"
-done <"$DIRS_AND_MOUNTS"
 
 ## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
