@@ -57,9 +57,7 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
-    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir"
-    mkdir -m "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
-
+    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
@@ -117,6 +115,8 @@ try() {
             mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
