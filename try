@@ -57,8 +57,9 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
-    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
-    chmod 755 "$SANDBOX_DIR/temproot"
+    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir"
+    mkdir -m "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
+
 
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
