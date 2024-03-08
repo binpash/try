@@ -30,5 +30,5 @@ try_example_dir=$(mktemp -d)
 #               at the moment, this modification will be caught as illegal by `try`,
 #               but it doesn't seem to both overlayfs at all.
 # TODO: Extend this with more problematic overlayfs modifications.
-touch "$try_example_dir/temproot/bin/foo"
+touch "$try_example_dir/temproot/etc/foo"
 ! "$TRY" -D "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" 2>/dev/null
