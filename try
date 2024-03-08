@@ -284,6 +284,8 @@ EOF
     TRY_EXIT_STATUS=$?
 
     # remove symlink
+    # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
+    chmod 755 "${SANDBOX_DIR}/temproot"
     while IFS="" read -r mountpoint
     do
         if [  -L "$mountpoint" ]
