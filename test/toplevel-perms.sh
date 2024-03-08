@@ -43,5 +43,6 @@ sh "$cmd" >"$expected"
 # Set up target output
 target="$(mktemp)"
 
+# shellcheck disable=SC2024 # sudo won't be used in > $target redirection
 sudo "$TRY" "sh $cmd" > "$target" || return 1
 diff "$expected" "$target"
