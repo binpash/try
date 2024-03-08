@@ -34,9 +34,7 @@ cd "$try_workspace" || return 9
 touch test
 
 cmd="$(mktemp)"
-echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
-# Use this after gidmapper to show user and group ownership
-#echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$3, \$4, \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
+echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$3, \$4, \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
 
 # Set up expected output
 expected="$(mktemp)"
@@ -45,6 +43,5 @@ sh "$cmd" >"$expected"
 # Set up target output
 target="$(mktemp)"
 
-"$TRY" "sh $cmd" > "$target" || return 1
-#diff -q "$expected" "$target"
+sudo "$TRY" "sh $cmd" > "$target" || return 1
 diff "$expected" "$target"
