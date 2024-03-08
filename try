@@ -109,11 +109,14 @@ try() {
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
-        if [ -d "$mountpoint" ]
+        if [ -d "$mountpoint" ] && ! [ -L "$mountpoint" ]
         then
-            mkdir -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
+            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -190,6 +193,13 @@ do
     ## We are not interested in mounts that are not directories
     if ! [ -d "$pure_mountpoint" ]
     then
+        continue
+    fi
+
+    ## Symlinks
+    if [ -L "$mountpoint" ]
+    then
+        ln -s $(readlink "$mountpoint") "$SANDBOX_DIR/temproot/$mountpoint"
         continue
     fi
 
@@ -294,6 +304,17 @@ EOF
     # shellcheck disable=SC2086 # we want field splitting!
     unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
+
+    # remove symlink
+    # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
+    chmod 755 "${SANDBOX_DIR}/temproot"
+    while IFS="" read -r mountpoint
+    do
+        if [  -L "$mountpoint" ]
+        then
+            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+        fi
+    done <"$DIRS_AND_MOUNTS"
 
     ################################################################################
     # commit?
