@@ -19,7 +19,7 @@ jobs:
           - debianlvm
           - rocky9
           - fedora33
-    runs-on: self-hosted
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
 
