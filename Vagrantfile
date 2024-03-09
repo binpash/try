@@ -11,9 +11,10 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl
+      sudo apt-get install -y git expect curl libcap2-bin
       sudo chown -R vagrant:vagrant try
       cd try
+      sudo ./setup.sh
       scripts/run_tests.sh
     "
   end
@@ -24,9 +25,10 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y curl
+      sudo apt-get install -y curl libcap2-bin
       sudo chown -R vagrant:vagrant try
       cd try
+      sudo ./setup.sh
       mkdir rustup
       ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
@@ -39,7 +41,7 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs curl
+      sudo apt-get install -y git expect lvm2 mergerfs curl libcap2-bin
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -65,6 +67,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
+      sudo ./setup.sh
       scripts/run_tests.sh
     "
   end
@@ -77,6 +80,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect curl
       sudo chown -R vagrant:vagrant try
       cd try
+      sudo ./setup.sh
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
@@ -89,6 +93,7 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect curl
       sudo chown -R vagrant:vagrant try
       cd try
+      sudo ./setup.sh
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
