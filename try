@@ -261,6 +261,10 @@ unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
+cd /dev &&
+ln -s /proc/self/fd/0 stdin &&
+ln -s /proc/self/fd/1 stdout &&
+ln -s /proc/self/fd/2 stderr &&
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
