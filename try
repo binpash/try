@@ -257,7 +257,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS UPDATED_DIRS_AND_MOUNTS TRY_COMMAND
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
