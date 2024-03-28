@@ -249,6 +249,9 @@ exitcode="$?"
 # unmount the devices
 sync
 unmount_devices "$SANDBOX_DIR"
+rm "$sandbox_dir/temproot/dev/stdin"
+rm "$sandbox_dir/temproot/dev/stdout"
+rm "$sandbox_dir/temproot/dev/stderr"
 
 exit $exitcode
 EOF
