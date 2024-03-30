@@ -415,8 +415,8 @@ commit() {
             (rd*) rm -f "$local_file"; mkdir "$local_file";;
             (md*) mkdir "$local_file";;
             (de*) rm "$local_file";;
-            (mo*) cp -fa "$changed_file" "$local_file";;
-            (ad*) cp -fa "$changed_file" "$local_file";;
+            (mo*) mv -f "$changed_file" "$local_file";;
+            (ad*) mv -f "$changed_file" "$local_file";;
         esac
 
         # shellcheck disable=SC2181
