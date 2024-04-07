@@ -198,15 +198,15 @@ then
 fi
 
 # actually mount the overlays
-# for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
-# do
-#     pure_mountpoint=${mountpoint##*:}
+for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
+do
+    pure_mountpoint=${mountpoint##*:}
 
-#     ## We are not interested in mounts that are not directories
-#     if ! [ -d "$pure_mountpoint" ]
-#     then
-#         continue
-#     fi
+    ## We are not interested in mounts that are not directories
+    if [ "$pure_mountpoint" != "/" ]
+    then
+        continue
+    fi
 
 #     ## Symlinks
 #     if [ -L "$pure_mountpoint" ]
@@ -221,14 +221,19 @@ fi
 #     esac
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" /fake_root/ / 2>>"$try_mount_log"
-        # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
+    echo $mountpoint/fake_root
+    echo $try_mount_log
+    make_overlay "$SANDBOX_DIR" ${mountpoint}/fake_root / 2>>"$try_mount_log"
+    # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
-	echo Error mounting overlay
-	breakpoint
+        merger_dir=$(mktemp -d)
+	mergerfs ${mountpoint}/fake_root $merger_dir 2>>"$try_mount_log" ||
+           printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+        make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
+           printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
     fi
-# done
+done
 
 ## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
@@ -250,7 +255,6 @@ unmount_devices "$SANDBOX_DIR"
 # rm "$sandbox_dir/temproot/dev/stderr"
 umount ${SANDBOX_DIR}/temproot/proc
 umount ${SANDBOX_DIR}/temproot
-sync
 exit $exitcode
 EOF
 
