@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2023 The PaSh Authors.
 #
@@ -20,6 +20,12 @@ export TRY_COMMAND
 ################################################################################
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
+
+breakpoint() {
+    declare -p > /tmp/vars.sh
+    declare -f >> /tmp/vars.sh
+    bash --rcfile /tmp/vars -i
+}
 
 try() {
     START_DIR="$PWD"
@@ -65,9 +71,11 @@ try() {
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
-    find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
-    sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
+    export DIRS_AND_MOUNTS
+    # find / -maxdepth 1 >"$DIRS_AND_MOUNTS" 2>/dev/null
+    # findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
+    # sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
+    printf "/\n/dev\n/home\n/tmp\n/proc" > $DIRS_AND_MOUNTS
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
@@ -96,7 +104,6 @@ try() {
         echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
     done <"$DIRS_AND_MOUNTS"
 
-
     # we will overlay-mount each root directory separately (instead of all at once) because some directories cannot be overlayed
     # so we set up the mount points now
     #
@@ -115,7 +122,7 @@ try() {
         if [ -d "$mountpoint" ] && ! [ -L "$mountpoint" ]
         then
             # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
-            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
 
@@ -127,9 +134,14 @@ try() {
 
     export chroot_executable
     export script_to_execute
-
     cat >"$mount_and_execute" <<"EOF"
-#!/bin/sh
+#!/bin/bash
+
+breakpoint() {
+    declare -p > /tmp/vars.sh
+    declare -f >> /tmp/vars.sh
+    bash --rcfile /tmp/vars -i
+}
 
 TRY_COMMAND="$TRY_COMMAND($0)"
 
@@ -149,7 +161,6 @@ mount_devices() {
     sandbox_dir="$1"
     for dev in $devices_to_mount
     do
-        touch "$sandbox_dir/temproot/dev/$dev"
         mount -o bind /dev/$dev "$sandbox_dir/temproot/dev/$dev"
     done
 }
@@ -174,10 +185,10 @@ autodetect_union_helper() {
 }
 
 # notify the mapper that we're up
-echo "a" > "$SOCKET"
+# echo "a" > "$SOCKET"
 
 # wait for mapper to finish
-cat "$SOCKET" > /dev/null
+# cat "$SOCKET" > /dev/null
 
 # Detect if union_helper is set, if not, we try to autodetect them
 if [ -z "$UNION_HELPER" ]
@@ -187,62 +198,41 @@ then
 fi
 
 # actually mount the overlays
-for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
-do
-    pure_mountpoint=${mountpoint##*:}
+# for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
+# do
+#     pure_mountpoint=${mountpoint##*:}
 
-    ## We are not interested in mounts that are not directories
-    if ! [ -d "$pure_mountpoint" ]
-    then
-        continue
-    fi
+#     ## We are not interested in mounts that are not directories
+#     if ! [ -d "$pure_mountpoint" ]
+#     then
+#         continue
+#     fi
 
-    ## Symlinks
-    if [ -L "$pure_mountpoint" ]
-    then
-        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
-        continue
-    fi
+#     ## Symlinks
+#     if [ -L "$pure_mountpoint" ]
+#     then
+#         ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+#         continue
+#     fi
 
-    ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
-    case "$pure_mountpoint" in
-        (/|/dev|/proc) continue;;
-    esac
+#     ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
+#     case "$pure_mountpoint" in
+#         (/dev|/proc) continue;;
+#     esac
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
-    # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
+    make_overlay "$SANDBOX_DIR" /fake_root/ / 2>>"$try_mount_log"
+        # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
     if [ "$?" -ne 0 ]
     then
-        ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
-        ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
-        ## Then we can normally make the overlay on the new union directory.
-        ##
-        ## KK 2023-06-29 Since this uses findmnt, it performs the union+overlay for both the outside and the inside mount.
-        ##               In the best case scenario this is only causing extra work (the internal mount is already shown through the unionfs),
-        ##                 but in the worst case this could lead to bugs due to the extra complexity (e.g., because we are doing mounts on top of each other).
-        ##               We should try to investigate either:
-        ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
-        ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
-
-        if [ -z "$UNION_HELPER" ]
-        then
-            ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
-            printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
-        else
-            merger_dir=$(mktemp -d)
-
-            ## Create a union directory
-            "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
-                printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
-            make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
-            printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
-        fi
+	echo Error mounting overlay
+	breakpoint
     fi
-done
+# done
 
 ## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
+mount -t proc proc ${SANDBOX_DIR}/temproot/proc
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
@@ -250,41 +240,46 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
+unshare -r --root="$SANDBOX_DIR/temproot" /bin/bash "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
-sync
 unmount_devices "$SANDBOX_DIR"
-rm "$sandbox_dir/temproot/dev/stdin"
-rm "$sandbox_dir/temproot/dev/stdout"
-rm "$sandbox_dir/temproot/dev/stderr"
-
+# rm "$sandbox_dir/temproot/dev/stdin"
+# rm "$sandbox_dir/temproot/dev/stdout"
+# rm "$sandbox_dir/temproot/dev/stderr"
+umount ${SANDBOX_DIR}/temproot/proc
+umount ${SANDBOX_DIR}/temproot
+sync
 exit $exitcode
 EOF
 
     # NB we substitute in the heredoc, so the early unsets are okay!
     cat >"$chroot_executable" <<EOF
-#!/bin/sh
+#!/bin/bash
+
+breakpoint() {
+    declare -p > /tmp/vars.sh
+    declare -f >> /tmp/vars.sh
+    bash --rcfile /tmp/vars -i
+}
 
 unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS SOCKET
 unset script_to_execute chroot_executable try_mount_log
 
-mount -t proc proc /proc &&
-cd /dev &&
-ln -s /proc/self/fd/0 stdin &&
-ln -s /proc/self/fd/1 stdout &&
-ln -s /proc/self/fd/2 stderr &&
-cd "$START_DIR" &&
+# cd /dev &&
+# ln -s /proc/self/fd/0 stdin &&
+# ln -s /proc/self/fd/1 stdout &&
+# ln -s /proc/self/fd/2 stderr &&
+cd "$START_DIR"
 if [ "$EUSER" ]
 then
-    su - $EUSER -c "cd "$START_DIR" && sh $script_to_execute"
+    su - $EUSER -c "cd $START_DIR && sh $script_to_execute"
 else
     cd "$START_DIR" &&
     . "$script_to_execute"
 fi
 EOF
-
     echo "$@" >"$script_to_execute"
 
     # `$script_to_execute` need not be +x to be sourced
@@ -298,12 +293,12 @@ EOF
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     [ -t 0 ] && set -m
 
-    SOCKET="$(mktemp -u)"
-    mkfifo "$SOCKET"
-    export SOCKET
+    # SOCKET="$(mktemp -u)"
+    # mkfifo "$SOCKET"
+    # export SOCKET
 
     # Running mapper in a subshell to suppress job control [1] + Done message
-    (mapper&)
+    # (mapper&)
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
@@ -311,20 +306,20 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
-    unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute"
+    unshare -r --mount --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
     # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
-    chmod 755 "${SANDBOX_DIR}/temproot"
-    while IFS="" read -r mountpoint
-    do
-        pure_mountpoint=${mountpoint##*:}
-        if [  -L "$pure_mountpoint" ]
-        then
-            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
-        fi
-    done <"$DIRS_AND_MOUNTS"
+    # chmod 755 "${SANDBOX_DIR}/temproot"
+    # while IFS="" read -r mountpoint
+    # do
+    #     pure_mountpoint=${mountpoint##*:}
+    #     if [  -L "$pure_mountpoint" ]
+    #     then
+    #         rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+    #     fi
+    # done <"$DIRS_AND_MOUNTS"
 
     ################################################################################
     # commit?
@@ -451,6 +446,10 @@ ignore_changes() {
     grep -v -f "$ignore_file"
 }
 
+ignore_devs() {
+    grep -v "/dev/"
+}
+
 ################################################################################
 ## Lists all upperdir changes in raw format
 ################################################################################
@@ -459,7 +458,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
 
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file" | ignore_devs
 }
 
 ################################################################################
