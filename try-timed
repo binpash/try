@@ -22,6 +22,7 @@ export TRY_COMMAND
 ################################################################################
 
 try() {
+    date +"%s.%N Start of try()" >> timelog
     START_DIR="$PWD"
 
     if ! command -v findmnt >/dev/null
@@ -29,6 +30,7 @@ try() {
         error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
 
+    date +"%s.%N Determining sandboxdir" >> timelog
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
@@ -48,6 +50,7 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
+    date +"%s.%N Docker handling" >> timelog
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
     tmpdirname=$(mktemp -d)
     # tail -n +2 to ignore the first line with the column name
@@ -57,16 +60,22 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
+    date +"%s.%N Making upperdir, workdir, temproot" >> timelog
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
+    date +"%s.%N Enumerating direcotories to mount" >> timelog
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
+    date +"%s.%N EnumDir: find" >> timelog
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
+    date +"%s.%N EnumDir: findmnt" >> timelog
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
+    date +"%s.%N EnumDir: sort" >> timelog
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
+    date +"%s.%N EnumDir: MultiLowerDir" >> timelog
     UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
@@ -106,6 +115,7 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
+    date +"%s.%N Prepare sandboxes before unshare" >> timelog
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
@@ -116,7 +126,9 @@ try() {
         fi
     done <"$DIRS_AND_MOUNTS"
 
+    date +"%s.%N set temproot permission" >> timelog
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
+    date +"%s.%N Writing tempfiles" >> timelog
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -173,6 +185,7 @@ autodetect_union_helper() {
 }
 
 # Detect if union_helper is set, if not, we try to autodetect them
+date +"%s.%N Union helper detection" >> timelog
 if [ -z "$UNION_HELPER" ]
 then
     ## Try to detect the union_helper (the variable could still be empty afterwards).
@@ -180,6 +193,7 @@ then
 fi
 
 # actually mount the overlays
+date +"%s.%N Mounting overlays" >> timelog
 for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
     pure_mountpoint=${mountpoint##*:}
@@ -235,6 +249,7 @@ do
 done
 
 ## Mount a few select devices in /dev
+date +"%s.%N Mounting devices" >> timelog
 mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
@@ -243,13 +258,17 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
+date +"%s.%N Inner unshare" >> timelog
 unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
+date +"%s.%N sync" >> timelog
 sync
+date +"%s.%N unmounting devices" >> timelog
 unmount_devices "$SANDBOX_DIR"
 
+date +"%s.%N Exitting inner unshare" >> timelog
 exit $exitcode
 EOF
 
@@ -271,6 +290,7 @@ EOF
     chmod +x "$mount_and_execute" "$chroot_executable"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
+    date +"%s.%N Disable job control" >> timelog
     [ -t 0 ] && set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
@@ -280,11 +300,13 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
+    date +"%s.%N Outer unshare" >> timelog
     unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
     # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
+    date +"%s.%N Symlinks cleanup" >> timelog
     chmod 755 "${SANDBOX_DIR}/temproot"
     while IFS="" read -r mountpoint
     do
@@ -321,6 +343,7 @@ EOF
 ################################################################################
 
 summary() {
+    date +"%s.%N Summary" >> timelog
     if ! [ -d "$SANDBOX_DIR" ]
     then
         error "could not find directory $SANDBOX_DIR" 2
@@ -364,6 +387,7 @@ EOF
 ################################################################################
 
 commit() {
+    date +"%s.%N Commit" >> timelog
     if ! [ -d "$SANDBOX_DIR" ]
     then
         error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
@@ -562,6 +586,7 @@ EOF
 # Main entry point
 ################################################################################
 
+date +"%s.%N Entrypoint" > timelog
 
 # "interactive" - show nothing, interactively prompt on commit
 # "show"        - show the resulting directory on stdout when we're done
@@ -604,6 +629,7 @@ do
               exit 0;;
     esac
 done
+date +"%s.%N Finish Parseopt" >> timelog
 
 shift $((OPTIND - 1))
 
@@ -625,4 +651,6 @@ case "$1" in
               try "$@";;
     (*)       try "$@";;
 esac
+date +"%s.%N End of try" >> timelog
+
 exit "$TRY_EXIT_STATUS"
