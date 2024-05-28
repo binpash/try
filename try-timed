@@ -651,6 +651,8 @@ case "$1" in
               try "$@";;
     (*)       try "$@";;
 esac
+
+# shellcheck disable=SC2129
 date +"%s.%N End of try" >> timelog
 
 date +"%s.%N date test 1" >> timelog
