@@ -179,6 +179,11 @@ branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
 uid/gidmapper (root access is required for installation).
 
+Shell quoting may be unintuitive, you may expect `try bash -c "echo a"` to work,
+however, try will actually execute `bash -c echo a`, which will not result in
+`a` being printed. [We are currently not planning on resolving this
+behavior.](https://github.com/binpash/try/issues/155#issuecomment-2078556237)
+
 Please also report any issue you run into while using the future branch!
 
 ## Version History
