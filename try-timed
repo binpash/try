@@ -299,8 +299,8 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    # shellcheck disable=SC2086 # we want field splitting!
     date +"%s.%N Outer unshare" >> timelog
+    # shellcheck disable=SC2086 # we want field splitting!
     unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
@@ -652,5 +652,9 @@ case "$1" in
     (*)       try "$@";;
 esac
 date +"%s.%N End of try" >> timelog
+
+date +"%s.%N date test 1" >> timelog
+
+date +"%s.%N date test 2" >> timelog
 
 exit "$TRY_EXIT_STATUS"

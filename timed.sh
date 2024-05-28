@@ -1,7 +1,9 @@
 #!/bin/bash
 
+./try-timed echo h &>/dev/null
+
 # Read the input from a file or stdin
-input=$(cat "$1" 2>/dev/null || cat -)
+input=$(cat timelog)
 
 # Initialize variables
 prev_timestamp=0
@@ -23,3 +25,5 @@ while IFS= read -r line; do
     prev_timestamp=$timestamp
     prev_step=$step
 done <<< "$input"
+
+rm timelog
