@@ -48,12 +48,16 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
+    try_mount_log="$(mktemp)"
+    export try_mount_log
+
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
-    tmpdirname=$(mktemp -d)
     # tail -n +2 to ignore the first line with the column name
-    tmpfstype=$(df --output=fstype "$tmpdirname" | tail -n +2)
+    tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
     if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
     then
+        echo "mounting sandbox '$SANDBOX_DIR' as tmpfs (underlying fs is overlayfs)" >> "$try_mount_log"
+        echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
@@ -120,11 +124,9 @@ try() {
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
-    try_mount_log="$(mktemp)"
     script_to_execute="$(mktemp)"
 
     export chroot_executable
-    export try_mount_log
     export script_to_execute
 
     cat >"$mount_and_execute" <<"EOF"
