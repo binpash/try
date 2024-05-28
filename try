@@ -56,7 +56,8 @@ try() {
     tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
     if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
     then
-        echo "using tmpfs due to backing fs being overlayfs" > "$try_mount_log"
+        echo "mounting sandbox '$SANDBOX_DIR' as tmpfs (underlying fs is overlayfs)" >> "$try_mount_log"
+        echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
