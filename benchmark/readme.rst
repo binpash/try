@@ -5,7 +5,7 @@ For profiling try, we care about a few things.
 
 * Total try time with commit
 * Time it takes to run without commit
-* Time it takes to commit
+* Time it takes to commit (lots of files vs lots of directories)
 * The different steps that it take
 * Performance with everything in ramdisk
 
