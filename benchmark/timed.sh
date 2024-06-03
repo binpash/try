@@ -1,8 +1,9 @@
 #!/bin/bash
 
-base=$(git rev-parse --show-toplevel)
+#base=$(git rev-parse --show-toplevel)
+base=/srv/try
 
-$base/try-timed echo h &>/dev/null
+$base/try-timed -y $1 1>stdout 2>stderr
 
 # Read the input from a file or stdin
 input=$(cat timelog)
@@ -27,5 +28,3 @@ while IFS= read -r line; do
     prev_timestamp=$timestamp
     prev_step=$step
 done <<< "$input"
-
-rm timelog

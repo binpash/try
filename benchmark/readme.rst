@@ -20,6 +20,7 @@ Benchmarks
 #. debootstrap
 #. microbenchmarks (large files, many files)
 #. something that can reuse sandbox, perhaps hs integration?
+#. test for a larger amount of lowerdir layers
 
 OS Setups
 =========

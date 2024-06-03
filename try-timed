@@ -398,6 +398,7 @@ commit() {
 
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+    date +"%s.%N Commit: locate changed files" >> timelog
 
     TRY_EXIT_STATUS=0
     while IFS= read -r summary_line; do
@@ -421,6 +422,7 @@ commit() {
     done <<EOF
 $summary_output
 EOF
+    date +"%s.%N Commit: write changes" >> timelog
 }
 
 ################################################################################
