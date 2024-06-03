@@ -1,4 +1,4 @@
-Try Profiling
+Try Profilings
 #############
 
 For profiling try, we care about a few things.
@@ -27,7 +27,8 @@ OS Setups
 
 #. Debian
 #. Debian with LVM
-#. Debian with ZFS
+#. Debian with Btrfs (reflinks)
+#. Setup involving w. mergerfs / without
 #. Rocky Linux
 #. OCI CT
 

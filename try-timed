@@ -387,7 +387,7 @@ EOF
 ################################################################################
 
 commit() {
-    date +"%s.%N Commit" >> timelog
+    date +"%s.%N Commit: locating changed files" >> timelog
     if ! [ -d "$SANDBOX_DIR" ]
     then
         error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
@@ -398,7 +398,7 @@ commit() {
 
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
     summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-    date +"%s.%N Commit: locate changed files" >> timelog
+    date +"%s.%N Commit: Writing changes" >> timelog
 
     TRY_EXIT_STATUS=0
     while IFS= read -r summary_line; do
@@ -422,7 +422,7 @@ commit() {
     done <<EOF
 $summary_output
 EOF
-    date +"%s.%N Commit: write changes" >> timelog
+    date +"%s.%N Commit: end" >> timelog
 }
 
 ################################################################################

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#base=$(git rev-parse --show-toplevel)
-base=/srv/try
+base=$(git rev-parse --show-toplevel)
+#base=/srv/try
 
 $base/try-timed -y $1 1>stdout 2>stderr
 
