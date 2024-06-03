@@ -3,7 +3,7 @@
 base=$(git rev-parse --show-toplevel)
 #base=/srv/try
 
-$base/try-timed -y $1 1>stdout 2>stderr
+"$base"/try-timed -y "$1" 1>stdout 2>stderr
 
 # Read the input from a file or stdin
 input=$(cat timelog)
