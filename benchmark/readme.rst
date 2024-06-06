@@ -25,43 +25,19 @@ Benchmarks
 OS Setups
 =========
 
-#. Debian
-#. Debian with LVM
+#. Debian with ext4 (no mergerfs)
+#. Debian with LVM (mergerfs)
 #. Debian with Btrfs (reflinks)
-#. Setup involving w. mergerfs / without
-#. Rocky Linux
+#. Rocky Linux (same three setup as above)
 #. OCI CT
 
 Machines
 ========
-
-Sherlock
---------
-
-* AMD Ryzen 7 3700X 8-Core Processor (16)
-* 16GB 3200 MT/s
-* M.2 Nvme SSD
 
 box0wash
 --------
 
 * Intel(R) Xeon(R) CPU E3-1230 v5 @ 3.40GHz (8)
 * 64GB 2400 MT/s configured at 2133 MT/s
-* Hardware RAID1 on two SATA 2 SSDs
+* 2x SATA SSDs
 
-box0thtp
---------
-
-* Intel(R) Xeon(R) CPU E5-2680 v2 @ 2.80GHz (40)
-* 128GB 1600 MT/s
-* 8 SATA SSD & option for raid
-
-Omega
------
-
-TBD
-
-Pi Cluster
-----------
-
-TBD
