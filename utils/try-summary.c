@@ -9,6 +9,16 @@
 #include <sys/stat.h>
 #include <sys/xattr.h>
 
+static int changes_detected = 0;
+void show_change(char *local_file, char *msg) {
+  if (!changes_detected) {
+    changes_detected += 1;
+    printf("\nChanges detected in the following files:\n\n");
+  }
+
+  printf("%s (%s)\n", local_file, msg);
+}
+
 int main(int argc, char *argv[]) {
   char *dirs[2] = { argv[1], NULL };
   size_t prefix_len = strlen(argv[1]);
@@ -17,14 +27,14 @@ int main(int argc, char *argv[]) {
 
   if (fts == NULL) {
     perror("try-summary: fts_open");
-    return 1;
+    return 2;
   }
 
   FTSENT *ent = fts_read(fts);
 
   if (ent == NULL) {
     perror("try-summary: fts_read");
-    return 1;
+    return 2;
   }
   assert(strcmp(ent->fts_path, argv[1]) == 0);
 
@@ -38,7 +48,7 @@ int main(int argc, char *argv[]) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
         // new directory in upper
-        printf("md %s\n", local_file);
+        show_change(local_file, "created dir");
 
         // TODO(mgree): we can fts_set to not bother exploring
         break;
@@ -47,13 +57,13 @@ int main(int argc, char *argv[]) {
       // special "OPAQUE" whiteout directory--delete the original
       char xattr_buf[2] = { '\0', '\0' };
       if (getxattr(ent->fts_path, "trusted.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
-        printf("de %s\n", local_file); // really, recursively deleted
+        show_change(local_file, "deleted"); // really, recursively deleted
         break;
       }
 
       // non-directory replaced with a direcory
       if (!S_ISDIR(local_stat.st_mode)) {
-        printf("rd %s\n", local_file);
+        show_change(local_file, "replaced with dir");
         break;
       }
 
@@ -61,21 +71,21 @@ int main(int argc, char *argv[]) {
       break;
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
-          printf("de %s\n", local_file);
-          break;
-      }
-
-      if (local_exists) {
-        printf("mo %s\n", local_file);
+        show_change(local_file, "deleted");
         break;
       }
 
-      printf("ad %s\n", local_file);
+      if (local_exists) {
+        show_change(local_file, "modified");
+        break;
+      }
+
+      show_change(local_file, "added");
       break;
 
     case FTS_SL: // symbolic link
     case FTS_SLNONE: // dangling symbolic link
-      printf("ln %s\n", local_file);
+      show_change(local_file, "symlink");
       break;
 
     case FTS_DEFAULT:
@@ -88,7 +98,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
-          printf("de %s\n", local_file);
+          show_change(local_file, "deleted");
           break;
         }
       }
@@ -107,10 +117,10 @@ int main(int argc, char *argv[]) {
 
   if (errno != 0) {
     perror("try-summary: fts_read");
-    return 1;
+    return 2;
   }
 
   fts_close(fts);
 
-  return 0;
+  return changes_detected == 0 ? 1 : 0;
 }

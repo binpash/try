@@ -322,45 +322,58 @@ EOF
 # Summarize the overlay in `$SANDBOX_DIR`
 ################################################################################
 
-summary() {
-    if ! [ -d "$SANDBOX_DIR" ]
-    then
-        error "could not find directory $SANDBOX_DIR" 2
-    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-    then
-        error "could not find directory $SANDBOX_DIR/upperdir" 1
-    fi
+if type try-summary >/dev/null 2>&1
+then
+    summary() {
+        if ! [ -d "$SANDBOX_DIR" ]
+        then
+            error "could not find directory $SANDBOX_DIR" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
+        fi
 
-    ## Finds all potential changes
-    # changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    # summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-    # TODO(mgree): we need a way to ensure this is installed nicely
-    summary_output="$("$TRY_DIR"/utils/try-summary "$SANDBOX_DIR"/upperdir)"
-    if [ -z "$summary_output" ]
-    then
-        return 1
-    fi
+        try-summary "$SANDBOX_DIR/upperdir" || return 1
+        TRY_EXIT_STATUS=0
+    }
+else
+    summary() {
+        if ! [ -d "$SANDBOX_DIR" ]
+        then
+            error "could not find directory $SANDBOX_DIR" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
+        fi
 
-    echo
-    echo "Changes detected in the following files:"
-    echo
+        ## Finds all potential changes
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+        if [ -z "$summary_output" ]
+        then
+            return 1
+        fi
 
-    while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4-)"
-        case "$summary_line" in
-            (ln*) echo "$local_file (symlink)";;
-            (rd*) echo "$local_file (replaced with dir)";;
-            (md*) echo "$local_file (created dir)";;
-            (de*) echo "$local_file (deleted)";;
-            (mo*) echo "$local_file (modified)";;
-            (ad*) echo "$local_file (added)";;
-        esac
-    done <<EOF
-$summary_output
-EOF
+        echo
+        echo "Changes detected in the following files:"
+        echo
 
-    TRY_EXIT_STATUS=0
-}
+        echo "$summary_output" | while IFS= read -r summary_line
+        do
+            local_file="$(echo "$summary_line" | cut -c 4-)"
+            case "$summary_line" in
+                (ln*) echo "$local_file (symlink)";;
+                (rd*) echo "$local_file (replaced with dir)";;
+                (md*) echo "$local_file (created dir)";;
+                (de*) echo "$local_file (deleted)";;
+                (mo*) echo "$local_file (modified)";;
+                (ad*) echo "$local_file (added)";;
+            esac
+        done
+
+        TRY_EXIT_STATUS=0
+    }
+fi
 
 ################################################################################
 # Commit the results of an overlay in `$SANDBOX_DIR`
@@ -575,7 +588,6 @@ NO_COMMIT="interactive"
 IGNORE_FILE="$(mktemp)"
 
 while getopts ":yvnhxi:D:U:L:" opt
-
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
