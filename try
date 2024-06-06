@@ -379,41 +379,56 @@ fi
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
 
-commit() {
-    if ! [ -d "$SANDBOX_DIR" ]
-    then
-        error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
-    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-    then
-        error "could not find directory $SANDBOX_DIR/upperdir" 1
-    fi
-
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-
-    TRY_EXIT_STATUS=0
-    while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4-)"
-        changed_file="$SANDBOX_DIR/upperdir$local_file"
-        case $summary_line in
-            (ln*) ln -s "$(readlink "$changed_file")" "$local_file";;
-            (rd*) rm -f "$local_file"; mkdir "$local_file";;
-            (md*) mkdir "$local_file";;
-            (de*) rm "$local_file";;
-            (mo*) cp -fa "$changed_file" "$local_file";;
-            (ad*) cp -fa "$changed_file" "$local_file";;
-        esac
-
-        # shellcheck disable=SC2181
-        if [ "$?" -ne 0 ]
+if type try-commit >/dev/null 2>&1
+then
+    echo USING utils/try-commit >&2
+    commit() {
+        if ! [ -d "$SANDBOX_DIR" ]
         then
-            warn "couldn't commit $changed_file"
-            TRY_EXIT_STATUS=1
+            error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
         fi
-    done <<EOF
-$summary_output
-EOF
-}
+
+        try-commit "$SANDBOX_DIR/upperdir"
+        TRY_EXIT_STATUS=$?
+    }
+else
+    commit() {
+        if ! [ -d "$SANDBOX_DIR" ]
+        then
+            error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
+        fi
+
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+
+        TRY_EXIT_STATUS=0
+        echo "$summary_output" | while IFS= read -r summary_line; do
+            local_file="$(echo "$summary_line" | cut -c 4-)"
+            changed_file="$SANDBOX_DIR/upperdir$local_file"
+            case $summary_line in
+                (ln*) ln -s "$(readlink "$changed_file")" "$local_file";;
+                (rd*) rm -f "$local_file"; mkdir "$local_file";;
+                (md*) mkdir "$local_file";;
+                (de*) rm "$local_file";;
+                (mo*) cp -fa "$changed_file" "$local_file";;
+                (ad*) cp -fa "$changed_file" "$local_file";;
+            esac
+
+            # shellcheck disable=SC2181
+            if [ "$?" -ne 0 ]
+            then
+                warn "couldn't commit $changed_file"
+                TRY_EXIT_STATUS=1
+            fi
+        done
+    }
+fi
 
 ################################################################################
 # Checks if a file is an overlayfs whiteout file

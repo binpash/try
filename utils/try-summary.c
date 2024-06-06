@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 
   FTSENT *ent = fts_read(fts);
 
+  // skip first entry (the named directory, corresponds to root)
   if (ent == NULL) {
     perror("try-summary: fts_read");
     return 2;
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
         break;
       }
 
-      // non-directory replaced with a direcory
+      // non-directory replaced with a directory
       if (!S_ISDIR(local_stat.st_mode)) {
         show_change(local_file, "replaced with dir");
         break;
