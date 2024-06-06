@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <getopt.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +13,8 @@
 #include <sys/wait.h>
 #include <sys/xattr.h>
 #include <unistd.h>
+
+#include "ignores.h"
 
 static int num_errors = 0;
 void commit_error(char *changed_file, char *msg) {
@@ -79,9 +82,30 @@ int remove_local(char *local_file, int local_exists, struct stat *local_stat) {
   return 0;
 }
 
+void usage() {
+  fprintf(stderr, "Usage: try-commit [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
+  exit(2);
+}
+
 int main(int argc, char *argv[]) {
-  char *dirs[2] = { argv[1], NULL };
-  size_t prefix_len = strlen(argv[1]);
+  int opt;
+  while ((opt = getopt(argc, argv, "hi:")) != -1) {
+    switch (opt) {
+    case 'i':
+      load_ignores("try-commit", optarg);
+      break;
+    case 'h':
+    default:
+      usage();
+    }
+  }
+
+  if (argc != optind + 1) {
+    usage();
+  }
+
+  char *dirs[2] = { argv[optind], NULL };
+  size_t prefix_len = strlen(argv[optind]);
 
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
@@ -97,10 +121,12 @@ int main(int argc, char *argv[]) {
     perror("try-commit: fts_read");
     return 2;
   }
-  assert(strcmp(ent->fts_path, argv[1]) == 0);
+  assert(strcmp(ent->fts_path, argv[optind]) == 0);
 
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;
+
+    if (should_ignore(local_file)) { continue; }
 
     struct stat local_stat;
     int local_exists = lstat(local_file, &local_stat) != -1;
@@ -109,7 +135,7 @@ int main(int argc, char *argv[]) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
         // new directory in upper
-        move(ent->fts_path, local_file);
+        move(ent->fts_path, local_file); // TRYCASE(dir, nonexist)
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -119,7 +145,7 @@ int main(int argc, char *argv[]) {
       // special "OPAQUE" whiteout directory--delete the original
       char xattr_buf[2] = { '\0', '\0' };
       if (getxattr(ent->fts_path, "trusted.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
-        remove_local(local_file, local_exists, &local_stat);
+        remove_local(local_file, local_exists, &local_stat); // TRYCASE(opaque, *)
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -132,7 +158,7 @@ int main(int argc, char *argv[]) {
           commit_error(ent->fts_path, "rm");
         }
 
-        move(ent->fts_path, local_file);
+        move(ent->fts_path, local_file); // TRYCASE(dir, nondir)
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -143,19 +169,15 @@ int main(int argc, char *argv[]) {
       break;
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
-        if (unlink(local_file) != 0) {
-          commit_error(ent->fts_path, "rm");
-        }
+        remove_local(local_file, local_exists, &local_stat); // TRYCASE(whiteout, *)
         break;
       }
 
       if (local_exists) {
-        if (S_ISDIR(local_stat.st_mode)) {
-          // TODO(mgree): rm -r
-        }
+        remove_local(local_file, local_exists, &local_stat); // TRYCASE(file, !nonexist)
       }
 
-      move(ent->fts_path, local_file);
+      move(ent->fts_path, local_file); // TRYCASE(file, *)
       break;
 
     case FTS_SL: // symbolic link
@@ -170,16 +192,22 @@ int main(int argc, char *argv[]) {
 
       char *tgt = malloc(sizeof(char) * tgt_len);
       int nbytes = readlink(ent->fts_path, tgt, tgt_len);
+      if (nbytes == -1) {
+        commit_error(ent->fts_path, "ln -s");
+      }
 
       while (nbytes == tgt_len) {
         tgt_len *= 2;
         tgt = realloc(tgt, sizeof(char) * tgt_len);
         nbytes = readlink(ent->fts_path, tgt, tgt_len);
+        if (nbytes == -1) {
+          commit_error(ent->fts_path, "ln -s");
+        }
       }
       tgt[nbytes] = '\0'; // readlink doesn't put a null byte on the end lol nice work everyone
 
-      if (symlink(tgt, local_file) != 0) {
-        commit_error(ent->fts_path, "ln");
+      if (symlink(tgt, local_file) != 0) { // TRYCASE(symlink, *)
+        commit_error(ent->fts_path, "ln -s");
       }
       free(tgt);
       break;
@@ -194,7 +222,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
-          remove_local(local_file, local_exists, &local_stat);
+          remove_local(local_file, local_exists, &local_stat); // TRYCASE(whiteout, *)
 
           break;
         }
@@ -218,6 +246,7 @@ int main(int argc, char *argv[]) {
   }
 
   fts_close(fts);
+  free_ignores();
 
   return num_errors == 0 ? 0 : 1;
 }

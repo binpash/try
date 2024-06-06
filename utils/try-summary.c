@@ -3,11 +3,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/xattr.h>
+
+#include "ignores.h"
 
 static int changes_detected = 0;
 void show_change(char *local_file, char *msg) {
@@ -19,9 +23,30 @@ void show_change(char *local_file, char *msg) {
   printf("%s (%s)\n", local_file, msg);
 }
 
+void usage() {
+  fprintf(stderr, "Usage: try-summary [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
+  exit(2);
+}
+
 int main(int argc, char *argv[]) {
-  char *dirs[2] = { argv[1], NULL };
-  size_t prefix_len = strlen(argv[1]);
+  int opt;
+  while ((opt = getopt(argc, argv, "hi:")) != -1) {
+    switch (opt) {
+    case 'i':
+      load_ignores("try-summary", optarg);
+      break;
+    case 'h':
+    default:
+      usage();
+    }
+  }
+
+  if (argc != optind + 1) {
+    usage();
+  }
+
+  char *dirs[2] = { argv[optind], NULL };
+  size_t prefix_len = strlen(argv[optind]);
 
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
@@ -37,10 +62,12 @@ int main(int argc, char *argv[]) {
     perror("try-summary: fts_read");
     return 2;
   }
-  assert(strcmp(ent->fts_path, argv[1]) == 0);
+  assert(strcmp(ent->fts_path, argv[optind]) == 0);
 
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;
+
+    if (should_ignore(local_file)) { continue; }
 
     struct stat local_stat;
     int local_exists = lstat(local_file, &local_stat) != -1;
@@ -49,22 +76,23 @@ int main(int argc, char *argv[]) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
         // new directory in upper
-        show_change(local_file, "created dir");
+        show_change(local_file, "created dir"); // TRYCASE(dir, nonexist)
 
-        // TODO(mgree): we can fts_set to not bother exploring
+        // don't traverse children, we copied the whole thing
+        fts_set(fts, ent, FTS_SKIP);
         break;
       }
 
       // special "OPAQUE" whiteout directory--delete the original
       char xattr_buf[2] = { '\0', '\0' };
       if (getxattr(ent->fts_path, "trusted.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
-        show_change(local_file, "deleted"); // really, recursively deleted
+        show_change(local_file, "deleted"); // TRYCASE(opaque, *)
         break;
       }
 
       // non-directory replaced with a directory
       if (!S_ISDIR(local_stat.st_mode)) {
-        show_change(local_file, "replaced with dir");
+        show_change(local_file, "replaced with dir"); // TRYCASE(dir, nondir)
         break;
       }
 
@@ -72,21 +100,21 @@ int main(int argc, char *argv[]) {
       break;
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
-        show_change(local_file, "deleted");
+        show_change(local_file, "deleted"); // TRYCASE(whiteout, *)
         break;
       }
 
       if (local_exists) {
-        show_change(local_file, "modified");
+        show_change(local_file, "modified"); // TRYCASE(file, !nonexist)
         break;
       }
 
-      show_change(local_file, "added");
+      show_change(local_file, "added"); // TRYCASE(file, *)
       break;
 
     case FTS_SL: // symbolic link
     case FTS_SLNONE: // dangling symbolic link
-      show_change(local_file, "symlink");
+      show_change(local_file, "symlink"); // TRYCASE(symlink, *)
       break;
 
     case FTS_DEFAULT:
@@ -99,7 +127,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
-          show_change(local_file, "deleted");
+          show_change(local_file, "deleted"); // TRYCASE(whiteout, *)
           break;
         }
       }
@@ -122,6 +150,7 @@ int main(int argc, char *argv[]) {
   }
 
   fts_close(fts);
+  free_ignores();
 
   return changes_detected == 0 ? 1 : 0;
 }

@@ -93,7 +93,7 @@ tabs() {
 
 if [ "$#" -eq 0 ]
 then
-    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \( \! -path "./.vagrant/*" \) -a \! \( -name "*.png" -o -name "*.gif" -o -name "*.gz" \))
+    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \( \! -path "./.vagrant/*" \) -a \( \! -name "*~" \) -a \! \( -name "*.png" -o -name "*.gif" -o -name "*.gz" \))
 else
     # shellcheck disable=SC2124
     FILES="$@"
