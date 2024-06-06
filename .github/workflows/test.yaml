@@ -35,7 +35,7 @@ jobs:
           cd ..
           cp -r try ~
           cd ~/try
-          scripts/run_tests.sh
+          PATH="$PWD/utils:$PATH" scripts/run_tests.sh
 
       - name: Upload script
         uses: actions/upload-artifact@v2
