@@ -26,6 +26,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Build utilities
+        run: |
+          make -C utils all
+
       - name: Run tests
         run: |
           cd ..
