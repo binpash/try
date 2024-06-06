@@ -9,6 +9,7 @@
 
 TRY_VERSION="0.2.0"
 TRY_COMMAND="${0##*/}"
+TRY_DIR="${0%/*}"
 export TRY_COMMAND
 
 # exit status invariants
@@ -331,9 +332,10 @@ summary() {
     fi
 
     ## Finds all potential changes
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-
+    # changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+    # summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+    # TODO(mgree): we need a way to ensure this is installed nicely
+    summary_output="$("$TRY_DIR"/utils/try-summary "$SANDBOX_DIR"/upperdir)"
     if [ -z "$summary_output" ]
     then
         return 1
