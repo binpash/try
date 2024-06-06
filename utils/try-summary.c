@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
   char *dirs[2] = { argv[1], NULL };
   size_t prefix_len = strlen(argv[1]);
-  
+
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
   if (fts == NULL) {
@@ -27,19 +27,19 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   assert(strcmp(ent->fts_path, argv[1]) == 0);
-  
+
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;
 
     struct stat local_stat;
     int local_exists = lstat(local_file, &local_stat) != -1;
-    
+
     switch (ent->fts_info) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
         // new directory in upper
         printf("md %s\n", local_file);
-        
+
         // TODO(mgree): we can fts_set to not bother exploring
         break;
       }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
           break;
         }
       }
-      
+
     case FTS_DC: // cycle
     case FTS_DP: // postorder (second visit)
       break;
@@ -107,10 +107,10 @@ int main(int argc, char *argv[]) {
 
   if (errno != 0) {
     perror("try-summary: fts_read");
-    return 1;    
+    return 1;
   }
-  
+
   fts_close(fts);
-  
+
   return 0;
 }
