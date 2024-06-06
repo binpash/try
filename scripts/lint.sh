@@ -56,7 +56,7 @@ trailing_whitespace() {
     # empty file is fine
     [ -s "$file" ] || return
 
-    if grep -lq -e '[[:blank:]]$' "$file"
+    if grep -I -lq -e '[[:blank:]]$' "$file"
     then
         warn "$file: trailing whitespace (tabs shown as underscores)"
         grep --line-number -e '[[:blank:]]$' "$file" | sed 's/[[:blank:]]\+$/\o33[41m&\o033[0m/' | tr "$(printf '\t')" '____'
@@ -80,7 +80,7 @@ tabs() {
 
     # so it doesn't literally appear here, lol
     tab="$(printf '\t')"
-    if grep -lq -e "$tab" "$file"
+    if grep -I -lq -e "$tab" "$file"
     then
         warn "$file: tabs (shown as underscores here)"
         grep --line-number -e "$tab" "$file" | sed 's/\t/\o33[41m____\o033[0m/'
