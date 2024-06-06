@@ -219,5 +219,5 @@ int main(int argc, char *argv[]) {
 
   fts_close(fts);
 
-  return num_errors == 0;
+  return num_errors == 0 ? 0 : 1;
 }
