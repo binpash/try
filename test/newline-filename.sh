@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# needs-try-utils
+
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
 TRY="$TRY_TOP/try"
 

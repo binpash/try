@@ -9,6 +9,14 @@ DEBUG=${DEBUG:-0}
 TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILING_TESTS=""
+SKIPPED_TESTS=""
+
+if type try-commit >/dev/null 2>&1
+then
+    have_utils() { true; }
+else
+    have_utils() { false; }
+fi
 
 run_test()
 {
@@ -31,9 +39,14 @@ run_test()
         return 1
     }
 
-    echo
-    printf "Running %s..." "$name"
-    spaces="$(printf "%$((60 - (8 + ${#name} + 3) ))s" "")"
+    printf "\nRunning %s...%$((60 - (8 + ${#name} + 3) ))s" "$name" ""
+
+    if grep -q -e "needs-try-utils" "$test" && ! have_utils
+    then
+        printf "SKIP (no utils)\n"
+        SKIPPED_TESTS="$SKIPPED_TESTS $name"
+        return
+    fi
 
     # actually run the test
     out=$(mktemp)
@@ -44,10 +57,10 @@ run_test()
     : $((TOTAL_TESTS += 1))
     if [ "$ec" -eq 0 ]; then
         : $((PASSED_TESTS += 1))
-        printf "%sPASS\n" "$spaces"
+        printf "PASS\n"
     else
         FAILING_TESTS="$FAILING_TESTS $name"
-        printf "%sFAIL (%d)\n" "$spaces" "$ec"
+        printf "FAIL (%d)\n" "$ec"
 
         printf "=======\n"
         printf "STDOUT:\n"
@@ -77,11 +90,9 @@ fi
 TESTS="$(find "$TEST_DIR" -type f -executable -name '*.sh' | grep -f "$pats")"
 rm "$pats"
 
-echo "=================| Try Tests |==================="
-echo "Test directory:           $WORKING_DIR"
-echo
-echo "Running $(echo "$TESTS" | wc -l) tests"
-echo "================================================="
+echo "========================| Try Tests |==========================="
+echo "Running $(echo "$TESTS" | wc -l) tests..."
+echo "================================================================"
 
 for test in $TESTS
 do
@@ -89,12 +100,13 @@ do
 done
 
 echo
-echo "====================| Test Summary |===================="
+echo "========================| Test Summary |========================"
 echo "Failing tests:${FAILING_TESTS}"
+echo "Skipped tests:${SKIPPED_TESTS}"
 echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed."
-echo "========================================================"
+echo "================================================================"
 
-if [ $PASSED_TESTS -ne $TOTAL_TESTS ]
+if [ "$PASSED_TESTS" -ne "$TOTAL_TESTS" ]
 then
     exit 1
 fi
