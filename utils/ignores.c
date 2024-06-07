@@ -20,7 +20,7 @@ int should_ignore(char *filename) {
 void load_ignores(char *progname, char *ignore_filename) {
   FILE *ignore_file = fopen(ignore_filename, "r");
   if (ignore_file == NULL) {
-    fprintf(stderr, "%s: couldn't load ignore file '%s'\n", progname, ignore_file);
+    fprintf(stderr, "%s: couldn't load ignore file '%s'\n", progname, ignore_filename);
     return;
   }
 

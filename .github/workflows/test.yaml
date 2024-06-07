@@ -103,7 +103,6 @@ jobs:
           [ "$SCRIPT_VERSION" = "$INCLUDE_VERSION" ]
 
   shellcheck:
-    name: 'Run ShellCheck'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
