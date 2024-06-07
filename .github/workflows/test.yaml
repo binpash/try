@@ -30,12 +30,13 @@ jobs:
         run: |
           make -C utils all
 
-      - name: Run tests
+      - name: Run tests with utilities
         run: |
-          cd ..
-          cp -r try ~
-          cd ~/try
           PATH="$PWD/utils:$PATH" scripts/run_tests.sh
+
+      - name: Run tests with shell fallbacks
+        run: |
+          scripts/run_tests.sh
 
       - name: Upload script
         uses: actions/upload-artifact@v2
