@@ -20,5 +20,6 @@ cd "$try_workspace" || return 9
 badname="$(printf "this\\nsucks")"
 touch "$badname" || return 1
 [ -f "$badname" ] || return 2
+# shellcheck disable=SC2016
 "$TRY" -y 'rm "$(printf "this\nsucks")"' || return 3
 ! [ -f "$badname" ] || return 4
