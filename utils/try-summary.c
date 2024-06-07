@@ -93,13 +93,14 @@ int main(int argc, char *argv[]) {
       if (getxattr(ent->fts_path, "user.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
         // TRYCASE(opaque, *)
         // TRYCASE(dir, dir)
-        show_change(local_file, "replaced dir");
+        show_change(local_file, "replaced with dir");
         break;
       }
 
       // non-directory replaced with a directory
       if (!S_ISDIR(local_stat.st_mode)) {
-        // TRYCASE(dir, nondir)
+        // TRYCASE(dir, file)
+        // TRYCASE(dir, symlink)
         show_change(local_file, "replaced with dir");
         break;
       }
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]) {
       // nothing of interest! directory got made, but modifications must be inside
       break;
     case FTS_F: // regular file
-      if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
+      if (getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {
         // TRYCASE(whiteout, *)
         show_change(local_file, "deleted");
         break;
