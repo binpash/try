@@ -59,8 +59,6 @@ int remove_local(char *local_file, int local_exists, struct stat *local_stat) {
     pid_t pid = fork();
 
     if (pid == 0) {
-      printf("executing rm -rf %s\n", local_file);
-      sleep(5);
       char *argv[4] = { "rm", "-rf", local_file, NULL };
       execvp("rm", argv);
       return -1; // unreachable

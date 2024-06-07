@@ -323,7 +323,6 @@ EOF
 
 if type try-summary >/dev/null 2>&1
 then
-    echo USING utils/try-summary >&2
     summary() {
         if ! [ -d "$SANDBOX_DIR" ]
         then
@@ -381,7 +380,6 @@ fi
 
 if type try-commit >/dev/null 2>&1
 then
-    echo USING utils/try-commit >&2
     commit() {
         if ! [ -d "$SANDBOX_DIR" ]
         then
