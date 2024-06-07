@@ -29,6 +29,7 @@ COUNT=0
 
 : $((COUNT += 1))
 
+set -x
 ! [ -e olddir ] || return "$COUNT"
 mkdir olddir || return "$COUNT"
 echo hi >olddir/oldfile || return "$COUNT"
@@ -40,6 +41,7 @@ echo hi >olddir/oldfile || return "$COUNT"
 ! [ -e olddir/oldfile ] || return "$COUNT"
 [ "$(cat olddir/newfile)" = "fresh" ] || return "$COUNT"
 rm -r olddir || return "$COUNT"
+set +x
 
 # // TRYCASE(dir, nonexist)
 
