@@ -411,7 +411,7 @@ else
             changed_file="$SANDBOX_DIR/upperdir$local_file"
             case $summary_line in
                 (ln*) rm -rf "$local_file"; ln -s "$(readlink "$changed_file")" "$local_file";;
-                (rd*) rm -rf "$local_file"; mkdir "$local_file";;
+                (rd*) echo "rd $local_file $changed_file"; rm -rf "$local_file"; mkdir "$local_file";;
                 (md*) mkdir "$local_file";;
                 (de*) rm -rf "$local_file";;
                 (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
