@@ -52,6 +52,7 @@ void load_ignores(char *progname, char *ignore_filename) {
     num_ignores += 1;
   }
 
+  free(line);
   fclose(ignore_file);
 }
 
@@ -59,4 +60,8 @@ void free_ignores() {
   for (int i = 0; i < num_ignores; i += 1) {
     regfree(&ignores[i]);
   }
+  free(ignores);
+  ignores = NULL;
+  num_ignores = 0;
+  ignores_len = 0;
 }
