@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "ignores.h"
+#include "version.h"
 
 static int num_errors = 0;
 void commit_error(char *changed_file, char *msg) {
@@ -82,26 +83,30 @@ int remove_local(char *local_file, int local_exists, struct stat *local_stat) {
   return 0;
 }
 
-void usage() {
+void usage(int status) {
   fprintf(stderr, "Usage: try-commit [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
-  exit(2);
+  exit(status);
 }
 
 int main(int argc, char *argv[]) {
   int opt;
-  while ((opt = getopt(argc, argv, "hi:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvi:")) != -1) {
     switch (opt) {
     case 'i':
       load_ignores("try-commit", optarg);
       break;
+    case 'v':
+      fprintf(stderr, "try-commit version " TRY_VERSION "\n");
+      exit(0);
     case 'h':
+      usage(0);
     default:
-      usage();
+      usage(2);
     }
   }
 
   if (argc != optind + 1) {
-    usage();
+    usage(2);
   }
 
   char *dirs[2] = { argv[optind], NULL };

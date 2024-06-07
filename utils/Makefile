@@ -2,11 +2,12 @@
 
 all: try-summary try-commit
 
-try-summary: try-summary.o ignores.o
-	gcc -o $@ -g $^
+try-summary: ignores.o try-summary.o
+	gcc -Wall -O2 -o $@ -g $^
 
-try-commit: try-commit.o ignores.o
-	gcc -o $@ -g $^
+try-commit: ignores.o try-commit.o
+	gcc -Wall -O2 -o $@ -g $^
 
 clean:
 	-rm try-summary try-commit
+	-rm *.o

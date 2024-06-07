@@ -12,6 +12,7 @@
 #include <sys/xattr.h>
 
 #include "ignores.h"
+#include "version.h"
 
 static int changes_detected = 0;
 void show_change(char *local_file, char *msg) {
@@ -23,26 +24,30 @@ void show_change(char *local_file, char *msg) {
   printf("%s (%s)\n", local_file, msg);
 }
 
-void usage() {
+void usage(int status) {
   fprintf(stderr, "Usage: try-summary [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
-  exit(2);
+  exit(status);
 }
 
 int main(int argc, char *argv[]) {
   int opt;
-  while ((opt = getopt(argc, argv, "hi:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvi:")) != -1) {
     switch (opt) {
     case 'i':
       load_ignores("try-summary", optarg);
       break;
+    case 'v':
+      fprintf(stderr, "try-summary version " TRY_VERSION "\n");
+      exit(0);
     case 'h':
+      usage(0);
     default:
-      usage();
+      usage(2);
     }
   }
 
   if (argc != optind + 1) {
-    usage();
+    usage(2);
   }
 
   char *dirs[2] = { argv[optind], NULL };

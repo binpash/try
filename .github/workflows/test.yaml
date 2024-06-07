@@ -91,13 +91,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check version in script against manpage
+      - name: Check version consistency (script, manpage, include)
         run: |
           SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
           MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
+          INCLUDE_VERSION=$(grep '#define TRY_VERSION' utils/version.h | cud -d'"' -f 2)
           echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
           echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          echo "INCLUDE_VERSION = '$INCLUDE_VERSION'"
           [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
+          [ "$SCRIPT_VERSION" = "$INCLUDE_VERSION" ]
 
   shellcheck:
     name: 'Run ShellCheck'
