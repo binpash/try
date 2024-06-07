@@ -16,6 +16,6 @@ Here `changed` adheres to `cf` and `local` adheres to `lf` in the following gram
 
 ```
 cf ::= f | opaque | whiteout
-lf ::= f | !f | *
+lf ::= f | *
 f ::= file | dir | symlink | nonexist
 ```

@@ -134,8 +134,8 @@ int main(int argc, char *argv[]) {
     switch (ent->fts_info) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
-        // new directory in upper
-        move(ent->fts_path, local_file); // TRYCASE(dir, nonexist)
+        // TRYCASE(dir, nonexist)
+        move(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -144,8 +144,12 @@ int main(int argc, char *argv[]) {
 
       // special "OPAQUE" whiteout directory--delete the original
       char xattr_buf[2] = { '\0', '\0' };
-      if (getxattr(ent->fts_path, "trusted.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
-        remove_local(local_file, local_exists, &local_stat); // TRYCASE(opaque, *)
+      if (getxattr(ent->fts_path, "user.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
+        // TRYCASE(opaque, *)
+        // TRYCASE(dir, dir)
+        remove_local(local_file, local_exists, &local_stat);
+
+        move(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -154,11 +158,14 @@ int main(int argc, char *argv[]) {
 
       // non-directory replaced with a directory
       if (!S_ISDIR(local_stat.st_mode)) {
+        // TRYCASE(dir, file)
+        // TRYCASE(dir, symlink)
+
         if (unlink(local_file) != 0) {
           commit_error(ent->fts_path, "rm");
         }
 
-        move(ent->fts_path, local_file); // TRYCASE(dir, nondir)
+        move(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -168,20 +175,26 @@ int main(int argc, char *argv[]) {
       // nothing of interest! directory got made, but modifications must be inside
       break;
     case FTS_F: // regular file
-      if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
-        remove_local(local_file, local_exists, &local_stat); // TRYCASE(whiteout, *)
+      if (getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {
+        // TRYCASE(whiteout, *)
+        remove_local(local_file, local_exists, &local_stat);
         break;
       }
 
       if (local_exists) {
-        remove_local(local_file, local_exists, &local_stat); // TRYCASE(file, !nonexist)
+        // TRYCASE(file, file)
+        // TRYCASE(file, dir)
+        // TRYCASE(file, symlink)
+        remove_local(local_file, local_exists, &local_stat);
       }
 
-      move(ent->fts_path, local_file); // TRYCASE(file, *)
+      // TRYCASE(file, nonexist)
+      move(ent->fts_path, local_file);
       break;
 
     case FTS_SL: // symbolic link
     case FTS_SLNONE: // dangling symbolic link
+      // TRYCASE(symlink, *)
       remove_local(local_file, local_exists, &local_stat);
 
       // absolute shenanigans: what's the target (and how long is its name)?
@@ -206,7 +219,7 @@ int main(int argc, char *argv[]) {
       }
       tgt[nbytes] = '\0'; // readlink doesn't put a null byte on the end lol nice work everyone
 
-      if (symlink(tgt, local_file) != 0) { // TRYCASE(symlink, *)
+      if (symlink(tgt, local_file) != 0) {
         commit_error(ent->fts_path, "ln -s");
       }
       free(tgt);
@@ -222,7 +235,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
-          remove_local(local_file, local_exists, &local_stat); // TRYCASE(whiteout, *)
+          // TRYCASE(whiteout, *)
+          remove_local(local_file, local_exists, &local_stat);
 
           break;
         }

@@ -75,8 +75,8 @@ int main(int argc, char *argv[]) {
     switch (ent->fts_info) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
-        // new directory in upper
-        show_change(local_file, "created dir"); // TRYCASE(dir, nonexist)
+        // TRYCASE(dir, nonexist)
+        show_change(local_file, "created dir");
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -85,14 +85,17 @@ int main(int argc, char *argv[]) {
 
       // special "OPAQUE" whiteout directory--delete the original
       char xattr_buf[2] = { '\0', '\0' };
-      if (getxattr(ent->fts_path, "trusted.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
-        show_change(local_file, "deleted"); // TRYCASE(opaque, *)
+      if (getxattr(ent->fts_path, "user.overlay.opaque", xattr_buf, 2) != -1 && xattr_buf[0] == 'y') {
+        // TRYCASE(opaque, *)
+        // TRYCASE(dir, dir)
+        show_change(local_file, "replaced dir");
         break;
       }
 
       // non-directory replaced with a directory
       if (!S_ISDIR(local_stat.st_mode)) {
-        show_change(local_file, "replaced with dir"); // TRYCASE(dir, nondir)
+        // TRYCASE(dir, nondir)
+        show_change(local_file, "replaced with dir");
         break;
       }
 
@@ -100,21 +103,27 @@ int main(int argc, char *argv[]) {
       break;
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "trusted.overlay.whiteout", NULL, 0) != -1) {
-        show_change(local_file, "deleted"); // TRYCASE(whiteout, *)
+        // TRYCASE(whiteout, *)
+        show_change(local_file, "deleted");
         break;
       }
 
       if (local_exists) {
-        show_change(local_file, "modified"); // TRYCASE(file, !nonexist)
+        // TRYCASE(file, file)
+        // TRYCASE(file, dir)
+        // TRYCASE(file, symlink)
+        show_change(local_file, "modified");
         break;
       }
 
-      show_change(local_file, "added"); // TRYCASE(file, *)
+      // TRYCASE(file, nonexist)
+      show_change(local_file, "added");
       break;
 
     case FTS_SL: // symbolic link
     case FTS_SLNONE: // dangling symbolic link
-      show_change(local_file, "symlink"); // TRYCASE(symlink, *)
+      // TRYCASE(symlink, *)
+      show_change(local_file, "symlink");
       break;
 
     case FTS_DEFAULT:
@@ -127,7 +136,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
-          show_change(local_file, "deleted"); // TRYCASE(whiteout, *)
+          // TRYCASE(whiteout, *)
+          show_change(local_file, "deleted");
           break;
         }
       }

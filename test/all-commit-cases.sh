@@ -24,6 +24,23 @@ cd "$try_workspace" || return 9
 
 COUNT=0
 
+# // TRYCASE(opaque, dir)
+# // TRYCASE(dir, dir)
+
+: $((COUNT += 1))
+
+! [ -e olddir ] || return "$COUNT"
+mkdir olddir || return "$COUNT"
+echo hi >olddir/oldfile || return "$COUNT"
+[ -d olddir ] || return "$COUNT"
+[ -f olddir/oldfile ] || return "$COUNT"
+"$TRY" -y "rm -r olddir; mkdir olddir; echo fresh >olddir/newfile"  || return "$COUNT"
+[ -d olddir ] || return "$COUNT"
+[ -f olddir/newfile ] || return "$COUNT"
+! [ -e olddir/oldfile ] || return "$COUNT"
+[ "$(cat olddir/newfile)" = "fresh" ] || return "$COUNT"
+rm -r olddir || return "$COUNT"
+
 # // TRYCASE(dir, nonexist)
 
 : $((COUNT += 1))
@@ -45,23 +62,6 @@ echo hi >wasfile || return "$COUNT"
 [ -f wasfile/stillfile ] || return "$COUNT"
 [ "$(cat wasfile/stillfile)" = "hi" ] || return "$COUNT"
 rm -r wasfile || return "$COUNT"
-
-# it seems like overlayfs is behaving in a buggy way; see https://github.com/binpash/try/issues/163
-# // TRYCASE(dir, dir)
-#
-# : $((COUNT += 1))
-#
-# ! [ -e olddir ] || return "$COUNT"
-# mkdir olddir || return "$COUNT"
-# echo hi >olddir/oldfile || return "$COUNT"
-# [ -d olddir ] || return "$COUNT"
-# [ -f olddir/oldfile ] || return "$COUNT"
-# "$TRY" -y "rm -r olddir; mkdir olddir; echo fresh >olddir/newfile"  || return "$COUNT"
-# [ -d olddir ] || return "$COUNT"
-# [ -f olddir/newfile ] || return "$COUNT"
-# ! [ -e olddir/oldfile ] || return "$COUNT"
-# [ "$(cat olddir/newfile)" = "fresh" ] || return "$COUNT"
-# rm -r olddir || return "$COUNT"
 
 # // TRYCASE(dir, symlink)
 
