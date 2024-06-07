@@ -12,8 +12,10 @@ In order to make sure that we keep them parallel, both files are
 annotated with `TRYCASE(changed, local)` forms in comments that
 identify which case is being handled.
 
-Here `changed` and `local` adhere to the following grammar:
+Here `changed` adheres to `cf` and `local` adheres to `lf` in the following grammar:
 
 ```
-f ::= file | dir | nonexist | opaque | whiteout | symlink | * | !f
+cf ::= f | opaque | whiteout
+lf ::= f | !f | *
+f ::= file | dir | symlink | nonexist
 ```
