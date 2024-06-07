@@ -29,7 +29,7 @@ commands that you don't already trust on your system, (i.e. network calls are al
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
 
-To run `try`'s test suite (`test/run_tests.sh`), you will need:
+To run `try`'s test suite (`scripts/run_tests.sh`), you will need:
 
 * `bash`
 * `expect`
