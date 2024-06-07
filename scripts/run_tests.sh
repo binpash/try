@@ -6,12 +6,6 @@ TEST_DIR="$TRY_TOP/test"
 # set the DEBUG env variable to see detailed output
 DEBUG=${DEBUG:-0}
 
-# results saved here; clear out previous results
-OUTPUT_DIR="$TRY_TOP/test/results"
-rm -rf "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
-touch "$OUTPUT_DIR/result_status"
-
 TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILING_TESTS=""
@@ -39,23 +33,36 @@ run_test()
 
     echo
     printf "Running %s..." "$name"
+    spaces="$(printf "%$((60 - (8 + ${#name} + 3) ))s" "")"
 
     # actually run the test
-    "$test"
+    out=$(mktemp)
+    err=$(mktemp)
+    "$test" >"$out" 2>"$err"
     ec="$?"
 
     : $((TOTAL_TESTS += 1))
     if [ "$ec" -eq 0 ]; then
         : $((PASSED_TESTS += 1))
-        printf '\t\t\t'
-        echo "Test $name passed" >>"$OUTPUT_DIR/result_status"
-        printf '\tOK\n'
+        printf "%sPASS\n" "$spaces"
     else
         FAILING_TESTS="$FAILING_TESTS $name"
-        printf " non-zero exit status (%d)" "$ec"
-        echo "Test $name failed" >>"$OUTPUT_DIR/result_status"
-        printf '\t\tFAIL\n'
+        printf "%sFAIL (%d)\n" "$spaces" "$ec"
+
+        printf "=======\n"
+        printf "STDOUT:\n"
+        printf "=======\n"
+        cat "$out"
+        printf "=======\n\n"
+
+        printf "=======\n"
+        printf "STDERR:\n"
+        printf "=======\n"
+        cat "$err"
+        printf "=======\n\n"
     fi
+
+    rm "$out" "$err"
 }
 
 pats="$(mktemp)"
@@ -72,7 +79,6 @@ rm "$pats"
 
 echo "=================| Try Tests |==================="
 echo "Test directory:           $WORKING_DIR"
-echo "Results saved at:         $OUTPUT_DIR"
 echo
 echo "Running $(echo "$TESTS" | wc -l) tests"
 echo "================================================="
