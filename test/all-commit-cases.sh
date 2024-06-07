@@ -48,9 +48,9 @@ rm -r wasfile || return "$COUNT"
 
 # it seems like overlayfs is behaving in a buggy way; see https://github.com/binpash/try/issues/163
 # // TRYCASE(dir, dir)
-# 
+#
 # : $((COUNT += 1))
-# 
+#
 # ! [ -e olddir ] || return "$COUNT"
 # mkdir olddir || return "$COUNT"
 # echo hi >olddir/oldfile || return "$COUNT"
@@ -84,7 +84,7 @@ mkdir existdir || return "$COUNT"
 touch existdir/file || return "$COUNT"
 [ -d existdir ] || return "$COUNT"
 "$TRY" -y "rm -r existdir" || return "$COUNT"
-! [ -d existdir ] || return "$COUNT" 
+! [ -d existdir ] || return "$COUNT"
 
 # // TRYCASE(whiteout, file)
 
