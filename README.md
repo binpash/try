@@ -22,9 +22,10 @@ commands that you don't already trust on your system, (i.e. network calls are al
 
 ### Dependencies
 
-`try` relies on the following dependencies
+`try` relies on the following Debian packages
 
-* `util-linux`
+* `util-linux` (for standard Linux utilities, `findmnt`)
+* `attr` (for `getfattr`)
 
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)

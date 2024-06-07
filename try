@@ -411,7 +411,7 @@ else
             changed_file="$SANDBOX_DIR/upperdir$local_file"
             case $summary_line in
                 (ln*) rm -rf "$local_file"; ln -s "$(readlink "$changed_file")" "$local_file";;
-                (rd*) echo "rd $local_file $changed_file"; rm -rf "$local_file"; mkdir "$local_file";;
+                (rd*) rm -rf "$local_file"; mkdir "$local_file";;
                 (md*) mkdir "$local_file";;
                 (de*) rm -rf "$local_file";;
                 (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
@@ -480,8 +480,6 @@ process_changes() {
             echo "ln $local_file"
         elif [ -d "$changed_file" ]
         then
-            getfattr --absolute-names -d "$changed_file" >&2
-
             if ! [ -e "$local_file" ]
             then
                 # // TRYCASE(dir, nonexist)
@@ -491,7 +489,6 @@ process_changes() {
 
             if [ "$(getfattr --absolute-names --only-values --e text -n user.overlay.opaque "$changed_file" 2>/dev/null)" = "y" ]
             then
-                echo "OPAQUE $local_file" >&2
                 # // TRYCASE(opaque, *)
                 # // TRYCASE(dir, dir)
                 echo "rd $local_file"
