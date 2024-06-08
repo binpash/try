@@ -77,6 +77,17 @@ jobs:
       - name: Run scripts/lint.sh
         run: scripts/lint.sh
 
+  trycase-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run check_trycase.sh
+        run: |
+          scripts/check_trycase.sh
+
   version-check:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
@@ -111,17 +122,6 @@ jobs:
           ignore_paths: >-
             completions
 
-  trycase:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Run check_trycase.sh
-        run: |
-          scripts/check_trycase.sh
-
   prerelease:
     needs:
       - test
@@ -129,6 +129,7 @@ jobs:
       - version-check
       - lint
       - shellcheck
+      - trycase
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
