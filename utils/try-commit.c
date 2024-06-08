@@ -110,6 +110,12 @@ int main(int argc, char *argv[]) {
   char *dirs[2] = { argv[optind], NULL };
   size_t prefix_len = strlen(argv[optind]);
 
+  // trim final slashes
+  while (argv[optind][prefix_len-1] == '/') {
+    argv[optind][prefix_len-1] = '\0';
+    prefix_len -= 1;
+  }
+
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
   if (fts == NULL) {
