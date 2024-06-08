@@ -58,6 +58,8 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 $ git clone https://github.com/binpash/try.git
 ```
 
+To install the support utilities (which speed up `try` and improve its behavior on tricky filenames), run `make -C utils` and put the `try-commit` and `try-summary` binaries on your `$PATH`.
+
 #### Arch Linux
 
 `try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:

@@ -50,6 +50,7 @@ rm -r olddir || return "$COUNT"
 [ -d newdir ] || return "$COUNT"
 rmdir newdir || return "$COUNT"
 
+# // TRYCASE(opaque, file)
 # // TRYCASE(dir, file)
 
 : $((COUNT += 1))
@@ -63,6 +64,7 @@ echo hi >wasfile || return "$COUNT"
 [ "$(cat wasfile/stillfile)" = "hi" ] || return "$COUNT"
 rm -r wasfile || return "$COUNT"
 
+# // TRYCASE(opaque, symlink)
 # // TRYCASE(dir, symlink)
 
 : $((COUNT += 1))
@@ -183,7 +185,7 @@ echo so long >gonnago || return "$COUNT"
 [ "$(readlink gonnago)" = "$TRY" ] || return "$COUNT"
 rm gonnago || return "$COUNT"
 
-# // TRYCASE(symlink, file)
+# // TRYCASE(symlink, symlink)
 
 : $((COUNT += 1))
 

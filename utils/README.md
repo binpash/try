@@ -12,10 +12,12 @@ In order to make sure that we keep them parallel, both files are
 annotated with `TRYCASE(changed, local)` forms in comments that
 identify which case is being handled.
 
-Here `changed` adheres to `cf` and `local` adheres to `lf` in the following grammar:
+Here `changed` and `local` adhere to `lf` the following grammar:
 
 ```
-cf ::= f | opaque | whiteout
-lf ::= f | *
+changed ::= f | opaque | whiteout
+local ::= f | *
 f ::= file | dir | symlink | nonexist
 ```
+
+The script `../scripts/check_trycase.sh` will check to make sure that all cases are considered (excepting `TRYCASE(opaque, nonexist)`, which should not happen). If new files need to do a case analysis on how changed files and local files relate, annotate each case with `// TRYCASE(cf, lf)` and add a `check_file` call to the `check_trycase.sh` script.
