@@ -28,7 +28,10 @@ check_file() {
 
     ERRORS=0
 
-    grep -e "// TRYCASE" "$1" | cut -d'/' -f3 | cut -c10- | while IFS="" read -r c
+    CASES=$(mktemp)
+    grep -e "// TRYCASE" "$1" | cut -d'/' -f3 | cut -c10- >"$CASES"
+
+    while IFS="" read -r c
     do
         cf="${c%,*}"
         lf="${c#*, }"
@@ -47,11 +50,15 @@ check_file() {
                 ;;
         esac
 
-        rm $trycase/$cf/$lf 2>/dev/null
-    done
+        # shellcheck disable=SC2086 # deliberately letting $lf be *!
+        rm "$trycase"/"$cf"/$lf 2>/dev/null
+    done <"$CASES"
+    rm "$CASES"
 
+    # shellcheck disable=SC2045 # globs are annoying here
     for cf in $(ls "$trycase")
     do
+        # shellcheck disable=SC2045 # globs are annoying here
         for lf in $(ls "$trycase/$cf")
         do
             printf "ERROR: $1: missing TRYCASE(%s, %s)\n" "$cf" "$lf"
