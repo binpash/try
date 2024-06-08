@@ -129,7 +129,7 @@ jobs:
       - version-check
       - lint
       - shellcheck
-      - trycase
+      - trycase-check
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
