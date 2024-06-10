@@ -263,8 +263,6 @@ unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
-date +"%s.%N sync" >> timelog
-sync
 date +"%s.%N unmounting devices" >> timelog
 unmount_devices "$SANDBOX_DIR"
 
