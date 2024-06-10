@@ -27,3 +27,4 @@ while IFS= read -r line; do
     prev_timestamp=$timestamp
     prev_step=$step
 done <<< "$input"
+echo

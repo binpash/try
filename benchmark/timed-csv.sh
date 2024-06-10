@@ -25,3 +25,4 @@ while IFS= read -r line; do
     # Update the previous timestamp and step
     prev_timestamp=$timestamp
 done <<< "$input"
+echo
