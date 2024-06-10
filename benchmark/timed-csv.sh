@@ -10,7 +10,6 @@ input=$(cat timelog)
 
 # Initialize variables
 prev_timestamp=0
-prev_step=""
 
 # Process each line of the input
 while IFS= read -r line; do
@@ -25,5 +24,4 @@ while IFS= read -r line; do
 
     # Update the previous timestamp and step
     prev_timestamp=$timestamp
-    prev_step=$step
 done <<< "$input"

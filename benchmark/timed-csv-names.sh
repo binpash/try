@@ -20,7 +20,6 @@ while IFS= read -r line; do
 
     # Calculate the delta t if it's not the first line
     if [[ $prev_timestamp != 0 ]]; then
-        delta_t=$(echo "$timestamp - $prev_timestamp" | bc)
         printf "%s;" "$prev_step"
     fi
 
