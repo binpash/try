@@ -131,6 +131,10 @@ int main(int argc, char *argv[]) {
     return 2;
   }
   assert(strcmp(ent->fts_path, argv[optind]) == 0);
+  if (ent->fts_info != FTS_D) {
+    fprintf(stderr, "try-commit: %s is not a directory\n", ent->fts_path);
+    return 1;
+  }
 
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;

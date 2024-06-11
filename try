@@ -324,14 +324,6 @@ EOF
 if type try-summary >/dev/null 2>&1
 then
     summary() {
-        if ! [ -d "$SANDBOX_DIR" ]
-        then
-            error "could not find directory $SANDBOX_DIR" 2
-        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-        then
-            error "could not find directory $SANDBOX_DIR/upperdir" 1
-        fi
-
         try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir" || return 1
         TRY_EXIT_STATUS=0
     }
@@ -381,14 +373,6 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        if ! [ -d "$SANDBOX_DIR" ]
-        then
-            error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
-        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-        then
-            error "could not find directory $SANDBOX_DIR/upperdir" 1
-        fi
-
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir"
         TRY_EXIT_STATUS=$?
     }
