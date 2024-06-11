@@ -15,7 +15,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 "$TRY" -y ln -s foo bar
 

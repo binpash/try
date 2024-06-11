@@ -17,11 +17,11 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 badname="$(printf "this\\nsucks")"
-touch "$badname" || return 1
-[ -f "$badname" ] || return 2
+touch "$badname" || exit 1
+[ -f "$badname" ] || exit 2
 # shellcheck disable=SC2016
-"$TRY" -y 'rm "$(printf "this\nsucks")"' || return 3
-! [ -f "$badname" ] || return 4
+"$TRY" -y 'rm "$(printf "this\nsucks")"' || exit 3
+! [ -f "$badname" ] || exit 4

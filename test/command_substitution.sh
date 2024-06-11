@@ -20,7 +20,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Set up expected output
 expected="$(mktemp)"
@@ -31,6 +31,6 @@ cat >script.sh <<"EOF"
     echo "$mypwd"
 EOF
 
-"$TRY" sh script.sh >out.txt || return 1
+"$TRY" sh script.sh >out.txt || exit 1
 
 diff -q "$expected" out.txt

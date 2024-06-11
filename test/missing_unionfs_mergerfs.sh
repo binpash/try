@@ -24,7 +24,7 @@ trap 'cleanup' EXIT
 # particularly important that we run in mktemp: in some test machines,
 # the cwd is mounted, hence inaccessable.
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 new_bin_dir="$(mktemp -d)"
 mkdir "$new_bin_dir/usr"
@@ -36,5 +36,5 @@ rm -f "$new_bin_dir/usr/bin/mergerfs" 2>/dev/null
 rm -f "$new_bin_dir/usr/bin/unionfs" 2>/dev/null
 
 echo hi >expected
-PATH="$new_bin_dir/usr/bin" "$TRY" -y "echo hi" >target 2>/dev/null || return 1
-diff -q expected target || return 2
+PATH="$new_bin_dir/usr/bin" "$TRY" -y "echo hi" >target 2>/dev/null || exit 1
+diff -q expected target || exit 2

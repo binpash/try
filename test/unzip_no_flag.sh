@@ -20,7 +20,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Set up expected output
 expected="$(mktemp)"
@@ -28,5 +28,5 @@ echo 'Hello World!' >"$expected"
 
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
 
-"$TRY" -y gunzip file.txt.gz || return 1
+"$TRY" -y gunzip file.txt.gz || exit 1
 diff -q "$expected" file.txt
