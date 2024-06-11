@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# shellcheck disable=SC2119 # warnings about fail's arguments (put before first command to be global)
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
 TRY="$TRY_TOP/try"
 
@@ -24,7 +25,7 @@ cd "$try_workspace" || exit 99
 
 COUNT=0
 fail() {
-    echo Case $COUNT: $@
+    echo Case $COUNT: "$@"
     exit ${COUNT}
 }
 
@@ -42,7 +43,7 @@ echo hi >olddir/oldfile || fail
 "$TRY" -y "rm -r olddir; mkdir olddir; echo fresh >olddir/newfile" || fail
 [ -d olddir ] || fail
 [ -f olddir/newfile ] || fail
-! [ -e olddir/oldfile ] || fail
+! [ -e olddir/oldfile ] || fail opaque directories worked incorrectly
 [ "$(cat olddir/newfile)" = "fresh" ] || fail
 rm -r olddir || fail
 
