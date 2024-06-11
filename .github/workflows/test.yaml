@@ -114,11 +114,11 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
-          ignore_paths:
-            - completions
-          ignore_names:
-            - configure
-            - install-sh
+          ignore_paths: >-
+            completions
+          ignore_names: >-
+            configure
+            install-sh
 
   prerelease:
     needs:
