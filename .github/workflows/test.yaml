@@ -116,9 +116,8 @@ jobs:
         with:
           ignore_paths: >-
             completions
-          ignore_names: >-
-            configure
-            install-sh
+            ./configure
+            ./install-sh
 
   prerelease:
     needs:
