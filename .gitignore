@@ -4,3 +4,7 @@ test/try_workspace/
 *~
 .vagrant/
 .vagrant
+autom4te.cache/
+config.log
+config.status
+Makefile
