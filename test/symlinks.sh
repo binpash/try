@@ -22,9 +22,4 @@ cd "$try_workspace" || exit 9
 result=$(readlink bar)
 expected="foo"
 
-if [ "$result" = "$expected" ]
-then
-    exit 0
-else
-    exit 1
-fi
+[ "$result" = "$expected" ] || exit 1
