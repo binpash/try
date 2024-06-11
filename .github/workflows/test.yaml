@@ -24,9 +24,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Build utilities
+      - name: Configure and build utilities
         run: |
-          make -C utils all
+          ./configure
+          make utils/try-summary utils/try-commit
 
       - name: Run tests with utilities
         run: |
@@ -56,8 +57,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Configure
+        run: ./configure
+
       - name: Build manpage
-        run: make -C man
+        run: make man/try.1
 
       - name: Upload script
         uses: actions/upload-artifact@v4
@@ -85,8 +89,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run check_trycase.sh
-        run: |
-          scripts/check_trycase.sh
+        run: scripts/check_trycase.sh
 
   version-check:
     runs-on: ubuntu-latest
@@ -99,15 +102,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Check version consistency (script, manpage, include)
-        run: |
-          SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
-          MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
-          INCLUDE_VERSION=$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)
-          echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
-          echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
-          echo "INCLUDE_VERSION = '$INCLUDE_VERSION'"
-          [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
-          [ "$SCRIPT_VERSION" = "$INCLUDE_VERSION" ]
+        run: scripts/check_version.sh
 
   shellcheck:
     runs-on: ubuntu-latest
@@ -121,6 +116,7 @@ jobs:
         with:
           ignore_paths: >-
             completions
+          ignore_names: configure
 
   prerelease:
     needs:
