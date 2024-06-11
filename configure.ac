@@ -1,8 +1,8 @@
 AC_PREREQ(2.71)
-AC_INIT([try], [0.2.0])
+AC_INIT([try], [0.2.0], [https://github.com/binpash/try/issues])
 
-AC_CONFIG_SRCDIR([utils/try-summary.c])
-AC_REQUIRE_AUX_FILE([try])
+AC_CONFIG_SRCDIR([try])
+AC_REQUIRE_AUX_FILE([utils/try-commit.c])
 AC_REQUIRE_AUX_FILE([docs/try.1.md])
 
 AC_PROG_CC
@@ -25,5 +25,5 @@ AC_CHECK_FUNCS([strerror])
 AC_PROG_LN_S
 AC_PROG_AWK
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile:Makefile.in])
 AC_OUTPUT
