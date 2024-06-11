@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect curl
+      sudo yum install -y git expect curl attr
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
