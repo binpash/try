@@ -1,0 +1,39 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datarootdir=@datarootdir@
+mandir=@mandir@
+
+CFLAGS=-Wall -O2
+
+.PHONY: all install test lint clean
+
+all: utils/try-summary utils/try-commit man/try.1
+
+install: utils/try-summary utils/try-commit man/try.1
+	install -d $(bindir)
+	install -m 755 try $(bindir)
+	install -m 755 utils/try-summary $(bindir)
+	install -m 755 utils/try-commit $(bindir)
+	install -d $(mandir)
+	install -m 644 man/try.1 $(mandir)
+
+man/try.1: docs/try.1.md
+	pandoc --standalone --from markdown-smart --to man $< -o $@
+
+utils/try-summary: utils/ignores.o utils/try-summary.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+
+utils/try-commit: utils/ignores.o utils/try-commit.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+
+test: try utils/try-summary utils/try-commit
+	scripts/run_tests.sh
+
+lint:
+	scripts/lint.sh
+
+clean:
+	-rm man/try.1
+	-rm utils/*.o
+	-rm utils/try-summary utils/try-commit
