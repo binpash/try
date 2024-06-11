@@ -143,8 +143,7 @@ int main(int argc, char *argv[]) {
       break;
 
     case FTS_DEFAULT:
-      struct stat *statp = ent->fts_statp;
-      if (S_ISCHR(statp->st_mode) && statp->st_size == 0) {
+      if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {
           fprintf(stderr, "try-summary: statx: %s: %s\n", ent->fts_path, strerror(errno));
