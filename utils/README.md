@@ -2,7 +2,7 @@ This directory contains C code (GNU dialect, Linux only) that summarizes and com
 
 You do _not_ need these utilities to use `try`, which has POSIX shell fallback implementations.
 
-Every time `try` starts up, it looks for these executables on its path; if found, it will use them---otherwise it will use the shell fallbacks.
+Every time `try` starts up, it looks for these executables on its path; if found, it will use them---otherwise it will use the shell fallbacks. The shell fallbacks are not quite as robust as these utilities and may behave strangely on files with newlines in their names.
 
 # Development
 

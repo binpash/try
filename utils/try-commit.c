@@ -82,7 +82,7 @@ int remove_local(char *local_file, int local_exists, struct stat *local_stat) {
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-commit [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
+  fprintf(stderr, "Usage: try-commit [-i IGNORE_FILE] SANDBOX_DIR\n");
   exit(status);
 }
 
@@ -107,7 +107,17 @@ int main(int argc, char *argv[]) {
     usage(2);
   }
 
-  char *dirs[2] = { argv[optind], NULL };
+  struct stat sandbox_stat;
+  if (stat(argv[optind], &sandbox_stat) == -1) {
+    perror("try-commit: could not find sandbox dircteory");
+    return 2;
+  }
+
+  if (!S_ISDIR(sandbox_stat.st_mode)) {
+    perror("try-commit: sandbox is not a directory");
+    return 2;
+  }
+
   size_t prefix_len = strlen(argv[optind]);
 
   // trim final slashes
@@ -115,6 +125,13 @@ int main(int argc, char *argv[]) {
     argv[optind][prefix_len-1] = '\0';
     prefix_len -= 1;
   }
+
+  char upperdir_path[prefix_len + 10];
+  strncpy(upperdir_path, argv[optind], prefix_len);
+  strncpy(upperdir_path + prefix_len, "/upperdir", 10);
+  prefix_len += 9;
+
+  char *dirs[2] = { upperdir_path, NULL };
 
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
@@ -130,9 +147,9 @@ int main(int argc, char *argv[]) {
     perror("try-commit: fts_read");
     return 2;
   }
-  assert(strcmp(ent->fts_path, argv[optind]) == 0);
+  assert(strcmp(ent->fts_path, upperdir_path) == 0);
   if (ent->fts_info != FTS_D) {
-    fprintf(stderr, "try-commit: %s is not a directory\n", ent->fts_path);
+    fprintf(stderr, "try-commit: sandbox upperdir '%s' is not a directory\n", ent->fts_path);
     return 1;
   }
 
