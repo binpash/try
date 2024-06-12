@@ -22,9 +22,10 @@ commands that you don't already trust on your system, (i.e. network calls are al
 
 ### Dependencies
 
-`try` relies on the following dependencies
+`try` relies on the following Debian packages
 
-* `util-linux`
+* `util-linux` (for standard Linux utilities, `findmnt`)
+* `attr` (for `getfattr`)
 
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
@@ -56,6 +57,8 @@ You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/m
 ```ShellSession
 $ git clone https://github.com/binpash/try.git
 ```
+
+To install the support utilities (which speed up `try` and improve its behavior on tricky filenames), run `make -C utils` and put the `try-commit` and `try-summary` binaries on your `$PATH`.
 
 #### Arch Linux
 
@@ -178,6 +181,11 @@ current user's UID/GID are mapped. However, the [future
 branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
 uid/gidmapper (root access is required for installation).
+
+Shell quoting may be unintuitive, you may expect `try bash -c "echo a"` to work,
+however, try will actually execute `bash -c echo a`, which will not result in
+`a` being printed. [We are currently not planning on resolving this
+behavior.](https://github.com/binpash/try/issues/155#issuecomment-2078556237)
 
 Please also report any issue you run into while using the future branch!
 

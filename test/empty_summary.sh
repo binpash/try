@@ -20,14 +20,14 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 try_example_dir="$(mktemp -d)"
-"$TRY" -D "$try_example_dir" -- echo hi >/dev/null || return 1
+"$TRY" -D "$try_example_dir" -- echo hi >/dev/null || exit 1
 "$TRY" summary "$try_example_dir" >summary.out
 
-# an empty summary returns exit status 1
-[ "$?" -eq 1 ] || return 2
+# an empty summary yields exit status 1
+[ "$?" -eq 1 ] || exit 2
 
-# We want to return true if the following line is not found!
+# We want ec 0 if the following line is not found!
 ! grep -q -e "Changes detected in the following files:" summary.out

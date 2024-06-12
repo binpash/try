@@ -20,7 +20,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
 
@@ -32,12 +32,12 @@ echo 'fail' >file_2.txt
 touch target
 
 try_example_dir=$(mktemp -d)
-"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir" || return 1
-"$TRY" summary "$try_example_dir" >summary.out || return 2
+"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir" || exit 1
+"$TRY" summary "$try_example_dir" >summary.out || exit 2
 
 # Check that the summary correctly identifies every change
-grep -qx -e "$PWD/file_1.txt (added)"         summary.out || return 3
-grep -qx -e "$PWD/file_2.txt (modified)"      summary.out || return 4
-grep -qx -e "$PWD/file.txt.gz (deleted)"      summary.out || return 5
-grep -qx -e "$PWD/target (replaced with dir)" summary.out || return 6
-grep -qx -e "$PWD/new_dir (created dir)"      summary.out || return 7
+grep -qx -e "$PWD/file_1.txt (added)"         summary.out || exit 3
+grep -qx -e "$PWD/file_2.txt (modified)"      summary.out || exit 4
+grep -qx -e "$PWD/file.txt.gz (deleted)"      summary.out || exit 5
+grep -qx -e "$PWD/target (replaced with dir)" summary.out || exit 6
+grep -qx -e "$PWD/new_dir (created dir)"      summary.out || exit 7

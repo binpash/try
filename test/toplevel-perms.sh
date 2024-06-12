@@ -30,7 +30,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 touch test
 
 cmd="$(mktemp)"
@@ -45,6 +45,6 @@ sh "$cmd" >"$expected"
 # Set up target output
 target="$(mktemp)"
 
-"$TRY" "sh $cmd" > "$target" || return 1
+"$TRY" "sh $cmd" > "$target" || exit 1
 #diff -q "$expected" "$target"
 diff "$expected" "$target"

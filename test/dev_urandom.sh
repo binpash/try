@@ -15,8 +15,8 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Ignore changes to foo
-"$TRY" -y "head -c 5 /dev/urandom >target" || return 1
-[ -s target ] || return 2
+"$TRY" -y "head -c 5 /dev/urandom >target" || exit 1
+[ -s target ] || exit 2

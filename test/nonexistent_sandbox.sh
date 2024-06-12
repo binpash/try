@@ -22,7 +22,7 @@ trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 try_example_dir="non-existent"
 ! [ -d "$try_example_dir" ] || exit 2

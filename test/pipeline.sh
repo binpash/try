@@ -21,12 +21,12 @@ trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Set up expected output
 expected="$(mktemp)"
 echo 'TesT' >"$expected"
 
-"$TRY" 'echo test | tr t T' >out.txt || return 1
+"$TRY" 'echo test | tr t T' >out.txt || exit 1
 
 diff -q "$expected" out.txt

@@ -56,7 +56,8 @@ try() {
     tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
     if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
     then
-        echo "using tmpfs due to backing fs being overlayfs" > "$try_mount_log"
+        echo "mounting sandbox '$SANDBOX_DIR' as tmpfs (underlying fs is overlayfs)" >> "$try_mount_log"
+        echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
@@ -192,9 +193,9 @@ do
     fi
 
     ## Symlinks
-    if [ -L "$pure_mountpoint" ]
+    if [ -L "$mountpoint" ]
     then
-        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        ln -s $(readlink "$mountpoint") "$SANDBOX_DIR/temproot/$mountpoint"
         continue
     fi
 
@@ -248,7 +249,6 @@ unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
-sync
 unmount_devices "$SANDBOX_DIR"
 rm "$sandbox_dir/temproot/dev/stdin"
 rm "$sandbox_dir/temproot/dev/stdout"
@@ -296,8 +296,7 @@ EOF
     chmod 755 "${SANDBOX_DIR}/temproot"
     while IFS="" read -r mountpoint
     do
-        pure_mountpoint=${mountpoint##*:}
-        if [  -L "$pure_mountpoint" ]
+        if [  -L "$mountpoint" ]
         then
             rm "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
@@ -329,94 +328,96 @@ EOF
 # Summarize the overlay in `$SANDBOX_DIR`
 ################################################################################
 
-summary() {
-    if ! [ -d "$SANDBOX_DIR" ]
-    then
-        error "could not find directory $SANDBOX_DIR" 2
-    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-    then
-        error "could not find directory $SANDBOX_DIR/upperdir" 1
-    fi
+if type try-summary >/dev/null 2>&1
+then
+    summary() {
+        try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir" || return 1
+        TRY_EXIT_STATUS=0
+    }
+else
+    summary() {
+        if ! [ -d "$SANDBOX_DIR" ]
+        then
+            error "could not find directory $SANDBOX_DIR" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
+        fi
 
-    ## Finds all potential changes
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+        ## Finds all potential changes
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+        if [ -z "$summary_output" ]
+        then
+            return 1
+        fi
 
-    if [ -z "$summary_output" ]
-    then
-        return 1
-    fi
+        echo
+        echo "Changes detected in the following files:"
+        echo
 
-    echo
-    echo "Changes detected in the following files:"
-    echo
+        echo "$summary_output" | while IFS= read -r summary_line
+        do
+            local_file="$(echo "$summary_line" | cut -c 4-)"
+            case "$summary_line" in
+                (ln*) echo "$local_file (symlink)";;
+                (rd*) echo "$local_file (replaced with dir)";;
+                (md*) echo "$local_file (created dir)";;
+                (de*) echo "$local_file (deleted)";;
+                (mo*) echo "$local_file (modified)";;
+                (ad*) echo "$local_file (added)";;
+            esac
+        done
 
-    while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4-)"
-        case "$summary_line" in
-            (ln*) echo "$local_file (symlink)";;
-            (rd*) echo "$local_file (replaced with dir)";;
-            (md*) echo "$local_file (created dir)";;
-            (de*) echo "$local_file (deleted)";;
-            (mo*) echo "$local_file (modified)";;
-            (ad*) echo "$local_file (added)";;
-        esac
-    done <<EOF
-$summary_output
-EOF
-
-    TRY_EXIT_STATUS=0
-}
+        TRY_EXIT_STATUS=0
+    }
+fi
 
 ################################################################################
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
 
-commit() {
-    if ! [ -d "$SANDBOX_DIR" ]
-    then
-        error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
-    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-    then
-        error "could not find directory $SANDBOX_DIR/upperdir" 1
-    fi
-
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-
-    TRY_EXIT_STATUS=0
-    while IFS= read -r summary_line; do
-        local_file="$(echo "$summary_line" | cut -c 4-)"
-        changed_file="$SANDBOX_DIR/upperdir$local_file"
-        case $summary_line in
-            (ln*) ln -s "$(readlink "$changed_file")" "$local_file";;
-            (rd*) rm -f "$local_file"; mkdir "$local_file";;
-            (md*) mkdir "$local_file";;
-            (de*) rm "$local_file";;
-            (mo*) cp -fa "$changed_file" "$local_file";;
-            (ad*) cp -fa "$changed_file" "$local_file";;
-        esac
-
-        # shellcheck disable=SC2181
-        if [ "$?" -ne 0 ]
+if type try-commit >/dev/null 2>&1
+then
+    commit() {
+        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir"
+        TRY_EXIT_STATUS=$?
+    }
+else
+    commit() {
+        if ! [ -d "$SANDBOX_DIR" ]
         then
-            warn "couldn't commit $changed_file"
-            TRY_EXIT_STATUS=1
+            error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
+        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+        then
+            error "could not find directory $SANDBOX_DIR/upperdir" 1
         fi
-    done <<EOF
-$summary_output
-EOF
-}
 
-################################################################################
-# Checks if a file is an overlayfs whiteout file
-################################################################################
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
-is_whiteout_file() {
-    file="$1"
+        TRY_EXIT_STATUS=0
+        echo "$summary_output" | while IFS= read -r summary_line; do
+            local_file="$(echo "$summary_line" | cut -c 4-)"
+            changed_file="$SANDBOX_DIR/upperdir$local_file"
+            case $summary_line in
+                (ln*) rm -rf "$local_file"; ln -s "$(readlink "$changed_file")" "$local_file";;
+                (rd*) rm -rf "$local_file"; mkdir "$local_file";;
+                (md*) mkdir "$local_file";;
+                (de*) rm -rf "$local_file";;
+                (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
+                (ad*) mv "$changed_file" "$local_file";;
+            esac
 
-    [ -c "$file" ] && ! [ -s "$file" ] && [ "$(stat -c %t,%T "$file")" = "0,0" ]
-}
+            # shellcheck disable=SC2181
+            if [ "$?" -ne 0 ]
+            then
+                warn "couldn't commit $changed_file"
+                TRY_EXIT_STATUS=1
+            fi
+        done
+    }
+fi
 
 ################################################################################
 ## Defines which changes we want to ignore in the summary and commit
@@ -466,25 +467,55 @@ process_changes() {
         local_file="${changed_file#"$sandbox_dir/upperdir"}"
         if [ -L "$changed_file" ]
         then
+            # // TRYCASE(symlink, *)
             echo "ln $local_file"
-        elif [ -d "$changed_file" ] && ! [ -d "${local_file}" ]
-        then # new directory
-            ## If something exists there, we need to delete it first
-            if [ -e "$local_file" ]
+        elif [ -d "$changed_file" ]
+        then
+            if ! [ -e "$local_file" ]
             then
-                echo "rd $local_file"
-            else
+                # // TRYCASE(dir, nonexist)
                 echo "md $local_file"
+                continue
             fi
-        elif is_whiteout_file "$changed_file"
-        then # whiteout file
+
+            if [ "$(getfattr --absolute-names --only-values --e text -n user.overlay.opaque "$changed_file" 2>/dev/null)" = "y" ]
+            then
+                # // TRYCASE(opaque, *)
+                # // TRYCASE(dir, dir)
+                echo "rd $local_file"
+                continue
+            fi
+
+            if ! [ -d "$local_file" ]
+            then
+                # // TRYCASE(dir, file)
+                # // TRYCASE(dir, symlink)
+                echo "rd $local_file"
+                continue
+            fi
+
+            # must be a directory, but not opaque---leave it!
+        elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] && [ "$(stat -c %t,%T "$changed_file")" = "0,0" ]
+        then
+            # // TRYCASE(whiteout, *)
             echo "de $local_file"
         elif [ -f "$changed_file" ]
-        then # normal file
+        then
+            if [ -f "$changed_file" ] && getfattr --absolute-names -d "$changed_file" 2>/dev/null | grep -q -e "user.overlay.whiteout"
+            then
+                # // TRYCASE(whiteout, *)
+                echo "de $local_file"
+                continue
+            fi
+
             if [ -e "$local_file" ]
             then
+                # // TRYCASE(file, file)
+                # // TRYCASE(file, dir)
+                # // TRYCASE(file, symlink)
                 echo "mo $local_file"
             else
+                # // TRYCASE(file, nonexist)
                 echo "ad $local_file"
             fi
         fi
@@ -581,7 +612,6 @@ NO_COMMIT="interactive"
 IGNORE_FILE="$(mktemp)"
 
 while getopts ":yvnhxi:D:U:L:" opt
-
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
