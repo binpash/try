@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
 
       // absolute shenanigans: what's the target (and how long is its name)?
       size_t tgt_len = ent->fts_statp->st_size + 1;
-      if (tgt_len == 0) { // apparently fancy FS can lie?
+      if (tgt_len == 0) { // procfs (and possibly others) return `st_size` of 0 :(
         tgt_len = PATH_MAX;
       }
 
