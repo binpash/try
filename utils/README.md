@@ -8,9 +8,7 @@ Every time `try` starts up, it looks for these executables on its path; if found
 
 These are meant to short, simple scripts.
 
-In order to make sure that we keep them parallel, both files are
-annotated with `TRYCASE(changed, local)` forms in comments that
-identify which case is being handled.
+In order to make sure that we keep them parallel, both files are annotated with `TRYCASE(changed, local)` forms in comments that identify which case is being handled.
 
 Here `changed` and `local` adhere to `lf` the following grammar:
 
@@ -21,3 +19,11 @@ f ::= file | dir | symlink | nonexist
 ```
 
 The script `../scripts/check_trycase.sh` will check to make sure that all cases are considered (excepting `TRYCASE(opaque, nonexist)`, which should not happen). If new files need to do a case analysis on how changed files and local files relate, annotate each case with `// TRYCASE(cf, lf)` and add a `check_file` call to the `check_trycase.sh` script.
+
+## Assumptions
+
+We rely on `user.overlay.opaque` to be set for opaque directories, which we can assume will happen because `try` sets `-o userxattr` when it mounts the overlay.
+
+We do not handle [redirect directories](https://docs.kernel.org/filesystems/overlayfs.html#redirect-dir), instead relying on `cp`/`mv` to do the copying.
+
+We have not seen `user.overlay.whiteout` in practice---perhaps it only gets made when you can't `mknod` a `(0,0)` character device on the upperdir filesystem?
