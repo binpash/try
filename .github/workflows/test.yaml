@@ -67,8 +67,8 @@ jobs:
 
       - name: Check autoscan
         run: |
-          autoscan | tree autoscan.log
-          ! [ -s autoscan.log ]
+          autoscan | tee autoscan.out
+          ! [ -s autoscan.out ]
 
       - name: Ensure configure is up to date
         run: |
