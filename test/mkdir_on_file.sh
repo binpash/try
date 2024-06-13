@@ -15,11 +15,11 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Set up expected output
 touch target
 mkdir expected
 
-"$TRY" -y "rm target; mkdir target" || return 1
+"$TRY" -y "rm target; mkdir target" || exit 1
 diff -qr expected target

@@ -15,16 +15,11 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 "$TRY" -y ln -s foo bar
 
 result=$(readlink bar)
 expected="foo"
 
-if [ "$result" = "$expected" ]
-then
-    exit 0
-else
-    exit 1
-fi
+[ "$result" = "$expected" ] || exit 1

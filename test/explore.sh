@@ -15,7 +15,7 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 SHELL="/bin/bash --norc"
 export SHELL
@@ -52,6 +52,6 @@ expect eof
 EOF
 
 # Debug using the -d flag
-expect explore.exp >/dev/null || return 1
+expect explore.exp >/dev/null || exit 1
 
 diff -q expected.out test.txt

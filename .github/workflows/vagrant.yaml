@@ -21,7 +21,8 @@ jobs:
           - fedora33
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Start vagrant box
         run: vagrant up ${{ matrix.vagrant_target }}

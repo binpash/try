@@ -31,7 +31,7 @@ trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 expected1="$(mktemp)"
 expected2="$(mktemp)"
@@ -40,10 +40,10 @@ echo test2 >>"$expected1"
 touch "$expected2"
 
 try_example_dir="$(mktemp -d)"
-"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || return 1
-"$TRY" -D "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" || return 2
-"$TRY" commit "$try_example_dir" || return 3
+"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || exit 1
+"$TRY" -D "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" || exit 2
+"$TRY" commit "$try_example_dir" || exit 3
 
-! [ -f file_1.txt ] || return 4
-diff -q "$expected1" file_2.txt || return 5
-diff -q "$expected2" file.txt.gz || return 6
+! [ -f file_1.txt ] || exit 4
+diff -q "$expected1" file_2.txt || exit 5
+diff -q "$expected2" file.txt.gz || exit 6
