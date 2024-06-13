@@ -83,7 +83,7 @@ jobs:
     steps:
       - name: Install pandoc
         run: |
-          sudo apt-get install pandoc
+          sudo apt-get install pandoc attr
 
       - name: Checkout
         uses: actions/checkout@v4
