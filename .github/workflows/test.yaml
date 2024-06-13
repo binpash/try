@@ -36,7 +36,7 @@ jobs:
           scripts/run_tests.sh
 
       - name: Install utilities
-      - run: |
+        run: |
           sudo make install
 
       - name: Run tests with utilities
@@ -66,12 +66,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Check autoscan
-      - run: |
+        run: |
           autoscan | tree autoscan.log
           ! [ -s autoscan.log ]
 
       - name: Ensure configure is up to date
-      - run: |
+        run: |
           cp configure configure.old
           autoconf
           diff -u configure.old configure
@@ -140,7 +140,8 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
