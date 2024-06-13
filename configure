@@ -650,9 +650,9 @@ ac_includes_default="\
 ac_header_c_list=
 ac_func_c_list=
 ac_subst_vars='LTLIBOBJS
+AWK
 unionfs
 mergerfs
-AWK
 LN_S
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -4199,15 +4199,25 @@ fi
         if ! test -z "$missing_funs"
         then
                 { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
----------------------------------------------------------------------
+------------------------------------------------------------------------
+WARNING:
+
 Some critical functions are missing, so utilities cannot be compiled.
 Missing functions:$missing_funs
----------------------------------------------------------------------" >&5
+
+Continuing as if --disable-utils was passed.
+------------------------------------------------------------------------
+" >&5
 printf "%s\n" "$as_me:
----------------------------------------------------------------------
+------------------------------------------------------------------------
+WARNING:
+
 Some critical functions are missing, so utilities cannot be compiled.
 Missing functions:$missing_funs
----------------------------------------------------------------------" >&6;};
+
+Continuing as if --disable-utils was passed.
+------------------------------------------------------------------------
+" >&6;};
                 enable_utils=no
         fi
 fi
@@ -4330,67 +4340,22 @@ fi
 
 if test "$LN_S" != "ln -s"
 then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Your system seems to not have a working implementation of symbolic links. \`try\` may behave strangely." >&5
-printf "%s\n" "$as_me: Your system seems to not have a working implementation of symbolic links. \`try\` may behave strangely." >&6;}
-fi
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+----------------------------------------------------------------------
+WARNING
 
-# awk
-for ac_prog in gawk mawk nawk awk
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_AWK+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$AWK"; then
-  ac_cv_prog_AWK="$AWK" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AWK="$ac_prog"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
+Your system seems to not have a working implementation of symbolic
+links. \`try\` may behave strangely.
+----------------------------------------------------------------------
+" >&5
+printf "%s\n" "$as_me:
+----------------------------------------------------------------------
+WARNING
 
-fi
-fi
-AWK=$ac_cv_prog_AWK
-if test -n "$AWK"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
-printf "%s\n" "$AWK" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  test -n "$AWK" && break
-done
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether awk is gawk" >&5
-printf %s "checking whether awk is gawk... " >&6; }
-if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
-then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may behave strangely." >&5
-printf "%s\n" "no; some tests may behave strangely." >&6; }
-else
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
+Your system seems to not have a working implementation of symbolic
+links. \`try\` may behave strangely.
+----------------------------------------------------------------------
+" >&6;}
 fi
 
 #mktemp
@@ -4456,6 +4421,21 @@ printf "%s\n" "yes" >&6; }
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for grep" >&5
+printf %s "checking for grep... " >&6; }
+
+if ! type -p grep >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs grep to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for findmnt" >&5
 printf %s "checking for findmnt... " >&6; }
 
@@ -4479,6 +4459,21 @@ then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
         as_fn_error $? "try needs sort to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for getfattr" >&5
+printf %s "checking for getfattr... " >&6; }
+
+if ! type -p getfattr >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs getfattr to work, but it could not be found." "$LINENO" 5
 else
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
@@ -4634,6 +4629,176 @@ printf "%s\n" "yes" >&6; }
 
 fi
 
+
+# for manpages
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pandoc" >&5
+printf %s "checking for pandoc... " >&6; }
+
+if ! type -p pandoc >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs pandoc to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzip" >&5
+printf %s "checking for gzip... " >&6; }
+
+if ! type -p gzip >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs gzip to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+# programs just used in tests
+missing_test_programs=0
+
+for ac_prog in gawk mawk nawk awk
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_AWK+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  if test -n "$AWK"; then
+  ac_cv_prog_AWK="$AWK" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_AWK="$ac_prog"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+AWK=$ac_cv_prog_AWK
+if test -n "$AWK"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
+printf "%s\n" "$AWK" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+  test -n "$AWK" && break
+done
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether awk is gawk" >&5
+printf %s "checking whether awk is gawk... " >&6; }
+if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may behave strangely" >&5
+printf "%s\n" "no; some tests may behave strangely" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for expect" >&5
+printf %s "checking for expect... " >&6; }
+if ! type -p expect >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
+printf "%s\n" "no; some tests may fail" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for diff" >&5
+printf %s "checking for diff... " >&6; }
+if ! type -p diff >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
+printf "%s\n" "no; some tests may fail" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for touch" >&5
+printf %s "checking for touch... " >&6; }
+if ! type -p touch >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
+printf "%s\n" "no; some tests may fail" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gunzip" >&5
+printf %s "checking for gunzip... " >&6; }
+if ! type -p gunzip >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
+printf "%s\n" "no; some tests may fail" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+if test "$missing_test_programs" -ne 0
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used in tests, so some tests may
+fail.
+------------------------------------------------------------------------
+" >&5
+printf "%s\n" "$as_me:
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used in tests, so some tests may
+fail.
+------------------------------------------------------------------------
+" >&6;}
+
+fi
 
 ac_config_files="$ac_config_files Makefile:Makefile.in"
 

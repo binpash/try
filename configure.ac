@@ -5,7 +5,10 @@ AC_INIT([try], [0.2.0], [https://github.com/binpash/try/issues])
 AC_CONFIG_SRCDIR([try])
 AC_REQUIRE_AUX_FILE([docs/try.1.md])
 
-AC_ARG_ENABLE([utils], [AS_HELP_STRING([--disable-utils], [don't compile C utilities for summarizing and committing changes (default is yes)])], [enable_utils=${enableval}], [enable_utils=yes])
+AC_ARG_ENABLE([utils],
+              [AS_HELP_STRING([--disable-utils],
+                              [don't compile C utilities for summarizing and committing changes (default is yes)])],
+              [enable_utils=${enableval}], [enable_utils=yes])
 
 if test "$enable_utils" = "yes"
 then
@@ -57,10 +60,15 @@ then
         if ! test -z "$missing_funs"
         then
                 AC_MSG_NOTICE([
----------------------------------------------------------------------
+------------------------------------------------------------------------
+WARNING:
+
 Some critical functions are missing, so utilities cannot be compiled.
 Missing functions:$missing_funs
----------------------------------------------------------------------]);
+
+Continuing as if --disable-utils was passed.
+------------------------------------------------------------------------
+]);
                 enable_utils=no
         fi
 fi
@@ -87,17 +95,14 @@ fi
 AC_PROG_LN_S
 if test "$LN_S" != "ln -s"
 then
-        AC_MSG_NOTICE([Your system seems to not have a working implementation of symbolic links. `try` may behave strangely.])
-fi
+        AC_MSG_NOTICE([
+----------------------------------------------------------------------
+WARNING
 
-# awk
-AC_PROG_AWK
-AC_MSG_CHECKING([whether awk is gawk])
-if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
-then
-        AC_MSG_RESULT([no; some tests may behave strangely.])
-else
-        AC_MSG_RESULT([yes])
+Your system seems to not have a working implementation of symbolic
+links. `try` may behave strangely.
+----------------------------------------------------------------------
+])
 fi
 
 #mktemp
@@ -106,8 +111,10 @@ TRY_REQUIRE_PROG([mktemp -d], [whether mktemp -d works], [d=$(mktemp -d 2>/dev/n
 
 TRY_REQUIRE_PROG([df])
 TRY_REQUIRE_PROG([find])
+TRY_REQUIRE_PROG([grep])
 TRY_REQUIRE_PROG([findmnt])
 TRY_REQUIRE_PROG([sort])
+TRY_REQUIRE_PROG([getfattr])
 
 TRY_REQUIRE_PROG([overlayfs],[for overlayfs],[],[! lsmod | grep -q overlay], [], [the overlay module did not appear in the output of lsmod])
 
@@ -128,6 +135,53 @@ res=$(unshare --mount --map-root-user --user --pid --fork -- ls $PWD/try 2>/dev/
 ], [
 test "$?" != 0 || test "$res" != "$PWD/try"
 ], [], [could not run unshare])
+
+# for manpages
+TRY_REQUIRE_PROG([pandoc])
+TRY_REQUIRE_PROG([gzip])
+
+# programs just used in tests
+missing_test_programs=0
+
+AC_PROG_AWK
+AC_MSG_CHECKING([whether awk is gawk])
+if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
+then
+        AC_MSG_RESULT([no; some tests may behave strangely])
+        : $((missing_test_programs += 1))
+else
+        AC_MSG_RESULT([yes])
+fi
+
+dnl TRY_REQUIRE_PROG(progname)
+AC_DEFUN([TRY_TEST_PROG], [
+AC_MSG_CHECKING([for $1])
+if ! type -p $1 >/dev/null 2>&1
+then
+        AC_MSG_RESULT([no; some tests may fail])
+        : $((missing_test_programs += 1))
+else
+        AC_MSG_RESULT([yes])
+fi
+])
+
+TRY_TEST_PROG([expect])
+TRY_TEST_PROG([diff])
+TRY_TEST_PROG([touch])
+TRY_TEST_PROG([gunzip])
+
+if test "$missing_test_programs" -ne 0
+then
+        AC_MSG_NOTICE([
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used in tests, so some tests may
+fail.
+------------------------------------------------------------------------
+])
+
+fi
 
 AC_CONFIG_FILES([Makefile:Makefile.in])
 AC_OUTPUT
