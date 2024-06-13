@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl attr pandoc gcc
+      sudo apt-get install -y git expect curl attr pandoc gcc make
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y curl attr pandoc gcc
+      sudo apt-get install -y curl attr pandoc gcc make
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc
+      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
