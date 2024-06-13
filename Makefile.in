@@ -7,18 +7,19 @@ mandir=@mandir@
 CC=@CC@
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
+INSTALL=@INSTALL@
 
 .PHONY: all install test lint clean
 
 all: utils/try-summary utils/try-commit man/try.1
 
 install: utils/try-summary utils/try-commit man/try.1
-	install -d $(bindir)
-	install -m 755 try $(bindir)
-	install -m 755 utils/try-summary $(bindir)
-	install -m 755 utils/try-commit $(bindir)
-	install -d $(mandir)
-	install -m 644 man/try.1 $(mandir)
+	$(INSTALL) -d $(bindir)
+	$(INSTALL) -m 755 try $(bindir)
+	$(INSTALL) -m 755 utils/try-summary $(bindir)
+	$(INSTALL) -m 755 utils/try-commit $(bindir)
+	$(INSTALL) -d $(mandir)
+	$(INSTALL) -m 644 man/try.1 $(mandir)
 
 man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
