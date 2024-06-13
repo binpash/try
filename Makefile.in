@@ -26,7 +26,7 @@ endif
 	$(INSTALL) -m 644 man/try.1.gz $(mandir)/man1
 
 man/try.1.gz: man/try.1
-	gzip $< >$@
+	gzip $<
 
 man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
