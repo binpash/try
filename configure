@@ -650,8 +650,8 @@ ac_includes_default="\
 ac_header_c_list=
 ac_func_c_list=
 ac_subst_vars='LTLIBOBJS
-DF
-MKTEMP
+unionfs
+mergerfs
 AWK
 LN_S
 INSTALL_DATA
@@ -4314,6 +4314,8 @@ test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
+
+
 # symlinks
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 printf %s "checking whether ln -s works... " >&6; }
@@ -4392,53 +4394,22 @@ printf "%s\n" "yes" >&6; }
 fi
 
 #mktemp
-# Extract the first word of "mktemp", so it can be a program name with args.
-set dummy mktemp; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_MKTEMP+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  if test -n "$MKTEMP"; then
-  ac_cv_prog_MKTEMP="$MKTEMP" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_MKTEMP="yes"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
 
-  test -z "$ac_cv_prog_MKTEMP" && ac_cv_prog_MKTEMP="no"
-fi
-fi
-MKTEMP=$ac_cv_prog_MKTEMP
-if test -n "$MKTEMP"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MKTEMP" >&5
-printf "%s\n" "$MKTEMP" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for mktemp" >&5
+printf %s "checking for mktemp... " >&6; }
 
-
-if test "$MKTEMP" = "no"
+if ! type -p mktemp >/dev/null 2>&1
 then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
         as_fn_error $? "try needs mktemp to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
 fi
+
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mktemp -d works" >&5
 printf %s "checking whether mktemp -d works... " >&6; }
 d=$(mktemp -d 2>/dev/null)
@@ -4448,21 +4419,99 @@ then
 printf "%s\n" "no" >&6; }
         as_fn_error $? "try needs mktemp -d to work, but your mktemp does not support the -d option." "$LINENO" 5
 else
-        rmdir "$d"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+        rmdir "$d"
 fi
 
-# Extract the first word of "df", so it can be a program name with args.
-set dummy df; ac_word=$2
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for df" >&5
+printf %s "checking for df... " >&6; }
+
+if ! type -p df >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs df to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for find" >&5
+printf %s "checking for find... " >&6; }
+
+if ! type -p find >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs find to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for findmnt" >&5
+printf %s "checking for findmnt... " >&6; }
+
+if ! type -p findmnt >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs findmnt to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sort" >&5
+printf %s "checking for sort... " >&6; }
+
+if ! type -p sort >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs sort to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for overlayfs" >&5
+printf %s "checking for overlayfs... " >&6; }
+
+if ! lsmod | grep -q overlay
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs overlayfs to work, but the overlay module did not appear in the output of lsmod." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+# Extract the first word of "mergerfs", so it can be a program name with args.
+set dummy mergerfs; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_DF+y}
+if test ${ac_cv_prog_mergerfs+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  if test -n "$DF"; then
-  ac_cv_prog_DF="$DF" # Let the user override the test.
+  if test -n "$mergerfs"; then
+  ac_cv_prog_mergerfs="$mergerfs" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -4475,7 +4524,7 @@ do
   esac
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_DF="yes"
+    ac_cv_prog_mergerfs="yes"
     printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -4483,23 +4532,108 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_prog_DF" && ac_cv_prog_DF="no"
+  test -z "$ac_cv_prog_mergerfs" && ac_cv_prog_mergerfs="no"
 fi
 fi
-DF=$ac_cv_prog_DF
-if test -n "$DF"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $DF" >&5
-printf "%s\n" "$DF" >&6; }
+mergerfs=$ac_cv_prog_mergerfs
+if test -n "$mergerfs"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $mergerfs" >&5
+printf "%s\n" "$mergerfs" >&6; }
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 fi
 
 
-if test "$MKTEMP" = "no"
-then
-        as_fn_error $? "try needs mktemp to work, but it could not be found." "$LINENO" 5
+# Extract the first word of "unionfs", so it can be a program name with args.
+set dummy unionfs; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_unionfs+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  if test -n "$unionfs"; then
+  ac_cv_prog_unionfs="$unionfs" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_unionfs="yes"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_unionfs" && ac_cv_prog_unionfs="no"
 fi
+fi
+unionfs=$ac_cv_prog_unionfs
+if test -n "$unionfs"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $unionfs" >&5
+printf "%s\n" "$unionfs" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for union helpers (unionfs or mergerfs)" >&5
+printf %s "checking for union helpers (unionfs or mergerfs)... " >&6; }
+if test "$ac_cv_prog_mergerfs" = "no" && test "$ac_cv_prog_unionfs" = "no"
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; try may issue warnings and error messages" >&5
+printf "%s\n" "no; try may issue warnings and error messages" >&6; }
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for readlink" >&5
+printf %s "checking for readlink... " >&6; }
+
+if ! type -p readlink >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs readlink to work, but it could not be found." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for unshare" >&5
+printf %s "checking for unshare... " >&6; }
+
+res=$(unshare --mount --map-root-user --user --pid --fork -- ls $PWD/try 2>/dev/null)
+
+if
+test "$?" != 0 || test "$res" != "$PWD/try"
+
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        as_fn_error $? "try needs unshare to work, but could not run unshare." "$LINENO" 5
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
 
 ac_config_files="$ac_config_files Makefile:Makefile.in"
 

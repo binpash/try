@@ -69,6 +69,20 @@ AC_SUBST(enable_utils)
 # install
 AC_PROG_INSTALL
 
+dnl TRY_REQUIRE_PROG(progname, checking_msg, pre, true_if_failed, post, fail_msg)
+AC_DEFUN([TRY_REQUIRE_PROG], [
+AC_MSG_CHECKING([ifelse([$2], [], [for $1], [$2])])
+$3
+if ifelse([$4], [], [! type -p $1 >/dev/null 2>&1], [$4])
+then
+        AC_MSG_RESULT([no])
+        AC_MSG_ERROR([try needs $1 to work, but ifelse([$6], [], [it could not be found], [$6]).])
+else
+        AC_MSG_RESULT([yes])
+        $5
+fi
+])
+
 # symlinks
 AC_PROG_LN_S
 if test "$LN_S" != "ln -s"
@@ -87,27 +101,33 @@ else
 fi
 
 #mktemp
-AC_CHECK_PROG([MKTEMP], [mktemp], [yes], [no])
-if test "$MKTEMP" = "no"
+TRY_REQUIRE_PROG([mktemp])
+TRY_REQUIRE_PROG([mktemp -d], [whether mktemp -d works], [d=$(mktemp -d 2>/dev/null)], [test "$?" != 0 || ! test -d "$d"], [rmdir "$d"], [your mktemp does not support the -d option])
+
+TRY_REQUIRE_PROG([df])
+TRY_REQUIRE_PROG([find])
+TRY_REQUIRE_PROG([findmnt])
+TRY_REQUIRE_PROG([sort])
+
+TRY_REQUIRE_PROG([overlayfs],[for overlayfs],[],[! lsmod | grep -q overlay], [], [the overlay module did not appear in the output of lsmod])
+
+AC_CHECK_PROG([mergerfs], [mergerfs], [yes], [no])
+AC_CHECK_PROG([unionfs], [unionfs], [yes], [no])
+
+AC_MSG_CHECKING([for union helpers (unionfs or mergerfs)])
+if test "$ac_cv_prog_mergerfs" = "no" && test "$ac_cv_prog_unionfs" = "no"
 then
-        AC_MSG_ERROR([try needs mktemp to work, but it could not be found.])
-fi
-AC_MSG_CHECKING([whether mktemp -d works])
-d=$(mktemp -d 2>/dev/null)
-if test "$?" != 0 || ! test -d "$d"
-then
-        AC_MSG_RESULT([no])
-        AC_MSG_ERROR([try needs mktemp -d to work, but your mktemp does not support the -d option.])
+        AC_MSG_RESULT([no; try may issue warnings and error messages])
 else
-        rmdir "$d"
         AC_MSG_RESULT([yes])
 fi
 
-AC_CHECK_PROG([DF], [df], [yes], [no])
-if test "$MKTEMP" = "no"
-then
-        AC_MSG_ERROR([try needs mktemp to work, but it could not be found.])
-fi
+TRY_REQUIRE_PROG([readlink])
+TRY_REQUIRE_PROG([unshare], [for unshare], [
+res=$(unshare --mount --map-root-user --user --pid --fork -- ls $PWD/try 2>/dev/null)
+], [
+test "$?" != 0 || test "$res" != "$PWD/try"
+], [], [could not run unshare])
 
 AC_CONFIG_FILES([Makefile:Makefile.in])
 AC_OUTPUT
