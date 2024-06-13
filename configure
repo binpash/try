@@ -2494,13 +2494,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-#AC_CONFIG_AUX_DIR([.])
 
 
 
 
 
 
+# build tools
 
 
 
@@ -3594,6 +3594,21 @@ test -z "$INSTALL_PROGRAM" && INSTALL_PROGRAM='${INSTALL}'
 test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
 
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
+
+
+# CFLAGS and CPPFLAGGS
+if  -z "$CFLAGS "
+then
+        AUTO_CFLAGS="-g -Wall -O2"
+else
+        AUTO_CFLAGS=""
+fi
+AUTO_CPPFLAGS=""
+
+CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
+CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
+
+
 
 
 

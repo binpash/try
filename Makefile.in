@@ -4,7 +4,9 @@ bindir=@bindir@
 datarootdir=@datarootdir@
 mandir=@mandir@
 
-CFLAGS=-Wall -O2
+CC=@CC@
+CFLAGS=@CFLAGS@
+CPPFLAGS=@CPPFLAGS@
 
 .PHONY: all install test lint clean
 

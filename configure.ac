@@ -5,8 +5,24 @@ AC_CONFIG_SRCDIR([try])
 AC_REQUIRE_AUX_FILE([utils/try-commit.c])
 AC_REQUIRE_AUX_FILE([docs/try.1.md])
 
+# build tools
 AC_PROG_CC
 AC_PROG_INSTALL
+
+# CFLAGS and CPPFLAGGS
+if [ -z "$CFLAGS " ]
+then
+        AUTO_CFLAGS="-g -Wall -O2"
+else
+        AUTO_CFLAGS=""
+fi
+AUTO_CPPFLAGS=""
+
+CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
+CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
+
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
 
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
