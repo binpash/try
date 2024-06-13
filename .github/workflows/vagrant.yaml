@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cleanup
+        run: bash /home/runner/cleanup.sh
+
       - name: Start vagrant box
         run: vagrant up ${{ matrix.vagrant_target }}
 
