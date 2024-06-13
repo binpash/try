@@ -15,6 +15,10 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
+
+      ./configure && make
+      sudo make install
+      scripts/run_tests.sh
     "
   end
 
@@ -27,6 +31,13 @@ Vagrant.configure("2") do |config|
       sudo apt-get install -y curl attr
       sudo chown -R vagrant:vagrant try
       cd try
+      mkdir rustup
+      ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
+      ls -lah rustup/upperdir/home/vagrant/.cargo/bin
+
+      rm -rf rustup
+      ./configure && make
+      sudo make install
       mkdir rustup
       ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
@@ -66,6 +77,11 @@ Vagrant.configure("2") do |config|
 
       cd /mnt/lv0/try
       scripts/run_tests.sh
+
+      ./configure && make
+      sudo make install
+
+      scripts/run_tests.sh
     "
   end
 
@@ -78,6 +94,9 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
+      ./configure && make
+      sudo make install
+      TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
   #
@@ -89,6 +108,9 @@ Vagrant.configure("2") do |config|
       sudo yum install -y git expect curl attr
       sudo chown -R vagrant:vagrant try
       cd try
+      TRY_TOP=$(pwd) scripts/run_tests.sh
+      ./configure && make
+      sudo make install
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end

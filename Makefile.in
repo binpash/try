@@ -11,15 +11,22 @@ INSTALL=@INSTALL@
 
 .PHONY: all install test lint clean
 
-all: utils/try-summary utils/try-commit man/try.1
+TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) man/try.1.gz
 
-install: utils/try-summary utils/try-commit man/try.1
+all: $(TARGETS)
+
+install: $(TARGETS)
 	$(INSTALL) -d $(bindir)
 	$(INSTALL) -m 755 try $(bindir)
+ifeq (@enable_utils@, yes)
 	$(INSTALL) -m 755 utils/try-summary $(bindir)
 	$(INSTALL) -m 755 utils/try-commit $(bindir)
-	$(INSTALL) -d $(mandir)
-	$(INSTALL) -m 644 man/try.1 $(mandir)
+endif
+	$(INSTALL) -d $(mandir)/man1
+	$(INSTALL) -m 644 man/try.1.gz $(mandir)/man1
+
+man/try.1.gz: man/try.1
+	gzip $< >$@
 
 man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
@@ -38,5 +45,7 @@ lint:
 
 clean:
 	-rm man/try.1
+ifeq (@enable_utils@, yes)
 	-rm utils/*.o
 	-rm utils/try-summary utils/try-commit
+endif

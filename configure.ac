@@ -13,7 +13,6 @@ then
 
         # build tools
         AC_PROG_CC
-        AC_PROG_INSTALL
 
         # CFLAGS and CPPFLAGGS
 	if test -z "$CFLAGS"
@@ -65,6 +64,10 @@ Missing functions:$missing_funs
                 enable_utils=no
         fi
 fi
+AC_SUBST(enable_utils)
+
+# install
+AC_PROG_INSTALL
 
 # symlinks
 AC_PROG_LN_S

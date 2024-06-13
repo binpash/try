@@ -27,21 +27,54 @@ jobs:
       - name: Configure and build utilities
         run: |
           ./configure
-          make utils/try-summary utils/try-commit
-
-      - name: Run tests with utilities
-        run: |
-          PATH="$PWD/utils:$PATH" scripts/run_tests.sh
+          make all
 
       - name: Run tests with shell fallbacks
         run: |
+          ! which try-summary
+          ! which try-commit
           scripts/run_tests.sh
+
+      - name: Install utilities
+      - run: |
+          sudo make install
+
+      - name: Run tests with utilities
+        run: |
+          which try-summary
+          which try-commit
+          scripts/run_tests.sh
+
+      - name: Check manpage
+        run: |
+          man -Tutf8 try
 
       - name: Upload script
         uses: actions/upload-artifact@v4
         with:
           name: try
           path: try
+
+  autoconf:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check autoscan
+      - run: |
+          autoscan | tree autoscan.log
+          ! [ -s autoscan.log ]
+
+      - name: Ensure configure is up to date
+      - run: |
+          cp configure configure.old
+          autoconf
+          diff -u configure.old configure
 
   manpage:
     runs-on: ubuntu-latest
@@ -61,13 +94,13 @@ jobs:
         run: ./configure
 
       - name: Build manpage
-        run: make man/try.1
+        run: make man/try.1.gz
 
       - name: Upload script
         uses: actions/upload-artifact@v4
         with:
-          name: try.1
-          path: man/try.1
+          name: try.1.gz
+          path: man/try.1.gz
 
   lint:
     runs-on: ubuntu-latest
@@ -136,7 +169,7 @@ jobs:
 
       - name: Collect artifacts
         run: |
-            mv try.1/try.1 try/try.1
+            mv try.1/try.1.gz try/try.1.gz
 
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
