@@ -47,7 +47,7 @@ jobs:
 
       - name: Check manpage
         run: |
-          man -Tutf8 try
+          man -w try
 
       - name: Upload script
         uses: actions/upload-artifact@v4
