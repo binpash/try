@@ -18,6 +18,8 @@ Vagrant.configure("2") do |config|
 
       ./configure && make
       sudo make install
+      which try-commit || exit 2
+
       scripts/run_tests.sh
     "
   end
@@ -38,6 +40,8 @@ Vagrant.configure("2") do |config|
       rm -rf rustup
       ./configure && make
       sudo make install
+      which try-commit || exit 2
+
       mkdir rustup
       ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
@@ -80,6 +84,7 @@ Vagrant.configure("2") do |config|
 
       ./configure && make
       sudo make install
+      which try-commit || exit 2
 
       scripts/run_tests.sh
     "
@@ -96,6 +101,7 @@ Vagrant.configure("2") do |config|
       TRY_TOP=$(pwd) scripts/run_tests.sh
       ./configure && make
       sudo make install
+      which try-commit || exit 2
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
@@ -111,6 +117,7 @@ Vagrant.configure("2") do |config|
       TRY_TOP=$(pwd) scripts/run_tests.sh
       ./configure && make
       sudo make install
+      which try-commit || exit 2
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
