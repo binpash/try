@@ -32,6 +32,7 @@ jobs:
       - name: Configure and build manpage
         run: |
           autoconf
+          ./configure
           make dist
 
       - name: Upload dist tarball
