@@ -7,9 +7,9 @@ on:
     - cron: '17 14 * * *'
 
 jobs:
-  test:
+  dist:
     strategy:
-      fail-fast: false
+      fail-fast: true
 
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
@@ -24,10 +24,60 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Check autoscan
+        run: |
+          autoscan | tee autoscan.out
+          ! [ -s autoscan.out ]
+
+      - name: Configure and build manpage
+        run: |
+          autoconf
+          make dist
+
+      - name: Upload dist tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: try-dist.tgz
+          path: try-*.tgz
+
+  test:
+    needs: dist
+    strategy:
+      matrix:
+        mode: [checkout, dist]
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get install expect mergerfs attr pandoc
+
+      - name: Download dist tarball
+        uses: actions/download-artifact@v4
+        if: matrix.mode == dist
+
+      - name: Unpack dist tarball
+        run: tar xzf try-dist.tgz/try-*.tgz
+        if: matrix.mode == dist
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: matrix.mode == checkout
+
+      - name: Run autoconf
+        run: autoconf
+        if: matrix.mode == checkout
+
       - name: Configure and build utilities
         run: |
           ./configure
           make all
+        if: matrix.mode == dist
 
       - name: Run tests with shell fallbacks
         run: |
@@ -48,63 +98,6 @@ jobs:
       - name: Check manpage
         run: |
           man -w try
-
-      - name: Upload script
-        uses: actions/upload-artifact@v4
-        with:
-          name: try
-          path: try
-
-  autoconf:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Check autoscan
-        run: |
-          autoscan | tee autoscan.out
-          ! [ -s autoscan.out ]
-
-      - name: Ensure configure is up to date
-        run: |
-          cp configure configure.old
-          autoconf
-          diff -u configure.old configure
-
-  manpage:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
-
-    steps:
-      - name: Install dependencies
-        run: |
-          sudo apt-get install pandoc attr
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Configure
-        run: ./configure --enable-manpage
-
-      - name: Build manpage
-        run: |
-          ! [ -f man/try.1 ]
-          ! [ -f man/try.1.gz ]
-          make man/try.1.gz
-          [ -f man/try.1.gz ]
-
-      - name: Upload script
-        uses: actions/upload-artifact@v4
-        with:
-          name: try.1.gz
-          path: man/try.1.gz
 
   lint:
     runs-on: ubuntu-latest
@@ -160,12 +153,10 @@ jobs:
   prerelease:
     needs:
       - test
-      - manpage
       - version-check
       - lint
       - shellcheck
       - trycase-check
-      - autoconf
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -173,16 +164,12 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v4
 
-      - name: Collect artifacts
-        run: |
-            mv try.1/try.1.gz try/try.1.gz
-
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
-          title: "Latest script and manpage"
+          title: "Latest distribution tarball"
           files: |
-            try/*
+            try-dist.tgz/try-*.tgz

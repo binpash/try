@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Generate configure script (autoconf)
+        run: autoconf
+
       - name: Cleanup
         run: bash /home/runner/cleanup.sh
 

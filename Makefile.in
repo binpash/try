@@ -9,7 +9,10 @@ CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
 INSTALL=@INSTALL@
 
-.PHONY: all install test lint clean
+.PHONY: all install test dist lint clean
+
+DISTDIR=@PACKAGE_TARNAME@-@PACKAGE_VERSION@
+DISTTGZ=$(DISTDIR).tgz
 
 TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) man/try.1.gz
 
@@ -24,6 +27,22 @@ ifeq (@enable_utils@, yes)
 endif
 	$(INSTALL) -d $(mandir)/man1
 	$(INSTALL) -m 644 man/try.1.gz $(mandir)/man1
+
+dist: $(DISTTGZ)
+
+$(DISTTGZ): $(DISTDIR)
+	tar czf $@ $<
+	rm -rf $(DISTDIR)
+
+$(DISTDIR): man/try.1 man/try.1.gz
+	mkdir $@
+	cp configure configure.ac config.guess config.sub install-sh LICENSE Makefile.in README.md STYLE.md try Vagrantfile $@
+	cp -R completions $@
+	cp -R docs $@
+	cp -R man $@
+	cp -R scripts $@
+	cp -R test $@
+	cp -R utils $@
 
 man/try.1.gz: man/try.1
 	cat $< | gzip >$@
