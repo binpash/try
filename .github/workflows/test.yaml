@@ -57,27 +57,27 @@ jobs:
 
       - name: Download dist tarball
         uses: actions/download-artifact@v4
-        if: matrix.mode == dist
+        if: matrix.mode == "dist"
 
       - name: Unpack dist tarball
         run: tar xzf try-dist.tgz/try-*.tgz
-        if: matrix.mode == dist
+        if: matrix.mode == "dist"
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-        if: matrix.mode == checkout
+        if: matrix.mode == "checkout"
 
       - name: Run autoconf
         run: autoconf
-        if: matrix.mode == checkout
+        if: matrix.mode == "checkout"
 
       - name: Configure and build utilities
         run: |
           ./configure
           make all
-        if: matrix.mode == dist
+        if: matrix.mode == "dist"
 
       - name: Run tests with shell fallbacks
         run: |
