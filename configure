@@ -4671,7 +4671,7 @@ printf "%s\n" "yes" >&6; }
 
         if test "$enable_manpage" = no
         then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
 ------------------------------------------------------------------------
 WARNING
 
