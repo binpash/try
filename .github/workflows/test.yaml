@@ -90,6 +90,8 @@ jobs:
 
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+
+    steps:
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
