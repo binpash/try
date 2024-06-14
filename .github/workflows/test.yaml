@@ -67,16 +67,19 @@ jobs:
 
       - name: Run tests with shell fallbacks
         run: |
+          cd try-*/
           ! which try-summary
           ! which try-commit
           scripts/run_tests.sh
 
       - name: Install utilities
         run: |
+          cd try-*/
           sudo make install
 
       - name: Run tests with utilities
         run: |
+          cd try-*/
           which try-summary
           which try-commit
           scripts/run_tests.sh
