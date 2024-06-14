@@ -137,13 +137,19 @@ test "$?" != 0 || test "$res" != "$PWD/try"
 ], [], [could not run unshare])
 
 # for manpages
+if test -f man/try.1.gz
+then
+        need_manpage=no
+else
+        need_manpage=yes
+fi
 AC_ARG_ENABLE([manpage],
               [AS_HELP_STRING([--enable-manpage],
-                              [generate the manpage instead of using the cached version (requires pandoc, default is no)])],
-              [enable_manpage=${enableval}], [enable_manpage=no])
+                              [generate the manpage instead of using the cached version (requires pandoc, default is no when man/try.1.gz is present)])],
+              [enable_manpage=${enableval}], [enable_manpage=${need_manpage}])
 if test "$enable_manpage" = "yes"
 then
-        AC_MSG_CHECKING([for pandoc])
+        AC_MSG_CHECKING([for pandoc (for manpage)])
         if ! type -p pandoc >/dev/null 2>&1
         then
                 AC_MSG_RESULT([no])
@@ -152,7 +158,7 @@ then
                 AC_MSG_RESULT([yes])
         fi
 
-        AC_MSG_CHECKING([for gzip])
+        AC_MSG_CHECKING([for gzip (for manpage)])
         if ! type -p gzip >/dev/null 2>&1
         then
                 AC_MSG_RESULT([no])
@@ -180,7 +186,7 @@ AC_SUBST(enable_manpage)
 missing_test_programs=0
 
 AC_PROG_AWK
-AC_MSG_CHECKING([whether awk is gawk])
+AC_MSG_CHECKING([whether awk is gawk (for tests)])
 if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
 then
         AC_MSG_RESULT([no; some tests may behave strangely])
@@ -191,7 +197,7 @@ fi
 
 dnl TRY_REQUIRE_PROG(progname)
 AC_DEFUN([TRY_TEST_PROG], [
-AC_MSG_CHECKING([for $1])
+AC_MSG_CHECKING([for $1 (for tests)])
 if ! type -p $1 >/dev/null 2>&1
 then
         AC_MSG_RESULT([no; some tests may fail])
@@ -202,6 +208,7 @@ fi
 ])
 
 TRY_TEST_PROG([expect])
+TRY_TEST_PROG([curl])
 TRY_TEST_PROG([diff])
 TRY_TEST_PROG([touch])
 TRY_TEST_PROG([gunzip])

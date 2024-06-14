@@ -95,8 +95,8 @@ jobs:
 
       - name: Build manpage
         run: |
-          mv man/try.1 man/try.1.old
-          rm man/try.1.gz
+          ! [ -f man/try.1 ]
+          ! [ -f man/try.1.gz ]
           make man/try.1.gz
           [ -f man/try.1.gz ]
           # no check against cached version, due to changes between pandoc versions :(

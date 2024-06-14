@@ -1353,7 +1353,8 @@ Optional Features:
   --disable-utils         don't compile C utilities for summarizing and
                           committing changes (default is yes)
   --enable-manpage        generate the manpage instead of using the cached
-                          version (requires pandoc, default is no)
+                          version (requires pandoc, default is no when
+                          man/try.1.gz is present)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4635,18 +4636,24 @@ fi
 
 
 # for manpages
+if test -f man/try.1.gz
+then
+        need_manpage=no
+else
+        need_manpage=yes
+fi
 # Check whether --enable-manpage was given.
 if test ${enable_manpage+y}
 then :
   enableval=$enable_manpage; enable_manpage=${enableval}
 else $as_nop
-  enable_manpage=no
+  enable_manpage=${need_manpage}
 fi
 
 if test "$enable_manpage" = "yes"
 then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pandoc" >&5
-printf %s "checking for pandoc... " >&6; }
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pandoc (for manpage)" >&5
+printf %s "checking for pandoc (for manpage)... " >&6; }
         if ! type -p pandoc >/dev/null 2>&1
         then
                 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4657,8 +4664,8 @@ printf "%s\n" "no" >&6; }
 printf "%s\n" "yes" >&6; }
         fi
 
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzip" >&5
-printf %s "checking for gzip... " >&6; }
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzip (for manpage)" >&5
+printf %s "checking for gzip (for manpage)... " >&6; }
         if ! type -p gzip >/dev/null 2>&1
         then
                 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4742,8 +4749,8 @@ fi
   test -n "$AWK" && break
 done
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether awk is gawk" >&5
-printf %s "checking whether awk is gawk... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether awk is gawk (for tests)" >&5
+printf %s "checking whether awk is gawk (for tests)... " >&6; }
 if test "$(stat -L -c %i "$(type -p "$AWK")")" != "$(stat -L -c %i "$(type -p awk)")"
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may behave strangely" >&5
@@ -4757,8 +4764,8 @@ fi
 
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for expect" >&5
-printf %s "checking for expect... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for expect (for tests)" >&5
+printf %s "checking for expect (for tests)... " >&6; }
 if ! type -p expect >/dev/null 2>&1
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
@@ -4770,8 +4777,21 @@ printf "%s\n" "yes" >&6; }
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for diff" >&5
-printf %s "checking for diff... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for curl (for tests)" >&5
+printf %s "checking for curl (for tests)... " >&6; }
+if ! type -p curl >/dev/null 2>&1
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
+printf "%s\n" "no; some tests may fail" >&6; }
+        : $((missing_test_programs += 1))
+else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for diff (for tests)" >&5
+printf %s "checking for diff (for tests)... " >&6; }
 if ! type -p diff >/dev/null 2>&1
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
@@ -4783,8 +4803,8 @@ printf "%s\n" "yes" >&6; }
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for touch" >&5
-printf %s "checking for touch... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for touch (for tests)" >&5
+printf %s "checking for touch (for tests)... " >&6; }
 if ! type -p touch >/dev/null 2>&1
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
@@ -4796,8 +4816,8 @@ printf "%s\n" "yes" >&6; }
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gunzip" >&5
-printf %s "checking for gunzip... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gunzip (for tests)" >&5
+printf %s "checking for gunzip (for tests)... " >&6; }
 if ! type -p gunzip >/dev/null 2>&1
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no; some tests may fail" >&5
