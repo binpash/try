@@ -59,27 +59,23 @@ jobs:
 
       - name: Unpack tarball; configure and build utilities
         run: |
-          tar xzf try-dist.tgz/try-*.tgz
+          tar xzf try-dist.tgz/try-*.tgz --strip-components=1
           rm -r try-dist.tgz
-          cd try-*/
           ./configure
           make all
 
       - name: Run tests with shell fallbacks
         run: |
-          cd try-*/
           ! which try-summary
           ! which try-commit
           scripts/run_tests.sh
 
       - name: Install utilities
         run: |
-          cd try-*/
           sudo make install
 
       - name: Run tests with utilities
         run: |
-          cd try-*/
           which try-summary
           which try-commit
           scripts/run_tests.sh
@@ -197,6 +193,11 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v4
 
+      - name: Rename tarball
+        run: |
+          mv try-dist.tgz/try-*.tgz try-latest.tgz
+          rmdir try-dist.tgz
+
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -205,4 +206,4 @@ jobs:
           prerelease: true
           title: "Latest distribution tarball"
           files: |
-            try-dist.tgz/try-*.tgz
+            try-latest.tgz
