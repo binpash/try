@@ -1,7 +1,18 @@
 #!/bin/sh
 
-: "${TRY_TOP=$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
+: "${TRY_TOP=$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || ${0%/*})}"
+
+# something else to try
+if ! [ -d "$TRY_TOP/test" ]
+then
+    TRY_TOP="$PWD"
+fi
 TEST_DIR="$TRY_TOP/test"
+
+[ -d "$TEST_DIR" ] || {
+    echo "Couldn't find test directory (looked in $TEST_DIR)"
+    exit 2
+}
 
 # set the DEBUG env variable to see detailed output
 DEBUG=${DEBUG:-0}
