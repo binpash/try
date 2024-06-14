@@ -44,8 +44,5 @@ lint:
 	scripts/lint.sh
 
 clean:
-	-rm man/try.1
-ifeq (@enable_utils@, yes)
 	-rm utils/*.o
 	-rm utils/try-summary utils/try-commit
-endif

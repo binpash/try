@@ -137,8 +137,43 @@ test "$?" != 0 || test "$res" != "$PWD/try"
 ], [], [could not run unshare])
 
 # for manpages
-TRY_REQUIRE_PROG([pandoc])
-TRY_REQUIRE_PROG([gzip])
+AC_ARG_ENABLE([manpage],
+              [AS_HELP_STRING([--enable-manpage],
+                              [generate the manpage instead of using the cached version (requires pandoc, default is no)])],
+              [enable_manpage=${enableval}], [enable_manpage=no])
+if test "$enable_manpage" = "yes"
+then
+        AC_MSG_CHECKING([for pandoc])
+        if ! type -p pandoc >/dev/null 2>&1
+        then
+                AC_MSG_RESULT([no])
+                enable_manpage="no"
+        else
+                AC_MSG_RESULT([yes])
+        fi
+
+        AC_MSG_CHECKING([for gzip])
+        if ! type -p gzip >/dev/null 2>&1
+        then
+                AC_MSG_RESULT([no])
+                enable_manpage="no"
+        else
+                AC_MSG_RESULT([yes])
+        fi
+
+        if test "$enable_manpage" = no
+        then
+        AC_MSG_NOTICE([
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used to generate the manpage, so
+the cached version will be used instead.
+------------------------------------------------------------------------
+])
+fi
+AC_SUBST(enable_manpage)
+
 
 # programs just used in tests
 missing_test_programs=0

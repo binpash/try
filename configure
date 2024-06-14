@@ -651,6 +651,7 @@ ac_header_c_list=
 ac_func_c_list=
 ac_subst_vars='LTLIBOBJS
 AWK
+enable_manpage
 unionfs
 mergerfs
 LN_S
@@ -717,6 +718,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_utils
+enable_manpage
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1350,6 +1352,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-utils         don't compile C utilities for summarizing and
                           committing changes (default is yes)
+  --enable-manpage        generate the manpage instead of using the cached
+                          version (requires pandoc, default is no)
 
 Some influential environment variables:
   CC          C compiler command
@@ -4631,35 +4635,60 @@ fi
 
 
 # for manpages
+# Check whether --enable-manpage was given.
+if test ${enable_manpage+y}
+then :
+  enableval=$enable_manpage; enable_manpage=${enableval}
+else $as_nop
+  enable_manpage=no
+fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pandoc" >&5
+if test "$enable_manpage" = "yes"
+then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pandoc" >&5
 printf %s "checking for pandoc... " >&6; }
-
-if ! type -p pandoc >/dev/null 2>&1
-then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        if ! type -p pandoc >/dev/null 2>&1
+        then
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-        as_fn_error $? "try needs pandoc to work, but it could not be found." "$LINENO" 5
-else
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+                enable_manpage="no"
+        else
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+        fi
 
-fi
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzip" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzip" >&5
 printf %s "checking for gzip... " >&6; }
-
-if ! type -p gzip >/dev/null 2>&1
-then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+        if ! type -p gzip >/dev/null 2>&1
+        then
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-        as_fn_error $? "try needs gzip to work, but it could not be found." "$LINENO" 5
-else
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+                enable_manpage="no"
+        else
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+        fi
 
+        if test "$enable_manpage" = no
+        then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used to generate the manpage, so
+the cached version will be used instead.
+------------------------------------------------------------------------
+" >&5
+printf "%s\n" "$as_me:
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used to generate the manpage, so
+the cached version will be used instead.
+------------------------------------------------------------------------
+" >&6;}
 fi
+
 
 
 # programs just used in tests

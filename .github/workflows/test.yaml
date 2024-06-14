@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc
+          sudo apt-get install expect mergerfs attr
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
-      - name: Install pandoc
+      - name: Install dependencies
         run: |
           sudo apt-get install pandoc attr
 
@@ -91,10 +91,15 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Configure
-        run: ./configure
+        run: ./configure --enable-manpage
 
-      - name: Build manpage
-        run: make man/try.1.gz
+      - name: Build manpage and check against cached version
+        run: |
+          mv man/try.1 man/try.1.old
+          rm man/try.1.gz
+          make man/try.1.gz
+          [ -f man/try.1.gz ]
+          diff -u man/try.1.old man/try.1
 
       - name: Upload script
         uses: actions/upload-artifact@v4
