@@ -1,6 +1,6 @@
 #!/bin/sh
 
-: "${TRY_TOP=$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo ${0%/*})}"
+: "${TRY_TOP=$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo "${0%/*}")}"
 
 # something else to try
 if ! [ -d "$TRY_TOP/test" ]
