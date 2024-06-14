@@ -163,7 +163,7 @@ then
 
         if test "$enable_manpage" = no
         then
-        AC_MSG_NOTICE([
+                AC_MSG_NOTICE([
 ------------------------------------------------------------------------
 WARNING
 
