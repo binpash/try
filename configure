@@ -4678,7 +4678,9 @@ printf "%s\n" "yes" >&6; }
 
         if test "$enable_manpage" = no
         then
-                { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+                if test -f man/try.1.gz
+                then
+                        { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
 ------------------------------------------------------------------------
 WARNING
 
@@ -4694,6 +4696,16 @@ Your system is missing some programs used to generate the manpage, so
 the cached version will be used instead.
 ------------------------------------------------------------------------
 " >&6;}
+                else
+                        as_fn_error $? "
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used to generate the manpage and
+no cached manpage is available.
+------------------------------------------------------------------------
+" "$LINENO" 5
+                fi
         fi
 fi
 

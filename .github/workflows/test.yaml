@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr
+          sudo apt-get install expect mergerfs attr pandoc
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,8 +99,6 @@ jobs:
           ! [ -f man/try.1.gz ]
           make man/try.1.gz
           [ -f man/try.1.gz ]
-          # no check against cached version, due to changes between pandoc versions :(
-          diff -u man/try.1.old man/try.1 || true
 
       - name: Upload script
         uses: actions/upload-artifact@v4

@@ -169,7 +169,9 @@ then
 
         if test "$enable_manpage" = no
         then
-                AC_MSG_NOTICE([
+                if test -f man/try.1.gz
+                then
+                        AC_MSG_NOTICE([
 ------------------------------------------------------------------------
 WARNING
 
@@ -177,6 +179,16 @@ Your system is missing some programs used to generate the manpage, so
 the cached version will be used instead.
 ------------------------------------------------------------------------
 ])
+                else
+                        AC_MSG_ERROR([
+------------------------------------------------------------------------
+WARNING
+
+Your system is missing some programs used to generate the manpage and
+no cached manpage is available.
+------------------------------------------------------------------------
+])
+                fi
         fi
 fi
 AC_SUBST(enable_manpage)
