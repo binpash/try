@@ -57,11 +57,11 @@ jobs:
       - name: Download dist tarball
         uses: actions/download-artifact@v4
 
-      - name: Unpack dist tarball
-        run: tar xzf try-dist.tgz/try-*.tgz
-
-      - name: Configure and build utilities
+      - name: Unpack tarball; configure and build utilities
         run: |
+          tar xzf try-dist.tgz/try-*.tgz
+          rm -r try-dist.tgz
+          cd try-*/
           ./configure
           make all
 
