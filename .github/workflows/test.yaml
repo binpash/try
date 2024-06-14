@@ -40,11 +40,9 @@ jobs:
           name: try-dist.tgz
           path: try-*.tgz
 
-  test:
+  test-dist:
     needs: dist
     strategy:
-      matrix:
-        mode: [checkout, dist]
       fail-fast: false
 
     runs-on: ubuntu-latest
@@ -57,27 +55,55 @@ jobs:
 
       - name: Download dist tarball
         uses: actions/download-artifact@v4
-        if: matrix.mode == "dist"
 
       - name: Unpack dist tarball
         run: tar xzf try-dist.tgz/try-*.tgz
-        if: matrix.mode == "dist"
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-        if: matrix.mode == "checkout"
-
-      - name: Run autoconf
-        run: autoconf
-        if: matrix.mode == "checkout"
 
       - name: Configure and build utilities
         run: |
           ./configure
           make all
-        if: matrix.mode == "dist"
+
+      - name: Run tests with shell fallbacks
+        run: |
+          ! which try-summary
+          ! which try-commit
+          scripts/run_tests.sh
+
+      - name: Install utilities
+        run: |
+          sudo make install
+
+      - name: Run tests with utilities
+        run: |
+          which try-summary
+          which try-commit
+          scripts/run_tests.sh
+
+      - name: Check manpage
+        run: |
+          man -w try
+
+  test-checkout:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+      - name: Install dependencies
+        run: |
+          sudo apt-get install expect mergerfs attr pandoc
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Configure and build utilities
+        run: |
+          autoconf
+          ./configure
+          make all
 
       - name: Run tests with shell fallbacks
         run: |
@@ -152,7 +178,8 @@ jobs:
 
   prerelease:
     needs:
-      - test
+      - test-checkout
+      - test-dist
       - version-check
       - lint
       - shellcheck
