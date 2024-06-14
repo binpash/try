@@ -171,6 +171,7 @@ Your system is missing some programs used to generate the manpage, so
 the cached version will be used instead.
 ------------------------------------------------------------------------
 ])
+        fi
 fi
 AC_SUBST(enable_manpage)
 

@@ -4687,6 +4687,7 @@ Your system is missing some programs used to generate the manpage, so
 the cached version will be used instead.
 ------------------------------------------------------------------------
 " >&6;}
+        fi
 fi
 
 
