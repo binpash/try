@@ -11,12 +11,12 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl attr pandoc gcc make
+      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
 
-      ./configure && make
+      autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
 
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y curl attr pandoc gcc make
+      sudo apt-get install -y curl attr pandoc gcc make autoconf
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
 
       rm -rf rustup
-      ./configure && make
+      autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
 
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make
+      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make autoconf
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -82,7 +82,7 @@ Vagrant.configure("2") do |config|
       cd /mnt/lv0/try
       scripts/run_tests.sh
 
-      ./configure && make
+      autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
 
@@ -99,7 +99,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
-      ./configure && make
+      autoconf ./configure && make
       sudo make install
       which try-commit || exit 2
       TRY_TOP=$(pwd) scripts/run_tests.sh
@@ -115,7 +115,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
-      ./configure && make
+      autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
       TRY_TOP=$(pwd) scripts/run_tests.sh
