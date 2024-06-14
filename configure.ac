@@ -1,4 +1,4 @@
-AC_PREREQ(2.70)
+AC_PREREQ(2.68)
 AC_INIT([try], [0.2.0], [https://github.com/binpash/try/issues])
 
 # make sure we're in the right place
