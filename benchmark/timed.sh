@@ -20,7 +20,7 @@ while IFS= read -r line; do
 
     # Calculate the delta t if it's not the first line
     if [[ $prev_timestamp != 0 ]]; then
-        delta_t=$(echo "$timestamp - $prev_timestamp" | bc)
+        delta_t=$(echo "($timestamp - $prev_timestamp) * 1000" | bc)
         printf "%.9f %s\n" "$delta_t" "$prev_step"
     fi
 
