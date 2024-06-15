@@ -21,10 +21,10 @@ trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 try_example_dir=$(mktemp -d)
-"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || return 1
+"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || exit 1
 
 # KK 2023-06-29 This test is meant to modify the sandbox directory in an illegal way,
 #               at the moment, this modification will be caught as illegal by `try`,

@@ -17,24 +17,27 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          uname -a
-          sudo apt-get update
-          sudo apt-get install expect mergerfs
+          sudo apt-get install expect mergerfs attr
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Run tests
+      - name: Build utilities
         run: |
-          cd ..
-          cp -r try ~
-          cd ~/try
+          make -C utils all
+
+      - name: Run tests with utilities
+        run: |
+          PATH="$PWD/utils:$PATH" scripts/run_tests.sh
+
+      - name: Run tests with shell fallbacks
+        run: |
           scripts/run_tests.sh
 
       - name: Upload script
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: try
           path: try
@@ -43,15 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
-
     steps:
       - name: Install pandoc
         run: |
-          sudo apt-get update
           sudo apt-get install pandoc
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -59,7 +60,7 @@ jobs:
         run: make -C man
 
       - name: Upload script
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: try.1
           path: man/try.1
@@ -69,12 +70,23 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run scripts/lint.sh
         run: scripts/lint.sh
+
+  trycase-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run check_trycase.sh
+        run: |
+          scripts/check_trycase.sh
 
   version-check:
     runs-on: ubuntu-latest
@@ -82,23 +94,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check version in script against manpage
+      - name: Check version consistency (script, manpage, include)
         run: |
           SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
           MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
+          INCLUDE_VERSION=$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)
           echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
           echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          echo "INCLUDE_VERSION = '$INCLUDE_VERSION'"
           [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
+          [ "$SCRIPT_VERSION" = "$INCLUDE_VERSION" ]
 
   shellcheck:
-    name: 'Run ShellCheck'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -115,12 +129,13 @@ jobs:
       - version-check
       - lint
       - shellcheck
+      - trycase-check
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - name: Download binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
 
       - name: Collect artifacts
         run: |

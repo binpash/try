@@ -15,12 +15,12 @@ cleanup() {
 trap 'cleanup' EXIT
 
 try_workspace="$(mktemp -d)"
-cd "$try_workspace" || return 9
+cd "$try_workspace" || exit 9
 
 # Set up expected output
 echo 'no sandbox' >expected.out
 
 # SANDBOX_DIR should not be set in the final execution env
-"$TRY" -y -- "echo \${SANDBOX_DIR-no sandbox}" >got.out 2>/dev/null || return 1
+"$TRY" -y -- "echo \${SANDBOX_DIR-no sandbox}" >got.out 2>/dev/null || exit 1
 
 diff -q expected.out got.out

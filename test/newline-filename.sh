@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# needs-try-utils
+
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
 TRY="$TRY_TOP/try"
 
@@ -17,6 +19,9 @@ trap 'cleanup' EXIT
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
-"$TRY" exit 3
-
-[ "$?" -eq 3 ]
+badname="$(printf "this\\nsucks")"
+touch "$badname" || exit 1
+[ -f "$badname" ] || exit 2
+# shellcheck disable=SC2016
+"$TRY" -y 'rm "$(printf "this\nsucks")"' || exit 3
+! [ -f "$badname" ] || exit 4
