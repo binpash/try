@@ -99,7 +99,6 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
-      autoconf --version
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
@@ -116,7 +115,6 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
-      autoconf --version
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
