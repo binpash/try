@@ -7,7 +7,42 @@ on:
     - cron: '17 14 * * *'
 
 jobs:
-  test:
+  dist:
+    strategy:
+      fail-fast: true
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get install expect mergerfs attr pandoc
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check autoscan
+        run: |
+          autoscan | tee autoscan.out
+          ! [ -s autoscan.out ]
+
+      - name: Configure and build manpage
+        run: |
+          autoconf
+          ./configure
+          make dist
+
+      - name: Upload dist tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: try-dist.tgz
+          path: try-*.tgz
+
+  test-dist:
+    needs: dist
     strategy:
       fail-fast: false
 
@@ -17,53 +52,80 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr
+          sudo apt-get install expect mergerfs attr pandoc
 
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Download dist tarball
+        uses: actions/download-artifact@v4
 
-      - name: Build utilities
+      - name: Unpack tarball; configure and build utilities
         run: |
-          make -C utils all
-
-      - name: Run tests with utilities
-        run: |
-          PATH="$PWD/utils:$PATH" scripts/run_tests.sh
+          tar xzf try-dist.tgz/try-*.tgz --strip-components=1
+          rm -r try-dist.tgz
+          ./configure
+          make all
 
       - name: Run tests with shell fallbacks
         run: |
+          ! which try-summary
+          ! which try-commit
           scripts/run_tests.sh
 
-      - name: Upload script
-        uses: actions/upload-artifact@v4
-        with:
-          name: try
-          path: try
+      - name: Install utilities
+        run: |
+          sudo make install
 
-  manpage:
+      - name: Run tests with utilities
+        run: |
+          which try-summary
+          which try-commit
+          scripts/run_tests.sh
+
+      - name: Check manpage
+        run: |
+          man -w try
+
+  test-checkout:
+    strategy:
+      fail-fast: false
+
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
 
     steps:
-      - name: Install pandoc
+      - name: Install dependencies
         run: |
-          sudo apt-get install pandoc
+          sudo apt-get install expect mergerfs attr pandoc
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Build manpage
-        run: make -C man
+      - name: Configure and build utilities
+        run: |
+          autoconf
+          ./configure
+          make all
 
-      - name: Upload script
-        uses: actions/upload-artifact@v4
-        with:
-          name: try.1
-          path: man/try.1
+      - name: Run tests with shell fallbacks
+        run: |
+          ! which try-summary
+          ! which try-commit
+          scripts/run_tests.sh
+
+      - name: Install utilities
+        run: |
+          sudo make install
+
+      - name: Run tests with utilities
+        run: |
+          which try-summary
+          which try-commit
+          scripts/run_tests.sh
+
+      - name: Check manpage
+        run: |
+          man -w try
 
   lint:
     runs-on: ubuntu-latest
@@ -85,8 +147,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run check_trycase.sh
-        run: |
-          scripts/check_trycase.sh
+        run: scripts/check_trycase.sh
 
   version-check:
     runs-on: ubuntu-latest
@@ -99,20 +160,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Check version consistency (script, manpage, include)
-        run: |
-          SCRIPT_VERSION=$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)
-          MANPAGE_VERSION=$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)
-          INCLUDE_VERSION=$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)
-          echo "SCRIPT_VERSION  = '$SCRIPT_VERSION'"
-          echo "MANPAGE_VERSION = '$MANPAGE_VERSION'"
-          echo "INCLUDE_VERSION = '$INCLUDE_VERSION'"
-          [ "$SCRIPT_VERSION" = "$MANPAGE_VERSION" ]
-          [ "$SCRIPT_VERSION" = "$INCLUDE_VERSION" ]
+        run: scripts/check_version.sh
 
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -121,11 +175,13 @@ jobs:
         with:
           ignore_paths: >-
             completions
+            ./configure
+            ./install-sh
 
   prerelease:
     needs:
-      - test
-      - manpage
+      - test-checkout
+      - test-dist
       - version-check
       - lint
       - shellcheck
@@ -137,9 +193,10 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v4
 
-      - name: Collect artifacts
+      - name: Rename tarball
         run: |
-            mv try.1/try.1 try/try.1
+          mv try-dist.tgz/try-*.tgz try-latest.tgz
+          rmdir try-dist.tgz
 
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -147,6 +204,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
-          title: "Latest script and manpage"
+          title: "Latest distribution tarball"
           files: |
-            try/*
+            try-latest.tgz
