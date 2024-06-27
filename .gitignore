@@ -4,3 +4,11 @@ test/try_workspace/
 *~
 .vagrant/
 .vagrant
+autom4te.cache/
+config.log
+config.status
+Makefile
+configure.scan
+autoscan.log
+configure
+try-0.2.0.tgz

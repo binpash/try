@@ -71,9 +71,11 @@ tabs() {
     file="$1"
 
     # it's supposed to be there!
-    [ "$(basename "$file")" = "Makefile" ] && return
+    case "$file" in
+        (*Makefile*) return;;
+    esac
 
-    [ -f "$file" ] || warn "trailing_whitespace: '$file' is not a normal file"
+    [ -f "$file" ] || warn "tabs: '$file' is not a normal file"
 
     # empty file is fine
     [ -s "$file" ] || return
@@ -93,7 +95,7 @@ tabs() {
 
 if [ "$#" -eq 0 ]
 then
-    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \( \! -path "./.vagrant/*" \) -a \( \! -name "*~" \) -a \! \( -name "*.png" -o -name "*.gif" -o -name "*.gz" \))
+    FILES=$(find . -type f -a \( \! -path "./.git/*" \) -a \( \! -path "./.vagrant/*" \) -a \( \! -path "./autom4te.cache/*" \) -a \( \! -name install-sh \) -a \( \! -name "config*" \) -a \( \! -name "*~" \) -a \! \( -name "*.png" -o -name "*.gif" -o -name "*.gz" \))
 else
     # shellcheck disable=SC2124
     FILES="$@"

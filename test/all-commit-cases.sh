@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # shellcheck disable=SC2119 # warnings about fail's arguments (put before first command to be global)
-TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree)}"
+TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo "${0%/*}")}"
 TRY="$TRY_TOP/try"
 
 cleanup() {
