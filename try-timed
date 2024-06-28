@@ -21,8 +21,9 @@ export TRY_COMMAND
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
-echo "" > timelog
-exec 3> timelog
+timelog=${TIMELOG:-timelog}
+echo "" > "$timelog"
+exec 3> "$timelog"
 
 try() {
     date +"%s.%N Start of try()" >&3
