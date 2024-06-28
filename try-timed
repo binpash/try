@@ -21,8 +21,11 @@ export TRY_COMMAND
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
+echo "" > timelog
+exec 3> timelog
+
 try() {
-    date +"%s.%N Start of try()" >> timelog
+    date +"%s.%N Start of try()" >&3
     START_DIR="$PWD"
 
     if ! command -v findmnt >/dev/null
@@ -30,7 +33,7 @@ try() {
         error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
     fi
 
-    date +"%s.%N Determining sandboxdir" >> timelog
+    date +"%s.%N Determining sandboxdir" >&3
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
@@ -50,7 +53,7 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    date +"%s.%N Docker handling" >> timelog
+    date +"%s.%N Docker handling" >&3
     try_mount_log="$(mktemp)"
     export try_mount_log
 
@@ -64,22 +67,22 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
-    date +"%s.%N Making upperdir, workdir, temproot" >> timelog
+    date +"%s.%N Making upperdir, workdir, temproot" >&3
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
-    date +"%s.%N Enumerating direcotories to mount" >> timelog
+    date +"%s.%N Enumerating direcotories to mount" >&3
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
-    date +"%s.%N EnumDir: find" >> timelog
+    date +"%s.%N EnumDir: find" >&3
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    date +"%s.%N EnumDir: findmnt" >> timelog
+    date +"%s.%N EnumDir: findmnt" >&3
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
-    date +"%s.%N EnumDir: sort" >> timelog
+    date +"%s.%N EnumDir: sort" >&3
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
-    date +"%s.%N EnumDir: MultiLowerDir" >> timelog
+    date +"%s.%N EnumDir: MultiLowerDir" >&3
     UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
@@ -119,7 +122,7 @@ try() {
     # -r: raw output
     # -o target: only print the mount target
     # then we want to exclude the root partition "/"
-    date +"%s.%N Prepare sandboxes before unshare" >> timelog
+    date +"%s.%N Prepare sandboxes before unshare" >&3
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
@@ -130,9 +133,9 @@ try() {
         fi
     done <"$DIRS_AND_MOUNTS"
 
-    date +"%s.%N set temproot permission" >> timelog
+    date +"%s.%N set temproot permission" >&3
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
-    date +"%s.%N Writing tempfiles" >> timelog
+    date +"%s.%N Writing tempfiles" >&3
 
     mount_and_execute="$(mktemp)"
     chroot_executable="$(mktemp)"
@@ -187,7 +190,7 @@ autodetect_union_helper() {
 }
 
 # Detect if union_helper is set, if not, we try to autodetect them
-date +"%s.%N Union helper detection" >> timelog
+date +"%s.%N Union helper detection" >&3
 if [ -z "$UNION_HELPER" ]
 then
     ## Try to detect the union_helper (the variable could still be empty afterwards).
@@ -195,7 +198,7 @@ then
 fi
 
 # actually mount the overlays
-date +"%s.%N Mounting overlays" >> timelog
+date +"%s.%N Mounting overlays" >&3
 for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
     pure_mountpoint=${mountpoint##*:}
@@ -251,7 +254,7 @@ do
 done
 
 ## Mount a few select devices in /dev
-date +"%s.%N Mounting devices" >> timelog
+date +"%s.%N Mounting devices" >&3
 mount_devices "$SANDBOX_DIR"
 
 ## Check if chroot_executable exists, #29
@@ -260,15 +263,15 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-date +"%s.%N Inner unshare" >> timelog
+date +"%s.%N Inner unshare" >&3
 unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
-date +"%s.%N unmounting devices" >> timelog
+date +"%s.%N unmounting devices" >&3
 unmount_devices "$SANDBOX_DIR"
 
-date +"%s.%N Exitting inner unshare" >> timelog
+date +"%s.%N Exitting inner unshare" >&3
 exit $exitcode
 EOF
 
@@ -290,7 +293,7 @@ EOF
     chmod +x "$mount_and_execute" "$chroot_executable"
 
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
-    date +"%s.%N Disable job control" >> timelog
+    date +"%s.%N Disable job control" >&3
     [ -t 0 ] && set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
@@ -299,14 +302,14 @@ EOF
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
-    date +"%s.%N Outer unshare" >> timelog
+    date +"%s.%N Outer unshare" >&3
     # shellcheck disable=SC2086 # we want field splitting!
     unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
     # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
-    date +"%s.%N Symlinks cleanup" >> timelog
+    date +"%s.%N Symlinks cleanup" >&3
     chmod 755 "${SANDBOX_DIR}/temproot"
     while IFS="" read -r mountpoint
     do
@@ -345,13 +348,13 @@ EOF
 if type try-summary >/dev/null 2>&1
 then
     summary() {
-        date +"%s.%N Summary" >> timelog
+        date +"%s.%N Summary" >&3
         try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
     summary() {
-        date +"%s.%N Summary" >> timelog
+        date +"%s.%N Summary" >&3
         if ! [ -d "$SANDBOX_DIR" ]
         then
             error "could not find directory $SANDBOX_DIR" 2
@@ -396,15 +399,15 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        date +"%s.%N Commit: locating changed files" >> timelog
-        date +"%s.%N Commit: Writing changes" >> timelog
+        date +"%s.%N Commit: locating changed files" >&3
+        date +"%s.%N Commit: Writing changes" >&3
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
         TRY_EXIT_STATUS=$?
-        date +"%s.%N Commit: end" >> timelog
+        date +"%s.%N Commit: end" >&3
     }
 else
     commit() {
-        date +"%s.%N Commit: locating changed files" >> timelog
+        date +"%s.%N Commit: locating changed files" >&3
         if ! [ -d "$SANDBOX_DIR" ]
         then
             error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
@@ -415,7 +418,7 @@ else
 
         changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
         summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
-        date +"%s.%N Commit: Writing changes" >> timelog
+        date +"%s.%N Commit: Writing changes" >&3
 
         TRY_EXIT_STATUS=0
         echo "$summary_output" | while IFS= read -r summary_line; do
@@ -438,7 +441,7 @@ else
             fi
         done
     }
-    date +"%s.%N Commit: end" >> timelog
+    date +"%s.%N Commit: end" >&3
 fi
 
 ################################################################################
@@ -624,7 +627,7 @@ EOF
 # Main entry point
 ################################################################################
 
-date +"%s.%N Entrypoint" > timelog
+date +"%s.%N Entrypoint" >&3
 
 # "interactive" - show nothing, interactively prompt on commit
 # "show"        - show the resulting directory on stdout when we're done
@@ -666,7 +669,7 @@ do
               exit 0;;
     esac
 done
-date +"%s.%N Finish Parseopt" >> timelog
+date +"%s.%N Finish Parseopt" >&3
 
 shift $((OPTIND - 1))
 
@@ -690,9 +693,10 @@ case "$1" in
 esac
 
 # shellcheck disable=SC2129
-date +"%s.%N End of try" >> timelog
-date +"%s.%N date test 1" >> timelog
-date +"%s.%N date test 2" >> timelog
+date +"%s.%N End of try" >&3
+date +"%s.%N date test 1" >&3
+date +"%s.%N date test 2" >&3
 
+exec 3>&-
 
 exit "$TRY_EXIT_STATUS"
