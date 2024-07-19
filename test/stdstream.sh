@@ -5,7 +5,7 @@ TRY="$TRY_TOP/try"
 
 cmdfile="$(mktemp)"
 
-cat > "$cmdfile" <<"EOF"
+cat > "$cmdfile" <<EOF
 file /dev/stdin
 file /dev/stdout
 file /dev/stderr
