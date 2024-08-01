@@ -28,6 +28,10 @@ commands that you don't already trust on your system, (i.e. network calls are al
 * `attr` (for `getfattr`)
 * `pandoc` and `autoconf` (if working from a GitHub clone)
 
+To install these packages, run the following: 
+```ShellSession
+$ sudo apt install util-linux attr pandoc autoconf expect
+```
 In cases where overlayfs doesn't work on nested mounts, you will need either
 [mergerfs](https://github.com/trapexit/mergerfs) or [unionfs](https://github.com/rpodgorny/unionfs-fuse). `try` should be able to autodetect them, but you can specify the path to mergerfs or unionfs with -U (e.g. `try -U ~/.local/bin/unionfs`)
 
@@ -88,6 +92,21 @@ git clone https://aur.archlinux.org/try.git
 cd try
 makepkg -sic
 ```
+
+#### WSL2
+It is highly recommended to use [unionfs](https://github.com/rpodgorny/unionfs-fuse) to run `try`. 
+ Especially when *overlayfs* doesn't work properly.
+
+To install `unionfs` for your WSL, run the following:
+```ShellSession
+$ sudo apt install unionfs-fuse
+```
+Then you can go to the directory of `try` and simply run this as test:
+```ShellSession
+$ cd try
+$ ./try ls
+```
+Also you can run test suite mentioned above.
 
 ## Example Usage
 
