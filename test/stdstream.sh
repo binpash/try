@@ -24,4 +24,4 @@ expected=$(echo 5 | sh "$cmdfile" 2>/dev/null)
 result=$(echo 5 | "$TRY" "$cmdfile" 2>&1)
 
 # using grep because stdout also includes try err/warns
-echo $result | grep 15 > /dev/null
+echo "$result" | grep 15 > /dev/null
