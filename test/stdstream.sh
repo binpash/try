@@ -5,15 +5,23 @@ TRY="$TRY_TOP/try"
 
 cmdfile="$(mktemp)"
 
-cat > "$cmdfile" <<EOF
-file /dev/stdin
-file /dev/stdout
-file /dev/stderr
+cat > "$cmdfile" <<'EOF'
+read x < /dev/stdin
+echo $((x * 2)) > /dev/stdout
+echo $((x * 3)) > /dev/stderr
+
 EOF
 
 chmod +x "$cmdfile"
 
-result=$("$TRY" "$cmdfile")
-expected=$(sh "$cmdfile")
+# test stdout
+result=$(echo 5 | "$TRY" "$cmdfile" 2>/dev/null)
+expected=$(echo 5 | sh "$cmdfile" 2>/dev/null)
 
 [ "$result" = "$expected" ] || exit 1
+
+# test stdout + stderr
+result=$(echo 5 | "$TRY" "$cmdfile" 2>&1)
+
+# using grep because stdout also includes try err/warns
+echo $result | grep 15 > /dev/null
