@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y curl attr pandoc gcc make autoconf
+      sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
