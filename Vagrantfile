@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box
   config.vm.define "debian" do |debian|
-    debian.vm.box = "debian/testing64"
+    debian.vm.box = "generic/debian12"
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box but we try the rustup oneliner
   config.vm.define "debianrustup" do |debianrustup|
-    debianrustup.vm.box = "debian/testing64"
+    debianrustup.vm.box = "generic/debian12"
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
@@ -50,7 +50,7 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box with LVM
   config.vm.define "debianlvm" do |debianlvm|
-    debianlvm.vm.box = "debian/testing64"
+    debianlvm.vm.box = "generic/debian12"
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
