@@ -34,7 +34,7 @@ cd "$try_workspace" || exit 9
 touch test
 
 cmd="$(mktemp)"
-echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
+echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap' | grep -v 'vmlinuz' | grep -v 'initrd'" > "$cmd"
 # Use this after gidmapper to show user and group ownership
 #echo "find / -maxdepth 1 -print0 | xargs -0 ls -ld | awk '{print substr(\$1, 1, 10), \$3, \$4, \$9, \$10, \$11}' | grep -v 'proc' | grep -v 'swap'" > "$cmd"
 
