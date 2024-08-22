@@ -193,9 +193,9 @@ do
     fi
 
     ## Symlinks
-    if [ -L "$mountpoint" ]
+    if [ -L "$pure_mountpoint" ]
     then
-        ln -s $(readlink "$mountpoint") "$SANDBOX_DIR/temproot/$mountpoint"
+        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
         continue
     fi
 
@@ -289,7 +289,8 @@ EOF
     chmod 755 "${SANDBOX_DIR}/temproot"
     while IFS="" read -r mountpoint
     do
-        if [  -L "$mountpoint" ]
+        pure_mountpoint=${mountpoint##*:}
+        if [  -L "$pure_mountpoint" ]
         then
             rm "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi

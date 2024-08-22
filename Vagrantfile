@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf
+      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make autoconf
+      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make autoconf mergerfs
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -95,7 +95,9 @@ Vagrant.configure("2") do |config|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect curl attr pandoc
+      sudo yum install -y git expect curl attr pandoc fuse
+      wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.el9.x86_64.rpm
+      sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
@@ -107,11 +109,13 @@ Vagrant.configure("2") do |config|
   end
   #
   # Regular rocky testing box
-  config.vm.define "fedora33" do |fedora|
-    fedora.vm.box = "generic/fedora33"
+  config.vm.define "fedora39" do |fedora|
+    fedora.vm.box = "generic/fedora39"
     fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     fedora.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect curl attr pandoc
+      sudo yum install -y git expect curl attr pandoc fuse
+      wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.fc39.x86_64.rpm
+      sudo rpm -i mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo chown -R vagrant:vagrant try
       cd try
       TRY_TOP=$(pwd) scripts/run_tests.sh
