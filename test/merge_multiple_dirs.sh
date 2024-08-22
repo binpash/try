@@ -43,6 +43,9 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
+# (ezri) gh ci gid fix
+cd ~ || exit 1
+
 try_workspace="$(mktemp -d -p .)"
 cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
 cd "$try_workspace" || exit 1

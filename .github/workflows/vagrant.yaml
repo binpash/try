@@ -18,7 +18,7 @@ jobs:
           - debianrustup
           - debianlvm
           - rocky9
-          - fedora33
+          - fedora39
     runs-on: self-hosted
     steps:
       - name: Checkout
