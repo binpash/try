@@ -57,12 +57,14 @@ or higher for overlayfs to work in a user namespace.*
 There are three ways to install try:
 
 1. **The quick and janky way: grab the script.** You only need the [`try` script](https://raw.githubusercontent.com/binpash/try/main/try). Put it in your `PATH` and you're ready to go. You won't have documentation or utility support, but it should work as is.
+
 2. **By cloning the repository.** Run the following:
 ```ShellSession
 $ git clone https://github.com/binpash/try.git
 $ autoconf && ./configure && make && sudo make install
 ```
 You should now have a fully featured `try`, including the support utilities (which should help `try` run faster) and manpage. Run `make test` to confirm that everything works.
+
 3. **By using a source distribution.** Download `try-XXX.tgz` from [the release page](https://github.com/binpash/try/releases). You can get the latest prerelease by downloading [`try-latest.tgz`](https://github.com/binpash/try/releases/download/latest/try-latest.tgz). You can then install similarly to the above:
 ```ShellSession
 $ git clone https://github.com/binpash/try.git
