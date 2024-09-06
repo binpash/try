@@ -14,14 +14,15 @@ EOF
 
 chmod +x "$cmdfile"
 
+try_stdout=$(mktemp)
+try_stderr=$(mktemp)
+sh_stdout=$(mktemp)
+sh_stderr=$(mktemp)
+
 # test stdout
-result=$(echo 5 | "$TRY" "$cmdfile" 2>/dev/null)
-expected=$(echo 5 | sh "$cmdfile" 2>/dev/null)
+echo 5 | "$TRY" "$cmdfile" >$try_stdout 2>$try_stderr
+echo 5 | sh "$cmdfile" >$sh_stdout 2>$sh_stderr
 
-[ "$result" = "$expected" ] || exit 1
-
-# test stdout + stderr
-result=$(echo 5 | "$TRY" "$cmdfile" 2>&1)
-
-# using grep because stdout also includes try err/warns
-echo "$result" | grep 15 > /dev/null
+diff $try_stdout $sh_stdout || exit 1
+diff $try_stderr $sh_stderr || exit 1
+rm $try_stdout $try_stderr $sh_stdout $sh_stderr
