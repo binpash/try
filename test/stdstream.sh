@@ -20,9 +20,13 @@ sh_stdout=$(mktemp)
 sh_stderr=$(mktemp)
 
 # test stdout
-echo 5 | "$TRY" "$cmdfile" >$try_stdout 2>$try_stderr
-echo 5 | sh "$cmdfile" >$sh_stdout 2>$sh_stderr
+echo 5 | "$TRY" "$cmdfile" >"$try_stdout" 2>"$try_stderr"
+echo 5 | sh "$cmdfile" >"$sh_stdout" 2>"$sh_stderr"
 
-diff $try_stdout $sh_stdout || exit 1
-diff $try_stderr $sh_stderr || exit 1
-rm $try_stdout $try_stderr $sh_stdout $sh_stderr
+diff "$try_stdout" "$sh_stdout" || exit 1
+
+# using grep because there's try errors printed
+grep -q 15 "$try_stderr"
+grep -q 15 "$sh_stderr"
+
+rm "$try_stdout" "$try_stderr" "$sh_stdout" "$sh_stderr"
