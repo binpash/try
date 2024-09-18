@@ -30,3 +30,22 @@ grep -q 15 "$try_stderr"
 grep -q 15 "$sh_stderr"
 
 rm "$try_stdout" "$try_stderr" "$sh_stdout" "$sh_stderr"
+
+cat > "$cmdfile" <<'EOF'
+read x <&0
+echo $((x * 2)) >&1
+echo $((x * 3)) >&2
+
+EOF
+
+# test stdout
+echo 5 | "$TRY" "$cmdfile" >"$try_stdout" 2>"$try_stderr"
+echo 5 | sh "$cmdfile" >"$sh_stdout" 2>"$sh_stderr"
+
+diff "$try_stdout" "$sh_stdout" || exit 1
+
+# using grep because there's try errors printed
+grep -q 15 "$try_stderr"
+grep -q 15 "$sh_stderr"
+
+rm "$try_stdout" "$try_stderr" "$sh_stdout" "$sh_stderr"
