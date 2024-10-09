@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo apt-get install util-linux expect mergerfs attr pandoc
           echo unshare is at $(which unshare)
-          ls /sbin/*
+          ls /sbin
 
       - name: Checkout
         uses: actions/checkout@v4
