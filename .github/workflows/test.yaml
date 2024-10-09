@@ -22,7 +22,7 @@ jobs:
       - name: Debug unshare install
         run: |
           echo unshare is at $(which unshare)
-          ls /sbin
+          unshare --mount --map-root-user --user --pid --fork -- ls
 
       - name: Checkout
         uses: actions/checkout@v4
