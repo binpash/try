@@ -18,6 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install util-linux expect mergerfs attr pandoc
+          which unshare
 
       - name: Checkout
         uses: actions/checkout@v4
