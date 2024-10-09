@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install util-linux expect mergerfs attr pandoc
+
+      - name: Debug unshare install
+        run: |
           echo unshare is at $(which unshare)
           ls /sbin
 
