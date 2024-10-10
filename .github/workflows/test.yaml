@@ -22,7 +22,8 @@ jobs:
       - name: Debug unshare install
         run: |
           echo unshare is at $(which unshare)
-          unshare --mount --user --pid --fork -- ls
+          findmnt
+          unshare --mount --propagation unchanged --user --pid --fork -- ls
 
       - name: Checkout
         uses: actions/checkout@v4
