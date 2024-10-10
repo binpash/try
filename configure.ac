@@ -131,7 +131,7 @@ fi
 
 TRY_REQUIRE_PROG([readlink])
 TRY_REQUIRE_PROG([unshare], [for unshare], [
-res=$(unshare --mount --map-root-user --user --pid --fork -- ls $PWD/try 2>/dev/null)
+res=$(unshare --mount --propagation unchanged --user --pid --fork -- ls $PWD/try 2>/dev/null)
 ], [
 test "$?" != 0 || test "$res" != "$PWD/try"
 ], [], [could not run unshare])
