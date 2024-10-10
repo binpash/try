@@ -17,7 +17,12 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc
+          sudo apt-get install util-linux expect mergerfs attr pandoc
+
+      - name: Debug unshare install
+        run: |
+          echo unshare is at $(which unshare)
+          unshare --mount --map-root-user --user --pid --fork -- ls
 
       - name: Checkout
         uses: actions/checkout@v4
