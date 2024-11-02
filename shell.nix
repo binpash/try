@@ -6,5 +6,7 @@ pkgs.mkShell {
     mergerfs
     attr
     util-linux
+    time
+    shellcheck
   ];
 }
