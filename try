@@ -105,6 +105,22 @@ try() {
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
+    # Setup excluded entries
+    excldir="$SANDBOX_DIR/excldir"
+    if [ -n "$EXCL_ENTS" ]
+    then
+        OLDIFS=$IFS
+        IFS=":"
+        mkdir "$excldir"
+        for exclent in $EXCL_ENTS
+        do
+            whiteout_file="$SANDBOX_DIR/excldir/$(realpath "$exclent")"
+            mkdir -p "$(dirname "$whiteout_file")"
+            mknod "$whiteout_file" c 0 0
+        done
+        IFS=$OLDIFS
+    fi
+
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
@@ -113,6 +129,11 @@ try() {
         new_mountpoint=""
         OLDIFS=$IFS
         IFS=":"
+
+        if [ -d "$excldir/$mountpoint" ]
+        then
+            new_mountpoint="$excldir/$mountpoint"
+        fi
 
         for lower_dir in $LOWER_DIRS
         do
@@ -647,7 +668,7 @@ IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 echo "/run/mount" >>"$IGNORE_FILE"
 echo "$TRY_TRACE_PATH" >> "$IGNORE_FILE"
 
-while getopts ":yvnhxit:D:U:L:" opt
+while getopts ":yvnhxit:D:U:L:E:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -664,6 +685,12 @@ do
                   error "the -L option has been specified multiple times" 2
               fi
               LOWER_DIRS="$OPTARG"
+              NO_COMMIT="quiet";;
+        (E)   if [ -n "$EXCL_ENTS" ]
+              then
+                  error "the -E option has been specified multiple times" 2
+              fi
+              EXCL_ENTS="$OPTARG"
               NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
