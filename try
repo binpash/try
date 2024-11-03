@@ -657,8 +657,7 @@ do
               then
                   error "the -E option has been specified multiple times" 2
               fi
-              EXCL_ENTS="$OPTARG"
-              NO_COMMIT="quiet";;
+              EXCL_ENTS="$OPTARG";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
