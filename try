@@ -141,6 +141,7 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     overlay_mountpoint="$3"
+
     mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
@@ -228,7 +229,6 @@ do
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
             merger_dir=$(mktemp -d --suffix ".try-$EXECID")
-
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
@@ -271,6 +271,8 @@ mount -t proc proc /proc &&
 ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
+#todo: this won't fly, but at least it solves the problem, will improve later
+export LD_PRELOAD="/root/try/libexdev.so" &&
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
