@@ -271,8 +271,15 @@ mount -t proc proc /proc &&
 ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
-#todo: this won't fly, but at least it solves the problem, will improve later
-export LD_PRELOAD="/root/try/libexdev.so" &&
+
+# Check if libexdev.so exists in /usr/local/bin or is found in the PATH
+
+if [ -f /usr/local/bin/libexdev.so ] || lib_path=$(command -v libexdev.so); then
+    export LD_PRELOAD="${lib_path:-/usr/local/bin/libexdev.so}"
+else
+    echo "libexdev.so not found; skipping LD_PRELOAD"
+fi
+
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF

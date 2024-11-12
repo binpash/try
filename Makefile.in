@@ -14,7 +14,7 @@ INSTALL=@INSTALL@
 DISTDIR=@PACKAGE_TARNAME@-@PACKAGE_VERSION@
 DISTTGZ=$(DISTDIR).tgz
 
-TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) man/try.1.gz
+TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit utils/libexdev.so) man/try.1.gz
 
 all: $(TARGETS)
 
@@ -24,6 +24,7 @@ install: $(TARGETS)
 ifeq (@enable_utils@, yes)
 	$(INSTALL) -m 755 utils/try-summary $(bindir)
 	$(INSTALL) -m 755 utils/try-commit $(bindir)
+	$(INSTALL) -m 755 utils/libexdev.so $(bindir)
 endif
 	$(INSTALL) -d $(mandir)/man1
 	$(INSTALL) -m 644 man/try.1.gz $(mandir)/man1
@@ -56,6 +57,12 @@ utils/try-summary: utils/ignores.o utils/try-summary.o
 utils/try-commit: utils/ignores.o utils/try-commit.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
+utils/libexdev.so: utils/libexdev.o
+	$(CC) -shared -o $@ $^
+
+utils/libexdev.o: utils/libexdev.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -c -o $@ $<
+
 test: try utils/try-summary utils/try-commit
 	scripts/run_tests.sh
 
@@ -68,3 +75,4 @@ ifeq (@enable_manpage@, yes)
 endif
 	-rm utils/*.o
 	-rm utils/try-summary utils/try-commit
+	-rm utils/*.so

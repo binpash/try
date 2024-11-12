@@ -13,9 +13,11 @@ AC_ARG_ENABLE([utils],
 if test "$enable_utils" = "yes"
 then
         AC_REQUIRE_AUX_FILE([utils/try-commit.c])
+         AC_REQUIRE_AUX_FILE([utils/libexdev.c])
 
         # build tools
         AC_PROG_CC
+        AC_CHECK_TOOL([LD], [ld], [no])
 
         # CFLAGS and CPPFLAGGS
 	if test -z "$CFLAGS"
@@ -31,6 +33,10 @@ then
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
+
+        # Additional flags for shared library
+        LIBEXDEV_LDFLAGS="-shared"
+        AC_SUBST(LIBEXDEV_LDFLAGS)
 
 	# needed C types
 	AC_TYPE_PID_T
