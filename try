@@ -34,7 +34,12 @@ try() {
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
+        [ -d "$SANDBOX_DIR" ] || error "could not find sandbox directory $SANDBOX_DIR" 2
+        # Force absolute path
+        SANDBOX_DIR="$(cd "$SANDBOX_DIR" && pwd)"
+
+        # shellcheck disable=SC2181
+        [ "$?" -eq 0 ] || error "could not find sandbox directory $SANDBOX_DIR (could not cd in)" 2
     else
         ## Create a new sandbox if one was not given
         SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"

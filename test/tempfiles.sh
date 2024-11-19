@@ -4,6 +4,9 @@
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo "${0%/*}")}"
 TRY="$TRY_TOP/try"
 
+workdir="$(mktemp -d)"
+cd "$workdir" || exit 1
+
 initial_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 
 sandbox=$($TRY -n "touch $HOME/foo")
@@ -16,11 +19,12 @@ post_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 [ -f "$sandbox/upperdir$HOME/foo" ] || exit 4
 
 # deliberately not the pattern of try sandboxes
-sandbox="$(mktemp -d --suffix "custom-XXXXXX")"
-$TRY -D "$sandbox" "touch $HOME/bar" || exit 5
+sandbox=local
+mkdir "$sandbox" || exit 5
+$TRY -D "$sandbox" "touch $HOME/bar" || exit 6
 
 final_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 
 # no new tempfiles!
-[ "$post_count" -eq "$final_count" ] || exit 6
-[ -f "$sandbox/upperdir$HOME/bar" ] || exit 7
+[ "$post_count" -eq "$final_count" ] || exit 7
+[ -f "$sandbox/upperdir$HOME/bar" ] || exit 8
