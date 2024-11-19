@@ -37,7 +37,7 @@ try() {
         ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
     else
         ## Create a new sandbox if one was not given
-        SANDBOX_DIR=$(mktemp -d --suffix ".try-$EXECID")
+        SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"
     fi
 
     ## If the sandbox is not valid we exit early
@@ -50,7 +50,11 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    try_mount_log="$(mktemp --suffix ".try-$EXECID")"
+    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
+    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
+    IGNORE_FILE="$SANDBOX_DIR"/ignore
+
+    try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
@@ -66,14 +70,14 @@ try() {
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
-    DIRS_AND_MOUNTS="$(mktemp --suffix ".try-$EXECID")"
+    DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
     export DIRS_AND_MOUNTS
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
-    UPDATED_DIRS_AND_MOUNTS="$(mktemp --suffix ".try-$EXECID")"
+    UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
     do
@@ -124,9 +128,9 @@ try() {
 
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
-    mount_and_execute="$(mktemp --suffix ".try-$EXECID")"
-    chroot_executable="$(mktemp --suffix ".try-$EXECID")"
-    script_to_execute="$(mktemp --suffix ".try-$EXECID")"
+    mount_and_execute="$SANDBOX_DIR"/mount_and_execute.sh
+    chroot_executable="$SANDBOX_DIR"/chroot_executable.sh
+    script_to_execute="$SANDBOX_DIR"/script_to_execute.sh
 
     export chroot_executable
     export script_to_execute
@@ -227,7 +231,8 @@ do
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
-            merger_dir=$(mktemp -d --suffix ".try-$EXECID")
+            merger_dir="$SANDBOX_DIR"/mergerdir."$(echo "$pure_mountpoint" | tr '/' '.')"
+            mkdir "$merger_dir"
 
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
@@ -612,6 +617,9 @@ EOF
 NO_COMMIT="interactive"
 
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
 IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
 while getopts ":yvnhxi:D:U:L:" opt
@@ -657,9 +665,13 @@ fi
 TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
-              summary;;
+              summary
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (commit)  : "${SANDBOX_DIR=$2}"
-              commit;;
+              commit
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (explore) : "${SANDBOX_DIR=$2}"
               try "$SHELL";;
     (--)      shift
