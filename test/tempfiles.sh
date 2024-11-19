@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck disable=SC2010,SC2126,SC2181
 
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo "${0%/*}")}"
 TRY="$TRY_TOP/try"
@@ -17,11 +18,9 @@ post_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 # deliberately not the pattern of try sandboxes
 sandbox="$(mktemp -d --suffix "custom-XXXXXX")"
 $TRY -D "$sandbox" "touch $HOME/bar" || exit 5
-[ $? -eq 0 ] || exit 6
 
 final_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 
 # no new tempfiles!
-echo $post_count $final_count
-[ "$post_count" -eq "$final_count" ] || exit 7
-[ -f "$sandbox/upperdir$HOME/bar" ] || exit 8
+[ "$post_count" -eq "$final_count" ] || exit 6
+[ -f "$sandbox/upperdir$HOME/bar" ] || exit 7
