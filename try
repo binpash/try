@@ -294,8 +294,6 @@ else
     cd "$START_DIR" &&
     . "$script_to_execute"
 fi
-cd "$START_DIR" &&
-. "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
