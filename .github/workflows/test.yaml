@@ -72,6 +72,11 @@ jobs:
           ./configure
           make all
 
+      - name: Install gidmapper
+        run: |
+          ls
+          sudo sh setup.sh
+
       - name: Run tests with shell fallbacks
         run: |
           ! which try-summary
