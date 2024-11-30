@@ -17,6 +17,8 @@
 #include "ignores.h"
 #include "version.h"
 
+static int should_copy = 0;
+
 static int num_errors = 0;
 void commit_error(char *changed_file, char *msg) {
   num_errors += 1;
@@ -24,19 +26,11 @@ void commit_error(char *changed_file, char *msg) {
   fprintf(stderr, "try-commit: couldn't commit %s (%s): %s\n", changed_file, msg, strerror(errno));
 }
 
-void move(char *changed_file, char *local_file) {
-  if (rename(changed_file, local_file) != 0) {
-    if (errno != EXDEV) {
-      commit_error(changed_file, "rename");
-      return;
-    }
-
-    // cross-device move... not a simple call. defer to system utility
+void run(char *argv[], char *file) {
     pid_t pid = fork();
 
     if (pid == 0) {
-      char *argv[4] = { "mv", changed_file, local_file, NULL };
-      execvp("mv", argv);
+      execvp(argv[0], argv);
       return; // unreachable
     }
 
@@ -44,54 +38,60 @@ void move(char *changed_file, char *local_file) {
     waitpid(pid, &status, 0);
 
     if (status != 0) {
-      commit_error(changed_file, "mv");
+      commit_error(file, argv[0]);
     }
+}
+
+void commit(char *changed_file, char *local_file) {
+  if (should_copy) {
+    char *argv[5] = { "cp", "-fa", changed_file, local_file, NULL };
+    run(argv, changed_file);
+    return;
+  }
+
+  if (rename(changed_file, local_file) != 0) {
+    if (errno != EXDEV) {
+      commit_error(changed_file, "rename");
+      return;
+    }
+
+    // cross-device move... not a simple call. defer to system utility
+    char *argv[4] = { "mv", changed_file, local_file, NULL };
+    run(argv, changed_file);
   }
 }
 
-int remove_local(char *local_file, int local_exists, struct stat *local_stat) {
+void remove_local(char *local_file, int local_exists, struct stat *local_stat) {
   if (!local_exists) {
-    return 0;
+    return;
   }
 
   if (S_ISDIR(local_stat->st_mode)) {
-    // need rm -rf
-    pid_t pid = fork();
-
-    if (pid == 0) {
-      char *argv[4] = { "rm", "-rf", local_file, NULL };
-      execvp("rm", argv);
-      return -1; // unreachable
-    }
-
-    int status = -1;
-    waitpid(pid, &status, 0);
-
-    if (status != 0) {
-      commit_error(local_file, "rm -rf");
-    }
-    return -1;
+    char *argv[4] = { "rm", "-rf", local_file, NULL };
+    run(argv, local_file);
+    return;
   }
 
   if (unlink(local_file) != 0) {
     commit_error(local_file, "rm");
-    return -1;
   }
-
-  return 0;
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-commit [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
+  fprintf(stderr, "Usage: try-commit [-c] [-i IGNORE_FILE] SANDBOX_DIR\n");
+  fprintf(stderr, "\t-c\tcopy files instead of moving them\n");
   exit(status);
 }
 
 int main(int argc, char *argv[]) {
   int opt;
-  while ((opt = getopt(argc, argv, "hvi:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvci:")) != -1) {
     switch (opt) {
     case 'i':
       load_ignores("try-commit", optarg);
+      break;
+    case 'c':
+      should_copy = 1;
       break;
     case 'v':
       fprintf(stderr, "try-commit version " TRY_VERSION "\n");
@@ -107,7 +107,17 @@ int main(int argc, char *argv[]) {
     usage(2);
   }
 
-  char *dirs[2] = { argv[optind], NULL };
+  struct stat sandbox_stat;
+  if (stat(argv[optind], &sandbox_stat) == -1) {
+    perror("try-commit: could not find sandbox dircteory");
+    return 2;
+  }
+
+  if (!S_ISDIR(sandbox_stat.st_mode)) {
+    perror("try-commit: sandbox is not a directory");
+    return 2;
+  }
+
   size_t prefix_len = strlen(argv[optind]);
 
   // trim final slashes
@@ -115,6 +125,13 @@ int main(int argc, char *argv[]) {
     argv[optind][prefix_len-1] = '\0';
     prefix_len -= 1;
   }
+
+  char upperdir_path[prefix_len + 10];
+  strncpy(upperdir_path, argv[optind], prefix_len);
+  strncpy(upperdir_path + prefix_len, "/upperdir", 10);
+  prefix_len += 9;
+
+  char *dirs[2] = { upperdir_path, NULL };
 
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
@@ -130,9 +147,9 @@ int main(int argc, char *argv[]) {
     perror("try-commit: fts_read");
     return 2;
   }
-  assert(strcmp(ent->fts_path, argv[optind]) == 0);
+  assert(strcmp(ent->fts_path, upperdir_path) == 0);
   if (ent->fts_info != FTS_D) {
-    fprintf(stderr, "try-commit: %s is not a directory\n", ent->fts_path);
+    fprintf(stderr, "try-commit: sandbox upperdir '%s' is not a directory\n", ent->fts_path);
     return 1;
   }
 
@@ -148,7 +165,7 @@ int main(int argc, char *argv[]) {
     case FTS_D: // preorder (first visit)
       if (!local_exists) {
         // TRYCASE(dir, nonexist)
-        move(ent->fts_path, local_file);
+        commit(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -162,7 +179,7 @@ int main(int argc, char *argv[]) {
         // TRYCASE(dir, dir)
         remove_local(local_file, local_exists, &local_stat);
 
-        move(ent->fts_path, local_file);
+        commit(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -178,7 +195,7 @@ int main(int argc, char *argv[]) {
           commit_error(ent->fts_path, "rm");
         }
 
-        move(ent->fts_path, local_file);
+        commit(ent->fts_path, local_file);
 
         // don't traverse children, we copied the whole thing
         fts_set(fts, ent, FTS_SKIP);
@@ -202,7 +219,7 @@ int main(int argc, char *argv[]) {
       }
 
       // TRYCASE(file, nonexist)
-      move(ent->fts_path, local_file);
+      commit(ent->fts_path, local_file);
       break;
 
     case FTS_SL: // symbolic link
@@ -212,7 +229,7 @@ int main(int argc, char *argv[]) {
 
       // absolute shenanigans: what's the target (and how long is its name)?
       size_t tgt_len = ent->fts_statp->st_size + 1;
-      if (tgt_len == 0) { // apparently fancy FS can lie?
+      if (tgt_len <= 1) { // procfs (and possibly others) return `st_size` of 0 :(
         tgt_len = PATH_MAX;
       }
 

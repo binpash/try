@@ -25,7 +25,7 @@ void show_change(char *local_file, char *msg) {
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-summary [-i IGNORE_FILE] SANDBOX_UPPERDIR\n");
+  fprintf(stderr, "Usage: try-summary [-i IGNORE_FILE] SANDBOX_DIR\n");
   exit(status);
 }
 
@@ -50,7 +50,17 @@ int main(int argc, char *argv[]) {
     usage(2);
   }
 
-  char *dirs[2] = { argv[optind], NULL };
+  struct stat sandbox_stat;
+  if (stat(argv[optind], &sandbox_stat) == -1) {
+    perror("try-summary: could not find sandbox dircteory");
+    return 2;
+  }
+
+  if (!S_ISDIR(sandbox_stat.st_mode)) {
+    perror("try-summary: sandbox is not a directory");
+    return 2;
+  }
+
   size_t prefix_len = strlen(argv[optind]);
 
   // trim final slashes
@@ -58,6 +68,13 @@ int main(int argc, char *argv[]) {
     argv[optind][prefix_len-1] = '\0';
     prefix_len -= 1;
   }
+
+  char upperdir_path[prefix_len + 10];
+  strncpy(upperdir_path, argv[optind], prefix_len);
+  strncpy(upperdir_path + prefix_len, "/upperdir", 10);
+  prefix_len += 9;
+
+  char *dirs[2] = { upperdir_path, NULL };
 
   FTS *fts = fts_open(dirs, FTS_PHYSICAL, NULL);
 
@@ -73,7 +90,7 @@ int main(int argc, char *argv[]) {
     perror("try-summary: fts_read");
     return 2;
   }
-  assert(strcmp(ent->fts_path, argv[optind]) == 0);
+  assert(strcmp(ent->fts_path, upperdir_path) == 0);
   if (ent->fts_info != FTS_D) {
     fprintf(stderr, "try-summary: %s is not a directory\n", ent->fts_path);
     return 1;

@@ -332,7 +332,7 @@ EOF
 if type try-summary >/dev/null 2>&1
 then
     summary() {
-        try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir" || return 1
+        try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
@@ -381,7 +381,7 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR/upperdir"
+        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
         TRY_EXIT_STATUS=$?
     }
 else
