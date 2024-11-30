@@ -381,7 +381,7 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
+        try-commit -c -i "$IGNORE_FILE" "$SANDBOX_DIR"
         TRY_EXIT_STATUS=$?
     }
 else
