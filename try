@@ -192,6 +192,11 @@ then
     autodetect_union_helper
 fi
 
+if [ "$UNION_HELPER" == "/dev/null" ]
+then
+    unset UNION_HELPER
+fi
+
 # actually mount the overlays
 for mountpoint in $(cat "$UPDATED_DIRS_AND_MOUNTS")
 do
@@ -234,7 +239,7 @@ do
         if [ -z "$UNION_HELPER" ]
         then
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
-            printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+            printf "%s: Warning: Failed mounting $mountpoint as an overlay, and mergerfs or unionfs not set, could not be found, or disabled, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
             merger_dir="$SANDBOX_DIR"/mergerdir."$(echo "$pure_mountpoint" | tr '/' '.')"
             mkdir "$merger_dir"
@@ -599,7 +604,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] 
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
-  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
+  -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse), set to /dev/null to disable
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -v                show version information (and exit)
   -h                show this usage message (and exit)
@@ -647,7 +652,7 @@ do
               NO_COMMIT="quiet";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
-        (U)   if ! [ -x "$OPTARG" ]
+        (U)   if ! [ -x "$OPTARG" ] && [ "$OPTARG" != "/dev/null" ]
               then
                   error "could not find executable union helper '$OPTARG'" 2
               fi
