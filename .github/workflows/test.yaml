@@ -198,6 +198,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
