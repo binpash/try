@@ -207,7 +207,7 @@ jobs:
 
       - name: Run tests
         run: |
-          nix-shell --run "sh scripts/run_tests.sh symlinks summary exit_status unzip_D_flag_commit hidden_variables command_substitution reuse_problematic_sandbox toplevel-perms empty_summary merge_multiple_dirs touch_and_rm_no_flag reuse_sandbox mkdir_on_file all-commit-cases unzip_D_flag_commit_without_cleanup unzip_no_flag pipeline touch_and_rm_D_flag_commit network ignore_flag dev_urandom nonexistent_sandbox"
+          nix-shell --run "sh scripts/run_tests.sh"
 
 
   prerelease:
