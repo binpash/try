@@ -15,9 +15,13 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc
+          sudo apt-get install util-linux expect mergerfs attr pandoc
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +54,10 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
@@ -92,6 +100,10 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
