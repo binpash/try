@@ -26,11 +26,6 @@ export TRY_COMMAND
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt >/dev/null
-    then
-        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
-    fi
-
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
@@ -78,7 +73,6 @@ try() {
     DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
     export DIRS_AND_MOUNTS
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
