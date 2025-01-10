@@ -108,13 +108,6 @@ try() {
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
     #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
-    #
-    # findmnt
-    # --real: only list real filesystems
-    # -n: no header
-    # -r: raw output
-    # -o target: only print the mount target
-    # then we want to exclude the root partition "/"
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
