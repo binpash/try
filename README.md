@@ -24,7 +24,6 @@ commands that you don't already trust on your system, (i.e. network calls are al
 
 `try` relies on the following Debian packages
 
-* `util-linux` (for standard Linux utilities, `findmnt`)
 * `attr` (for `getfattr`)
 * `pandoc` and `autoconf` (if working from a GitHub clone)
 

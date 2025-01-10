@@ -42,7 +42,6 @@ run_nix() {
     pkgs.mkShell {
         buildInputs = with pkgs; [
             attr
-            util-linux
         ];
     }
 EOF

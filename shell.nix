@@ -5,7 +5,6 @@ pkgs.mkShell {
     expect
     mergerfs
     attr
-    util-linux
     time
     shellcheck
   ];
