@@ -67,7 +67,7 @@ try() {
     DIRS_AND_MOUNTS="$(mktemp)"
     export DIRS_AND_MOUNTS
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
+    # findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
