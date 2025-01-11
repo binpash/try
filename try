@@ -217,6 +217,8 @@ do
         ##               We should try to investigate either:
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
+        ##
+        ## EZ 2025-01-10 We have removed findmnt since it is unneccessary #189
 
         if [ -z "$UNION_HELPER" ]
         then
