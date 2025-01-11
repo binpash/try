@@ -9,6 +9,8 @@
 
 TRY_VERSION="0.2.0"
 TRY_COMMAND="${0##*/}"
+EXECID="$(date +%s%3N)"
+export EXECID
 export TRY_COMMAND
 
 # exit status invariants
@@ -24,18 +26,18 @@ export TRY_COMMAND
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt >/dev/null
-    then
-        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
-    fi
-
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
+        [ -d "$SANDBOX_DIR" ] || error "could not find sandbox directory $SANDBOX_DIR" 2
+        # Force absolute path
+        SANDBOX_DIR="$(cd "$SANDBOX_DIR" && pwd)"
+
+        # shellcheck disable=SC2181
+        [ "$?" -eq 0 ] || error "could not find sandbox directory $SANDBOX_DIR (could not cd in)" 2
     else
         ## Create a new sandbox if one was not given
-        SANDBOX_DIR=$(mktemp -d)
+        SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"
     fi
 
     ## If the sandbox is not valid we exit early
@@ -48,7 +50,11 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    try_mount_log="$(mktemp)"
+    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
+    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
+    IGNORE_FILE="$SANDBOX_DIR"/ignore
+
+    try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
@@ -64,14 +70,13 @@ try() {
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
-    DIRS_AND_MOUNTS="$(mktemp)"
+    DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
     export DIRS_AND_MOUNTS
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    # findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
-    UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
+    UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
     do
@@ -103,13 +108,6 @@ try() {
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
     #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
-    #
-    # findmnt
-    # --real: only list real filesystems
-    # -n: no header
-    # -r: raw output
-    # -o target: only print the mount target
-    # then we want to exclude the root partition "/"
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
@@ -122,9 +120,9 @@ try() {
 
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
-    mount_and_execute="$(mktemp)"
-    chroot_executable="$(mktemp)"
-    script_to_execute="$(mktemp)"
+    mount_and_execute="$SANDBOX_DIR"/mount_and_execute.sh
+    chroot_executable="$SANDBOX_DIR"/chroot_executable.sh
+    script_to_execute="$SANDBOX_DIR"/script_to_execute.sh
 
     export chroot_executable
     export script_to_execute
@@ -225,7 +223,8 @@ do
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
-            merger_dir=$(mktemp -d)
+            merger_dir="$SANDBOX_DIR"/mergerdir."$(echo "$pure_mountpoint" | tr '/' '.')"
+            mkdir "$merger_dir"
 
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
@@ -249,6 +248,10 @@ unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
+rm "$sandbox_dir/temproot/dev/stdin"
+rm "$sandbox_dir/temproot/dev/stdout"
+rm "$sandbox_dir/temproot/dev/stderr"
+
 unmount_devices "$SANDBOX_DIR"
 
 exit $exitcode
@@ -262,6 +265,9 @@ unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
+ln -s /proc/self/fd/0 /dev/stdin &&
+ln -s /proc/self/fd/1 /dev/stdout &&
+ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
@@ -603,7 +609,10 @@ EOF
 NO_COMMIT="interactive"
 
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
-IGNORE_FILE="$(mktemp)"
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
+IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
 while getopts ":yvnhxi:D:U:L:" opt
 do
@@ -648,9 +657,13 @@ fi
 TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
-              summary;;
+              summary
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (commit)  : "${SANDBOX_DIR=$2}"
-              commit;;
+              commit
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (explore) : "${SANDBOX_DIR=$2}"
               try "$SHELL";;
     (--)      shift

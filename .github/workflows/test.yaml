@@ -15,6 +15,10 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
@@ -50,6 +54,10 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
@@ -92,6 +100,10 @@ jobs:
     if: github.event.pull_request.draft == false
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
           sudo apt-get install expect mergerfs attr pandoc
@@ -177,6 +189,26 @@ jobs:
             completions
             ./configure
             ./install-sh
+
+  nix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Run tests
+        run: |
+          nix-shell --run "sh scripts/run_tests.sh"
+
 
   prerelease:
     needs:
