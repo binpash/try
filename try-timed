@@ -77,8 +77,6 @@ try() {
     export DIRS_AND_MOUNTS
     date +"%s.%N EnumDir: find" >&3
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    date +"%s.%N EnumDir: findmnt" >&3
-    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     date +"%s.%N EnumDir: sort" >&3
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
