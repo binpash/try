@@ -29,11 +29,6 @@ try() {
     date +"%s.%N Start of try()" >&3
     START_DIR="$PWD"
 
-    if ! command -v findmnt >/dev/null
-    then
-        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
-    fi
-
     date +"%s.%N Determining sandboxdir" >&3
     if [ "$SANDBOX_DIR" ]
     then
@@ -114,13 +109,6 @@ try() {
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
     #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
-    #
-    # findmnt
-    # --real: only list real filesystems
-    # -n: no header
-    # -r: raw output
-    # -o target: only print the mount target
-    # then we want to exclude the root partition "/"
     date +"%s.%N Prepare sandboxes before unshare" >&3
     while IFS="" read -r mountpoint
     do
