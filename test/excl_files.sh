@@ -8,7 +8,6 @@ cleanup() {
 
     if [ -d "$try_workspace" ]
     then
-        echo running
         rm -rf "$try_workspace" >/dev/null 2>&1
     fi
 }
