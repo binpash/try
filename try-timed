@@ -9,7 +9,13 @@
 
 TRY_VERSION="0.2.0"
 TRY_COMMAND="${0##*/}"
+EXECID="$(date +%s%3N)"
+export EXECID
 export TRY_COMMAND
+
+timelog="/tmp/try-time-${EXECUTION_ID}"
+echo "" > "$timelog"
+exec 3> "$timelog"
 
 # exit status invariants
 #
@@ -21,10 +27,6 @@ export TRY_COMMAND
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
-timelog="/tmp/try-time-${EXECUTION_ID}"
-echo "" > "$timelog"
-exec 3> "$timelog"
-
 try() {
     date +"%s.%N Start of try()" >&3
     START_DIR="$PWD"
@@ -33,10 +35,15 @@ try() {
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
-        ! [ -d "$SANDBOX_DIR" ] && { error "could not find sandbox directory $SANDBOX_DIR" 2; }
+        [ -d "$SANDBOX_DIR" ] || error "could not find sandbox directory $SANDBOX_DIR" 2
+        # Force absolute path
+        SANDBOX_DIR="$(cd "$SANDBOX_DIR" && pwd)"
+
+        # shellcheck disable=SC2181
+        [ "$?" -eq 0 ] || error "could not find sandbox directory $SANDBOX_DIR (could not cd in)" 2
     else
         ## Create a new sandbox if one was not given
-        SANDBOX_DIR=$(mktemp -d)
+        SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"
     fi
 
     ## If the sandbox is not valid we exit early
@@ -49,10 +56,14 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    date +"%s.%N Docker handling" >&3
-    try_mount_log="$(mktemp)"
+    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
+    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
+    IGNORE_FILE="$SANDBOX_DIR"/ignore
+
+    try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
+    date +"%s.%N Docker handling" >&3
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
     # tail -n +2 to ignore the first line with the column name
     tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
@@ -66,24 +77,46 @@ try() {
     date +"%s.%N Making upperdir, workdir, temproot" >&3
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
-    date +"%s.%N Enumerating direcotories to mount" >&3
     ## Find all the directories and mounts that need to be mounted
-    DIRS_AND_MOUNTS="$(mktemp)"
+    date +"%s.%N Enumerating direcotories to mount" >&3
+    DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
     export DIRS_AND_MOUNTS
     date +"%s.%N EnumDir: find" >&3
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     date +"%s.%N EnumDir: sort" >&3
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
+    date +"%s.%N Setup excldir" >&3
+    # Setup excluded entries
+    excldir="$SANDBOX_DIR/excldir"
+    if [ -n "$EXCL_ENTS" ]
+    then
+        OLDIFS=$IFS
+        IFS=":"
+        mkdir "$excldir"
+        for exclent in $EXCL_ENTS
+        do
+            whiteout_file="$SANDBOX_DIR/excldir/$(realpath "$exclent")"
+            mkdir -p "$(dirname "$whiteout_file")"
+            mknod "$whiteout_file" c 0 0
+        done
+        IFS=$OLDIFS
+    fi
+
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
-    date +"%s.%N EnumDir: MultiLowerDir" >&3
-    UPDATED_DIRS_AND_MOUNTS="$(mktemp)"
+    date +"%s.%N handle MultiLowerDir" >&3
+    UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
         OLDIFS=$IFS
         IFS=":"
+
+        if [ -d "$excldir/$mountpoint" ]
+        then
+            new_mountpoint="$excldir/$mountpoint"
+        fi
 
         for lower_dir in $LOWER_DIRS
         do
@@ -122,11 +155,11 @@ try() {
 
     date +"%s.%N set temproot permission" >&3
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
-    date +"%s.%N Writing tempfiles" >&3
 
-    mount_and_execute="$(mktemp)"
-    chroot_executable="$(mktemp)"
-    script_to_execute="$(mktemp)"
+    date +"%s.%N Writing tempfiles" >&3
+    mount_and_execute="$SANDBOX_DIR"/mount_and_execute.sh
+    chroot_executable="$SANDBOX_DIR"/chroot_executable.sh
+    script_to_execute="$SANDBOX_DIR"/script_to_execute.sh
 
     export chroot_executable
     export script_to_execute
@@ -223,13 +256,16 @@ do
         ##               We should try to investigate either:
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
+        ##
+        ## EZ 2025-01-10 We have removed findmnt since it is unneccessary #189
 
         if [ -z "$UNION_HELPER" ]
         then
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
-            merger_dir=$(mktemp -d)
+            merger_dir="$SANDBOX_DIR"/mergerdir."$(echo "$pure_mountpoint" | tr '/' '.')"
+            mkdir "$merger_dir"
 
             ## Create a union directory
             "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
@@ -256,6 +292,10 @@ exitcode="$?"
 
 # unmount the devices
 date +"%s.%N unmounting devices" >&3
+rm "$sandbox_dir/temproot/dev/stdin"
+rm "$sandbox_dir/temproot/dev/stdout"
+rm "$sandbox_dir/temproot/dev/stderr"
+
 unmount_devices "$SANDBOX_DIR"
 
 date +"%s.%N Exitting inner unshare" >&3
@@ -270,6 +310,9 @@ unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
+ln -s /proc/self/fd/0 /dev/stdin &&
+ln -s /proc/self/fd/1 /dev/stdout &&
+ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
 . "$script_to_execute"
 EOF
@@ -624,9 +667,12 @@ date +"%s.%N Entrypoint" >&3
 NO_COMMIT="interactive"
 
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
-IGNORE_FILE="$(mktemp)"
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
+IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
-while getopts ":yvnhxi:D:U:L:" opt
+while getopts ":yvnhxi:D:U:L:E:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -644,6 +690,11 @@ do
               fi
               LOWER_DIRS="$OPTARG"
               NO_COMMIT="quiet";;
+        (E)   if [ -n "$EXCL_ENTS" ]
+              then
+                  error "the -E option has been specified multiple times" 2
+              fi
+              EXCL_ENTS="$OPTARG";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
@@ -670,9 +721,13 @@ fi
 TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
-              summary;;
+              summary
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (commit)  : "${SANDBOX_DIR=$2}"
-              commit;;
+              commit
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (explore) : "${SANDBOX_DIR=$2}"
               try "$SHELL";;
     (--)      shift
