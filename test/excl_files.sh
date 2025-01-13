@@ -19,7 +19,7 @@ try_workspace="$(mktemp -d -p .)"
 
 cd "$try_workspace" || exit 9
 
-touch hidden1
-touch nonhidden2
+echo secret > hidden1
+echo notsecret >  nonhidden2
 
-! "$TRY" -n -E hidden1 ls | grep hidden1
+! "$TRY" -n -E hidden1 cat hidden1 | grep secret
