@@ -9,11 +9,11 @@
 
 TRY_VERSION="0.2.0"
 TRY_COMMAND="${0##*/}"
-EXECID="$(date +%s%3N)"
+: "${EXECID:=$(date +%s%3N)}"
 export EXECID
 export TRY_COMMAND
 
-timelog="/tmp/try-time-${EXECUTION_ID}"
+timelog="/tmp/try-time-${EXECID}"
 echo "" > "$timelog"
 exec 3> "$timelog"
 
