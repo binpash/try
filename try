@@ -26,11 +26,6 @@ export TRY_COMMAND
 try() {
     START_DIR="$PWD"
 
-    if ! command -v findmnt >/dev/null
-    then
-        error "findmnt not found, please install util-linux" "$TRY_COMMAND" 2
-    fi
-
     if [ "$SANDBOX_DIR" ]
     then
         ## If the name of a sandbox is given then we need to exit prematurely if its directory doesn't exist
@@ -78,7 +73,6 @@ try() {
     DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
     export DIRS_AND_MOUNTS
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
-    findmnt --real -r -o target -n >>"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
@@ -114,13 +108,6 @@ try() {
     #
     # KK 2023-06-29 This approach (of mounting each root directory separately) was necessary because we could not mount `/` in an overlay.
     #               However, this might be solvable using mergerfs/unionfs, allowing us to mount an overlay on a unionfs of the `/` once.
-    #
-    # findmnt
-    # --real: only list real filesystems
-    # -n: no header
-    # -r: raw output
-    # -o target: only print the mount target
-    # then we want to exclude the root partition "/"
     while IFS="" read -r mountpoint
     do
         ## Only make the directory if the original is a directory too
@@ -230,6 +217,8 @@ do
         ##               We should try to investigate either:
         ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
         ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
+        ##
+        ## EZ 2025-01-10 We have removed findmnt since it is unneccessary #189
 
         if [ -z "$UNION_HELPER" ]
         then
