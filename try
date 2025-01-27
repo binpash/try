@@ -211,21 +211,16 @@ do
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
         ## Then we can normally make the overlay on the new union directory.
         ##
-        ## KK 2023-06-29 Since this uses findmnt, it performs the union+overlay for both the outside and the inside mount.
-        ##               In the best case scenario this is only causing extra work (the internal mount is already shown through the unionfs),
-        ##                 but in the worst case this could lead to bugs due to the extra complexity (e.g., because we are doing mounts on top of each other).
-        ##               We should try to investigate either:
-        ##               1. Not doing another overlay if we have done it for a parent directory (we can keep around a list of overlays and skip if we are in a child)
-        ##               2. Do one unionfs+overlay at the root `/` once and be done with it!
-        ##
-        ## EZ 2025-01-10 We have removed findmnt since it is unneccessary #189
+        ## MMG 2025-01-27
+        ##   There used  to be more complicated logic here using `findmnt`, but we currently
+        ##   just build unions for every nested mount.
 
         if [ -z "$UNION_HELPER" ]
         then
             ## We can ignore this mountpoint, if the user program tries to use it, it will crash, but if not we can run normally
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
-            merger_dir="$SANDBOX_DIR"/mergerdir."$(echo "$pure_mountpoint" | tr '/' '.')"
+            merger_dir="$SANDBOX_DIR"/mergerdir"$(echo "$pure_mountpoint" | tr '/' '.')"
             mkdir "$merger_dir"
 
             ## Create a union directory
