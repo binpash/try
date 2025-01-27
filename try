@@ -87,14 +87,8 @@ try() {
         for lower_dir in $LOWER_DIRS
         do
             temp_mountpoint="$lower_dir/upperdir$mountpoint"
-            if [ -n "$new_mountpoint" ]
-            then
-                # If new_mountpoint is not empty, append : and the temp_mountpoint
-                new_mountpoint="$new_mountpoint:$temp_mountpoint"
-            else
-                # If new_mountpoint is empty, just set it to temp_mountpoint
-                new_mountpoint="$temp_mountpoint"
-            fi
+            # Make sure we put : between, but not at the beginning
+            new_mountpoint="${new_mountpoint:+$new_mountpoint:}$temp_mountpoint"
         done
         IFS=$OLDIFS
         # Add the original mountpoint at the end
@@ -213,7 +207,7 @@ do
         ##
         ## MMG 2025-01-27
         ##   There used  to be more complicated logic here using `findmnt`, but we currently
-        ##   just build unions for every nested mount.
+        ##   just build unions for every mount in the root.
 
         if [ -z "$UNION_HELPER" ]
         then
