@@ -18,10 +18,13 @@ static int changes_detected = 0;
 void show_change(char *local_file, char *msg) {
   if (!changes_detected) {
     changes_detected += 1;
-    printf("\nChanges detected in the following files:\n\n");
+    fputs("\nChanges detected in the following files:\n\n", stdout);
   }
 
-  printf("%s (%s)\n", local_file, msg);
+  fputs(local_file, stdout);
+  fputs(" (", stdout);
+  fputs(msg, stdout);
+  fputs(")\n", stdout);
 }
 
 void usage(int status) {
