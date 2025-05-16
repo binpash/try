@@ -8,5 +8,9 @@ pkgs.mkShell {
     util-linux
     time
     shellcheck
+    autoconf
+    pandoc
+    (pkgs.callPackage ./package.nix {})
   ];
 }
+
