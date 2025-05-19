@@ -14,7 +14,7 @@
 }:
 stdenv.mkDerivation {
   pname = "try";
-  version = "0.2.0-unstable-2025-02-25";
+  version = "latest";
 
   src = fetchFromGitHub {
     owner = "binpash";
