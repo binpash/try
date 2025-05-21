@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Copyright (c) 2023 The PaSh Authors.
+# Copyright (c) 2023-2025 The PaSh Authors.
 #
 # Usage of this source code is governed by the MIT license, you can find the
 # LICENSE file in the root directory of this project.
 #
 # https://github.com/binpash/try
 
-TRY_VERSION="0.2.0"
+TRY_VERSION="0.3.0"
 TRY_COMMAND="${0##*/}"
 EXECID="$(date +%s%3N)"
 export EXECID

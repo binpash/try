@@ -58,7 +58,7 @@ stdenv.mkDerivation {
     versionCheckHook
   ];
   preVersionCheck = ''
-    export version=0.2.0
+    export version=0.3.0
   '';
   versionCheckProgramArg = "-v";
 

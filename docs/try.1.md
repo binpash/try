@@ -1,4 +1,4 @@
-% TRY(1) try 0.2.0 | Do, or do not. There is no *try*.
+% TRY(1) try 0.3.0 | Do, or do not. There is no *try*.
 % The PaSh Authors
 
 # NAME
