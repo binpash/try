@@ -88,6 +88,14 @@ cd try
 makepkg -sic
 ```
 
+#### Nix/NixOS
+
+`try` is present in [nixpkgs](https://search.nixos.org/packages?channel=unstable&show=try&from=0&size=50&sort=relevance&type=packages&query=try) and maintained by us.
+
+```shellsession
+nix-shell -p try
+```
+
 ## Example Usage
 
 `try` is a higher-order command, like `xargs`, `exec`, `nohup`, or `find`. For example, to install a package via `pip3`, you can invoke `try` as follows:
