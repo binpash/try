@@ -19,6 +19,8 @@ try - run a command in an overlay
 
 While using *try* you can choose to commit the result to the filesystem or completely ignore it without any side-effect to the main file system.
 
+You can also choose your own shell when running *try*.
+
 ## Flags
 
 -n

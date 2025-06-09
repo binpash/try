@@ -4,11 +4,6 @@ TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-
 TRY="$TRY_TOP/try"
 
 cleanup() {
-  cd /
-
-  if [ -d "$try_workspace" ]; then
-    rm -rf "$try_workspace" >/dev/null 2>&1
-  fi
 
   if [ -f "$expected" ]; then
     rm "$expected"
@@ -47,12 +42,12 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
-  saved_shell=$(grep -e "^$LOGNAME" /etc/passwd | cut -d: -f7)
+  saved_shell=$(grep -e "^$whoami" /etc/passwd | cut -d: -f7)
   sudo apt-get install -y zsh
-  sudo chsh "$LOGNAME" --shell=/usr/bin/zsh
+  sudo chsh "$whoami" --shell=/usr/bin/zsh
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  sudo chsh "$LOGNAME" --shell="$saved_shell"
+  sudo chsh "$whoami" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
