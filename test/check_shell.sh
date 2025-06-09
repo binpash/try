@@ -31,7 +31,7 @@ check_case() {
   echo "$expected_output" >"$expected"
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
-  if ! diff -q $expected $out; then
+  if ! diff -q "$expected" "$out"; then
     exit "$case"
   fi
 
