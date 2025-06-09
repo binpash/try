@@ -42,12 +42,13 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
-  saved_shell=$(grep -e "^$whoami" /etc/passwd | cut -d: -f7)
+  username="$(whoami)"
+  saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   sudo apt-get install -y zsh
-  sudo chsh "$whoami" --shell=/usr/bin/zsh
+  sudo chsh "$username" --shell=/usr/bin/zsh
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  sudo chsh "$whoami" --shell="$saved_shell"
+  sudo chsh "$username" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
