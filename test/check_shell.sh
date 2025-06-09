@@ -48,13 +48,14 @@ trap 'cleanup' EXIT
 #check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
-  username="$(whoami)"
+  sername="$(whoami)"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   sudo apt-get install -y zsh
+  which zsh || exit 1
   sudo chsh "$username" --shell=/usr/bin/zsh
-  echo "Current shell after switch: $(whoami) $(grep "^$(whoami)" /etc/passwd)"
+  echo "Shell after chsh: $(getent passwd "$username" | cut -d: -f7)"
+  sudo -u "$username" /usr/bin/zsh -c 'echo "New shell: $SHELL"'
   check_case "" "" "/usr/bin/zsh" "3"
-  #just in case the user calls this regerate old shell
   sudo chsh "$username" --shell="$saved_shell"
 fi
 
