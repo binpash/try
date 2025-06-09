@@ -52,6 +52,7 @@ if [ "$CI" = "true" ]; then
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
+  echo "Current shell after switch: $(whoami) $(grep "^$(whoami)" /etc/passwd)"
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
   sudo chsh "$username" --shell="$saved_shell"
