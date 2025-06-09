@@ -48,7 +48,7 @@ check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
   saved_shell=$(grep -e "^$LOGNAME" /etc/passwd | cut -d: -f7)
-  sudo apt install -y zsh
+  sudo apt-get install -y zsh
   sudo chsh "$LOGNAME" --shell=/usr/bin/zsh
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
