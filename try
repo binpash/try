@@ -29,12 +29,14 @@ set_TRY_SHELL() {
 
   #check if SHELL is set and is not fish
   if [ -x "$SHELL" ] && [ "${SHELL##*/}" != "fish" ]; then
+    echo "hit TRY_SHELL: $TRY_SHELL"
     TRY_SHELL="$SHELL"
 
   else
     #find and check if login shell is set
     login_shell=$(grep -e "^$LOGNAME" /etc/passwd | cut -d: -f7)
-    echo "login shell in TRY: $login_shell"
+
+    echo "hit login shell: $login_shell"
 
     if [ -x "$login_shell" ] && [ "${login_shell##*/}" != "fish" ]; then
       TRY_SHELL="$login_shell"
