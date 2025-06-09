@@ -55,7 +55,7 @@ if [ "$CI" = "true" ]; then
   sudo chsh "$username" --shell=/usr/bin/zsh
   echo "shell after chsh: "
   getent passwd "$username" | cut -d: -f7
-
+  sudo -u "$username" /usr/bin/zsh -c 'echo "Running inside: $SHELL"'
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
   sudo chsh "$username" --shell="$saved_shell"
