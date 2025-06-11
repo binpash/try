@@ -59,7 +59,7 @@ if [ "$CI" = "true" ]; then
 
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  #sudo chmod -x "/usr/bin/zsh" #sudo chsh "$username" --shell="$saved_shell"
+  sudo chmod -x "/usr/bin/zsh" #sudo chsh "$username" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
