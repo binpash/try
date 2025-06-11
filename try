@@ -36,10 +36,10 @@ set_TRY_SHELL() {
     echo "login_shell in try: $login_shell"
 
     if [ -x "$login_shell" ] && [ "${login_shell##*/}" != "fish" ]; then
-      echo "hits login shell"
+      #echo "hits login shell"
       TRY_SHELL="$login_shell"
     else
-      echo "hits bin/sh"
+      #echo "hits bin/sh"
       TRY_SHELL="/bin/sh"
     fi
   fi
