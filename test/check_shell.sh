@@ -49,9 +49,9 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 check_case "" "/bin/bash" "/bin/bash" "2"
 
 username="$(whoami)"
-#saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
-if [ "$CI" = "true" ]; then
+saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 
+if [ "$CI" = "true" ]; then
   #echo "saved shell: $saved_shell"
 
   sudo chsh "$username" --shell=/usr/bin/zsh
@@ -64,7 +64,7 @@ fi
 
 check_case "" "" "/bin/sh" "4"
 
-#if [ "$CI" = "true" ]; then
-#sudo chmod +x "/usr/bin/zsh"
-#sudo chsh "$username" --shell="$saved_shell"
-#fi
+if [ "$CI" = "true" ]; then
+  sudo chmod +x "/usr/bin/zsh"
+  sudo chsh "$username" --shell="$saved_shell"
+fi
