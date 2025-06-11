@@ -55,10 +55,11 @@ if [ "$CI" = "true" ]; then
   #echo "username: $username"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   #sudo apt-get install -y zsh
-  echo "after: "
-  cat /etc/passwd
 
   sudo chsh "$username" --shell=/usr/bin/zsh
+
+  echo "after: "
+  cat /etc/passwd
 
   echo "shell after chsh: $(grep -e "^$username" /etc/passwd | cut -d: -f7)"
 
