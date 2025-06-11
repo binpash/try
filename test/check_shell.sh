@@ -30,6 +30,12 @@ check_case() {
     exit "$case"
   fi
 
+  echo "expected: "
+  cat "$expected"
+
+  echo "out: "
+  cat "$out"
+
   rm "$expected"
   rm "$out"
 
@@ -45,7 +51,7 @@ if [ "$CI" = "true" ]; then
   username="$(whoami)"
   #echo "username: $username"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
-  sudo apt-get install -y zsh
+  #sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
   #echo "shell after chsh: "
   #getent passwd "$username" | cut -d: -f7
