@@ -59,12 +59,12 @@ if [ "$CI" = "true" ]; then
 
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  sudo chmod -x "$(grep -e "^$username" /etc/passwd | cut -d: -f7)"
+  #sudo chmod -x "$(grep -e "^$username" /etc/passwd | cut -d: -f7)"
   #sudo chsh "$username" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
 
-if [ "$CI" = "true" ]; then
-  sudo chsh "$username" --shell="$saved_shell"
-fi
+#if [ "$CI" = "true" ]; then
+#sudo chsh "$username" --shell="$saved_shell"
+#fi
