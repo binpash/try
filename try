@@ -32,7 +32,7 @@ set_TRY_SHELL() {
     TRY_SHELL="$SHELL"
 
   else
-    login_shell=$(grep -e "$(whoami)" /etc/passwd | cut -d: -f7)
+    login_shell=$(grep "^$(whoami):" /etc/passwd | cut -d: -f7)
     #echo "login_shell in try: $login_shell"
 
     if [ -x "$login_shell" ] && [ "${login_shell##*/}" != "fish" ]; then
