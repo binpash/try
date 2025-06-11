@@ -64,6 +64,6 @@ fi
 
 check_case "" "" "/bin/sh" "4"
 
-if [ "$CI" = "true" ]; then
-  sudo chsh "$username" --shell="$saved_shell"
-fi
+#if [ "$CI" = "true" ]; then
+#sudo chsh "$username" --shell="$saved_shell"
+#fi
