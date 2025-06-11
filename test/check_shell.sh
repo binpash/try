@@ -27,11 +27,11 @@ check_case() {
   echo "$expected_output" >"$expected"
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
-  #echo "expected: "
-  #cat "$expected"
+  echo "expected: "
+  cat "$expected"
 
-  #echo "out: "
-  #cat "$out"
+  echo "out: "
+  cat "$out"
 
   if ! diff -q "$expected" "$out"; then
     exit "$case"
@@ -59,12 +59,11 @@ if [ "$CI" = "true" ]; then
 
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  #sudo chmod -x "$(grep -e "^$username" /etc/passwd | cut -d: -f7)"
-  #sudo chsh "$username" --shell="$saved_shell"
+  sudo chmod -x "/usr/bin/zsh" #sudo chsh "$username" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
 
-#if [ "$CI" = "true" ]; then
-#sudo chsh "$username" --shell="$saved_shell"
-#fi
+if [ "$CI" = "true" ]; then
+  sudo chsh "$username" --shell="$saved_shell"
+fi
