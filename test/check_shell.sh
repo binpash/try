@@ -26,12 +26,6 @@ check_case() {
   echo "$expected_output" >"$expected"
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
-  echo "Expected file:"
-  cat "$expected"
-
-  echo "Output file:"
-  cat "$out"
-
   if ! diff -q "$expected" "$out"; then
     exit "$case"
   fi
@@ -43,18 +37,18 @@ check_case() {
 
 trap 'cleanup' EXIT
 
-#check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
+check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 
-#check_case "" "/bin/bash" "/bin/bash" "2"
+check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
   username="$(whoami)"
-  echo "username: $username"
+  #echo "username: $username"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
-  echo "shell after chsh: "
-  getent passwd "$username" | cut -d: -f7
+  #echo "shell after chsh: "
+  #getent passwd "$username" | cut -d: -f7
 
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
