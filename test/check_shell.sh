@@ -52,6 +52,7 @@ username="$(whoami)"
 if [ "$CI" = "true" ]; then
 
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
+  echo "saved shell: $saved_shell"
 
   sudo chsh "$username" --shell=/usr/bin/zsh
   echo "after chsh: $(grep "^$username:" /etc/passwd | cut -d: -f7)"
@@ -61,5 +62,5 @@ if [ "$CI" = "true" ]; then
   sudo chsh "$username" --shell="$saved_shell"
 fi
 
-sudo chsh "$username" --shell=/usr/sbin/nologin
+sudo chsh "$username" --shell=/bin/false
 check_case "" "" "/bin/sh" "4"
