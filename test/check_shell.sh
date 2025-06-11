@@ -27,12 +27,6 @@ check_case() {
   echo "$expected_output" >"$expected"
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
-  echo "expected: "
-  cat "$expected"
-
-  echo "out: "
-  cat "$out"
-
   if ! diff -q "$expected" "$out"; then
     exit "$case"
   fi
@@ -52,16 +46,14 @@ username="$(whoami)"
 #saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 
 if [ "$CI" = "true" ]; then
-  #echo "saved shell: $saved_shell"
 
+  sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
-
   sudo chmod +x "/usr/bin/zsh"
-  #echo "after chsh: $(grep "^$username:" /etc/passwd | cut -d: -f7)"
 
   check_case "" "" "/usr/bin/zsh" "3"
-  #just in case the user calls this regerate old shell
-  sudo chmod -x "/usr/bin/zsh" #sudo chsh "$username" --shell="$saved_shell"
+
+  sudo chmod -x "/usr/bin/zsh"
 fi
 
 check_case "" "" "/bin/sh" "4"
