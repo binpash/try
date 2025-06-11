@@ -54,6 +54,7 @@ if [ "$CI" = "true" ]; then
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   #sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
+  exec "$SHELL"
   echo "shell after chsh: $(grep -e "^$username" /etc/passwd | cut -d: -f7)"
 
   check_case "" "" "/usr/bin/zsh" "3"
