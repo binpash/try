@@ -27,11 +27,11 @@ check_case() {
   echo "$expected_output" >"$expected"
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
-  echo "expected: "
-  cat "$expected"
+  #echo "expected: "
+  #cat "$expected"
 
-  echo "out: "
-  cat "$out"
+  #echo "out: "
+  #cat "$out"
 
   if ! diff -q "$expected" "$out"; then
     exit "$case"
@@ -49,17 +49,22 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 check_case "" "/bin/bash" "/bin/bash" "2"
 
 username="$(whoami)"
+saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 if [ "$CI" = "true" ]; then
 
-  saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
-  echo "saved shell: $saved_shell"
+  #echo "saved shell: $saved_shell"
 
   sudo chsh "$username" --shell=/usr/bin/zsh
-  echo "after chsh: $(grep "^$username:" /etc/passwd | cut -d: -f7)"
+  #echo "after chsh: $(grep "^$username:" /etc/passwd | cut -d: -f7)"
 
   check_case "" "" "/usr/bin/zsh" "3"
   #just in case the user calls this regerate old shell
-  sudo chsh "$username" --shell="$saved_shell"
+  sudo chmod -x "$(grep -e "^$username" /etc/passwd | cut -d: -f7)"
+  #sudo chsh "$username" --shell="$saved_shell"
 fi
 
 check_case "" "" "/bin/sh" "4"
+
+if [ "$CI" = "true" ]; then
+  sudo chsh "$username" --shell="$saved_shell"
+fi

@@ -24,6 +24,7 @@ export TRY_COMMAND
 ################################################################################
 
 set_TRY_SHELL() {
+
   #case TRY_SHELL set
   [ -x "$TRY_SHELL" ] && return
 
