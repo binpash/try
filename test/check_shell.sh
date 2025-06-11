@@ -48,8 +48,8 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 
 check_case "" "/bin/bash" "/bin/bash" "2"
 
+username="$(whoami)"
 if [ "$CI" = "true" ]; then
-  username="$(whoami)"
 
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 
@@ -61,4 +61,5 @@ if [ "$CI" = "true" ]; then
   sudo chsh "$username" --shell="$saved_shell"
 fi
 
+sudo chsh "$username" --shell=/usr/sbin/nologin
 check_case "" "" "/bin/sh" "4"
