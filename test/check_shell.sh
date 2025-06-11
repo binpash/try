@@ -50,11 +50,11 @@ check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ]; then
   username="$(whoami)"
-  echo "username: $username"
+  #echo "username: $username"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
   #sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
-  exec "$SHELL"
+
   echo "shell after chsh: $(grep -e "^$username" /etc/passwd | cut -d: -f7)"
 
   check_case "" "" "/usr/bin/zsh" "3"
