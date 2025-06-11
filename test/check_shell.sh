@@ -16,6 +16,7 @@ cleanup() {
 }
 
 check_case() {
+  echo "case: $case"
   try_shell="$1"
   shell="$2"
   expected_output="$3"
