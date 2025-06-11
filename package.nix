@@ -8,7 +8,6 @@
   attr,
   makeWrapper,
   pandoc,
-  zsh,
   coreutils,
   installShellFiles,
   versionCheckHook,
@@ -34,7 +33,6 @@ stdenv.mkDerivation {
     autoreconfHook
     pandoc
     installShellFiles
-    zsh
   ];
 
   installPhase = ''
