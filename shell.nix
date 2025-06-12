@@ -10,7 +10,6 @@ pkgs.mkShell {
     shellcheck
     autoconf
     pandoc
-    zsh
     (pkgs.callPackage ./package.nix {})
   ];
 }
