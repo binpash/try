@@ -8,6 +8,7 @@
   attr,
   makeWrapper,
   pandoc,
+  zsh,
   coreutils,
   installShellFiles,
   versionCheckHook,
@@ -46,6 +47,7 @@ stdenv.mkDerivation {
         util-linux
         mergerfs
         attr
+        zsh
       ]
     }
     installManPage man/try.1.gz
