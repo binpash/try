@@ -34,6 +34,7 @@ stdenv.mkDerivation {
     autoreconfHook
     pandoc
     installShellFiles
+    zsh
   ];
 
   installPhase = ''
@@ -52,6 +53,7 @@ stdenv.mkDerivation {
     }
     installManPage man/try.1.gz
     installShellCompletion --bash --name try.bash completions/try.bash
+    installShellCompletion --zsh --name _try completions/try.zsh
     runHook postInstall
   '';
 
