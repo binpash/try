@@ -47,7 +47,7 @@ username="$(whoami)"
 
 if [ "$CI" = "true" ]; then
 
-  sudo apt-get install -y zsh
+  #sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
   sudo chmod +x "/usr/bin/zsh"
 
