@@ -20,7 +20,6 @@ check_case() {
   shell="$2"
   expected_output="$3"
   case="$4"
-  echo "case: $case"
 
   expected="$(mktemp)"
   out="$(mktemp)"
@@ -42,23 +41,20 @@ check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 
 check_case "" "/bin/bash" "/bin/bash" "2"
 
-username="$(whoami)"
-#saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
+if [ "$CI" = "true" ] || [ "$(whoami)" = "vagrant" ]; then
 
-if [ "$CI" = "true" ]; then
+  username="$(whoami)"
+  saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 
-  sudo apt-get install -y zsh
+  #sudo apt-get install -y zsh
   sudo chsh "$username" --shell=/usr/bin/zsh
   sudo chmod +x "/usr/bin/zsh"
 
   check_case "" "" "/usr/bin/zsh" "3"
 
   sudo chmod -x "/usr/bin/zsh"
+
+  check_case "" "" "/bin/sh" "4"
+  sudo chsh "$username" --shell="$saved_shell"
+
 fi
-
-check_case "" "" "/bin/sh" "4"
-
-#if [ "$CI" = "true" ]; then
-#sudo chmod +x "/usr/bin/zsh"
-# sudo chsh "$username" --shell="$saved_shell"
-#fi
