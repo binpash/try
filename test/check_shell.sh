@@ -43,6 +43,8 @@ check_case "" "/bin/bash" "/bin/bash" "2"
 
 if [ "$CI" = "true" ] || [ "$(whoami)" = "vagrant" ]; then
 
+  cat /etc/shells
+
   username="$(whoami)"
   saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
 
