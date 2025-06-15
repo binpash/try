@@ -8,6 +8,7 @@
   attr,
   makeWrapper,
   pandoc,
+  zsh,
   coreutils,
   installShellFiles,
   versionCheckHook,
