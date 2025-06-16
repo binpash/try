@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs zsh
+      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs 
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs zsh
+      sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs 
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
@@ -48,13 +48,14 @@ Vagrant.configure("2") do |config|
     "
   end
 
+    
   # Regular debian testing box with LVM
   config.vm.define "debianlvm" do |debianlvm|
     debianlvm.vm.box = "generic/debian12"
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make autoconf mergerfs zsh
+      sudo apt-get install -y git expect lvm2 mergerfs curl attr pandoc gcc make autoconf mergerfs 
 
       # Create an image for the lvm disk
       sudo fallocate -l 2G /root/lvm_disk.img
@@ -90,12 +91,64 @@ Vagrant.configure("2") do |config|
     "
   end
 
+  config.vm.define "debianloginshell" do |debianloginshell|
+    debianloginshell.vm.box = "generic/debian12"
+    debianloginshell.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    debianloginshell.vm.provision "shell", privileged: false, inline: <<-'SHELL'
+      sudo apt-get update
+      sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs zsh
+      sudo chown -R vagrant:vagrant try
+      cd try
+     
+
+
+      autoconf && ./configure && make
+      sudo make install
+      which try-commit || exit 2
+      
+      check_case() {
+        try_shell="$1"
+        shell="$2"
+        expected_output="$3"
+        case="$4"
+       
+        TRY="/usr/local/bin/try"
+
+        expected="$(mktemp)"
+        out="$(mktemp)"
+        echo "$expected_output" >"$expected"
+        TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" 'echo $TRY_SHELL' >"$out" || exit 1
+ 
+        if ! diff -q "$expected" "$out"; then
+          exit "$case"
+        fi
+
+        rm "$expected"
+        rm "$out"
+      }
+
+      username="$(whoami)" 
+      sudo chsh "$username" --shell=/usr/bin/zsh
+
+      sudo chmod +x "/usr/bin/zsh"
+      check_case "" "" "/usr/bin/zsh" "3"
+
+      sudo chmod -x "/usr/bin/zsh"
+
+      check_case "" "" "/bin/sh" "4"
+
+      echo "Test Complete"
+    SHELL
+  end
+
+
+
   # Regular rocky testing box
   config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     rocky.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect curl attr pandoc fuse zsh
+      sudo yum install -y git expect curl attr pandoc fuse 
       wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo chown -R vagrant:vagrant try
@@ -113,7 +166,7 @@ Vagrant.configure("2") do |config|
     fedora.vm.box = "generic/fedora39"
     fedora.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     fedora.vm.provision "shell", privileged: false, inline: "
-      sudo yum install -y git expect curl attr pandoc fuse zsh
+      sudo yum install -y git expect curl attr pandoc fuse
       wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo rpm -i mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo chown -R vagrant:vagrant try

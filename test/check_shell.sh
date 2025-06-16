@@ -40,22 +40,3 @@ trap 'cleanup' EXIT
 check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
 
 check_case "" "/bin/bash" "/bin/bash" "2"
-
-if [ "$CI" = "true" ] || [ "$(whoami)" = "vagrant" ]; then
-
-  username="$(whoami)"
-  saved_shell=$(grep -e "^$username" /etc/passwd | cut -d: -f7)
-
-  #sudo apt-get install -y zsh
-  sudo chsh "$username" --shell=/usr/bin/zsh
-  sudo chmod +x "/usr/bin/zsh"
-
-  check_case "" "" "/usr/bin/zsh" "3"
-
-  sudo chmod -x "/usr/bin/zsh"
-
-  check_case "" "" "/bin/sh" "4"
-
-  sudo chsh --shell "$saved_shell" "$username"
-
-fi

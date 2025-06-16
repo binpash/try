@@ -7,7 +7,7 @@
   mergerfs,
   attr,
   makeWrapper,
-  pandoc, 
+  pandoc,
   coreutils,
   installShellFiles,
   versionCheckHook,
