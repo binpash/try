@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc zsh
+          sudo apt-get install expect mergerfs attr pandoc 
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc zsh
+          sudo apt-get install expect mergerfs attr pandoc 
 
       - name: Download dist tarball
         uses: actions/download-artifact@v4
@@ -106,7 +106,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install expect mergerfs attr pandoc zsh
+          sudo apt-get install expect mergerfs attr pandoc 
 
       - name: Checkout
         uses: actions/checkout@v4
