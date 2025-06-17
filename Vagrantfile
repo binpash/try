@@ -98,20 +98,19 @@ Vagrant.configure("2") do |config|
       sudo apt-get update
       sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs zsh
       sudo chown -R vagrant:vagrant try
-      cd try
-     
+      cd try 
 
 
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
-      
+
       check_case() {
         try_shell="$1"
         shell="$2"
         expected_output="$3"
         case="$4"
-       
+
         TRY="/usr/local/bin/try"
 
         expected="$(mktemp)"
@@ -160,6 +159,8 @@ Vagrant.configure("2") do |config|
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
+
+ 
   #
   # Regular rocky testing box
   config.vm.define "fedora39" do |fedora|

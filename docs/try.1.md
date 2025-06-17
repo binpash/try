@@ -19,7 +19,7 @@ try - run a command in an overlay
 
 While using *try* you can choose to commit the result to the filesystem or completely ignore it without any side-effect to the main file system.
 
-You can also choose your own shell when running *try*.
+You can also choose your own shell when running *try*. *try* will run your command within your login shell by default; you can override this by setting the TRY_SHELL variable.
 
 ## Flags
 
