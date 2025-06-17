@@ -48,7 +48,6 @@ Vagrant.configure("2") do |config|
     "
   end
 
-
   # Regular debian testing box with LVM
   config.vm.define "debianlvm" do |debianlvm|
     debianlvm.vm.box = "generic/debian12"
@@ -141,7 +140,6 @@ Vagrant.configure("2") do |config|
   end
 
 
-
   # Regular rocky testing box
   config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"
@@ -159,8 +157,6 @@ Vagrant.configure("2") do |config|
       TRY_TOP=$(pwd) scripts/run_tests.sh
     "
   end
-
-
   #
   # Regular rocky testing box
   config.vm.define "fedora39" do |fedora|
