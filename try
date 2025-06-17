@@ -33,7 +33,7 @@ set_TRY_SHELL() {
 
   else
     login_shell=$(grep -e "^$LOGNAME" /etc/passwd | cut -d: -f7)
-    
+
     # use login shell (if it's not fish)
     if [ -x "$login_shell" ] && [ "${login_shell##*/}" != "fish" ]; then
       TRY_SHELL="$login_shell"
