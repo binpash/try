@@ -90,6 +90,56 @@ Vagrant.configure("2") do |config|
     "
   end
 
+  config.vm.define "debianloginshell" do |debianloginshell|
+    debianloginshell.vm.box = "generic/debian12"
+    debianloginshell.vm.provision "file", source: "./", destination: "/home/vagrant/try"
+    debianloginshell.vm.provision "shell", privileged: false, inline: <<-'SHELL'
+      sudo apt-get update
+      sudo apt-get install -y curl attr pandoc gcc make autoconf mergerfs zsh
+      sudo chown -R vagrant:vagrant try
+      cd try
+
+
+      autoconf && ./configure && make
+      sudo make install
+      which try-commit || exit 2
+
+      check_case() {
+        try_shell="$1"
+        shell="$2"
+        expected_output="$3"
+        case="$4"
+
+        TRY="/usr/local/bin/try"
+
+        expected="$(mktemp)"
+        out="$(mktemp)"
+        echo "$expected_output" >"$expected"
+        TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" 'echo $TRY_SHELL' >"$out" || exit 1
+
+        if ! diff -q "$expected" "$out"; then
+          exit "$case"
+        fi
+
+        rm "$expected"
+        rm "$out"
+      }
+
+      username="$(whoami)"
+      sudo chsh "$username" --shell=/usr/bin/zsh
+
+      sudo chmod +x "/usr/bin/zsh"
+      check_case "" "" "/usr/bin/zsh" "3"
+
+      sudo chmod -x "/usr/bin/zsh"
+
+      check_case "" "" "/bin/sh" "4"
+
+      echo "Test Complete"
+    SHELL
+  end
+
+
   # Regular rocky testing box
   config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"

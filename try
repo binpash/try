@@ -20,10 +20,38 @@ export TRY_COMMAND
 # 2 -- input error
 
 ################################################################################
+# Tries to detect a setting for TRY_SHELL
+################################################################################
+
+set_TRY_SHELL() {
+  # case: TRY_SHELL set to an executable
+  [ -x "$TRY_SHELL" ] && return
+
+  # use SHELL (if it's not fish)
+  if [ -x "$SHELL" ] && [ "${SHELL##*/}" != "fish" ]; then
+    TRY_SHELL="$SHELL"
+
+  else
+    login_shell=$(grep -e "^$LOGNAME" /etc/passwd | cut -d: -f7)
+
+    # use login shell (if it's not fish)
+    if [ -x "$login_shell" ] && [ "${login_shell##*/}" != "fish" ]; then
+      TRY_SHELL="$login_shell"
+    else
+      TRY_SHELL="/bin/sh"
+    fi
+  fi
+
+  export TRY_SHELL
+}
+
+
+################################################################################
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
 try() {
+    set_TRY_SHELL
     START_DIR="$PWD"
 
     if [ "$SANDBOX_DIR" ]
@@ -235,7 +263,7 @@ then
     cp $chroot_executable "$SANDBOX_DIR/temproot/$chroot_executable"
 fi
 
-unshare --root="$SANDBOX_DIR/temproot" /bin/sh "$chroot_executable"
+unshare --root="$SANDBOX_DIR/temproot" "$TRY_SHELL" "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
@@ -656,7 +684,8 @@ case "$1" in
               rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (explore) : "${SANDBOX_DIR=$2}"
-              try "$SHELL";;
+              set_TRY_SHELL
+              try "$TRY_SHELL";;
     (--)      shift
               try "$@";;
     (*)       try "$@";;
