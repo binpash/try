@@ -13,8 +13,8 @@ Vagrant.configure("2") do |config|
       sudo apt-get update
       sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
       sudo chown -R vagrant:vagrant try
+
       cd try
-      scripts/run_tests.sh
 
       autoconf && ./configure && make
       sudo make install
@@ -80,7 +80,6 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      scripts/run_tests.sh
 
       autoconf && ./configure && make
       sudo make install
@@ -150,7 +149,6 @@ Vagrant.configure("2") do |config|
       sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) scripts/run_tests.sh
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
@@ -168,7 +166,6 @@ Vagrant.configure("2") do |config|
       sudo rpm -i mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo chown -R vagrant:vagrant try
       cd try
-      TRY_TOP=$(pwd) scripts/run_tests.sh
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
