@@ -204,58 +204,19 @@ int main(int argc, char *argv[]) {
 
       // nothing of interest! directory got made, but modifications must be inside
       break;
+
     case FTS_F: // regular file
-      if (getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {
+    case FTS_SL: // symbolic link
+    case FTS_SLNONE: // dangling symbolic link
+    case FTS_DEFAULT:
+      // Handle whiteout files (both regular files and character devices)
+      if (S_ISREG(ent->fts_statp->st_mode) && getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {
         // TRYCASE(whiteout, *)
         remove_local(local_file, local_exists, &local_stat);
         break;
       }
 
-      if (local_exists) {
-        // TRYCASE(file, file)
-        // TRYCASE(file, dir)
-        // TRYCASE(file, symlink)
-        remove_local(local_file, local_exists, &local_stat);
-      }
-
-      // TRYCASE(file, nonexist)
-      commit(ent->fts_path, local_file);
-      break;
-
-    case FTS_SL: // symbolic link
-    case FTS_SLNONE: // dangling symbolic link
-      // TRYCASE(symlink, *)
-      remove_local(local_file, local_exists, &local_stat);
-
-      // absolute shenanigans: what's the target (and how long is its name)?
-      size_t tgt_len = ent->fts_statp->st_size + 1;
-      if (tgt_len <= 1) { // procfs (and possibly others) return `st_size` of 0 :(
-        tgt_len = PATH_MAX;
-      }
-
-      char *tgt = malloc(sizeof(char) * tgt_len);
-      int nbytes = readlink(ent->fts_path, tgt, tgt_len);
-      if (nbytes == -1) {
-        commit_error(ent->fts_path, "ln -s");
-      }
-
-      while (nbytes == tgt_len) {
-        tgt_len *= 2;
-        tgt = realloc(tgt, sizeof(char) * tgt_len);
-        nbytes = readlink(ent->fts_path, tgt, tgt_len);
-        if (nbytes == -1) {
-          commit_error(ent->fts_path, "ln -s");
-        }
-      }
-      tgt[nbytes] = '\0'; // readlink doesn't put a null byte on the end lol nice work everyone
-
-      if (symlink(tgt, local_file) != 0) {
-        commit_error(ent->fts_path, "ln -s");
-      }
-      free(tgt);
-      break;
-
-    case FTS_DEFAULT:
+      // Handle character device whiteouts (overlay filesystem specific)
       if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {
@@ -266,11 +227,60 @@ int main(int argc, char *argv[]) {
         if (statxp.stx_rdev_major == 0 && statxp.stx_rdev_minor == 0) {
           // TRYCASE(whiteout, *)
           remove_local(local_file, local_exists, &local_stat);
-
           break;
         }
       }
 
+      // Handle symbolic links
+      if (S_ISLNK(ent->fts_statp->st_mode)) {
+        // TRYCASE(symlink, *)
+        remove_local(local_file, local_exists, &local_stat);
+
+        // Read the symlink target
+        size_t tgt_len = ent->fts_statp->st_size + 1;
+        if (tgt_len <= 1) { // procfs (and possibly others) return `st_size` of 0 :(
+          tgt_len = PATH_MAX;
+        }
+
+        char *tgt = malloc(sizeof(char) * tgt_len);
+        int nbytes = readlink(ent->fts_path, tgt, tgt_len);
+        if (nbytes == -1) {
+          commit_error(ent->fts_path, "ln -s");
+          free(tgt);
+          break;
+        }
+
+        while (nbytes == tgt_len) {
+          tgt_len *= 2;
+          tgt = realloc(tgt, sizeof(char) * tgt_len);
+          nbytes = readlink(ent->fts_path, tgt, tgt_len);
+          if (nbytes == -1) {
+            commit_error(ent->fts_path, "ln -s");
+            free(tgt);
+            break;
+          }
+        }
+        tgt[nbytes] = '\0'; // readlink doesn't put a null byte on the end lol nice work everyone
+
+        if (symlink(tgt, local_file) != 0) {
+          commit_error(ent->fts_path, "ln -s");
+        }
+        free(tgt);
+        break;
+      }
+
+      // Handle regular files and other file types
+      if (local_exists) {
+        // TRYCASE(file, file)
+        // TRYCASE(file, dir)  
+        // TRYCASE(file, symlink)
+        remove_local(local_file, local_exists, &local_stat);
+      }
+
+      // TRYCASE(file, nonexist)
+      commit(ent->fts_path, local_file);
+      break;
+    
     case FTS_DC: // cycle
     case FTS_DP: // postorder (second visit)
       break;

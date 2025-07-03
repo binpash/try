@@ -38,7 +38,7 @@ check_file() {
         lf="${lf%)}"
 
         case "$cf" in
-            (file|dir|symlink|nonexist|opaque|whiteout);;
+            (file|dir|symlink|nonexist|opaque|whiteout|fifo|socket);;
             (*) printf "ERROR: $1: invalid changed file: %s\n" "$cf"
                 : $((ERRORS += 1))
                 ;;
