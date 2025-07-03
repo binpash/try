@@ -231,12 +231,11 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      // Handle symbolic links
       if (S_ISLNK(ent->fts_statp->st_mode)) {
         // TRYCASE(symlink, *)
         remove_local(local_file, local_exists, &local_stat);
 
-        // Read the symlink target
+        // absolute shenanigans: what's the target (and how long is its name)?
         size_t tgt_len = ent->fts_statp->st_size + 1;
         if (tgt_len <= 1) { // procfs (and possibly others) return `st_size` of 0 :(
           tgt_len = PATH_MAX;
