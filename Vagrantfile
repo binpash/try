@@ -12,10 +12,10 @@ Vagrant.configure("2") do |config|
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
       sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
-      sudo chown -R vagrant:vagrant try 
+      sudo chown -R vagrant:vagrant try
 
       cd try
-      
+
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
@@ -23,8 +23,6 @@ Vagrant.configure("2") do |config|
       scripts/run_tests.sh
     "
   end
-
- 
 
   # Regular debian testing box but we try the rustup oneliner
   config.vm.define "debianrustup" do |debianrustup|
@@ -82,7 +80,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant /mnt/lv0/try
 
       cd /mnt/lv0/try
-      
+
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2

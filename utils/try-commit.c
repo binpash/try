@@ -271,7 +271,7 @@ int main(int argc, char *argv[]) {
       // Handle regular files and other file types
       if (local_exists) {
         // TRYCASE(file, file)
-        // TRYCASE(file, dir)  
+        // TRYCASE(file, dir)
         // TRYCASE(file, symlink)
         remove_local(local_file, local_exists, &local_stat);
       }

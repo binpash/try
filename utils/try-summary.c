@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
             show_change(local_file, "modified socket");
             break;
           }
-          
+
           // TRYCASE(socket, nonexist)
           show_change(local_file, "created socket");
         }

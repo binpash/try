@@ -384,7 +384,7 @@ else
                 (md*) echo "$local_file (created dir)";;
                 (de*) echo "$local_file (deleted)";;
                 (mo*) echo "$local_file (modified)";;
-                (ad*) echo "$local_file (added)";; 
+                (ad*) echo "$local_file (added)";;
             esac
         done
 
@@ -425,7 +425,7 @@ else
                 (md*) mkdir "$local_file";;
                 (de*) rm -rf "$local_file";;
                 (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
-                (ad*) mv "$changed_file" "$local_file";; 
+                (ad*) mv "$changed_file" "$local_file";;
             esac
 
             # shellcheck disable=SC2181
@@ -519,10 +519,10 @@ process_changes() {
             echo "ad $local_file"
             continue
           elif [ -S "$changed_file" ]
-          then 
+          then
             # // TRYCASE(socket, *)
             echo "ad $local_file"
-            continue            
+            continue
             # must be a directory, but not opaque---leave it!
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] && [ "$(stat -c %t,%T "$changed_file")" = "0,0" ]
         then

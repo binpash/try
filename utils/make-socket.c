@@ -33,7 +33,7 @@ int main(void) {
     }
 
     close(sockfd);
-    
+
     return 0;
 }
 

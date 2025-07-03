@@ -7,7 +7,7 @@ TRY="$TRY_TOP/try"
 cleanup() {
   cd /
 
-  if [ -d "$try_workspace" ] 
+  if [ -d "$try_workspace" ]
   then
     rm -rf "$try_workspace" >/dev/null 2>&1
   fi
