@@ -279,7 +279,7 @@ int main(int argc, char *argv[]) {
       // TRYCASE(file, nonexist)
       commit(ent->fts_path, local_file);
       break;
-    
+
     case FTS_DC: // cycle
     case FTS_DP: // postorder (second visit)
       break;
