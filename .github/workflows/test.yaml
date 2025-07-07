@@ -124,7 +124,7 @@ jobs:
         run: |
           autoconf
           ./configure --disable-utils
-          make
+          make all
           sudo make install
 
       - name: Run tests with shell fallbacks
@@ -139,7 +139,7 @@ jobs:
           rm -f config.status config.cache || true
           autoconf 
           ./configure 
-          make
+          make all
           sudo make install
 
       - name: Run tests with utilities
