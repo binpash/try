@@ -79,6 +79,11 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
+      - name: Clean up build
+        run: |
+         sudo make clean
+
+
       - name: Install utilities
         run: |
           ./configure 
