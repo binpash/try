@@ -83,10 +83,9 @@ jobs:
         run: |
          sudo make clean
 
-
       - name: Install utilities
         run: |
-          ./configure 
+          ./configure
           make all
           sudo make install
 
@@ -125,7 +124,7 @@ jobs:
         run: |
           autoconf
           ./configure --disable-utils
-          make all
+          make
           sudo make install
 
       - name: Run tests with shell fallbacks
@@ -134,12 +133,12 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
-      - name: Clean up build
-        run: |
-          sudo make clean
-
       - name: Install utilities
         run: |
+          make clean
+          autoconf 
+          ./configure 
+          make
           sudo make install
 
       - name: Run tests with utilities
