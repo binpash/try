@@ -81,6 +81,7 @@ jobs:
 
       - name: Install utilities
         run: |
+          rm -r ~/try
           ./configure 
           make all
           sudo make install
@@ -119,9 +120,7 @@ jobs:
       - name: Configure and build utilities
         run: |
           autoconf
-          ./configure --disable-utils
           make all
-          sudo make install 
 
       - name: Run tests with shell fallbacks
         run: |
@@ -129,11 +128,8 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
-      - name: Install utilities
+      - name: Insall utilities
         run: |
-          autoconf 
-          ./configure 
-          make all
           sudo make install
 
       - name: Run tests with utilities

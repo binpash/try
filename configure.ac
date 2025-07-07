@@ -16,7 +16,6 @@ AC_REQUIRE_AUX_FILE([utils/make-socket.c])
 if test "$enable_utils" = "yes"
 then
         AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-        echo "hit yes"
 
         # build tools
         AC_PROG_CC
