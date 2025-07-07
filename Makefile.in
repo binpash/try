@@ -14,8 +14,8 @@ INSTALL=@INSTALL@
 DISTDIR=@PACKAGE_TARNAME@-@PACKAGE_VERSION@
 DISTTGZ=$(DISTDIR).tgz
 
-TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit utils/make-socket) man/try.1.gz
-TARGETS=$(utils/make-socket) #need make-socket for testing regardless
+TARGETS = utils/make-socket $(if $(findstring yes,@enable_utils@), utils/try-summary utils/try-commit)
+TARGETS += man/try.1.gz
 
 all: $(TARGETS)
 

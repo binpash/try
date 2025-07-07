@@ -133,10 +133,12 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
+      - name: Clean build
+        run: |
+          sudo make clean
+
       - name: Install utilities
         run: |
-          make clean || true
-          rm -f config.status config.cache || true
           autoconf 
           ./configure 
           make all

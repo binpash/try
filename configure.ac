@@ -13,6 +13,15 @@ AC_ARG_ENABLE([utils],
 
 AC_REQUIRE_AUX_FILE([utils/make-socket.c])
 
+AC_PROG_CC
+
+if test -z "$CFLAGS"
+then
+        AUTO_CFLAGS="-g -Wall -O2"
+else
+        AUTO_CFLAGS=""
+fi
+
 if test "$enable_utils" = "yes"
 then
         AC_REQUIRE_AUX_FILE([utils/try-commit.c])
