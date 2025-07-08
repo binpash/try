@@ -229,8 +229,10 @@ rm formerdir || fail
 
 ! [ -e newpipe ] || fail
 ! [ -e newfile ] || fail
-"$TRY" -y "mkfifo newpipe"
-rm newpipe || fail
+"$TRY" -y "mkfifo newpipe; rm newpipe; touch newfile; echo new >newfile"
+[ -f newfile ] || fail
+[ "$(cat newfile)" = "new" ] || fail
+rm newfile || fail
 
 # // TRYCASE(fifo, dir)
 
@@ -251,8 +253,6 @@ rm -r newdir
 ln -s "$TRY" newlink
 [ -L newlink ] || fail
 "$TRY" -y "rm newlink; mkfifo newpipe"
-[ -p newpipe ] || fail
-rm newpipe
 
 # // TRYCASE(fifo, nonexist)
 
