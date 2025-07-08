@@ -7,8 +7,7 @@ TRY="$TRY_TOP/try"
 cleanup() {
   cd /
 
-  if [ -d "$try_workspace" ]
-  then
+  if [ -d "$try_workspace" ]; then
     rm -rf "$try_workspace" >/dev/null 2>&1
   fi
 }
@@ -25,8 +24,8 @@ cd "$try_workspace" || exit 99
 
 COUNT=0
 fail() {
-   echo Case $COUNT: "$@"
-   exit ${COUNT}
+  echo Case $COUNT: "$@"
+  exit ${COUNT}
 }
 
 # // TRYCASE(opaque, dir)
@@ -223,6 +222,10 @@ echo arrivederci >formerdir/it/file2 || fail
 [ -L formerdir ] || fail
 [ "$(readlink formerdir)" = "/this/is/a/broken/symlink" ] || fail
 rm formerdir || fail
+
+: $((COUNT += 1))
+
+"$TRY" -y "mkfifo a" || fail
 
 # // TRYCASE(fifo, file)
 
