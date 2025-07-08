@@ -223,6 +223,15 @@ echo arrivederci >formerdir/it/file2 || fail
 [ "$(readlink formerdir)" = "/this/is/a/broken/symlink" ] || fail
 rm formerdir || fail
 
+# // TRYCASE(fifo, file)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+! [ -e newfile ] || fail
+"$TRY" -y "mkfifo newpipe; rm newpipe; touch newfile; echo new >newfile"
+rm newfile || fail
+
 # // TRYCASE(fifo, dir)
 
 : $((COUNT += 1))
