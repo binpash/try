@@ -229,8 +229,8 @@ rm formerdir || fail
 
 ! [ -e newpipe ] || fail
 ! [ -e newfile ] || fail
-"$TRY" -y "mkfifo newpipe; rm newpipe; touch newfile; echo new >newfile"
-rm newfile || fail
+"$TRY" -y "mkfifo newpipe"
+rm newpipe || fail
 
 # // TRYCASE(fifo, dir)
 
