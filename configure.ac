@@ -27,7 +27,6 @@ fi
 if test "$enable_utils" = "yes"
 then
         AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-fi
 
  	AUTO_CPPFLAGS=""
 
