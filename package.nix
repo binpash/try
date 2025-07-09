@@ -16,7 +16,7 @@ stdenv.mkDerivation {
   pname = "try";
   version = "latest";
 
-  src = fetchFromGitHub {
+  src = ./. {
     owner = "binpash";
     repo = "try";
     rev = "67052d8f20725f3cdc22ffaec33f7b7c14f1eb6b";

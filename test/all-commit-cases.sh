@@ -253,6 +253,8 @@ rm -r newdir
 ln -s "$TRY" newlink
 [ -L newlink ] || fail
 "$TRY" -y "rm newlink; mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
 
 # // TRYCASE(fifo, nonexist)
 
