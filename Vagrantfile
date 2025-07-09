@@ -19,6 +19,8 @@ Vagrant.configure("2") do |config|
       sudo make install
       scripts/run_tests.sh
 
+      sudo make clean
+
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
@@ -86,6 +88,8 @@ Vagrant.configure("2") do |config|
       autoconf && ./configure --disable-utils && make
       sudo make install
       scripts/run_tests.sh
+
+      sudo make clean
 
       autoconf && ./configure && make
       sudo make install
@@ -158,6 +162,9 @@ Vagrant.configure("2") do |config|
       autoconf && ./configure --disable-utils && make
       sudo make install
       TRY_TOP=$(pwd) scripts/run_tests.sh
+
+      sudo make clean
+
       autoconf && ./configure && make
       sudo make install
       which try-commit || exit 2
@@ -178,6 +185,8 @@ Vagrant.configure("2") do |config|
       autoconf && ./configure --disable-utils && make
       sudo make install
       TRY_TOP=$(pwd) scipts/run_test.sh
+
+      sudo make clean
 
       autoconf && ./configure && make
       sudo make install
