@@ -13,8 +13,8 @@ Vagrant.configure("2") do |config|
       sudo apt-get update
       sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
       sudo chown -R vagrant:vagrant try
-
-      cd try 
+      sudo modprobe overlay
+      cd try
 
       autoconf && ./configure --disable-utils
       make
@@ -85,6 +85,7 @@ Vagrant.configure("2") do |config|
       # This is intentional, if we moved try to lv1 it'd work since itself does not contain a nested mount
       sudo mv /home/vagrant/try /mnt/lv0
       sudo chown -R vagrant:vagrant /mnt/lv0/try
+      sudo modprobe overlay
 
       cd /mnt/lv0/try
       autoconf && ./configure --disable-utils && make
@@ -160,10 +161,10 @@ Vagrant.configure("2") do |config|
       wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo chown -R vagrant:vagrant try
+      sudo modprobe overlay
       cd try
 
-      autoconf && ./configure --disable-utils
-      make
+      autoconf && ./configure --disable-utils && make
       sudo make install
 
       autoconf && ./configure --disable-utils && make
@@ -188,12 +189,12 @@ Vagrant.configure("2") do |config|
       wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo rpm -i mergerfs-2.40.2-1.fc39.x86_64.rpm
       sudo chown -R vagrant:vagrant try
+      sudo modprobe overlay
       cd try
-      ls 
 
       autoconf && ./configure --disable-utils && make
       sudo make install
-      TRY_TOP=$(pwd) scripts/run_test.sh
+      TRY_TOP=$(pwd) scripts/run_tests.sh
 
       sudo make clean
 
