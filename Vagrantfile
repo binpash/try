@@ -184,7 +184,7 @@ Vagrant.configure("2") do |config|
       cd try
       autoconf && ./configure --disable-utils && make
       sudo make install
-      TRY_TOP=$(pwd) scipts/run_test.sh
+      TRY_TOP=$(pwd) scripts/run_test.sh
 
       sudo make clean
 
