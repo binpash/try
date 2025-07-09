@@ -229,7 +229,9 @@ rm formerdir || fail
 
 ! [ -e newpipe ] || fail
 ! [ -e newfile ] || fail
-"$TRY" -y "mkfifo newpipe; rm newpipe; touch newfile; echo new >newfile"
+"$TRY" -y "mkfifo newpipe"
+[ -p newpipe ] || fail
+"$TRY" -y "rm newpipe; touch newfile; echo new >newfile"
 [ -f newfile ] || fail
 [ "$(cat newfile)" = "new" ] || fail
 rm newfile || fail
@@ -240,7 +242,9 @@ rm newfile || fail
 
 ! [ -e newpipe ] || fail
 ! [ -e newdir ] || fail
-"$TRY" -y "mkfifo newpipe; rm newpipe; mkdir newdir"
+"$TRY" -y "mkfifo newpipe"
+[ -p newpipe ] || fail
+"$TRY" -y "rm newpipe; mkdir newdir"
 [ -d newdir ] || fail
 rm -r newdir
 

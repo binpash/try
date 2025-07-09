@@ -13,8 +13,10 @@ AC_ARG_ENABLE([utils],
 
 AC_REQUIRE_AUX_FILE([utils/make-socket.c])
 
+# build tools
 AC_PROG_CC
 
+# CFLAGS AND CPPFLAGGS
 if test -z "$CFLAGS"
 then
         AUTO_CFLAGS="-g -Wall -O2"
@@ -25,17 +27,7 @@ fi
 if test "$enable_utils" = "yes"
 then
         AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-
-        # build tools
-        AC_PROG_CC
-
-        # CFLAGS and CPPFLAGGS
-	if test -z "$CFLAGS"
-	then
-	        AUTO_CFLAGS="-g -Wall -O2"
-	else
-	        AUTO_CFLAGS=""
-	fi
+fi
 
  	AUTO_CPPFLAGS=""
 
