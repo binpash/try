@@ -14,14 +14,10 @@ Vagrant.configure("2") do |config|
       sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
       sudo chown -R vagrant:vagrant try
 
-      cd try
-
-      scripts/run_tests.sh
+      cd try 
 
       autoconf && ./configure --disable-utils
       make
-
-      autoconf && ./configure --disable-utils && make
       sudo make install
       scripts/run_tests.sh
 
@@ -166,8 +162,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
 
-      TRY_TOP=$(pwd) scripts/run_tests.sh 
-      autoconf && ./configure
+      autoconf && ./configure --disable-utils
       make
       sudo make install
 
