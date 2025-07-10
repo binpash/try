@@ -16,12 +16,7 @@ stdenv.mkDerivation {
   pname = "try";
   version = "latest";
 
-  src = fetchFromGitHub {
-    owner = "binpash";
-    repo = "try";
-    rev = "67052d8f20725f3cdc22ffaec33f7b7c14f1eb6b";
-    hash = "sha256-8mfCmqN50pRAeNTJUlRVrRQulWon4b2OL4Ug/ygBhB0=";
-  };
+  src = ./.;
 
   # skip TRY_REQUIRE_PROG as it detects executable dependencies by running it
   postPatch = ''
@@ -40,6 +35,7 @@ stdenv.mkDerivation {
     install -Dt $out/bin try
     install -Dt $out/bin utils/try-commit
     install -Dt $out/bin utils/try-summary
+    install -Dt $out/bin utils/make-socket
     wrapProgram $out/bin/try --prefix PATH : ${
       lib.makeBinPath [
         coreutils
