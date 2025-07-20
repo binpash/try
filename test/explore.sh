@@ -17,7 +17,7 @@ trap 'cleanup' EXIT
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
-SHELL="/usr/bin/env bash --norc"
+SHELL="/bin/sh"
 export SHELL
 PS1="# "
 export PS1
