@@ -137,6 +137,7 @@ int main(int argc, char *argv[]) {
 
       // nothing of interest! directory got made, but modifications must be inside
       break;
+
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {
         // TRYCASE(whiteout, *)
@@ -163,6 +164,36 @@ int main(int argc, char *argv[]) {
       break;
 
     case FTS_DEFAULT:
+
+      if (S_ISFIFO(ent->fts_statp->st_mode)) {
+
+          if(local_exists) {
+            // TRYCASE(fifo, file)
+            // TRYCASE(fifo, dir)
+            // TRYCASE(fifo, symlink)
+            show_change(local_file, "modified");
+            break;
+          }
+
+          //TRYCASE (fifo, nonexist)
+          show_change(local_file, "added");
+          break;
+        }
+
+      if (S_ISSOCK(ent->fts_statp->st_mode)) {
+
+          if(local_exists) {
+            // TRYCASE(socket, file)
+            // TRYCASE(socket, dir)
+            // TRYCASE(socket, symlink)
+            show_change(local_file, "modified");
+            break;
+          }
+
+          // TRYCASE(socket, nonexist)
+          show_change(local_file, "added");
+        }
+
       if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {
