@@ -19,9 +19,11 @@ AC_PROG_CC
 # CFLAGS AND CPPFLAGGS
 if test -z "$CFLAGS"
 then
-        AUTO_CFLAGS="-g -Wall -O2" 
+        AUTO_CFLAGS="-g -Wall -O2"
+        AUTO_CPPFLAGS="-g -Wall -O2"
 else
         AUTO_CFLAGS=""
+        AUTO_CPPFLAGS=""
 fi
 
 if test "$enable_utils" = "yes"

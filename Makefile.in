@@ -62,7 +62,7 @@ utils/try-commit: utils/ignores.o utils/try-commit.o
 utils/make-socket: utils/make-socket.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
-test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit)
+test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) utils/make-socket
 	scripts/run_tests.sh
 
 lint:
