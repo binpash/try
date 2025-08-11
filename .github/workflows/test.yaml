@@ -85,6 +85,7 @@ jobs:
 
       - name: Install utilities
         run: |
+          autoconf
           ./configure
           make all
           sudo make install
