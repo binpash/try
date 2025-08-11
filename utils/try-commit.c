@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
       break;
 
     case FTS_DEFAULT:
-      
+
       if (S_ISFIFO(ent->fts_statp->st_mode) || (S_ISSOCK(ent->fts_statp->st_mode))) {
 
         if (local_exists) {
