@@ -59,7 +59,7 @@ utils/try-summary: utils/ignores.o utils/try-summary.o
 utils/try-commit: utils/ignores.o utils/try-commit.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
-utils/make-socket: utils/make-socket.o
+utils/make-socket: utils/ignores.o utils/make-socket.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
 test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit)
