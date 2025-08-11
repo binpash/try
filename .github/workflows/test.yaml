@@ -115,7 +115,6 @@ jobs:
 
       - name: Configure and build utilities
         run: |
-          autoconf
           ./configure
           make all
 
