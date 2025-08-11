@@ -69,8 +69,9 @@ jobs:
         run: |
           tar xzf try-dist.tgz/try-*.tgz --strip-components=1
           rm -r try-dist.tgz
-          ./configure
+          ./configure --disable-utils
           make all
+          sudo make install
 
       - name: Run tests with shell fallbacks
         run: |
@@ -78,8 +79,14 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
+      - name: Clean up build
+        run: |
+         sudo make clean
+
       - name: Install utilities
         run: |
+          ./configure
+          make all
           sudo make install
 
       - name: Run tests with utilities
@@ -115,8 +122,10 @@ jobs:
 
       - name: Configure and build utilities
         run: |
-          ./configure
+          autoconf
+          ./configure --disable-utils
           make all
+          sudo make install
 
       - name: Run tests with shell fallbacks
         run: |
@@ -124,8 +133,15 @@ jobs:
           ! which try-commit
           scripts/run_tests.sh
 
+      - name: Clean up build
+        run: |
+          sudo make clean
+
       - name: Install utilities
         run: |
+          autoconf
+          ./configure
+          make all
           sudo make install
 
       - name: Run tests with utilities
