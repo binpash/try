@@ -256,6 +256,25 @@ int main(int argc, char *argv[]) {
       break;
 
     case FTS_DEFAULT:
+      
+      if (S_ISFIFO(ent->fts_statp->st_mode) || (S_ISSOCK(ent->fts_statp->st_mode))) {
+
+        if (local_exists) {
+          // TRYCASE(fifo, file)
+          // TRYCASE(fifo, dir)
+          // TRYCASE(fifo, symlink)
+          // TRYCASE(socket, file)
+          // TRYCASE(socket, dir)
+          // TRYCASE(socket, symlink)
+          remove_local(local_file, local_exists, &local_stat);
+        }
+
+        // TRYCASE(fifo, nonexist)
+        // TRYCASE(socket, nonexist)
+        commit(ent->fts_path, local_file);
+        break;
+      }
+
       if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {

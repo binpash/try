@@ -16,13 +16,14 @@ INSTALL=@INSTALL@
 DISTDIR=@PACKAGE_TARNAME@-@PACKAGE_VERSION@
 DISTTGZ=$(DISTDIR).tgz
 
-TARGETS=$(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) man/try.1.gz
+TARGETS=utils/make-socket $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) man/try.1.gz
 
 all: $(TARGETS)
 
 install: $(TARGETS)
 	$(INSTALL) -d $(bindir)
 	$(INSTALL) -m 755 try $(bindir)
+	$(INSTALL) -m 755 utils/make-socket $(bindir)
 ifeq (@enable_utils@, yes)
 	$(INSTALL) -m 755 utils/try-summary $(bindir)
 	$(INSTALL) -m 755 utils/try-commit $(bindir)
@@ -56,6 +57,9 @@ utils/try-summary: utils/ignores.o utils/try-summary.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
 utils/try-commit: utils/ignores.o utils/try-commit.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+
+utils/make-socket: utils/make-socket.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
 test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit)

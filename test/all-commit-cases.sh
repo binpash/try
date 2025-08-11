@@ -5,12 +5,11 @@ TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-
 TRY="$TRY_TOP/try"
 
 cleanup() {
-    cd /
+  cd /
 
-    if [ -d "$try_workspace" ]
-    then
-        rm -rf "$try_workspace" >/dev/null 2>&1
-    fi
+  if [ -d "$try_workspace" ]; then
+    rm -rf "$try_workspace" >/dev/null 2>&1
+  fi
 }
 
 trap 'cleanup' EXIT
@@ -25,10 +24,9 @@ cd "$try_workspace" || exit 99
 
 COUNT=0
 fail() {
-    echo Case $COUNT: "$@"
-    exit ${COUNT}
+  echo Case $COUNT: "$@"
+  exit ${COUNT}
 }
-
 
 # // TRYCASE(opaque, dir)
 # // TRYCASE(dir, dir)
@@ -224,3 +222,82 @@ echo arrivederci >formerdir/it/file2 || fail
 [ -L formerdir ] || fail
 [ "$(readlink formerdir)" = "/this/is/a/broken/symlink" ] || fail
 rm formerdir || fail
+
+# // TRYCASE(fifo, file)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "mkfifo newpipe; rm newpipe; touch newpipe; echo new >newpipe"
+[ -f newpipe ] || fail
+[ "$(cat newpipe)" = "new" ] || fail
+rm newpipe || fail
+
+# // TRYCASE(fifo, dir)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "mkfifo newpipe; rm newpipe; mkdir newpipe"
+[ -d newpipe ] || fail
+rm -r newpipe
+
+# // TRYCASE(fifo, symlink)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+ln -s "$TRY" newpipe
+[ -L newpipe ] || fail
+"$TRY" -y "rm newpipe; mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(fifo, nonexist)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(socket, file)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+"$TRY" -y "make-socket newsock; rm newsock; touch newsock; echo hello> newsock"
+[ -f newsock ] || fail
+[ "$(cat newsock)" = "hello" ] || fail
+rm newsock
+
+# // TRYCASE(socket, dir)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+"$TRY" -y "make-socket newsock; rm newsock; mkdir newsock"
+[ -d newsock ] || fail
+rm -r newsock
+
+# // TRYCASE(socket, symlink)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+ln -s "$TRY" newsock
+[ -L newsock ] || fail
+"$TRY" -y "rm newsock; make-socket newsock"
+! [ -e newlink ] || fail
+[ -S newsock ] || fail
+rm newsock
+
+# // TRYCASE(socket, nonexist)
+
+: $((COUNT += 1))
+
+! [ -e newsock ]
+"$TRY" -y "make-socket newsock"
+[ -S newsock ] || fail
+rm newsock
