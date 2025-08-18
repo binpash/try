@@ -1,5 +1,5 @@
 AC_PREREQ(2.68)
-AC_INIT([try], [0.2.0], [https://github.com/binpash/try/issues])
+AC_INIT([try], [0.3.0], [https://github.com/binpash/try/issues])
 
 # make sure we're in the right place
 AC_CONFIG_SRCDIR([try])
