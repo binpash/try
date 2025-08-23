@@ -1,4 +1,7 @@
 { pkgs ? import <nixpkgs> {}}:
+let
+  try = pkgs.callPackage ./package.nix {};
+in
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
@@ -10,7 +13,12 @@ pkgs.mkShell {
     shellcheck
     autoconf
     pandoc
-    (pkgs.callPackage ./package.nix {})
+    bash
+    curl
+    try
   ];
+  shellHook = ''
+    export TRY_TOP="${try}/bin"
+  '';
 }
 

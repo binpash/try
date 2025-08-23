@@ -207,7 +207,8 @@ jobs:
 
       - name: Run tests
         run: |
-          nix-shell --run "sh scripts/run_tests.sh"
+          rm ~/.bashrc
+          nix-shell --pure --run "sh scripts/run_tests.sh"
 
 
   prerelease:
