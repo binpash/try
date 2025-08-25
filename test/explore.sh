@@ -17,11 +17,6 @@ trap 'cleanup' EXIT
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
-SHELL="/usr/bin/env bash --norc"
-export SHELL
-PS1="# "
-export PS1
-
 echo hi >expected.out
 
 cat >explore.exp <<EOF
@@ -30,6 +25,7 @@ cat >explore.exp <<EOF
 set timeout 3
 
 spawn "$TRY" explore
+send -- "PS1='# '\r"
 expect {
     # Ignore the warnings
     "Warning*" {
