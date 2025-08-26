@@ -17,14 +17,8 @@ AC_REQUIRE_AUX_FILE([utils/make-socket.c])
 AC_PROG_CC
 
 # CFLAGS AND CPPFLAGGS
-if test -z "$CFLAGS"
-then
-        AUTO_CFLAGS="-g -Wall -O2"
-        AUTO_CPPFLAGS="-g -Wall -O2"
-else
-        AUTO_CFLAGS=""
-        AUTO_CPPFLAGS=""
-fi
+AUTO_CFLAGS=""
+AUTO_CPPFLAGS=""
 
 if test "$enable_utils" = "yes"
 then

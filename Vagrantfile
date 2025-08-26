@@ -15,9 +15,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       sudo modprobe overlay
       cd try
-
-      autoconf && ./configure --disable-utils
-      make
+      autoconf && ./configure --disable-utils && make
       sudo make install
       scripts/run_tests.sh
 

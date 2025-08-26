@@ -158,7 +158,7 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     overlay_mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint,xino=off,index=off" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
 
@@ -279,7 +279,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
@@ -455,8 +455,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
 
-    find "$sandbox_dir/upperdir/" \( -type f -o -type c -size 0 -o -type d -o -type l -o -type s -o -type p \) | ignore_changes "$ignore_file"
-
+    find "$sandbox_dir/upperdir/" | ignore_changes "$ignore_file"
    }
 
 ################################################################################
@@ -512,34 +511,12 @@ process_changes() {
                 echo "rd $local_file"
                 continue
             fi
-          elif [ -p "$changed_file" ]
-          then
-            if [ -e "$local_file" ]
-            then
-                # // TRYCASE(fifo, file)
-                # // TRYCASE(fifo, dir)
-                # // TRYCASE(fifo, symlink)
-                echo "mo $local_file"
-                continue
-            else
-                # // TRYCASE(fifo, nonexist)
-                echo "ad $local_file"
-                continue
-            fi
-            # // TRYCASE(fifo, *)
-            echo "ad $local_file"
-            continue
-          elif [ -S "$changed_file" ]
-          then
-            # // TRYCASE(socket, *)
-            echo "ad $local_file"
-            continue
-            # must be a directory, but not opaque---leave it!
+                     # must be a directory, but not opaque---leave it!
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] && [ "$(stat -c %t,%T "$changed_file")" = "0,0" ]
         then
             # // TRYCASE(whiteout, *)
             echo "de $local_file"
-        elif [ -f "$changed_file" ]
+        elif [ -f "$changed_file" ] || [ -p "$changed_file" ] || [ -S "$changed_file" ]
         then
             if [ -f "$changed_file" ] && getfattr --absolute-names -d "$changed_file" 2>/dev/null | grep -q -e "user.overlay.whiteout"
             then
@@ -553,11 +530,25 @@ process_changes() {
                 # // TRYCASE(file, file)
                 # // TRYCASE(file, dir)
                 # // TRYCASE(file, symlink)
+                # // TRYCASE(fifo, file)
+                # // TRYCASE(fifo, dir)
+                # // TRYCASE(fifo, symlink)
+                # // TRYCASE(socket, file)
+                # // TRYCASE(socket, dir)
+                # // TRYCASE(socket, symlink)
                 echo "mo $local_file"
+                continue
             else
                 # // TRYCASE(file, nonexist)
+                # // TRYCASE(fifo, nonexist)
+                # // TRYCASE(socket, nonexist)
                 echo "ad $local_file"
+                continue
             fi
+            # // TRYCASE(fifo, *)
+            # // TRYCASE(socket, *)
+            echo "ad $local_file"
+            continue
         fi
     done <<EOF
 $changed_files

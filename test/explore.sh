@@ -4,12 +4,11 @@ TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-
 TRY="$TRY_TOP/try"
 
 cleanup() {
-    cd /
+  cd /
 
-    if [ -d "$try_workspace" ]
-    then
-        rm -rf "$try_workspace" >/dev/null 2>&1
-    fi
+  if [ -d "$try_workspace" ]; then
+    rm -rf "$try_workspace" >/dev/null 2>&1
+  fi
 }
 
 trap 'cleanup' EXIT
