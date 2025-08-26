@@ -242,7 +242,7 @@ rm newpipe
 : $((COUNT += 1))
 
 ! [ -e newpipe ] || fail
-"$TRY" -y "mkdir newpipe" 
+"$TRY" -y "mkdir newpipe"
 [ -d newpipe ] || fail
 "$TRY" -y "rm -r newpipe; mkfifo newpipe"
 [ -p newpipe ] || fail
