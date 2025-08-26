@@ -224,3 +224,90 @@ echo arrivederci >formerdir/it/file2 || fail
 [ -L formerdir ] || fail
 [ "$(readlink formerdir)" = "/this/is/a/broken/symlink" ] || fail
 rm formerdir || fail
+
+# // TRYCASE(fifo, file)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "touch newpipe; echo new >newpipe"
+[ -f newpipe ] || fail
+[ "$(cat newpipe)" = "new" ] || fail
+"$TRY" -y "rm newpipe; mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(fifo, dir)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "mkdir newpipe" 
+[ -d newpipe ] || fail
+"$TRY" -y "rm -r newpipe; mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(fifo, symlink)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+ln -s "$TRY" newpipe
+[ -L newpipe ] || fail
+"$TRY" -y "rm newpipe; mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(fifo, nonexist)
+
+: $((COUNT += 1))
+
+! [ -e newpipe ] || fail
+"$TRY" -y "mkfifo newpipe"
+[ -p newpipe ] || fail
+rm newpipe
+
+# // TRYCASE(socket, file)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+"$TRY" -y "touch newsock; echo hello> newsock"
+[ -f newsock ] || fail
+[ "$(cat newsock)" = "hello" ] || fail
+"$TRY" -y "rm newsock; make-socket newsock"
+[ -S newsock ] || fail
+rm newsock
+
+# // TRYCASE(socket, dir)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+"$TRY" -y "mkdir newsock"
+[ -d newsock ] || fail
+"$TRY" -y "rm -r newsock; make-socket newsock"
+[ -S newsock ] || fail
+rm newsock
+
+# // TRYCASE(socket, symlink)
+
+: $((COUNT += 1))
+
+! [ -e newsock ] || fail
+ln -s "$TRY" newsock
+[ -L newsock ] || fail
+"$TRY" -y "rm newsock; make-socket newsock"
+! [ -e newlink ] || fail
+[ -S newsock ] || fail
+rm newsock
+
+# // TRYCASE(socket, nonexist)
+
+: $((COUNT += 1))
+
+! [ -e newsock ]
+"$TRY" -y "make-socket newsock"
+[ -S newsock ] || fail
+rm newsock
