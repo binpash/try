@@ -20,7 +20,8 @@ expected="$(mktemp)"
 
 echo "$OLDPWD" >"$expected"
 
-"$TRY" "echo "$TEMP_OLDPWD"" >"$out" || exit 1
+# shellcheck disable=SC2016
+"$TRY" 'echo "$TEMP_OLDPWD"' >"$out" || exit 1
 
 if ! diff -q "$expected" "$out"; then
   exit 2
