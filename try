@@ -68,6 +68,10 @@ try() {
         SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"
     fi
 
+    #TEMP_OLDPWD is for testing purposes
+    export "OLDPWD"="$OLDPWD"
+    export "TEMP_OLDPWD"="$OLDPWD"
+
     ## If the sandbox is not valid we exit early
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
     then
@@ -282,7 +286,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
