@@ -26,29 +26,30 @@ cleanup() {
         rm "$try_example_dir3"
     fi
 
-    if [ -f "$try_example_dir4" ]
-    then
-        rm "$try_example_dir4"
-    fi
+#    if [ -f "$try_example_dir4" ]
+#    then
+#        rm "$try_example_dir4"
+#    fi
 
-    if [ -f "$expected1" ]
-    then
-       rm "$expected1"
-    fi
+#    if [ -f "$reuse_stderr" ]
+#    then
+#       rm "$reuse_stderr"
+#    fi
 
-    if [ -f "$expected2" ]
-    then
-       rm "$expected2"
-    fi
-    if [ -f "$expected3" ]
-    then
-       rm "$expected3"
-    fi
+   if [ -f "$expected1" ]
+   then
+      rm "$expected1"
+   fi
 
-    if [ -f "$reuse_stderr" ]
-    then
-       rm "$reuse_stderr"
-    fi
+   if [ -f "$expected2" ]
+   then
+      rm "$expected2"
+   fi
+
+   if [ -f "$expected3" ]
+   then
+      rm "$expected3"
+   fi
 }
 
 trap 'cleanup' EXIT
@@ -72,6 +73,7 @@ expected3="$(mktemp)"
 touch "$expected1"
 echo "test2" > "$expected2"
 echo "test3" > "$expected3"
+
 
 "$TRY" -N "$try_example_dir1" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || exit 2
 "$TRY" -N "$try_example_dir2" "echo test2 > file_2.txt" || exit 3
