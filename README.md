@@ -211,6 +211,20 @@ Please also report any issue you run into while using the future branch!
 
 ## Version History
 
+* v0.3.0 - 2025-05-21
+  - Implement Multi-Lower-Layer Overlay Support through Merging
+  - Add option `-x` to unshare network namespace
+  - Replace subshell with POSIX Parameter expansion
+  - Keep toplevel dir modes and symlinks
+  - Use tmpfs if tmp is in overlay for docker support
+  - C utilities for summarizing and committing changes
+  - Autoconfiscate
+  - Stdstream support
+  - Minimize tempfile churn
+  - Naming tempfiles
+  - Bug fixes
+
+
 * v0.2.0 - 2023-07-24
   - Refactor tests.
   - Improved linting.
