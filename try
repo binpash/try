@@ -50,6 +50,8 @@ set_TRY_SHELL() {
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
+TRY_TRACE_PATH="/run/try_trace.log"
+
 try() {
     set_TRY_SHELL
     START_DIR="$PWD"
@@ -279,6 +281,11 @@ exit $exitcode
 EOF
 
     # NB we substitute in the heredoc, so the early unsets are okay!
+    if [ -n "${TRACE_FILE}" ]; then
+	WRAPPER_COMMAND="strace -y -f  --seccomp-bpf --trace=fork,clone,%file -o ${TRY_TRACE_PATH} sh"
+    else
+	WRAPPER_COMMAND="."
+    fi
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
@@ -290,7 +297,7 @@ ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
-. "$script_to_execute"
+${WRAPPER_COMMAND} "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -402,6 +409,9 @@ if type try-commit >/dev/null 2>&1
 then
     commit() {
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
+	if  [ -n "${TRACE_FILE}" ]; then
+	    trace_v2.py ${SANDBOX_DIR}/upperdir/${TRY_TRACE_PATH} > ${TRACE_FILE}
+	fi
         TRY_EXIT_STATUS=$?
     }
 else
@@ -634,8 +644,10 @@ NO_COMMIT="interactive"
 # We have to create this temporary up front.
 # We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
 IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
+echo "/run/mount" >>"$IGNORE_FILE"
+echo "$TRY_TRACE_PATH" >> "$IGNORE_FILE"
 
-while getopts ":yvnhxi:D:U:L:" opt
+while getopts ":yvnhxit:D:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -661,6 +673,7 @@ do
               fi
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
+        (t)   TRACE_FILE="$OPTARG";;
         (x)   EXTRA_NS="--net";;
         (h|*) usage
               exit 0;;
@@ -694,3 +707,4 @@ case "$1" in
 esac
 
 exit "$TRY_EXIT_STATUS"
+
