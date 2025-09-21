@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
 
     case FTS_DEFAULT:
 
-      if (S_ISFIFO(ent->fts_statp->st_mode) || S_ISSOCK(ent->fts_statp->st_mode)){
+      if (S_ISFIFO(ent->fts_statp->st_mode) || S_ISSOCK(ent->fts_statp->st_mode)) {
 
           if(local_exists) {
             // TRYCASE(fifo, file)
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
           show_change(local_file, "added");
           break;
         }
- 
+
       if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {
