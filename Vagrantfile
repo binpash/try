@@ -161,10 +161,7 @@ Vagrant.configure("2") do |config|
       sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo chown -R vagrant:vagrant try
       sudo modprobe overlay
-      cd try
-
-      autoconf && ./configure --disable-utils && make
-      sudo make install
+      cd try 
 
       autoconf && ./configure --disable-utils && make
       sudo make install

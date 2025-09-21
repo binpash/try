@@ -245,8 +245,10 @@ do
             mkdir "$merger_dir"
 
             ## Create a union directory
-            "$UNION_HELPER" $mountpoint $merger_dir 2>>"$try_mount_log" ||
-                printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+            ## NB $mountpoint is the local directory to mount
+            ##    $merger_dir is where we'll put its merger
+            "$UNION_HELPER" "$mountpoint" "$merger_dir" 2>>"$try_mount_log" ||
+            printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
             make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
@@ -456,7 +458,7 @@ find_upperdir_changes() {
     ignore_file="$2"
 
     find "$sandbox_dir/upperdir/" | ignore_changes "$ignore_file"
-   }
+}
 
 ################################################################################
 # Processes upperdir changes to an internal format that can be processed by summary and commit
@@ -511,7 +513,7 @@ process_changes() {
                 echo "rd $local_file"
                 continue
             fi
-                     # must be a directory, but not opaque---leave it!
+            # must be a directory, but not opaque---leave it!
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] && [ "$(stat -c %t,%T "$changed_file")" = "0,0" ]
         then
             # // TRYCASE(whiteout, *)

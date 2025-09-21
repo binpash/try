@@ -165,24 +165,12 @@ int main(int argc, char *argv[]) {
 
     case FTS_DEFAULT:
 
-      if (S_ISFIFO(ent->fts_statp->st_mode)) {
+      if (S_ISFIFO(ent->fts_statp->st_mode) || S_ISSOCK(ent->fts_statp->st_mode)){
 
           if(local_exists) {
             // TRYCASE(fifo, file)
             // TRYCASE(fifo, dir)
             // TRYCASE(fifo, symlink)
-            show_change(local_file, "modified");
-            break;
-          }
-
-          //TRYCASE (fifo, nonexist)
-          show_change(local_file, "added");
-          break;
-        }
-
-      if (S_ISSOCK(ent->fts_statp->st_mode)) {
-
-          if(local_exists) {
             // TRYCASE(socket, file)
             // TRYCASE(socket, dir)
             // TRYCASE(socket, symlink)
@@ -190,10 +178,12 @@ int main(int argc, char *argv[]) {
             break;
           }
 
+          // TRYCASE(fifo, nonexist)
           // TRYCASE(socket, nonexist)
           show_change(local_file, "added");
+          break;
         }
-
+ 
       if (S_ISCHR(ent->fts_statp->st_mode) && ent->fts_statp->st_size == 0) {
         struct statx statxp;
         if (statx(AT_FDCWD, ent->fts_path, 0, STATX_TYPE | STATX_INO, &statxp) == -1) {
