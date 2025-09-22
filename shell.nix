@@ -10,6 +10,11 @@ pkgs.mkShell {
     shellcheck
     autoconf
     pandoc
+    rustc
+    cargo
+    rustfmt
+    rust-analyzer
+    clippy
     (pkgs.callPackage ./package.nix {})
   ];
 }

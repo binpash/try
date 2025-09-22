@@ -235,6 +235,13 @@ autodetect_union_helper() {
     fi
 }
 
+# notify the mapper that we're up
+echo "a" > "$SOCKET"
+
+# wait for mapper to finish
+cat "$SOCKET" > /dev/null
+
+
 # Detect if union_helper is set, if not, we try to autodetect them
 date +"%s.%N Union helper detection" >&3
 if [ -z "$UNION_HELPER" ]
@@ -334,7 +341,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS SOCKET
 unset script_to_execute chroot_executable try_mount_log
 
 date +"%s.%N Mounting Inner Proc" >&3
@@ -355,6 +362,15 @@ EOF
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     date +"%s.%N Disable job control" >&3
     [ -t 0 ] && set -m
+
+    # mapper control socket
+    SOCKET="$(mktemp -u)"
+    mkfifo "$SOCKET"
+    export SOCKET
+
+    # Running mapper in a subshell to suppress job control [1] + Done message
+    (mapper&)
+
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
@@ -660,6 +676,32 @@ error() {
     warn "$msg"
     exit "$exit_status"
 }
+
+################################################################################
+# Change uid/gid mapping
+################################################################################
+
+mapper() {
+    cat "$SOCKET" > /dev/null
+    # Get the pid of the unshare process with current pid as parent
+    pid=$(pgrep -P $$ -f unshare)
+
+    # Map root user to current user, and all groups
+    # Usage: gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount
+    if [ "$(id -u)" = 0 ]
+    then
+        # If we're running as root, we can map all the users
+        gidmapper "$pid" 0 0 65535 0 0 65535
+    else
+        # If not running as root, we can only mount the caller user
+        gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
+    fi
+
+    # Notify the unshare process that we have finished
+    echo "a" > "$SOCKET"
+}
+
+
 
 ################################################################################
 # Argument parsing
