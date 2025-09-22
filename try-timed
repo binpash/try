@@ -380,7 +380,7 @@ EOF
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     date +"%s.%N Outer unshare" >&3
     # shellcheck disable=SC2086 # we want field splitting!
-    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
+    unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
