@@ -236,9 +236,11 @@ autodetect_union_helper() {
 }
 
 # notify the mapper that we're up
+date +"%s.%N triggering mapper" >&3
 echo "a" > "$SOCKET"
 
 # wait for mapper to finish
+date +"%s.%N waiting on mapper" >&3
 cat "$SOCKET" > /dev/null
 
 
@@ -369,6 +371,7 @@ EOF
     export SOCKET
 
     # Running mapper in a subshell to suppress job control [1] + Done message
+    date +"%s.%N starting mapper" >&3
     (mapper&)
 
 
@@ -684,6 +687,7 @@ error() {
 mapper() {
     cat "$SOCKET" > /dev/null
     # Get the pid of the unshare process with current pid as parent
+    date +"%s.%N mapper: pgrep" >&3
     pid=$(pgrep -P $$ -f unshare)
 
     # Map root user to current user, and all groups
@@ -691,13 +695,16 @@ mapper() {
     if [ "$(id -u)" = 0 ]
     then
         # If we're running as root, we can map all the users
+    	date +"%s.%N mapper: calling mapper bin" >&3
         gidmapper "$pid" 0 0 65535 0 0 65535
     else
         # If not running as root, we can only mount the caller user
+    	date +"%s.%N mapper: calling mapper bin" >&3
         gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
     fi
 
     # Notify the unshare process that we have finished
+    date +"%s.%N mapper: finish" >&3
     echo "a" > "$SOCKET"
 }
 
