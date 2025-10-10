@@ -18,10 +18,10 @@ cleanup() {
 out="$(mktemp)"
 expected="$(mktemp)"
 
-echo "$OLDPWD" >"$expected"
+echo "$PWD $OLDPWD" >"$expected"
 
 # shellcheck disable=SC2016
-"$TRY" 'echo "$TEMP_OLDPWD"' >"$out" || exit 1
+"$TRY" 'echo "$PWD $OLDPWD"' >"$out" || exit 1
 
 if ! diff -q "$expected" "$out"; then
   exit 2
