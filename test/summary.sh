@@ -35,6 +35,8 @@ try_example_dir=$(mktemp -d)
 "$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir new_dir/nested" || exit 1
 "$TRY" summary "$try_example_dir" >summary.out || exit 2
 
+cat summary.out
+
 # Check that the summary correctly identifies every change
 grep -qx -e "$PWD/file_1.txt (added)"           summary.out || exit 3
 grep -qx -e "$PWD/file_2.txt (modified)"        summary.out || exit 4
