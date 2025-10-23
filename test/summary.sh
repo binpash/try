@@ -32,7 +32,7 @@ echo 'fail' >file_2.txt
 touch target
 
 try_example_dir=$(mktemp -d)
-"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir new_dir/nested" || exit 1
+"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir new_dir; mkdir new_dir/nested" || exit 1
 "$TRY" summary "$try_example_dir" >summary.out || exit 2
 
 cat summary.out
