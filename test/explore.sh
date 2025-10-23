@@ -39,4 +39,5 @@ EOF
 # Debug using the -d flag
 expect -d explore.exp >/dev/null || exit 1
 
-diff -q expected.out test.txt
+[ -f test.txt ] || exit 2
+diff -q expected.out test.txt || exit 3
