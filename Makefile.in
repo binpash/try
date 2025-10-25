@@ -4,7 +4,9 @@ bindir=@bindir@
 datarootdir=@datarootdir@
 mandir=@mandir@
 
+ifneq (@CC@,)
 CC=@CC@
+endif
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
 INSTALL=@INSTALL@
@@ -56,7 +58,7 @@ utils/try-summary: utils/ignores.o utils/try-summary.o
 utils/try-commit: utils/ignores.o utils/try-commit.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
-test: try utils/try-summary utils/try-commit
+test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit)
 	scripts/run_tests.sh
 
 lint:

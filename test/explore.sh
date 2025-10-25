@@ -30,6 +30,7 @@ cat >explore.exp <<EOF
 set timeout 3
 
 spawn "$TRY" explore
+send -- "PS1='# '\r"
 expect {
     # Ignore the warnings
     "Warning*" {
