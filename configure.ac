@@ -224,6 +224,7 @@ TRY_TEST_PROG([curl])
 TRY_TEST_PROG([diff])
 TRY_TEST_PROG([touch])
 TRY_TEST_PROG([gunzip])
+TRY_TEST_PROG([realpath])
 
 if test "$missing_test_programs" -ne 0
 then
