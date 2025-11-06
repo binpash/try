@@ -24,10 +24,7 @@ check_case() {
   expected="$(mktemp)"
   out="$(mktemp)"
   echo "$expected_output" >"$expected"
-  TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "readlink /proc/$$/exe" >"$out" || exit 1
-
-  cat "$out"
-  #cat "$expected_output"
+  TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
 
   if ! diff -q "$expected" "$out"; then
     exit "$case"
