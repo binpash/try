@@ -28,16 +28,20 @@ void show_change(char *local_file, char *msg) {
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-summary [-i IGNORE_FILE] SANDBOX_DIR\n");
+  fprintf(stderr, "Usage: try-summary [-q] [-i IGNORE_FILE] SANDBOX_DIR\n");
   exit(status);
 }
 
 int main(int argc, char *argv[]) {
+  int skip_new_directories = 0;
   int opt;
-  while ((opt = getopt(argc, argv, "hvi:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvqi:")) != -1) {
     switch (opt) {
     case 'i':
       load_ignores("try-summary", optarg);
+      break;
+    case 'q':
+      skip_new_directories = 1;
       break;
     case 'v':
       fprintf(stderr, "try-summary version " TRY_VERSION "\n");
@@ -114,7 +118,11 @@ int main(int argc, char *argv[]) {
         show_change(local_file, "created dir");
 
         // don't traverse children, we copied the whole thing
-        fts_set(fts, ent, FTS_SKIP);
+        // only done when -q flag is supplied
+        // try will not supply this flag by default
+        if (skip_new_directories) {
+          fts_set(fts, ent, FTS_SKIP);
+        }
         break;
       }
 
