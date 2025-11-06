@@ -166,7 +166,7 @@ check_fstype() {
     mountpoint="$1"
     fstype=$(stat -f -c %T "$mountpoint")
 
-    if [[ "$fstype" = "msdos" || "$fstype" = "exfat" || "$fstype" = "hfs" || "$fstype" = "hfs+" ]]; then 
+    if [[ "$fstype" = "msdos" || "$fstype" = "exfat" || "$fstype" = "hfs" || "$fstype" = "hfs+" ]]; then
       return 1
     fi
 
