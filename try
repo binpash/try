@@ -159,7 +159,7 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     overlay_mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint,index=off" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
 check_fstype() {
