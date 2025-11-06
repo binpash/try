@@ -25,29 +25,19 @@ cat >explore.exp <<EOF
 set timeout 3
 
 spawn "$TRY" explore
-send -- "PS1='# '\r"
-expect {
-    # Ignore the warnings
-    "Warning*" {
-        exp_continue
-    }
-    # When we get the prompt, send the command
-    "#*" {
-        send -- "echo hi>test.txt\r"
-    }
-  }
-expect "#"
-# Send exit
-send \x04
 
-# Ignore all output and just send a y at the end
-expect ""
-expect "Commit*"
+# shell interaction
+send -- "echo hi>test.txt\r"
+send -- "exit\r"
+
+# commit interaction
+expect "Commit these changes?*"
 send -- "y\r"
 expect eof
 EOF
 
 # Debug using the -d flag
-expect explore.exp >/dev/null || exit 1
+expect -d explore.exp >/dev/null || exit 1
 
-diff -q expected.out test.txt
+[ -f test.txt ] || exit 2
+diff -q expected.out test.txt || exit 3
