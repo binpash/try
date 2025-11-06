@@ -67,6 +67,8 @@ try() {
         ## Create a new sandbox if one was not given
         SANDBOX_DIR="$(mktemp -d --suffix ".try-$EXECID")"
     fi
+    OLDPWD="a" 
+    export "OLDPWD"="$OLDPWD"
 
     ## If the sandbox is not valid we exit early
     if ! sandbox_valid_or_empty "$SANDBOX_DIR"
@@ -162,17 +164,6 @@ make_overlay() {
     mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
-check_fstype() {
-    mountpoint="$1"
-    fstype=$(stat -f -c %T "$mountpoint")
-
-    if [[ "$fstype" = "msdos" || "$fstype" = "exfat" || "$fstype" = "hfs" || "$fstype" = "hfs+" ]]; then 
-      return 1
-    fi
-
-    return 0
-}
-
 
 devices_to_mount="tty null zero full random urandom"
 
@@ -236,18 +227,9 @@ do
     esac
 
     # Try mounting everything normally
-    # If the fstype is valid we mount everything
-
-    check=0
-
-    if check_fstype "$pure_mountpoint"; then
-      make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
-    else
-      check=1
-    fi
-
+    make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
-    if [[ "$?" -ne 0 || "$check" -ne 0 ]]
+    if [ "$?" -ne 0 ]
     then
         ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
@@ -302,7 +284,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
@@ -331,6 +313,13 @@ EOF
     unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
+    OLDPWD="a"   
+    
+    #echo "$OLDPWD"
+    #cd $TEMP_OLDPWD
+    #cd $TEMP_PWD
+    #echo "$OLDPWD"
+
     # remove symlink
     # first set temproot to be writible, rhel derivatives defaults / to r-xr-xr-x
     chmod 755 "${SANDBOX_DIR}/temproot"
@@ -345,7 +334,7 @@ EOF
 
     ################################################################################
     # commit?
-
+    
     case "$NO_COMMIT" in
         (quiet)       ;;
         (show)        echo "$SANDBOX_DIR";;
@@ -355,6 +344,7 @@ EOF
                       if [ "$?" -eq 0 ]
                       then
                           printf "\nCommit these changes? [y/N] " >&2
+                          echo "$OLDPWD"
                           read -r DO_COMMIT
                           case "$DO_COMMIT" in
                               (y|Y|yes|YES) commit;;

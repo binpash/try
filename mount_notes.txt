@@ -1,0 +1,33 @@
+
+
+Idea:
+
+1) Create partitions of various file systems
+2) Mount the fs on / and check try to see if overlay failed on that specific file 
+
+Results:
+ext3: no errors
+ext2: no errors
+ext4: no errors (duh)
+btrfs: no errors
+bcachefs: no errors
+exfat: failed
+f2fs: no errors
+fat16 (msdos): failed
+fat32 (msdos): failed
+hfs: failed
+hfs+: failed
+jfs: no errors
+swap: failure to mount swap partition (no fault of overlayfs)
+LVM2: failure to mount LVM2 partition (no fault of overlayfs)
+minux: no errors
+nilfs2: no errors
+ntfs: no errors (however when doing stat -f it shows the fs type as "UNKNOWN" followed by an address)
+resierfs: failure to mount resierfs partition (no fault of overlayfs)
+udf: no errors
+xtfs: no errors
+
+Solution:
+Now that we know what fs types fail we can check before the overlay call and test if the dir is a type that fails 
+(maybe using stat -f). If it does lets just ignore the over call and go straight to the mergerfs call 
+
