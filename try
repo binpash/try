@@ -238,16 +238,16 @@ do
     # Try mounting everything normally
     # If the fstype is valid we mount everything
 
-    check=0
+    fs_fail_flag=0
 
     if check_fstype "$pure_mountpoint"; then
       make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     else
-      check=1
+      fs_fail_flag=1
     fi
 
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
-    if [[ "$?" -ne 0 || "$check" -ne 0 ]]
+    if [[ "$?" -ne 0 || "$fs_fail_flag" -ne 0 ]]
     then
         ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
