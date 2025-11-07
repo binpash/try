@@ -282,7 +282,7 @@ EOF
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND TRY_SHELL UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
 mount -t proc proc /proc &&
@@ -290,7 +290,7 @@ ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
-. "$script_to_execute"
+OLDPWD=$OLDPWD . "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
