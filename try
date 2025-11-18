@@ -83,7 +83,9 @@ try() {
     IGNORE_FILE="$SANDBOX_DIR"/ignore
 
     try_mount_log="$SANDBOX_DIR"/mount.log
+    try_remove_log="$SANDBOX_DIR/error.log"
     export try_mount_log
+    export try_remove_log
 
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
     # tail -n +2 to ignore the first line with the column name
@@ -159,9 +161,18 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     overlay_mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint,index=off" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
+mountable_without_mergerfs() {
+    mountpoint="$1"
+    fstype=$(stat -f -c %T "$mountpoint")
+
+    case "$fstype" in
+      (exfat|hfs|hfs+) return 1;;
+      (*) return 0;;
+    esac
+}
 
 devices_to_mount="tty null zero full random urandom"
 
@@ -180,7 +191,7 @@ unmount_devices() {
     for dev in $devices_to_mount
     do
         umount "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
-        rm -f "$sandbox_dir/temproot/dev/$dev"
+        rm -f "$sandbox_dir/temproot/dev/$dev" 2>>"$try_remove_log"
     done
 }
 
@@ -225,9 +236,18 @@ do
     esac
 
     # Try mounting everything normally
-    make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
+    # If the fstype is valid we mount everything
+
+    fs_fail_flag=0
+
+    if mountable_without_mergerfs "$pure_mountpoint"; then
+      make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
+    else
+      fs_fail_flag=1
+    fi
+
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
-    if [ "$?" -ne 0 ]
+    if [[ "$?" -ne 0 || "$fs_fail_flag" -ne 0 ]]
     then
         ## If the overlay failed, it means that there is a nested mount inside the target mount, e.g., both `/home` and `/home/user/mnt` are mounts.
         ## To address this, we use unionfs/mergerfs (they support the same functionality) to show all mounts under the target mount as normal directories.
@@ -236,6 +256,8 @@ do
         ## MMG 2025-01-27
         ##   There used  to be more complicated logic here using `findmnt`, but we currently
         ##   just build unions for every mount in the root.
+
+        echo "after: $pure_mountpoint"
 
         if [ -z "$UNION_HELPER" ]
         then
@@ -269,9 +291,9 @@ unshare --root="$SANDBOX_DIR/temproot" "$TRY_SHELL" "$chroot_executable"
 exitcode="$?"
 
 # unmount the devices
-rm "$sandbox_dir/temproot/dev/stdin"
-rm "$sandbox_dir/temproot/dev/stdout"
-rm "$sandbox_dir/temproot/dev/stderr"
+rm "$sandbox_dir/temproot/dev/stdin" 2>>"$try_remove_log"
+rm "$sandbox_dir/temproot/dev/stdout" 2>>"$try_remove_log"
+rm "$sandbox_dir/temproot/dev/stderr" 2>>"$try_remove_log"
 
 unmount_devices "$SANDBOX_DIR"
 
@@ -319,7 +341,7 @@ EOF
         pure_mountpoint=${mountpoint##*:}
         if [  -L "$pure_mountpoint" ]
         then
-            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+            rm "${SANDBOX_DIR}/temproot/${mountpoint}" 2>>"$try_remove_log"
         fi
     done <"$DIRS_AND_MOUNTS"
 
