@@ -144,7 +144,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "rocky9" do |rocky|
     rocky.vm.box = "generic/rocky9"
     rocky.vm.provision "file", source: "./", destination: "/home/vagrant/try"
-    rocky.vm.provision "shell", privileged: false, inline: "
+    rocky.vm.provision "shell", privileged: false, inline: " 
       sudo yum install -y git expect curl attr pandoc fuse
       wget https://github.com/trapexit/mergerfs/releases/download/2.40.2/mergerfs-2.40.2-1.el9.x86_64.rpm
       sudo rpm -i mergerfs-2.40.2-1.el9.x86_64.rpm
