@@ -168,6 +168,7 @@ devices_to_mount="tty null zero full random urandom"
 ## Mounts and unmounts a few select devices instead of the whole `/dev`
 mount_devices() {
     sandbox_dir="$1"
+    mkdir -p "$sandbox_dir/temproot/dev" "$sandbox_dir/temproot/dev/pts"
     for dev in $devices_to_mount
     do
         touch "$sandbox_dir/temproot/dev/$dev"
@@ -272,6 +273,8 @@ exitcode="$?"
 rm "$sandbox_dir/temproot/dev/stdin"
 rm "$sandbox_dir/temproot/dev/stdout"
 rm "$sandbox_dir/temproot/dev/stderr"
+rm "$sandbox_dir/temproot/dev/fd"
+rm "$sandbox_dir/temproot/dev/ptmx"
 
 unmount_devices "$SANDBOX_DIR"
 
@@ -285,7 +288,10 @@ EOF
 unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND TRY_SHELL UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
+mount -t devpts devpts /dev/pts -o newinstance,ptmxmode=0666,mode=0620,gid=$(getent group tty | cut -d: -f3 || echo 5) 2>/dev/null &&
+[ -e /dev/ptmx ] || ln -s /dev/pts/ptmx /dev/ptmx &&
 mount -t proc proc /proc &&
+ln -s /proc/self/fd /dev/fd &&
 ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
