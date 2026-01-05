@@ -35,6 +35,7 @@ stdenv.mkDerivation {
     install -Dt $out/bin try
     install -Dt $out/bin utils/try-commit
     install -Dt $out/bin utils/try-summary
+    install -Dt $out/bin utils/make-socket
     wrapProgram $out/bin/try --prefix PATH : ${
       lib.makeBinPath [
         coreutils
