@@ -222,7 +222,7 @@ do
     ## Symlinks
     if [ -L "$pure_mountpoint" ]
     then
-        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        ln -sf $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
         continue
     fi
 
@@ -250,7 +250,7 @@ do
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
             merger_dir="$SANDBOX_DIR"/mergerdir"$(echo "$pure_mountpoint" | tr '/' '.')"
-            mkdir "$merger_dir"
+            mkdir -p "$merger_dir"
 
             ## Create a union directory
             ## NB $mountpoint is the local directory to mount
@@ -329,9 +329,9 @@ EOF
     while IFS="" read -r mountpoint
     do
         pure_mountpoint=${mountpoint##*:}
-        if [  -L "$pure_mountpoint" ]
+        if [ -L "${SANDBOX_DIR}/temproot/${pure_mountpoint}" ]
         then
-            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+            rm "${SANDBOX_DIR}/temproot/${pure_mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
 
