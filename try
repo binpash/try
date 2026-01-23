@@ -101,6 +101,9 @@ try() {
     WORKDIR="$SANDBOX_DIR/workdir-$WORKDIR_SUFFIX"
     export WORKDIR
 
+    # Clean up old workdir directories from previous runs to save space
+    find "$SANDBOX_DIR" -maxdepth 1 -type d -name "workdir-*" -exec rm -rf {} + 2>/dev/null || true
+
     mkdir -p "$SANDBOX_DIR/upperdir" "$WORKDIR" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
@@ -222,7 +225,8 @@ do
     ## Symlinks
     if [ -L "$pure_mountpoint" ]
     then
-        ln -sf $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        rm -rf "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        ln -sf "$(readlink "$pure_mountpoint")" "$SANDBOX_DIR/temproot/$pure_mountpoint"
         continue
     fi
 
@@ -255,7 +259,7 @@ do
             ## Create a union directory
             ## NB $mountpoint is the local directory to mount
             ##    $merger_dir is where we'll put its merger
-            "$UNION_HELPER" "$mountpoint" "$merger_dir" 2>>"$try_mount_log" ||
+            "$UNION_HELPER" -o nonempty "$mountpoint" "$merger_dir" 2>>"$try_mount_log" ||
                 printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
             make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
@@ -334,6 +338,10 @@ EOF
             rm "${SANDBOX_DIR}/temproot/${pure_mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    # remove directories from temproot (but keep temproot itself)
+    # this ensures clean state for reentry with -D option
+    find "${SANDBOX_DIR}/temproot" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} + 2>/dev/null || true
 
     ################################################################################
     # commit?
