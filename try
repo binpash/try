@@ -95,7 +95,13 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
-    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+    # Use a unique workdir for each invocation to avoid overlayfs state issues
+    # This allows multiple commands to accumulate changes in the same upperdir
+    WORKDIR_SUFFIX="$(date +%s%3N)-$$"
+    WORKDIR="$SANDBOX_DIR/workdir-$WORKDIR_SUFFIX"
+    export WORKDIR
+
+    mkdir -p "$SANDBOX_DIR/upperdir" "$WORKDIR" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
     DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts
@@ -136,7 +142,7 @@ try() {
         if [ -d "$mountpoint" ] && ! [ -L "$mountpoint" ]
         then
             # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
-            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${WORKDIR}/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
         fi
     done <"$DIRS_AND_MOUNTS"
 
@@ -159,7 +165,7 @@ make_overlay() {
     sandbox_dir="$1"
     lowerdirs="$2"
     overlay_mountpoint="$3"
-    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$sandbox_dir/workdir/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
+    mount -t overlay overlay -o userxattr -o "lowerdir=$lowerdirs,upperdir=$sandbox_dir/upperdir/$overlay_mountpoint,workdir=$WORKDIR/$overlay_mountpoint" "$sandbox_dir/temproot/$overlay_mountpoint"
 }
 
 
@@ -558,7 +564,9 @@ EOF
 sandbox_valid_or_empty() {
     sandbox_dir="$1"
 
-    if ! [ -d "$sandbox_dir/upperdir" ] && ! [ -d "$sandbox_dir/workdir" ] && ! [ -d "$sandbox_dir/temproot" ]
+    # Check if sandbox is fresh (no upperdir, no workdir-* dirs, no temproot)
+    # Note: We check for workdir-* pattern since each invocation creates a unique workdir
+    if ! [ -d "$sandbox_dir/upperdir" ] && ! ls "$sandbox_dir"/workdir-* >/dev/null 2>&1 && ! [ -d "$sandbox_dir/temproot" ]
     then
         # No sandbox directory exists so we can happily return
         return 0
