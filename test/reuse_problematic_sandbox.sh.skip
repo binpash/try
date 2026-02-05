@@ -1,5 +1,8 @@
 #!/bin/sh
 
+## This used to be a reasonable test, but the temproot etc doesn't exist anymore after execution
+
+
 TRY_TOP="${TRY_TOP:-$(git rev-parse --show-toplevel --show-superproject-working-tree 2>/dev/null || echo "${0%/*}")}"
 TRY="$TRY_TOP/try"
 
