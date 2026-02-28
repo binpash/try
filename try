@@ -78,10 +78,6 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
-    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
-    IGNORE_FILE="$SANDBOX_DIR"/ignore
-
     try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
@@ -94,6 +90,10 @@ try() {
         echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
+
+    # Move ignore patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
+    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
+    IGNORE_FILE="$SANDBOX_DIR"/ignore
 
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
