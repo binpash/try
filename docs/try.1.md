@@ -63,6 +63,10 @@ This option is recommended in case OverlayFS fails.
 
 : Specify a colon-separated list of directories to be used as lower directories for the overlay, formatted as "dir1:dir2:...:dirn" (implies -n).
 
+-E *PATHS*
+
+: Specify files to exclude from the sandbox, formatted as "file1:file2:...:filen".
+
 
 ## Subcommands
 
