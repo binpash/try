@@ -45,7 +45,6 @@ set_TRY_SHELL() {
   export TRY_SHELL
 }
 
-
 ################################################################################
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
@@ -250,7 +249,7 @@ do
             ## NB $mountpoint is the local directory to mount
             ##    $merger_dir is where we'll put its merger
             "$UNION_HELPER" "$mountpoint" "$merger_dir" 2>>"$try_mount_log" ||
-                printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+            printf "%s: Warning: Failed mounting $mountpoint via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
             make_overlay "$SANDBOX_DIR" "$merger_dir" "$pure_mountpoint" 2>>"$try_mount_log" ||
             printf "%s: Warning: Failed mounting $mountpoint as an overlay via $UNION_HELPER, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         fi
@@ -464,7 +463,7 @@ find_upperdir_changes() {
     sandbox_dir="$1"
     ignore_file="$2"
 
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" | ignore_changes "$ignore_file"
 }
 
 ################################################################################
@@ -520,13 +519,12 @@ process_changes() {
                 echo "rd $local_file"
                 continue
             fi
-
             # must be a directory, but not opaque---leave it!
         elif [ -c "$changed_file" ] && ! [ -s "$changed_file" ] && [ "$(stat -c %t,%T "$changed_file")" = "0,0" ]
         then
             # // TRYCASE(whiteout, *)
             echo "de $local_file"
-        elif [ -f "$changed_file" ]
+        elif [ -f "$changed_file" ] || [ -p "$changed_file" ] || [ -S "$changed_file" ]
         then
             if [ -f "$changed_file" ] && getfattr --absolute-names -d "$changed_file" 2>/dev/null | grep -q -e "user.overlay.whiteout"
             then
@@ -540,11 +538,25 @@ process_changes() {
                 # // TRYCASE(file, file)
                 # // TRYCASE(file, dir)
                 # // TRYCASE(file, symlink)
+                # // TRYCASE(fifo, file)
+                # // TRYCASE(fifo, dir)
+                # // TRYCASE(fifo, symlink)
+                # // TRYCASE(socket, file)
+                # // TRYCASE(socket, dir)
+                # // TRYCASE(socket, symlink)
                 echo "mo $local_file"
+                continue
             else
                 # // TRYCASE(file, nonexist)
+                # // TRYCASE(fifo, nonexist)
+                # // TRYCASE(socket, nonexist)
                 echo "ad $local_file"
+                continue
             fi
+            # // TRYCASE(fifo, *)
+            # // TRYCASE(socket, *)
+            echo "ad $local_file"
+            continue
         fi
     done <<EOF
 $changed_files
