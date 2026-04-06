@@ -1,0 +1,29 @@
+{
+  "version": "sum (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-r"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--sysv"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

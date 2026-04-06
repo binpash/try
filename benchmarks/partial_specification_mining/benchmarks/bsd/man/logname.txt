@@ -1,0 +1,29 @@
+LOGNAME(1)		    General Commands Manual		    LOGNAME(1)
+
+NAME
+       logname -- display user's login name
+
+SYNOPSIS
+       logname
+
+DESCRIPTION
+       The  logname  utility  writes  the user's login name to standard	output
+       followed	by a newline.
+
+       The logname utility explicitly ignores the LOGNAME and USER environment
+       variables because the environment cannot	be trusted.
+
+EXIT STATUS
+       The logname utility exits 0 on success, and >0 if an error occurs.
+
+SEE ALSO
+       who(1), whoami(1), getlogin(2)
+
+STANDARDS
+       The  logname  utility  is  expected  to	conform	 to  IEEE  Std	1003.2
+       ("POSIX.2").
+
+HISTORY
+       The logname command appeared in 4.4BSD.
+
+FreeBSD	13.2			 June 9, 1993			    LOGNAME(1)

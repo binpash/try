@@ -1,0 +1,154 @@
+{
+  "version": "od (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--output-duplicates"
+      ]
+    },
+    {
+      "long": [
+        "--traditional"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    },
+    {
+      "short": [
+        "-a"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-A"
+      ],
+      "long": [
+        "--address-radix"
+      ],
+      "args": [
+        "RADIX"
+      ]
+    },
+    {
+      "long": [
+        "--endian"
+      ],
+      "args": [
+        "{big|little}"
+      ]
+    },
+    {
+      "short": [
+        "-j"
+      ],
+      "long": [
+        "--skip-bytes"
+      ],
+      "args": [
+        "BYTES"
+      ]
+    },
+    {
+      "short": [
+        "-N"
+      ],
+      "long": [
+        "--read-bytes"
+      ],
+      "args": [
+        "BYTES"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--strings"
+      ],
+      "args": [
+        "BYTES"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "TYPE"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "BYTES"
+      ]
+    }
+  ]
+}

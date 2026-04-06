@@ -1,0 +1,71 @@
+SLEEP(1)		    General Commands Manual		      SLEEP(1)
+
+NAME
+       sleep --	suspend	execution for an interval of time
+
+SYNOPSIS
+       sleep number[unit] [...]
+
+DESCRIPTION
+       The  sleep  command  suspends execution for a minimum of	number seconds
+       (the default, or	unit s), minutes (unit m), hours  (unit	 h),  or  days
+       (unit  d).   Intervals can be written in	any form allowed by strtod(3).
+       If multiple intervals are given,	they are added together.  If the final
+       sum is zero or negative,	sleep exits immediately.
+
+       If the sleep command receives a signal, it takes	the  standard  action.
+       When the	SIGINFO	signal is received, the	estimate of the	amount of sec-
+       onds left to sleep is printed on	the standard output.
+
+IMPLEMENTATION NOTES
+       The SIGALRM signal is not handled specially by this implementation.
+
+EXIT STATUS
+       The sleep utility exits 0 on success, and >0 if an error	occurs.
+
+EXAMPLES
+       To run a	command	after half an hour:
+
+	     (sleep 0.5h; sh command_file >out 2>err)&
+
+       This  incantation  would	 wait  half  an	hour before running the	script
+       command_file.  See the at(1) utility for	another	way to do this.
+
+       To reiteratively	run a command:
+
+	     while :; do
+		     if	! [ -r zzz.rawdata ] ; then
+			     sleep 5m
+		     else
+			     for i in *.rawdata	; do
+				     sleep 70
+				     awk -f collapse_data "$i"
+			     done >results
+			     break
+		     fi
+	     done
+
+       The scenario for	a script such as this might be:	 a  program  currently
+       running	is  taking  longer than	expected to process a series of	files,
+       and it would be nice to have another program start processing the files
+       created	by  the	 first	program	 as  soon  as  it  is  finished	 (when
+       zzz.rawdata  is created).  The script checks every five minutes for the
+       file zzz.rawdata, when the file is found, then another portion process-
+       ing is done courteously by sleeping for	70  seconds  in	 between  each
+       awk(1) job.
+
+SEE ALSO
+       nanosleep(2), sleep(3)
+
+STANDARDS
+       The sleep command is expected to	be IEEE	Std 1003.2 ("POSIX.2") compat-
+       ible.
+
+       Support for non-integer intervals, units	other than seconds, and	multi-
+       ple  intervals  which  are  added  together are non-portable extensions
+       first introduced	in GNU sh-utils	2.0a (released in 2002).
+
+HISTORY
+       A sleep command appeared	in Version 4 AT&T UNIX.
+
+FreeBSD	13.2			March 22, 2024			      SLEEP(1)

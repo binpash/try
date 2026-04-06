@@ -1,0 +1,11 @@
+time
+
+Usage: time [-vpa] [-o FILE] PROG ARGS
+
+Run PROG, display resource usage when it exits
+
+	-v	Verbose
+	-p	POSIX output format
+	-f FMT	Custom format
+	-o FILE	Write result to FILE
+	-a	Append (else overwrite)

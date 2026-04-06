@@ -1,0 +1,11 @@
+chmod
+
+Usage: chmod [-Rcvf] MODE[,MODE]... FILE...
+
+Each MODE is one or more of the letters ugoa, one of the
+symbols +-= and one or more of the letters rwxst
+
+	-R	Recurse
+	-c	List changed files
+	-v	List all files
+	-f	Hide errors

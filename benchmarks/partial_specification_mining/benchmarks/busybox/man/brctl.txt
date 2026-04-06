@@ -1,0 +1,11 @@
+brctl
+
+Usage: brctl COMMAND [BRIDGE [INTERFACE]]
+
+Manage ethernet bridges
+
+Commands:
+	addbr BRIDGE		Create BRIDGE
+	delbr BRIDGE		Delete BRIDGE
+	addif BRIDGE IFACE	Add IFACE to BRIDGE
+	delif BRIDGE IFACE	Delete IFACE from BRIDGE

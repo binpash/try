@@ -1,0 +1,88 @@
+{
+  "version": "uname (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--kernel-name"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--nodename"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--kernel-release"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--kernel-version"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--machine"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--processor"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--hardware-platform"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--operating-system"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

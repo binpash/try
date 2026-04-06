@@ -1,0 +1,87 @@
+{
+  "version": "touch (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--no-create"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--date"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--reference"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "long": [
+        "--time"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "args": [
+        "STAMP"
+      ]
+
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+paste
+
+Usage: paste [OPTIONS] [FILE]...
+
+Paste lines from each input file, separated with tab
+
+	-d LIST	Use delimiters from LIST, not tab
+	-s      Serial: one file at a time

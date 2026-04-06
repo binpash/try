@@ -1,0 +1,8 @@
+mkdosfs
+
+Usage: mkdosfs [-v] [-n LABEL] BLOCKDEV [KBYTES]
+
+Make a FAT32 filesystem
+
+	-v	Verbose
+	-n LBL	Volume label

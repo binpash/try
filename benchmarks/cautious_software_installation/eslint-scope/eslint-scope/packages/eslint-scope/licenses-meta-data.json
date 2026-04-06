@@ -1,0 +1,10 @@
+{
+    "esrecurse@4.3.0": {
+      "licenses": "BSD-2-Clause",
+      "repository": "https://github.com/estools/esrecurse"
+    },
+    "estraverse@5.3.0": {
+      "licenses": "BSD-2-Clause",
+      "repository": "https://github.com/estools/estraverse"
+    }
+}

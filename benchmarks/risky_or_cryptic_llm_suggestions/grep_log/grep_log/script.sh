@@ -1,0 +1,1 @@
+grep -E "ERROR|WARNING|CRITICAL" large_log_file.log > filtered_errors.log || true

@@ -1,0 +1,21 @@
+{
+  "version": "echo (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [ "-n" ]
+    },
+    {
+      "short": [ "-e" ]
+    },
+    {
+      "short": [ "-E" ]
+    },
+    {
+      "long": [ "--help" ]
+    },
+    {
+      "long": [ "--version" ]
+    }
+  ],
+  "options": []
+}

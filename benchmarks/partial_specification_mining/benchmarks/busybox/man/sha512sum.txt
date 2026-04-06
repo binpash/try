@@ -1,0 +1,9 @@
+sha512sum
+
+Usage: sha512sum [-c[sw]] [FILE]...
+
+Print or check SHA512 checksums
+
+	-c	Check sums against list in FILEs
+	-s	Don't output anything, status code shows success
+	-w	Warn about improperly formatted checksum lines

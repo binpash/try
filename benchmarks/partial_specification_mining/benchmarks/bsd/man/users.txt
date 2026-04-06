@@ -1,0 +1,22 @@
+USERS(1)		    General Commands Manual		      USERS(1)
+
+NAME
+       users --	list current users
+
+SYNOPSIS
+       users
+
+DESCRIPTION
+       The  users  utility lists the login names of the	users currently	on the
+       system, in sorted order,	space separated, on a single line.
+
+FILES
+       /var/run/utx.active
+
+SEE ALSO
+       finger(1), last(1), who(1), getutxent(3)
+
+HISTORY
+       The users command appeared in 3.0BSD.
+
+FreeBSD	13.2		       January 21, 2010			      USERS(1)

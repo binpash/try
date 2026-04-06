@@ -1,0 +1,18 @@
+tc
+
+Usage: tc OBJECT CMD [dev STRING]
+
+OBJECT: qdisc|class|filter
+CMD: add|del|change|replace|show
+
+qdisc [handle QHANDLE] [root|ingress|parent CLASSID]
+	[[QDISC_KIND] [help|OPTIONS]]
+	QDISC_KIND := [p|b]fifo|tbf|prio|cbq|red|etc.
+qdisc show [dev STRING] [ingress]
+class [classid CLASSID] [root|parent CLASSID]
+	[[QDISC_KIND] [help|OPTIONS] ]
+class show [ dev STRING ] [root|parent CLASSID]
+filter [pref PRIO] [protocol PROTO]
+	[root|classid CLASSID] [handle FILTERID]
+	[[FILTER_TYPE] [help|OPTIONS]]
+filter show [dev STRING] [root|parent CLASSID]

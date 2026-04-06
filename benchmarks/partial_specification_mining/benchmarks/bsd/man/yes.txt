@@ -1,0 +1,18 @@
+YES(1)			    General Commands Manual			YES(1)
+
+NAME
+       yes -- be repetitively affirmative
+
+SYNOPSIS
+       yes [expletive]
+
+DESCRIPTION
+       The yes utility outputs expletive, or, by default, "y", forever.
+
+SEE ALSO
+       jot(1), seq(1)
+
+HISTORY
+       The yes command appeared	in Version 7 AT&T UNIX.
+
+FreeBSD	13.2			 June 4, 2014				YES(1)

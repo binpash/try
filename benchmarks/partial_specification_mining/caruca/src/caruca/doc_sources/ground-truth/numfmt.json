@@ -1,0 +1,134 @@
+{
+  "version": "numfmt (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--debug"
+      ]
+    },
+    {
+      "long": [
+        "--grouping"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--delimiter"
+      ],
+      "args": [
+        "X"
+      ]
+    },
+    {
+      "long": [
+        "--field"
+      ],
+      "args": [
+        "FIELDS"
+      ]
+    },
+    {
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "long": [
+        "--from"
+      ],
+      "args": [
+        "UNIT"
+      ]
+    },
+    {
+      "long": [
+        "--from-unit"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--header"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--invalid"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "long": [
+        "--padding"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--round"
+      ],
+      "args": [
+        "METHOD"
+      ]
+    },
+    {
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "long": [
+        "--to"
+      ],
+      "args": [
+        "UNIT"
+      ]
+    },
+    {
+      "long": [
+        "--to-unit"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "long": [
+                "v,verbose"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "o"
+            ],
+            "long": [
+                "offset"
+            ],
+            "args": [
+                "OFFSET"
+            ]
+        },
+        {
+            "short": [
+                "l"
+            ],
+            "long": [
+                "length"
+            ],
+            "args": [
+                "LEN"
+            ]
+        },
+        {
+            "short": [
+                "m"
+            ],
+            "long": [
+                "minimum"
+            ],
+            "args": [
+                "MIN"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+mt
+
+Usage: mt [-f device] opcode value
+
+Control magnetic tape drive operation
+
+Available Opcodes:
+
+bsf bsfm bsr bss datacompression drvbuffer eof eom erase
+fsf fsfm fsr fss load lock mkpart nop offline ras1 ras2
+ras3 reset retension rewind rewoffline seek setblk setdensity
+setpart tell unload unlock weof wset

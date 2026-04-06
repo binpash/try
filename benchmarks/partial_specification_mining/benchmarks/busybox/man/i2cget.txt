@@ -1,0 +1,16 @@
+i2cget
+
+Usage: i2cget [-fy] BUS CHIP-ADDRESS [DATA-ADDRESS [MODE]]
+
+Read from I2C/SMBus chip registers
+
+	I2CBUS	I2C bus number
+	ADDRESS	0x03-0x77
+MODE is:
+	b	Read byte data (default)
+	w	Read word data
+	c	Write byte/read byte
+	Append p for SMBus PEC
+
+	-f	Force access
+	-y	Disable interactive mode

@@ -1,0 +1,14 @@
+fatattr
+
+Usage: fatattr [-+rhsvda] FILE...
+
+Change file attributes on FAT filesystem
+
+	-	Clear attributes
+	+	Set attributes
+	r	Read only
+	h	Hidden
+	s	System
+	v	Volume label
+	d	Directory
+	a	Archive

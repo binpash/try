@@ -1,0 +1,66 @@
+MKDIR(1)		    General Commands Manual		      MKDIR(1)
+
+NAME
+       mkdir --	make directories
+
+SYNOPSIS
+       mkdir [-pv] [-m mode] directory_name ...
+
+DESCRIPTION
+       The mkdir utility creates the directories named as operands, in the or-
+       der specified, using mode "rwxrwxrwx" (0777) as modified	by the current
+       umask(2).
+
+       The options are as follows:
+
+       -m mode	Set the	file permission	bits of	the final created directory to
+		the  specified	mode.	The mode argument can be in any	of the
+		formats	specified to the chmod(1) command.  If a symbolic mode
+		is specified, the operation characters `+' and `-' are	inter-
+		preted relative	to an initial mode of "a=rwx".
+
+       -p	Create	intermediate  directories as required.	If this	option
+		is not specified, the full path	prefix of  each	 operand  must
+		already	exist.	On the other hand, with	this option specified,
+		no  error  will	be reported if a directory given as an operand
+		already	exists.	 Intermediate  directories  are	 created  with
+		permission  bits of "rwxrwxrwx"	(0777) as modified by the cur-
+		rent umask, plus write and search permission for the owner.
+
+       -v	Be verbose when	creating directories, listing them as they are
+		created.
+
+       The user	must have write	permission in the parent directory.
+
+EXIT STATUS
+       The mkdir utility exits 0 on success, and >0 if an error	occurs.
+
+EXAMPLES
+       Create a	directory named	foobar:
+
+	     $ mkdir foobar
+
+       Create a	directory named	foobar and set its file	mode to	700:
+
+	     $ mkdir -m	700 foobar
+
+       Create a	directory named	cow/horse/monkey,  creating  any  non-existent
+       intermediate directories	as necessary:
+
+	     $ mkdir -p	cow/horse/monkey
+
+COMPATIBILITY
+       The  -v	option	is  non-standard  and its use in scripts is not	recom-
+       mended.
+
+SEE ALSO
+       rmdir(1)
+
+STANDARDS
+       The mkdir utility is expected to	be IEEE	Std 1003.2 ("POSIX.2") compat-
+       ible.
+
+HISTORY
+       A mkdir command appeared	in Version 1 AT&T UNIX.
+
+FreeBSD	13.2			March 15, 2013			      MKDIR(1)

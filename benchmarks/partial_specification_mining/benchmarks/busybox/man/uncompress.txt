@@ -1,0 +1,8 @@
+uncompress
+
+Usage: uncompress [-cf] [FILE]...
+
+Decompress .Z file[s]
+
+	-c	Write to stdout
+	-f	Overwrite

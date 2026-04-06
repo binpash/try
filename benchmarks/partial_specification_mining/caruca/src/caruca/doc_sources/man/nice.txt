@@ -1,0 +1,47 @@
+NICE(1)					   User Commands				    NICE(1)
+
+NAME
+       nice - run a program with modified scheduling priority
+
+SYNOPSIS
+       nice [OPTION] [COMMAND [ARG]...]
+
+DESCRIPTION
+       Run  COMMAND  with an adjusted niceness, which affects process scheduling.  With no COMMAND,
+       print the current niceness.  Niceness values range from -20 (most favorable to the  process)
+       to 19 (least favorable to the process).
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -n, --adjustment=N
+	      add integer N to the niceness (default 10)
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       NOTE:  your shell may have its own version of nice, which usually supersedes the version de‐
+       scribed here.  Please refer to your shell's documentation for details about the	options	 it
+       supports.
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright  © 2020 Free Software Foundation, Inc.	 License GPLv3+: GNU GPL version 3 or later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       nice(2), renice(1)
+
+       Full documentation <https://www.gnu.org/software/coreutils/nice>
+       or available locally via: info '(coreutils) nice invocation'
+
+GNU coreutils 8.32			   February 2022				    NICE(1)

@@ -1,0 +1,68 @@
+ECHO(1)			    General Commands Manual		       ECHO(1)
+
+NAME
+       echo -- write arguments to the standard output
+
+SYNOPSIS
+       echo [-n] [string ...]
+
+DESCRIPTION
+       The  echo  utility  writes  any specified operands, separated by	single
+       blank (`	') characters and followed by a	newline	(`\n')	character,  to
+       the standard output.
+
+       The following option is available:
+
+       -n    Do	not print the trailing newline character.
+
+       The end-of-options marker -- is not recognized and written literally.
+
+       The  newline may	also be	suppressed by appending	`\c' to	the end	of the
+       string, as is done by iBCS2 compatible systems.	Note that the  -n  op-
+       tion  as	 well as the effect of `\c' are	implementation-defined in IEEE
+       Std 1003.1-2001 ("POSIX.1") as amended by Cor. 1-2002.	For  portabil-
+       ity, echo should	only be	used if	the first argument does	not start with
+       a  hyphen (`-') and does	not contain any	backslashes (`\').  If this is
+       not sufficient, printf(1) should	be used.
+
+       Most shells provide a builtin echo command which	tends to  differ  from
+       this  utility in	the treatment of options and backslashes.  Consult the
+       builtin(1) manual page.
+
+EXIT STATUS
+       The echo	utility	exits 0	on success, and	>0 if an error occurs.
+
+EXAMPLES
+       Special treatment of options and	backslashes:
+
+	     $ /bin/echo "-hello\tworld"
+	     -helloworld
+
+       Avoid new line character:
+
+	     $ /bin/echo -n hello;/bin/echo world
+	     helloworld
+
+       Or to achieve the same result:
+
+	     $ /bin/echo "hello\c";/bin/echo world
+	     helloworld
+
+SEE ALSO
+       builtin(1), csh(1), printf(1), sh(1)
+
+STANDARDS
+       The echo	utility	 conforms  to  IEEE  Std  1003.1-2001  ("POSIX.1")  as
+       amended by Cor. 1-2002.
+
+HISTORY
+       The echo	command	appeared in Version 2 AT&T UNIX.
+
+CAVEATS
+       The  echo command behaves differently with regards to the built-in echo
+       shell command in	a number of ways  including  escaped  characters  han-
+       dling.	It  also  differs  in behavior between different systems hence
+       complicating writing portable  scripts.	 It  is	 advised  to  use  the
+       printf(1) command to avoid these	shortcomings.
+
+FreeBSD	13.2			October	5, 2016			       ECHO(1)

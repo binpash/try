@@ -1,0 +1,46 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "f"
+            ]
+        },
+        {
+            "short": [
+                "b"
+            ]
+        },
+        {
+            "short": [
+                "S"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "l"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "L"
+            ],
+            "args": [
+                "LOGFILE"
+            ]
+        },
+        {
+            "short": [
+                "c"
+            ],
+            "args": [
+                "DIR"
+            ]
+        }
+    ]
+}

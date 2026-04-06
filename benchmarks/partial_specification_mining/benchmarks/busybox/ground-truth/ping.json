@@ -1,0 +1,91 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "4"
+            ]
+        },
+        {
+            "short": [
+                "6"
+            ]
+        },
+        {
+            "short": [
+                "A"
+            ]
+        },
+        {
+            "short": [
+                "q"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "c"
+            ],
+            "args": [
+                "CNT"
+            ]
+        },
+        {
+            "short": [
+                "s"
+            ],
+            "args": [
+                "SIZE"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ],
+            "args": [
+                "SECS"
+            ]
+        },
+        {
+            "short": [
+                "t"
+            ],
+            "args": [
+                "TTL"
+            ]
+        },
+        {
+            "short": [
+                "I"
+            ],
+            "args": [
+                "IFACE"
+            ]
+        },
+        {
+            "short": [
+                "W"
+            ],
+            "args": [
+                "SEC"
+            ]
+        },
+        {
+            "short": [
+                "w"
+            ],
+            "args": [
+                "SEC"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "HEXBYTE"
+            ]
+        }
+    ]
+}

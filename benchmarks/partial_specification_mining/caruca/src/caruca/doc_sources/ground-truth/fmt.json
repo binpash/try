@@ -1,0 +1,82 @@
+{
+  "version": "fmt (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--crown-margin"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--split-only"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--tagged-paragraph"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--uniform-spacing"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--prefix"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "WIDTH"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--goal"
+      ],
+      "args": [
+        "WIDTH"
+      ]
+    }
+  ]
+}

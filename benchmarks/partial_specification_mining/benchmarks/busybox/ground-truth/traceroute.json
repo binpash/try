@@ -1,0 +1,122 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "4"
+            ]
+        },
+        {
+            "short": [
+                "6"
+            ]
+        },
+        {
+            "short": [
+                "F"
+            ]
+        },
+        {
+            "short": [
+                "l"
+            ]
+        },
+        {
+            "short": [
+                "n"
+            ]
+        },
+        {
+            "short": [
+                "r"
+            ]
+        },
+        {
+            "short": [
+                "v"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "f"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "m"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "q"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "s"
+            ],
+            "args": [
+                "IP"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ],
+            "args": [
+                "IFACE"
+            ]
+        },
+        {
+            "short": [
+                "t"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "w"
+            ],
+            "args": [
+                "SEC"
+            ]
+        },
+        {
+            "short": [
+                "g"
+            ],
+            "args": [
+                "IP"
+            ]
+        },
+        {
+            "short": [
+                "z"
+            ],
+            "args": [
+                "PAUSE_MSEC"
+            ]
+        }
+    ]
+}

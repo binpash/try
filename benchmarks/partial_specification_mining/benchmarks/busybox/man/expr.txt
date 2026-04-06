@@ -1,0 +1,35 @@
+expr
+
+Usage: expr EXPRESSION
+
+Print the value of EXPRESSION to stdout
+
+EXPRESSION may be:
+	ARG1 | ARG2	ARG1 if it is neither null nor 0, otherwise ARG2
+	ARG1 & ARG2	ARG1 if neither argument is null or 0, otherwise 0
+	ARG1 < ARG2	1 if ARG1 is less than ARG2, else 0. Similarly:
+	ARG1 <= ARG2
+	ARG1 = ARG2
+	ARG1 != ARG2
+	ARG1 >= ARG2
+	ARG1 > ARG2
+	ARG1 + ARG2	Sum of ARG1 and ARG2. Similarly:
+	ARG1 - ARG2
+	ARG1 * ARG2
+	ARG1 / ARG2
+	ARG1 % ARG2
+	STRING : REGEXP		Anchored pattern match of REGEXP in STRING
+	match STRING REGEXP	Same as STRING : REGEXP
+	substr STRING POS LENGTH Substring of STRING, POS counted from 1
+	index STRING CHARS	Index in STRING where any CHARS is found, or 0
+	length STRING		Length of STRING
+	quote TOKEN		Interpret TOKEN as a string, even if
+				it is a keyword like 'match' or an
+				operator like '/'
+	(EXPRESSION)		Value of EXPRESSION
+
+Beware that many operators need to be escaped or quoted for shells.
+Comparisons are arithmetic if both ARGs are numbers, else
+lexicographical. Pattern matches return the string matched between
+\( and \) or null; if \( and \) are not used, they return the number
+of characters matched or 0.

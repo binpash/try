@@ -1,0 +1,1 @@
+import { " \uD83D " as foo } from "mod";

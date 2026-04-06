@@ -1,0 +1,17 @@
+hexdump
+
+Usage: hexdump [-bcCdefnosvx] [FILE]...
+
+Display FILEs (or stdin) in a user specified format
+
+	-b		1-byte octal display
+	-c		1-byte character display
+	-d		2-byte decimal display
+	-o		2-byte octal display
+	-x		2-byte hex display
+	-C		hex+ASCII 16 bytes per line
+	-v		Show all (no dup folding)
+	-e FORMAT_STR	Example: '16/1 "%02x|""\n"'
+	-f FORMAT_FILE
+	-n LENGTH	Show only first LENGTH bytes
+	-s OFFSET	Skip OFFSET bytes

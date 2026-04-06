@@ -1,0 +1,20 @@
+i2cdump
+
+Usage: i2cdump [-fy] [-r FIRST-LAST] BUS ADDR [MODE]
+
+Examine I2C registers
+
+	I2CBUS	I2C bus number
+	ADDRESS	0x03-0x77
+MODE is:
+	b	Byte (default)
+	w	Word
+	W	Word on even register addresses
+	i	I2C block
+	s	SMBus block
+	c	Consecutive byte
+	Append p for SMBus PEC
+
+	-f	Force access
+	-y	Disable interactive mode
+	-r	Limit the number of registers being accessed

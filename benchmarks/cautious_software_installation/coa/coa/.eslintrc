@@ -1,0 +1,46 @@
+{
+    "extends" : ["pedant/es6"],
+    "env": {
+        "es6": true,
+        "node": true,
+        "mocha": true
+    },
+    "parserOptions" : {
+        "ecmaVersion" : 6
+    },
+    "rules" : {
+        "curly" : "off",
+        "no-cond-assign": "off",
+
+        "semi" : "error",
+        "no-mixed-spaces-and-tabs" : "error",
+        "max-len" : ["error", { "code" : 120 }],
+        "eol-last" : "error",
+        "key-spacing" : ["error", {
+            "beforeColon" : true,
+            "afterColon" : true,
+            "mode" : "strict"
+        }],
+        "object-curly-spacing" : ["error", "always"],
+        "keyword-spacing" : ["error", {
+            "before" : true,
+            "after" : true,
+            "overrides" : {
+                "if" : { "after" : false },
+                "for" : { "after" : false },
+                "while" : { "after" : false },
+                "switch" : { "after" : false },
+                "catch" : { "after" : false }
+            }
+        }],
+        "array-bracket-spacing" : ["error", "never"],
+        "arrow-parens" : ["error", "as-needed"],
+        "func-call-spacing" : "error",
+        "space-before-blocks" : ["error", "always"],
+        "padded-blocks": ["error", "never"],
+        "quotes" : ["error", "single", { "avoidEscape" : true }],
+        "camelcase" : ["error", { "properties" : "never" }],
+        "no-trailing-spaces" : "error",
+        "comma-dangle" : ["error", "never"]
+    }
+}

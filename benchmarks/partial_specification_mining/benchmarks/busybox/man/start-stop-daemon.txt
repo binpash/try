@@ -1,0 +1,30 @@
+start-stop-daemon
+
+Usage: start-stop-daemon [OPTIONS] [-S|-K] ... [-- ARGS...]
+
+Search for matching processes, and then
+-K: stop all matching processes
+-S: start a process unless a matching process is found
+
+Process matching:
+	-u USERNAME|UID	Match only this user's processes
+	-n NAME		Match processes with NAME
+			in comm field in /proc/PID/stat
+	-x EXECUTABLE	Match processes with this command
+			command in /proc/PID/cmdline
+	-p FILE		Match a process with PID from FILE
+	All specified conditions must match
+-S only:
+	-x EXECUTABLE	Program to run
+	-a NAME		Zeroth argument
+	-b		Background
+	-N N		Change nice level
+	-c USER[:[GRP]]	Change user/group
+	-m		Write PID to pidfile specified by -p
+-K only:
+	-s SIG		Signal to send
+	-t		Match only, exit with 0 if found
+Other:
+	-o		Exit with status 0 if nothing is done
+	-v		Verbose
+	-q		Quiet

@@ -1,0 +1,1 @@
+export using x = foo();

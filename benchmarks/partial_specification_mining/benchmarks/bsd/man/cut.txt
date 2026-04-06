@@ -1,0 +1,92 @@
+CUT(1)			    General Commands Manual			CUT(1)
+
+NAME
+       cut -- cut out selected portions	of each	line of	a file
+
+SYNOPSIS
+       cut -b list [-n]	[file ...]
+       cut -c list [file ...]
+       cut -f list [-w | -d delim] [-s]	[file ...]
+
+DESCRIPTION
+       The  cut	 utility cuts out selected portions of each line (as specified
+       by list)	from each file and writes them to the standard output.	If  no
+       file  arguments	are  specified,	 or  a	file argument is a single dash
+       (`-'), cut reads	from the standard input.  The items specified by  list
+       can be in terms of column position or in	terms of fields	delimited by a
+       special character.  Column and field numbering start from 1.
+
+       The  list option	argument is a comma or whitespace separated set	of in-
+       creasing	numbers	and/or number ranges.  Number ranges consist of	a num-
+       ber, a dash (`-'), and a	second number and select the columns or	fields
+       from the	first number to	the  second,  inclusive.   Numbers  or	number
+       ranges  may  be preceded	by a dash, which selects all columns or	fields
+       from 1 to the last number.  Numbers or number ranges may	be followed by
+       a dash, which selects all columns or fields from	the last number	to the
+       end of the line.	 Numbers and number ranges may be  repeated,  overlap-
+       ping, and in any	order.	It is not an error to select columns or	fields
+       not present in the input	line.
+
+       The options are as follows:
+
+       -b list
+	       The list	specifies byte positions.
+
+       -c list
+	       The list	specifies character positions.
+
+       -d delim
+	       Use  delim  as the field	delimiter character instead of the tab
+	       character.
+
+       -f list
+	       The list	specifies fields, separated in the input by the	 field
+	       delimiter  character  (see  the	-d option).  Output fields are
+	       separated by a single occurrence	of the field delimiter charac-
+	       ter.
+
+       -n      Do not split multi-byte characters.  Characters	will  only  be
+	       output if at least one byte is selected,	and, after a prefix of
+	       zero  or	more unselected	bytes, the rest	of the bytes that form
+	       the character are selected.
+
+       -s      Suppress	lines with  no	field  delimiter  characters.	Unless
+	       specified,  lines with no delimiters are	passed through unmodi-
+	       fied.
+
+       -w      Use whitespace (spaces and tabs)	as the delimiter.  Consecutive
+	       spaces and tabs count as	one single field separator.
+
+ENVIRONMENT
+       The LANG, LC_ALL	and LC_CTYPE environment variables affect  the	execu-
+       tion of cut as described	in environ(7).
+
+EXIT STATUS
+       The cut utility exits 0 on success, and >0 if an	error occurs.
+
+EXAMPLES
+       Extract users' login names and shells from the system passwd(5) file as
+       "name:shell" pairs:
+
+	     cut -d : -f 1,7 /etc/passwd
+
+       Show the	names and login	times of the currently logged in users:
+
+	     who | cut -c 1-16,26-38
+
+SEE ALSO
+       colrm(1), paste(1)
+
+STANDARDS
+       The cut utility conforms	to IEEE	Std 1003.2-1992	("POSIX.2").
+
+       The -w flag is an extension to the specification.
+
+HISTORY
+       A cut command first appeared in 4.3BSD-Reno.
+
+AUTHORS
+       The  original  Bell Labs	version	was written by Gottfried W. R. Luderer
+       and the BSD version by Adam S. Moskowitz.
+
+FreeBSD	13.2		       November	6, 2022				CUT(1)

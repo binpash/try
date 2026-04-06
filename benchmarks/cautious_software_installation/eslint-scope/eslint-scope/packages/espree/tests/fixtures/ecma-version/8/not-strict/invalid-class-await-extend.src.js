@@ -1,0 +1,1 @@
+async function foo(a = class extends (await b) {}) {};

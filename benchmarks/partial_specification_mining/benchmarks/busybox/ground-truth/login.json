@@ -1,0 +1,25 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "f"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "h"
+            ],
+            "args": [
+                "HOST"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,5 @@
+which
+
+Usage: which [COMMAND]...
+
+Locate a COMMAND

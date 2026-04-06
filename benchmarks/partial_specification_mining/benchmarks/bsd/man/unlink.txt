@@ -1,0 +1,126 @@
+RM(1)			    General Commands Manual			 RM(1)
+
+NAME
+       rm, unlink -- remove directory entries
+
+SYNOPSIS
+       rm [-f |	-i] [-dIRrvWx] file ...
+       unlink [--] file
+
+DESCRIPTION
+       The  rm	utility	attempts to remove the non-directory type files	speci-
+       fied on the command line.  If the permissions of	the file do not	permit
+       writing,	and the	standard input device  is  a  terminal,	 the  user  is
+       prompted	(on the	standard error output) for confirmation.
+
+       The options are as follows:
+
+       -d      Attempt to remove directories as	well as	other types of files.
+
+       -f      Attempt to remove the files without prompting for confirmation,
+	       regardless of the file's	permissions.  If the file does not ex-
+	       ist,  do	 not  display  a diagnostic message or modify the exit
+	       status to reflect an error.  The	-f option overrides any	previ-
+	       ous -i options.
+
+       -i      Request confirmation before attempting to remove	each file, re-
+	       gardless	of the file's permissions, or whether or not the stan-
+	       dard input device is a terminal.	 The -i	option	overrides  any
+	       previous	-f options.
+
+       -I      Request	confirmation  once  if more than three files are being
+	       removed or if a directory is being recursively  removed.	  This
+	       is  a far less intrusive	option than -i yet provides almost the
+	       same level of protection	against	mistakes.
+
+       -P      This flag has no	effect.	 It is kept only for backwards compat-
+	       ibility with 4.4BSD-Lite2.
+
+       -R      Attempt to remove the file hierarchy rooted in each file	 argu-
+	       ment.   The  -R option implies the -d option.  If the -i	option
+	       is specified, the user is prompted for confirmation before each
+	       directory's contents are	processed (as well as before  the  at-
+	       tempt  is  made to remove the directory).  If the user does not
+	       respond affirmatively, the file hierarchy rooted	in that	direc-
+	       tory is skipped.
+
+       -r      Equivalent to -R.
+
+       -v      Be verbose when deleting	files, showing them as	they  are  re-
+	       moved.
+
+       -W      Attempt	to  undelete  the named	files.	Currently, this	option
+	       can only	be used	to recover files covered  by  whiteouts	 in  a
+	       union file system (see undelete(2)).
+
+       -x      When removing a hierarchy, do not cross mount points.
+
+       The  rm utility removes symbolic	links, not the files referenced	by the
+       links.
+
+       It is an	error to attempt to remove the files /,	. or ...
+
+       When the	utility	is called as unlink, only one argument,	which must not
+       be a directory, may be supplied.	 No options may	be  supplied  in  this
+       simple  mode of operation, which	performs an unlink(2) operation	on the
+       passed argument.	 However, the usual option-end delimiter, --, may  op-
+       tionally	precede	the argument.
+
+EXIT STATUS
+       The  rm	utility	 exits 0 if all	of the named files or file hierarchies
+       were removed, or	if the -f option was specified and all of the existing
+       files or	file hierarchies were removed.	If an error occurs,  rm	 exits
+       with a value >0.
+
+NOTES
+       The  rm	command	uses getopt(3) to parse	its arguments, which allows it
+       to accept the `--' option which will cause it to	stop  processing  flag
+       options	at that	point.	This will allow	the removal of file names that
+       begin with a dash (`-').	 For example:
+
+	     rm	-- -filename
+
+       The same	behavior can be	obtained by using an absolute or relative path
+       reference.  For example:
+
+	     rm	/home/user/-filename
+	     rm	./-filename
+
+EXAMPLES
+       Recursively remove all files contained within the foobar	directory  hi-
+       erarchy:
+
+	     $ rm -rf foobar
+
+       Any of these commands will remove the file -f:
+
+	     $ rm -- -f
+	     $ rm ./-f
+	     $ unlink -f
+
+COMPATIBILITY
+       The  rm	utility	differs	from historical	implementations	in that	the -f
+       option only masks attempts to  remove  non-existent  files  instead  of
+       masking	a  large variety of errors.  The -v option is non-standard and
+       its use in scripts is not recommended.
+
+       Also, historical	BSD implementations prompted on	the  standard  output,
+       not the standard	error output.
+
+       The  -P option does not have any	effect as of FreeBSD 13	and may	be re-
+       moved in	the future.
+
+SEE ALSO
+       chflags(1),  rmdir(1),  undelete(2),  unlink(2),	  fts(3),   getopt(3),
+       symlink(7)
+
+STANDARDS
+       The rm command conforms to .
+
+       The  simplified unlink command conforms to Version 2 of the Single UNIX
+       Specification ("SUSv2").
+
+HISTORY
+       A rm command appeared in	Version	1 AT&T UNIX.
+
+FreeBSD	13.2		       November	10, 2018			 RM(1)

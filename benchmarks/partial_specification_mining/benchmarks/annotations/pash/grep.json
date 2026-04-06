@@ -1,0 +1,47 @@
+{
+    "command": "grep",
+    "cases":
+    [
+        {
+            "predicate":
+            {
+                "operator": "exists",
+                "operands": ["-c"]
+            },
+            "class": "pure",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        },
+        {
+            "predicate":
+            {
+                "operator": "len_args_eq",
+                "operands": [1]
+            },
+            "comment": "This doesn't work if the pattern is given with the -e, -f flags",
+            "class": "stateless",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        },
+        {
+            "predicate":
+            {
+                "operator": "exists",
+                "operands": ["-r",
+                             "--recursive",
+                             "-R",
+                             "--dereference-recursive"]
+            },
+            "class": "side-effects",
+            "comment": "In this case this reads directories and that is why we conservatively assume it is side-effectful. It is possible that this could be made more precise to be stateless."
+        },
+        {
+            "predicate": "default",
+            "class": "stateless",
+            "inputs": ["args[:]"],
+            "outputs": ["stdout"],
+            "comment": "This isn't _quite_ right---we need to identify a pattern somewhere and exclude it from `input`."
+        }
+    ],
+    "comment": "For the stateless one we need to add -h|--no-filename as a requirement if it takes multiple files as input."
+}

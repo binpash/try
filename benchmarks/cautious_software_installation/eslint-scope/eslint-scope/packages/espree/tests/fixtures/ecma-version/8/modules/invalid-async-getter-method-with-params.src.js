@@ -1,0 +1,1 @@
+({async set foo(value) { }});

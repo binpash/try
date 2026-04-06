@@ -1,0 +1,186 @@
+{
+  "version": "ptx (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-A"
+      ],
+      "long": [
+        "--auto-reference"
+      ]
+    },
+    {
+      "short": [
+        "-G"
+      ],
+      "long": [
+        "--traditional"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--right-side-refs"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--ignore-case"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--references"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--typeset-mode               - not implemented -"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-F"
+      ],
+      "long": [
+        "--flag-truncation"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-M"
+      ],
+      "long": [
+        "--macro-name"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-O"
+      ],
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "roff"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--sentence-regexp"
+      ],
+      "args": [
+        "REGEXP"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "tex"
+      ]
+    },
+    {
+      "short": [
+        "-W"
+      ],
+      "long": [
+        "--word-regexp"
+      ],
+      "args": [
+        "REGEXP"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--break-file"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--gap-size"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-file"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--only-file"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    }
+  ]
+}

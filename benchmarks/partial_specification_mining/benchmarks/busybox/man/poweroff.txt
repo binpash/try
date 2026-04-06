@@ -1,0 +1,9 @@
+poweroff
+
+Usage: poweroff [-d DELAY] [-n] [-f]
+
+Halt and shut off power
+
+	-d SEC	Delay interval
+	-n	Do not sync
+	-f	Force (don't go through init)

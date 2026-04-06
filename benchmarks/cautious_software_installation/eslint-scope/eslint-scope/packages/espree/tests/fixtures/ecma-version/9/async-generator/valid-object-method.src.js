@@ -1,0 +1,1 @@
+obj = { async* f() { await a; yield b; } }

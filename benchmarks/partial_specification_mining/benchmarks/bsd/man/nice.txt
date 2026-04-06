@@ -1,0 +1,57 @@
+NICE(1)			    General Commands Manual		       NICE(1)
+
+NAME
+       nice -- execute a utility at an altered scheduling priority
+
+SYNOPSIS
+       nice [-n	increment] utility [argument ...]
+
+DESCRIPTION
+       The nice	utility	runs utility at	an altered scheduling priority,	by in-
+       crementing  its	"nice"	value by the specified increment, or a default
+       value of	10.  The lower the nice	value of a  process,  the  higher  its
+       scheduling priority.
+
+       The  superuser may specify a negative increment in order	to run a util-
+       ity with	a higher scheduling priority.
+
+       Some shells may provide a builtin nice  command	which  is  similar  or
+       identical to this utility.  Consult the builtin(1) manual page.
+
+ENVIRONMENT
+       The  PATH  environment variable is used to locate the requested utility
+       if the name contains no `/' characters.
+
+EXIT STATUS
+       If utility is invoked, the exit status of nice is the  exit  status  of
+       utility.
+
+       An exit status of 126 indicates utility was found, but could not	be ex-
+       ecuted.	An exit	status of 127 indicates	utility	could not be found.
+
+EXAMPLES
+       Execute utility `date' at priority 5 assuming the priority of the shell
+       is 0:
+
+	     nice -n 5 date
+
+       Execute	utility	 `date'	 at  priority -19 assuming the priority	of the
+       shell is	0 and you are the super-user:
+
+	     nice -n 16	nice -n	-35 date
+
+COMPATIBILITY
+       The traditional -increment option has been deprecated but is still sup-
+       ported.
+
+SEE ALSO
+       builtin(1),    csh(1),	 idprio(1),	rtprio(1),     getpriority(2),
+       setpriority(2), renice(8)
+
+STANDARDS
+       The nice	utility	conforms to IEEE Std 1003.1-2001 ("POSIX.1").
+
+HISTORY
+       A nice utility appeared in Version 4 AT&T UNIX.
+
+FreeBSD	13.2		       February	24, 2011		       NICE(1)

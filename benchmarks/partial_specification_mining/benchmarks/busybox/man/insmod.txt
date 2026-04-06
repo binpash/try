@@ -1,0 +1,5 @@
+insmod
+
+Usage: insmod FILE [SYMBOL=VALUE]...
+
+Load kernel module

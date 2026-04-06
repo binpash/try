@@ -1,0 +1,16 @@
+{
+    "version": "true (GNU coreutils) 8.32",
+    "options": [],
+    "flags": [
+        {
+            "long": [
+                "--help"
+            ]
+        },
+        {
+            "long": [
+                "--version"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+arping
+
+Usage: arping [-fqbDUA] [-c CNT] [-w TIMEOUT] [-I IFACE] [-s SRC_IP] DST_IP
+
+Send ARP requests/replies
+
+	-f		Quit on first ARP reply
+	-q		Quiet
+	-b		Keep broadcasting, don't go unicast
+	-D		Exit with 1 if DST_IP replies
+	-U		Unsolicited ARP mode, update your neighbors
+	-A		ARP answer mode, update your neighbors
+	-c N		Stop after sending N ARP requests
+	-w TIMEOUT	Seconds to wait for ARP reply
+	-I IFACE	Interface to use (default eth0)
+	-s SRC_IP	Sender IP address
+	DST_IP		Target IP address

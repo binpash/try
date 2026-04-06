@@ -1,0 +1,5 @@
+factor
+
+Usage: factor [NUMBER]...
+
+Print prime factors

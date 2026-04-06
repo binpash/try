@@ -1,0 +1,32 @@
+PRINTENV(1)		    General Commands Manual		   PRINTENV(1)
+
+NAME
+       printenv	-- print out the environment
+
+SYNOPSIS
+       printenv	[name]
+
+DESCRIPTION
+       The  printenv  utility prints out the names and values of the variables
+       in the environment, with	one name/value pair  per  line.	  If  name  is
+       specified, only its value is printed.
+
+       Some  shells may	provide	a builtin printenv command which is similar or
+       identical to this utility.  Consult the builtin(1) manual page.
+
+EXIT STATUS
+       The printenv utility exits 0 on success,	and >0 if an error occurs.
+
+SEE ALSO
+       csh(1), env(1), sh(1), environ(7)
+
+STANDARDS
+       The printenv utility is provided	for compatibility with earlier BSD and
+       FreeBSD releases	and is not specified by	any standards.	The  function-
+       ality  of printenv can be duplicated with the echo(1) and env(1)	utili-
+       ties.
+
+HISTORY
+       The printenv command appeared in	3.0BSD.
+
+FreeBSD	13.2			 May 12, 2003			   PRINTENV(1)

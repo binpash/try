@@ -1,0 +1,10 @@
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./uv-metrics/run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./uv-metrics/try-run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./frogmouth/run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./frogmouth/try-run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./kibble/run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./kibble/try-run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./oketo/run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./oketo/try-run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./LinOTP/run.sh
+docker run --privileged -v /tmp:/tmp try_pre_commit_benchmarks ./LinOTP/try-run.sh

@@ -1,0 +1,11 @@
+nl
+
+Usage: nl [OPTIONS] [FILE]...
+
+Write FILEs to standard output with line numbers added
+
+	-b STYLE	Which lines to number - a: all, t: nonempty, n: none
+	-i N		Line number increment
+	-s STRING	Use STRING as line number separator
+	-v N		Start from N
+	-w N		Width of line numbers

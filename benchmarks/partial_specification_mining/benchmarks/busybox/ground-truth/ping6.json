@@ -1,0 +1,57 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "A"
+            ]
+        },
+        {
+            "short": [
+                "q"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "c"
+            ],
+            "args": [
+                "CNT"
+            ]
+        },
+        {
+            "short": [
+                "s"
+            ],
+            "args": [
+                "SIZE"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ],
+            "args": [
+                "SECS"
+            ]
+        },
+        {
+            "short": [
+                "I"
+            ],
+            "args": [
+                "IFACR"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "HEXBYTE"
+            ]
+        }
+    ]
+}

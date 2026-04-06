@@ -1,0 +1,30 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [],
+    "options": [
+        {
+            "short": [
+                "c"
+            ],
+            "args": [
+                "MOD"
+            ]
+        },
+        {
+            "short": [
+                "n"
+            ],
+            "args": [
+                "MOD"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "PID"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,8 @@
+klogd
+
+Usage: klogd [-c N] [-n]
+
+Log kernel messages to syslog
+
+	-c N	Print to console messages more urgent than prio N (1-8)
+	-n	Run in foreground

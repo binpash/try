@@ -1,0 +1,44 @@
+{
+  "version": "paste (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--serial"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--delimiters"
+      ],
+      "args": [
+        "LIST"
+      ]
+    }
+  ]
+}

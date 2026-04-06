@@ -1,0 +1,216 @@
+AWK(1P)                 POSIX Programmer's Manual                AWK(1P)
+PROLOG        
+       This manual page is part of the POSIX Programmer's Manual.  The
+       Linux implementation of this interface may differ (consult the
+       corresponding Linux manual page for details of Linux behavior),
+       or the interface may not be implemented on Linux.
+NAME        
+       awk — pattern scanning and processing language
+SYNOPSIS        
+       awk [-F sepstring] [-v assignment]... program [argument...]
+
+       awk [-F sepstring] -f progfile [-f progfile]... [-v assignment]...
+            [argument...]
+DESCRIPTION        
+       The awk utility shall execute programs written in the awk
+       programming language, which is specialized for textual data
+       manipulation. An awk program is a sequence of patterns and
+       corresponding actions. When input is read that matches a pattern,
+       the action associated with that pattern is carried out.
+
+       Input shall be interpreted as a sequence of records. By default,
+       a record is a line, less its terminating <newline>, but this can
+       be changed by using the RS built-in variable. Each record of
+       input shall be matched in turn against each pattern in the
+       program. For each pattern matched, the associated action shall be
+       executed.
+
+       The awk utility shall interpret each input record as a sequence
+       of fields where, by default, a field is a string of non-<blank>
+       non-<newline> characters. This default <blank> and <newline>
+       field delimiter can be changed by using the FS built-in variable
+       or the -F sepstring option. The awk utility shall denote the
+       first field in a record $1, the second $2, and so on. The symbol
+       $0 shall refer to the entire record; setting any other field
+       causes the re-evaluation of $0. Assigning to $0 shall reset the
+       values of all other fields and the NF built-in variable.
+OPTIONS        
+       The awk utility shall conform to the Base Definitions volume of
+       POSIX.1‐2017, Section 12.2, Utility Syntax Guidelines.
+
+       The following options shall be supported:
+
+       -F sepstring
+                 Define the input field separator. This option shall be
+                 equivalent to:
+
+                     -v FS=sepstring
+
+                 except that if -F sepstring and -v FS=sepstring are
+                 both used, it is unspecified whether the FS assignment
+                 resulting from -F sepstring is processed in command
+                 line order or is processed after the last -v
+                 FS=sepstring.  See the description of the FS built-in
+                 variable, and how it is used, in the EXTENDED
+                 DESCRIPTION section.
+
+       -f progfile
+                 Specify the pathname of the file progfile containing an
+                 awk program. A pathname of '-' shall denote the
+                 standard input. If multiple instances of this option
+                 are specified, the concatenation of the files specified
+                 as progfile in the order specified shall be the awk
+                 program. The awk program can alternatively be specified
+                 in the command line as a single argument.
+
+       -v assignment
+                 The application shall ensure that the assignment
+                 argument is in the same form as an assignment operand.
+                 The specified variable assignment shall occur prior to
+                 executing the awk program, including the actions
+                 associated with BEGIN patterns (if any). Multiple
+                 occurrences of this option can be specified.
+OPERANDS        
+       The following operands shall be supported:
+
+       program   If no -f option is specified, the first operand to awk
+                 shall be the text of the awk program. The application
+                 shall supply the program operand as a single argument
+                 to awk.  If the text does not end in a <newline>, awk
+                 shall interpret the text as if it did.
+
+       argument  Either of the following two types of argument can be
+                 intermixed:
+
+                 file      A pathname of a file that contains the input
+                           to be read, which is matched against the set
+                           of patterns in the program. If no file
+                           operands are specified, or if a file operand
+                           is '-', the standard input shall be used.
+
+                 assignment
+                           An operand that begins with an <underscore>
+                           or alphabetic character from the portable
+                           character set (see the table in the Base
+                           Definitions volume of POSIX.1‐2017, Section
+                           6.1, Portable Character Set), followed by a
+                           sequence of underscores, digits, and
+                           alphabetics from the portable character set,
+                           followed by the '=' character, shall specify
+                           a variable assignment rather than a pathname.
+                           The characters before the '=' represent the
+                           name of an awk variable; if that name is an
+                           awk reserved word (see Grammar) the behavior
+                           is undefined. The characters following the
+                           <equals-sign> shall be interpreted as if they
+                           appeared in the awk program preceded and
+                           followed by a double-quote ('"') character,
+                           as a STRING token (see Grammar), except that
+                           if the last character is an unescaped
+                           <backslash>, it shall be interpreted as a
+                           literal <backslash> rather than as the first
+                           character of the sequence "\"".  The variable
+                           shall be assigned the value of that STRING
+                           token and, if appropriate, shall be
+                           considered a numeric string (see Expressions
+                           in awk), the variable shall also be assigned
+                           its numeric value. Each such variable
+                           assignment shall occur just prior to the
+                           processing of the following file, if any.
+                           Thus, an assignment before the first file
+                           argument shall be executed after the BEGIN
+                           actions (if any), while an assignment after
+                           the last file argument shall occur before the
+                           END actions (if any). If there are no file
+                           arguments, assignments shall be executed
+                           before processing the standard input.
+STDIN        
+       The standard input shall be used only if no file operands are
+       specified, or if a file operand is '-', or if a progfile option-
+       argument is '-'; see the INPUT FILES section. If the awk program
+       contains no actions and no patterns, but is otherwise a valid awk
+       program, standard input and any file operands shall not be read
+       and awk shall exit with a return status of zero.
+INPUT FILES        
+       Input files to the awk program from any of the following sources
+       shall be text files:
+
+        *  Any file operands or their equivalents, achieved by modifying
+           the awk variables ARGV and ARGC
+
+        *  Standard input in the absence of any file operands
+
+        *  Arguments to the getline function
+
+       Whether the variable RS is set to a value other than a <newline>
+       or not, for these files, implementations shall support records
+       terminated with the specified separator up to {LINE_MAX} bytes
+       and may support longer records.
+
+       If -f progfile is specified, the application shall ensure that
+       the files named by each of the progfile option-arguments are text
+       files and their concatenation, in the same order as they appear
+       in the arguments, is an awk program.
+ENVIRONMENT VARIABLES        
+       The following environment variables shall affect the execution of
+       awk:
+
+       LANG      Provide a default value for the internationalization
+                 variables that are unset or null. (See the Base
+                 Definitions volume of POSIX.1‐2017, Section 8.2,
+                 Internationalization Variables for the precedence of
+                 internationalization variables used to determine the
+                 values of locale categories.)
+
+       LC_ALL    If set to a non-empty string value, override the values
+                 of all the other internationalization variables.
+
+       LC_COLLATE
+                 Determine the locale for the behavior of ranges,
+                 equivalence classes, and multi-character collating
+                 elements within regular expressions and in comparisons
+                 of string values.
+
+       LC_CTYPE  Determine the locale for the interpretation of
+                 sequences of bytes of text data as characters (for
+                 example, single-byte as opposed to multi-byte
+                 characters in arguments and input files), the behavior
+                 of character classes within regular expressions, the
+                 identification of characters as letters, and the
+                 mapping of uppercase and lowercase characters for the
+                 toupper and tolower functions.
+
+       LC_MESSAGES
+                 Determine the locale that should be used to affect the
+                 format and contents of diagnostic messages written to
+                 standard error.
+
+       LC_NUMERIC
+                 Determine the radix character used when interpreting
+                 numeric input, performing conversions between numeric
+                 and string values, and formatting numeric output.
+                 Regardless of locale, the <period> character (the
+                 decimal-point character of the POSIX locale) is the
+                 decimal-point character recognized in processing awk
+                 programs (including assignments in command line
+                 arguments).
+
+       NLSPATH   Determine the location of message catalogs for the
+                 processing of LC_MESSAGES.
+
+       PATH      Determine the search path when looking for commands
+                 executed by system(expr), or input and output pipes;
+                 see the Base Definitions volume of POSIX.1‐2017,
+                 Chapter 8, Environment Variables.
+
+       In addition, all environment variables shall be visible via the
+       awk variable ENVIRON.
+ASYNCHRONOUS EVENTS        
+       Default.
+STDOUT        
+       The nature of the output files depends on the awk program.
+STDERR        
+       The standard error shall be used only for diagnostic messages.
+OUTPUT FILES        
+       The nature of the output files depends on the awk program.
+

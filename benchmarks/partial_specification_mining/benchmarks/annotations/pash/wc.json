@@ -1,0 +1,13 @@
+{
+    "command": "wc",
+    "aggregate": "$PASH_TOP/runtime/agg/py/wc.py",
+    "cases":
+    [
+        {
+            "predicate": "default",
+            "class": "pure",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        }
+    ]
+}

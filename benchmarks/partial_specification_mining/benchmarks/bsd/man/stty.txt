@@ -1,0 +1,455 @@
+STTY(1)			    General Commands Manual		       STTY(1)
+
+NAME
+       stty -- set the options for a terminal device interface
+
+SYNOPSIS
+       stty [-a	| -e | -g] [-f file] [arguments]
+
+DESCRIPTION
+       The  stty  utility  sets	or reports on terminal characteristics for the
+       device that is its standard input.  If  no  options  or	arguments  are
+       specified,  it  reports	the settings of	a subset of characteristics as
+       well as additional ones if they differ from their default values.  Oth-
+       erwise it modifies the terminal state according to the specified	 argu-
+       ments.	Some  combinations of arguments	are mutually exclusive on some
+       terminal	types.
+
+       The following options are available:
+
+       -a      Display all the current settings	for the	terminal  to  standard
+	       output as per IEEE Std 1003.2 ("POSIX.2").
+
+       -e      Display	all  the current settings for the terminal to standard
+	       output in the traditional BSD ``all'' and  ``everything''  for-
+	       mats.
+
+       -f      Open and	use the	terminal named by file rather than using stan-
+	       dard  input.   The  file	is opened using	the O_NONBLOCK flag of
+	       open(), making it possible to set or display settings on	a ter-
+	       minal that might	otherwise block	on the open.
+
+       -g      Display all the current settings	for the	terminal  to  standard
+	       output  in  a  form that	may be used as an argument to a	subse-
+	       quent invocation	of stty	to restore the current terminal	 state
+	       as per IEEE Std 1003.2 ("POSIX.2").
+
+       The  following arguments	are available to set the terminal characteris-
+       tics:
+
+   Control Modes:
+       Control mode flags affect hardware characteristics associated with  the
+       terminal.  This corresponds to the c_cflag in the termios structure.
+
+       parenb (-parenb)
+		   Enable (disable) parity generation and detection.
+
+       parodd (-parodd)
+		   Select odd (even) parity.
+
+       cs5 cs6 cs7 cs8
+		   Select character size, if possible.
+
+       number	   Set	terminal  baud	rate to	the number given, if possible.
+		   If the baud rate is set to zero, modem control is no	longer
+		   asserted.
+
+       ispeed number
+		   Set terminal	input baud rate	to the number given, if	possi-
+		   ble.	 If the	input baud rate	is set to zero,	the input baud
+		   rate	is set to the value of the output baud rate.
+
+       ospeed number
+		   Set terminal	output baud rate to the	number given, if  pos-
+		   sible.   If the output baud rate is set to zero, modem con-
+		   trol	is no longer asserted.
+
+       speed number
+		   This	sets both ispeed and ospeed to number.
+
+       hupcl (-hupcl)
+		   Stop	asserting modem	control	(do not	stop  asserting	 modem
+		   control) on last close.
+
+       hup (-hup)  Same	as hupcl (-hupcl).
+
+       cstopb (-cstopb)
+		   Use two (one) stop bits per character.
+
+       cread (-cread)
+		   Enable (disable) the	receiver.
+
+       clocal (-clocal)
+		   Assume a line without (with)	modem control.
+
+       crtscts (-crtscts)
+		   Enable (disable) RTS/CTS flow control.
+
+       rtsdtr (-rtsdtr)
+		   Enable (disable) asserting RTS/DTR on open.
+
+   Input Modes:
+       This corresponds	to the c_iflag in the termios structure.
+
+       ignbrk (-ignbrk)
+		   Ignore (do not ignore) break	on input.
+
+       brkint (-brkint)
+		   Signal (do not signal) INTR on break.
+
+       ignpar (-ignpar)
+		   Ignore (do not ignore) characters with parity errors.
+
+       parmrk (-parmrk)
+		   Mark	(do not	mark) characters with parity errors.
+
+       inpck (-inpck)
+		   Enable (disable) input parity checking.
+
+       istrip (-istrip)
+		   Strip (do not strip)	input characters to seven bits.
+
+       inlcr (-inlcr)
+		   Map (do not map) NL to CR on	input.
+
+       igncr (-igncr)
+		   Ignore (do not ignore) CR on	input.
+
+       icrnl (-icrnl)
+		   Map (do not map) CR to NL on	input.
+
+       ixon (-ixon)
+		   Enable  (disable)  START/STOP  output control.  Output from
+		   the system is stopped when the  system  receives  STOP  and
+		   started when	the system receives START, or if ixany is set,
+		   any character restarts output.
+
+       ixoff (-ixoff)
+		   Request  that the system send (not send) START/STOP charac-
+		   ters	when the input queue is	nearly empty/full.
+
+       ixany (-ixany)
+		   Allow any character (allow only START) to restart output.
+
+       imaxbel (-imaxbel)
+		   The system imposes a	limit  of  MAX_INPUT  (currently  255)
+		   characters  in  the input queue.  If	imaxbel	is set and the
+		   input queue limit has been reached, subsequent input	causes
+		   the system to send an ASCII BEL  character  to  the	output
+		   queue  (the	terminal beeps at you).	 Otherwise, if imaxbel
+		   is unset and	the input queue	is full, the next input	 char-
+		   acter  causes the entire input and output queues to be dis-
+		   carded.
+
+       iutf8 (-iutf8)
+		   Assume that input characters	 are  UTF-8  encoded.  Setting
+		   this	 flag  causes  backspace  to properly delete multibyte
+		   characters in canonical mode.
+
+   Output Modes:
+       This corresponds	to the c_oflag of the termios structure.
+
+       opost (-opost)
+		   Post-process	output (do not post-process output; ignore all
+		   other output	modes).
+
+       onlcr (-onlcr)
+		   Map (do not map) NL to CR-NL	on output.
+
+       ocrnl (-ocrnl)
+		   Map (do not map) CR to NL on	output.
+
+       tab0 tab3   Select tab expansion	policy.	 tab0 disables tab  expansion,
+		   while tab3 enables it.
+
+       onocr (-onocr)
+		   Do not (do) output CRs at column zero.
+
+       onlret (-onlret)
+		   On the terminal NL performs (does not perform) the CR func-
+		   tion.
+
+   Local Modes:
+       Local  mode flags (lflags) affect various and sundry characteristics of
+       terminal	processing.  Historically the term "local"  pertained  to  new
+       job  control  features implemented by Jim Kulp on a Pdp 11/70 at	IIASA.
+       Later the driver	ran on the first VAX at	Evans Hall, UC Berkeley, where
+       the job control details were greatly modified but the structure defini-
+       tions and names remained	essentially unchanged.	The second interpreta-
+       tion of the 'l' in lflag	is ``line discipline flag'' which  corresponds
+       to the c_lflag of the termios structure.
+
+       isig (-isig)
+		   Enable  (disable)  the  checking  of	characters against the
+		   special control characters INTR, QUIT, and SUSP.
+
+       icanon (-icanon)
+		   Enable (disable) canonical input (ERASE and	KILL  process-
+		   ing).
+
+       iexten (-iexten)
+		   Enable (disable) any	implementation defined special control
+		   characters  not  currently  controlled  by icanon, isig, or
+		   ixon.
+
+       echo (-echo)
+		   Echo	back (do not echo back)	every character	typed.
+
+       echoe (-echoe)
+		   The ERASE character shall (shall not)  visually  erase  the
+		   last	 character  in	the  current line from the display, if
+		   possible.
+
+       echok (-echok)
+		   Echo	(do not	echo) NL after KILL character.
+
+       echoke (-echoke)
+		   The KILL character shall (shall  not)  visually  erase  the
+		   current line	from the display, if possible.
+
+       echonl (-echonl)
+		   Echo	(do not	echo) NL, even if echo is disabled.
+
+       echoctl (-echoctl)
+		   If  echoctl	is set,	echo control characters	as ^X.	Other-
+		   wise	control	characters echo	as themselves.
+
+       echoprt (-echoprt)
+		   For printing	terminals.  If	set,  echo  erased  characters
+		   backwards  within ``\'' and ``/''.  Otherwise, disable this
+		   feature.
+
+       noflsh (-noflsh)
+		   Disable (enable) flush after	INTR, QUIT, SUSP.
+
+       tostop (-tostop)
+		   Send	(do not	send) SIGTTOU  for  background	output.	  This
+		   causes  background  jobs  to	 stop if they attempt terminal
+		   output.
+
+       altwerase (-altwerase)
+		   Use (do not use) an alternate  word	erase  algorithm  when
+		   processing  WERASE  characters.   This  alternate algorithm
+		   considers sequences of alphanumeric/underscores  as	words.
+		   It  also skips the first preceding character	in its classi-
+		   fication (as	a convenience since the	one preceding  charac-
+		   ter could have been erased with simply an ERASE character.)
+
+       mdmbuf (-mdmbuf)
+		   If  set,  flow control output based on condition of Carrier
+		   Detect.  Otherwise writes return an error if	Carrier	Detect
+		   is low (and Carrier is not being ignored  with  the	CLOCAL
+		   flag.)
+
+       flusho (-flusho)
+		   Indicates output is (is not)	being discarded.
+
+       pendin (-pendin)
+		   Indicates  input  is	 (is  not) pending after a switch from
+		   non-canonical to canonical mode and will be re-input	when a
+		   read	becomes	pending	or more	input arrives.
+
+   Control Characters:
+       control-character string
+		   Set control-character to string.  If	 string	 is  a	single
+		   character,  the control character is	set to that character.
+		   If string is	the two	character sequence "^-"	or the	string
+		   "undef"  the	 control  character  is	disabled (i.e.,	set to
+		   {_POSIX_VDISABLE}.)
+
+		   Recognized control-characters:
+
+
+			 control-
+			 character    Subscript	   Description
+			 _________    _________	   _______________
+			 eof	      VEOF	   EOF character
+			 eol	      VEOL	   EOL character
+			 eol2	      VEOL2	   EOL2	character
+			 erase	      VERASE	   ERASE character
+			 erase2	      VERASE2	   ERASE2 character
+			 werase	      VWERASE	   WERASE character
+			 intr	      VINTR	   INTR	character
+			 kill	      VKILL	   KILL	character
+			 quit	      VQUIT	   QUIT	character
+			 susp	      VSUSP	   SUSP	character
+			 start	      VSTART	   START character
+			 stop	      VSTOP	   STOP	character
+			 dsusp	      VDSUSP	   DSUSP character
+			 lnext	      VLNEXT	   LNEXT character
+			 reprint      VREPRINT	   REPRINT character
+			 status	      VSTATUS	   STATUS character
+
+       min number
+
+       time number
+		   Set the value of min	or time	to number.  MIN	and  TIME  are
+		   used	in Non-Canonical mode input processing (-icanon).
+
+   Combination Modes:
+       saved settings
+		   Set	the current terminal characteristics to	the saved set-
+		   tings produced by the -g option.
+
+       evenp or	parity
+		   Enable parenb and cs7; disable parodd.
+
+       oddp	   Enable parenb, cs7, and parodd.
+
+       -parity,	-evenp,	-oddp
+		   Disable parenb, and set cs8.
+
+       nl (-nl)	   Enable (disable) icrnl.  In addition	-nl unsets  inlcr  and
+		   igncr.
+
+       ek	   Reset ERASE,	ERASE2,	and KILL characters back to system de-
+		   faults.
+
+       sane	   Resets  all modes to	reasonable values for interactive ter-
+		   minal use.
+
+       tty	   Set the line	discipline to the standard terminal line  dis-
+		   cipline TTYDISC.
+
+       crt (-crt)  Set (disable) all modes suitable for	a CRT display device.
+
+       kerninfo	(-kerninfo)
+		   Enable  (disable)  the system generated status line associ-
+		   ated	with processing	a STATUS  character  (usually  set  to
+		   ^T).	  The status line consists of the system load average,
+		   the current command name, its process  ID,  the  event  the
+		   process  is	waiting	on (or the status of the process), the
+		   user	and system times, percent cpu, and current memory  us-
+		   age.
+
+		   If the sysctl(8) variable kern.tty_info_kstacks is set to a
+		   non-zero value, the status message also includes the	kernel
+		   program stack of the	foreground thread.
+
+       columns number
+		   The terminal	size is	recorded as having number columns.
+
+       cols number
+		   is an alias for columns.
+
+       rows number
+		   The terminal	size is	recorded as having number rows.
+
+       dec	   Set	modes suitable for users of Digital Equipment Corpora-
+		   tion	systems	(ERASE,	KILL, and INTR characters are  set  to
+		   ^?, ^U, and ^C; ixany is disabled, and crt is enabled.)
+
+       extproc (-extproc)
+		   If  set,  this  flag	indicates that some amount of terminal
+		   processing is being performed by either the terminal	 hard-
+		   ware	or by the remote side connected	to a pty.
+
+       raw (-raw)  If  set,  change the	modes of the terminal so that no input
+		   or output processing	is performed.  If  unset,  change  the
+		   modes  of  the  terminal to some reasonable state that per-
+		   forms input and output processing.	Note  that  since  the
+		   terminal  driver  no	longer has a single RAW	bit, it	is not
+		   possible to intuit what flags were  set  prior  to  setting
+		   raw.	  This	means  that unsetting raw may not put back all
+		   the setting that were previously in	effect.	  To  set  the
+		   terminal  into  a raw state and then	accurately restore it,
+		   the following shell code is recommended:
+
+		   save_state=$(stty -g)
+		   stty	raw
+		   ...
+		   stty	"$save_state"
+
+       size	   The size of the terminal is printed as  two	numbers	 on  a
+		   single line,	first rows, then columns.
+
+   Compatibility Modes:
+       These  modes  remain for	compatibility with the previous	version	of the
+       stty command.
+
+       all	   Reports all the terminal modes as with stty -a except  that
+		   the control characters are printed in a columnar format.
+
+       everything  Same	as all.
+
+       cooked	   Same	as sane.
+
+       cbreak	   If set, enables brkint, ixon, imaxbel, opost, isig, iexten,
+		   and -icanon.	 If unset, same	as sane.
+
+       new	   Same	as tty.
+
+       old	   Same	as tty.
+
+       newcrt (-newcrt)
+		   Same	as crt.
+
+       pass8	   The converse	of parity.
+
+       tandem (-tandem)
+		   Same	as ixoff.
+
+       decctlq (-decctlq)
+		   The converse	of ixany.
+
+       crterase	(-crterase)
+		   Same	as echoe.
+
+       crtbs (-crtbs)
+		   Same	as echoe.
+
+       crtkill (-crtkill)
+		   Same	as echoke.
+
+       ctlecho (-ctlecho)
+		   Same	as echoctl.
+
+       prterase	(-prterase)
+		   Same	as echoprt.
+
+       litout (-litout)
+		   The converse	of opost.
+
+       oxtabs (-oxtabs)
+		   Expand (do not expand) tabs to spaces on output.
+
+       tabs (-tabs)
+		   The converse	of oxtabs.
+
+       brk value   Same	as the control character eol.
+
+       flush value
+		   Same	as the control character discard.
+
+       rprnt value
+		   Same	as the control character reprint.
+
+INTERACTION WITH JOB CONTROL
+       Modifications  to the terminal settings are treated by job control (see
+       termios(4)) same	as writes.  When the stty utility is  executing	 in  a
+       background  process  group,  such attempts result in the	kernel sending
+       the SIGTTOU signal and stopping the process until its group is returned
+       to foreground.  The non-blocking	open of	the terminal device  with  the
+       -f  option to stty does not affect the behavior.	 If it is desirable to
+       modify the settings from	the background,	sh(1) users might utilize  the
+       following idiom:
+
+       (trap ''	TTOU; stty -f /dev/tty sane)
+
+       Note  that changing terminal settings for a running foreground job that
+       is not prepared for it might cause inconsistencies.
+
+EXIT STATUS
+       The stty	utility	exits 0	on success, and	>0 if an error occurs.
+
+SEE ALSO
+       resizewin(1), termios(4), pstat(8)
+
+STANDARDS
+       The stty	utility	is expected to be IEEE Std 1003.2 ("POSIX.2") compati-
+       ble.  The flags -e and -f are extensions	to the standard.
+
+HISTORY
+       A stty command appeared in Version 2 AT&T UNIX.
+
+FreeBSD	13.2		      September	27, 2022		       STTY(1)

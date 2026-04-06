@@ -1,0 +1,24 @@
+{
+  "version": "dirname (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

@@ -1,0 +1,14 @@
+hwclock
+
+Usage: hwclock [-r|--show] [-s|--hctosys] [-w|--systohc] [--systz] [--localtime] [-u|--utc] [-f|--rtc FILE]
+
+Query and set hardware clock (RTC)
+
+	-r	Show hardware clock time
+	-s	Set system time from hardware clock
+	-w	Set hardware clock from system time
+	--systz	Set in-kernel timezone, correct system time
+		if hardware clock is in local time
+	-u	Assume hardware clock is kept in UTC
+	--localtime	Assume hardware clock is kept in local time
+	-f FILE	Use specified device (e.g. /dev/rtc2)

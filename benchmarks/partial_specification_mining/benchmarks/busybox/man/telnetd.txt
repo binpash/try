@@ -1,0 +1,14 @@
+telnetd
+
+Usage: telnetd [OPTIONS]
+
+Handle incoming telnet connections
+
+	-l LOGIN	Exec LOGIN on connect
+	-f ISSUE_FILE	Display ISSUE_FILE instead of /etc/issue
+	-K		Close connection as soon as login exits
+			(normally wait until all programs close slave pty)
+	-p PORT		Port to listen on
+	-b ADDR[:PORT]	Address to bind to
+	-F		Run in foreground
+	-i		Inetd mode

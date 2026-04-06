@@ -1,0 +1,1 @@
+await using y = bar();

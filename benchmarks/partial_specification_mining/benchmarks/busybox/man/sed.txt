@@ -1,0 +1,14 @@
+sed
+
+Usage: sed [-i[SFX]] [-nrE] [-f FILE]... [-e CMD]... [FILE]...
+or: sed [-i[SFX]] [-nrE] CMD [FILE]...
+
+	-e CMD	Add CMD to sed commands to be executed
+	-f FILE	Add FILE contents to sed commands to be executed
+	-i[SFX]	Edit files in-place (otherwise sends to stdout)
+		Optionally back files up, appending SFX
+	-n	Suppress automatic printing of pattern space
+	-r,-E	Use extended regex syntax
+
+If no -e or -f, the first non-option argument is the sed command string.
+Remaining arguments are input files (stdin if none).

@@ -1,0 +1,21 @@
+Usage: expand [OPTION]... [FILE]...
+Convert tabs in each FILE to spaces, writing to standard output.
+
+With no FILE, or when FILE is -, read standard input.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -i, --initial    do not convert tabs after non blanks
+  -t, --tabs=N     have tabs N characters apart, not 8
+  -t, --tabs=LIST  use comma separated list of tab positions
+                     The last specified position can be prefixed with '/'
+                     to specify a tab size to use after the last
+                     explicitly specified tab stop.  Also a prefix of '+'
+                     can be used to align remaining tab stops relative to
+                     the last specified tab stop instead of the first column
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/expand>
+or available locally via: info '(coreutils) expand invocation'

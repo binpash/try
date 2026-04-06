@@ -1,0 +1,80 @@
+{
+  "version": "csplit (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-k"
+      ],
+      "long": [
+        "--keep-files"
+      ]
+    },
+    {
+      "long": [
+        "--suppress-matched"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--quiet",
+        "--silent"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--elide-empty-files"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--suffix-format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--prefix"
+      ],
+      "args": [
+        "PREFIX"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--digits"
+      ],
+      "args": [
+        "DIGITS"
+      ]
+    }
+  ]
+}

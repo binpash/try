@@ -1,0 +1,135 @@
+{
+  "version": "nl (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--no-renumber"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--body-numbering"
+      ],
+      "args": [
+        "STYLE"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--section-delimiter"
+      ],
+      "args": [
+        "CC"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--footer-numbering"
+      ],
+      "args": [
+        "STYLE"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--header-numbering"
+      ],
+      "args": [
+        "STYLE"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--line-increment"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--join-blank-lines"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--number-format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--number-separator"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--starting-line-number"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--number-width"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    }
+  ]
+}

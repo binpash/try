@@ -1,0 +1,1 @@
+cat ./evaluation/war-and-peace/book_large.txt | tr "[:upper:]" "[:lower:]" | tr -s "[:space:]" "\n" | sort | uniq -c | sort -nr

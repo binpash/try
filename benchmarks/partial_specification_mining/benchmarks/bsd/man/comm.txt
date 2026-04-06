@@ -1,0 +1,76 @@
+COMM(1)			    General Commands Manual		       COMM(1)
+
+NAME
+       comm -- select or reject	lines common to	two files
+
+SYNOPSIS
+       comm [-123i] file1 file2
+
+DESCRIPTION
+       The  comm  utility  reads file1 and file2, which	should be sorted lexi-
+       cally, and produces three text columns as output: lines only in	file1;
+       lines only in file2; and	lines in both files.
+
+       The filename ``-'' means	the standard input.
+
+       The following options are available:
+
+       -1      Suppress	printing of column 1, lines only in file1.
+
+       -2      Suppress	printing of column 2, lines only in file2.
+
+       -3      Suppress	printing of column 3, lines common to both.
+
+       -i      Case insensitive	comparison of lines.
+
+       Each  column will have a	number of tab characters prepended to it equal
+       to the number of	lower numbered columns that are	 being	printed.   For
+       example,	 if  column  number  two is being suppressed, lines printed in
+       column number one will not have any  tabs  preceding  them,  and	 lines
+       printed in column number	three will have	one.
+
+       The comm	utility	assumes	that the files are lexically sorted; all char-
+       acters participate in line comparisons.
+
+ENVIRONMENT
+       The LANG, LC_ALL, LC_COLLATE, and LC_CTYPE environment variables	affect
+       the execution of	comm as	described in environ(7).
+
+EXIT STATUS
+       The comm	utility	exits 0	on success, and	>0 if an error occurs.
+
+EXAMPLES
+       Assuming	a file named example.txt with the following contents:
+
+	     a
+	     b
+	     c
+	     d
+
+       Show lines only in example.txt, lines only in stdin and common lines:
+
+	     $ echo -e "B\nc" |	comm example.txt -
+		     B
+	     a
+	     b
+			     c
+	     d
+
+       Show only common	lines doing case insensitive comparisons:
+
+	     $ echo -e "B\nc" |	comm -1	-2 -i example.txt -
+	     b
+	     c
+
+SEE ALSO
+       cmp(1), diff(1),	sort(1), uniq(1)
+
+STANDARDS
+       The comm	utility	conforms to IEEE Std 1003.2-1992 ("POSIX.2").
+
+       The -i option is	an extension to	the POSIX standard.
+
+HISTORY
+       A comm command appeared in Version 4 AT&T UNIX.
+
+FreeBSD	13.2			 July 27, 2020			       COMM(1)

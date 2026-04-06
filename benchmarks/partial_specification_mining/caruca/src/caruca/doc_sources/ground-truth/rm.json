@@ -1,0 +1,86 @@
+{
+  "version": "rm (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--force"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ]
+    },
+    {
+      "short": [
+        "-I"
+      ]
+    },
+    {
+      "long": [
+        "--one-file-system"
+      ]
+    },
+    {
+      "long": [
+        "--no-preserve-root"
+      ]
+    },
+    {
+      "short": [
+        "-r",
+        "-R"
+      ],
+      "long": [
+        "--recursive"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--dir"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--interactive"
+      ],
+      "args": [
+        "WHEN"
+      ]
+    },
+    {
+      "long": [
+        "--preserve-root"
+      ],
+      "args": [
+        "all"
+      ]
+    }
+  ]
+}

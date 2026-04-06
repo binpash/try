@@ -1,0 +1,18 @@
+httpd
+
+Usage: httpd [-ifv[v]] [-c CONFFILE] [-p [IP:]PORT] [-u USER[:GRP]] [-r REALM] [-h HOME]
+or httpd -d/-e/-m STRING
+
+Listen for incoming HTTP requests
+
+	-i		Inetd mode
+	-f		Don't daemonize
+	-v[v]		Verbose
+	-p [IP:]PORT	Bind to IP:PORT (default *:80)
+	-u USER[:GRP]	Set uid/gid after binding to port
+	-r REALM	Authentication Realm for Basic Authentication
+	-h HOME		Home directory (default .)
+	-c FILE		Configuration file (default {/etc,HOME}/httpd.conf)
+	-m STRING	MD5 crypt STRING
+	-e STRING	HTML encode STRING
+	-d STRING	URL decode STRING

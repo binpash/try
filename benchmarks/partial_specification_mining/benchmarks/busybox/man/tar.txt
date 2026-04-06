@@ -1,0 +1,22 @@
+tar
+
+Usage: tar c|x|t [-ZzJjahmvokO] [-f TARFILE] [-C DIR] [FILE]...
+
+Create, extract, or list files from a tar file
+
+	c	Create
+	x	Extract
+	t	List
+	-f FILE	Name of TARFILE ('-' for stdin/out)
+	-C DIR	Change to DIR before operation
+	-v	Verbose
+	-O	Extract to stdout
+	-m	Don't restore mtime
+	-o	Don't restore user:group
+	-k	Don't replace existing files
+	-Z	(De)compress using compress
+	-z	(De)compress using gzip
+	-J	(De)compress using xz
+	-j	(De)compress using bzip2
+	-a	(De)compress using lzma
+	-h	Follow symlinks

@@ -1,0 +1,10 @@
+{
+    "include": [
+        "lib/**/*.js",
+        "espree.js"
+    ],
+    "reporter": [
+        "text",
+        "lcov"
+    ]
+}

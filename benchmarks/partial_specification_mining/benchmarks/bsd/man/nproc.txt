@@ -1,0 +1,46 @@
+NPROC(1)		    General Commands Manual		      NPROC(1)
+
+NAME
+       nproc --	print the number of processors
+
+SYNOPSIS
+       nproc [--all] [--ignore=count] nproc --help nproc --version
+
+DESCRIPTION
+       The  nproc utility is used to print the number of processors limited to
+       the cpuset(2) of	the current process, unless the	--all flag  is	speci-
+       fied.
+
+       The available flags are:
+
+       --all   Count all processors currently online.
+
+       --ignore=count
+	       The result is decreased by count, but never below 1.
+
+       --version
+	       Print  the  current  program version and	exit.  Do not use this
+	       option.
+
+       --help  Print usage information and exit.
+
+COMPATIBILITY
+       This program is intended	to be compatible with nproc as	found  in  GNU
+       coreutils.
+
+BUGS
+       If  HyperThreading  is  enabled in BIOS and disabled in the kernel, the
+       --all option on Linux will still	report all possible CPU	 threads.   On
+       FreeBSD only active threads will	be reported.
+
+SEE ALSO
+       cpuset(1)
+
+HISTORY
+       The nproc utility first appeared	in FreeBSD 13.2.
+
+AUTHORS
+       Mateusz	Guzik  <mjg@FreeBSD.org>  wrote	 the  program  and  Piotr Pawe
+       Stefaniak <pstef@FreeBSD.org> wrote this	page.
+
+FreeBSD	13.2			 June 2, 2023			      NPROC(1)

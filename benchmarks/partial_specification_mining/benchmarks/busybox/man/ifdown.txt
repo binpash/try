@@ -1,0 +1,11 @@
+ifdown
+
+Usage: ifdown [-anmvf] [-i FILE] IFACE...
+
+	-a	Deconfigure all interfaces
+	-i FILE	Use FILE for interface definitions
+	-n	Print out what would happen, but don't do it
+		(note: doesn't disable mappings)
+	-m	Don't run any mappings
+	-v	Print out what would happen before doing it
+	-f	Force deconfiguration

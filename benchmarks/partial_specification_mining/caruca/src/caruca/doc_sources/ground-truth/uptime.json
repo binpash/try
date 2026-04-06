@@ -1,0 +1,38 @@
+{
+  "version": "uptime from procps-ng 3.3.17",
+  "flags": [
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--pretty"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--since"
+      ]
+    },
+    {
+      "short": [
+        "-V"
+      ],
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

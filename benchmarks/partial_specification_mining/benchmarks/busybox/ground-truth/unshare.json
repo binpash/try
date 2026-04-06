@@ -1,0 +1,113 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "f"
+            ],
+            "long": [
+                "fork"
+            ]
+        },
+        {
+            "short": [
+                "r"
+            ],
+            "long": [
+                "map-root-user"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "m"
+            ],
+            "long": [
+                "mount"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "u"
+            ],
+            "long": [
+                "uts"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ],
+            "long": [
+                "ipc"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "n"
+            ],
+            "long": [
+                "net"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "long": [
+                "pid"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "U"
+            ],
+            "long": [
+                "user"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "long": [
+                "mount-proc"
+            ],
+            "args": [
+                "DIR"
+            ]
+        },
+        {
+            "long": [
+                "propagation"
+            ],
+            "args": [
+                "modifier"
+            ]
+        },
+        {
+            "long": [
+                "setgroups"
+            ],
+            "args": [
+                "modifier"
+            ]
+        }
+    ]
+}

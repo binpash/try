@@ -1,0 +1,11 @@
+Usage: tty [OPTION]...
+Print the file name of the terminal connected to standard input.
+
+  -s, --silent, --quiet   print nothing, only return an exit status
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/tty>
+or available locally via: info '(coreutils) tty invocation'

@@ -1,0 +1,14 @@
+{
+    "command": "uniq",
+    "aggregate": "$PASH_TOP/runtime/agg/py/uniq.py",
+    "cases":
+    [
+        {
+            "predicate": "default",
+            "class": "pure",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        }
+    ]
+}
+

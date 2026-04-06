@@ -1,0 +1,1 @@
+class A {async set foo(value) { }};

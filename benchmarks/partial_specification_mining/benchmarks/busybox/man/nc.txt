@@ -1,0 +1,13 @@
+nc
+
+Usage: nc [-iN] [-wN] [-l] [-p PORT] [-f FILE|IPADDR PORT] [-e PROG]
+
+Open a pipe to IP:PORT or FILE
+
+	-l	Listen mode, for inbound connects
+		(use -ll with -e for persistent server)
+	-p PORT	Local port
+	-w SEC	Connect timeout
+	-i SEC	Delay interval for lines sent
+	-f FILE	Use file (ala /dev/ttyS0) instead of network
+	-e PROG	Run PROG after connect

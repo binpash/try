@@ -1,0 +1,65 @@
+{
+  "version": "mktemp (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--directory"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--dry-run"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--quiet"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFF"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--tmpdir"
+      ],
+      "args": [
+        "DIR"
+      ]
+    }
+  ]
+}

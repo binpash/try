@@ -1,0 +1,13 @@
+rpm
+
+Usage: rpm -i PACKAGE.rpm; rpm -qp[ildc] PACKAGE.rpm
+
+Manipulate RPM packages
+
+Commands:
+	-i	Install package
+	-qp	Query package
+	-qpi	Show information
+	-qpl	List contents
+	-qpd	List documents
+	-qpc	List config files

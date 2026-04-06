@@ -1,0 +1,44 @@
+{
+  "version": "fold (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--bytes"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--spaces"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "WIDTH"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+PASTE(1)				   User Commands				   PASTE(1)
+
+NAME
+       paste - merge lines of files
+
+SYNOPSIS
+       paste [OPTION]... [FILE]...
+
+DESCRIPTION
+       Write  lines consisting of the sequentially corresponding lines from each FILE, separated by
+       TABs, to standard output.
+
+       With no FILE, or when FILE is -, read standard input.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -d, --delimiters=LIST
+	      reuse characters from LIST instead of TABs
+
+       -s, --serial
+	      paste one file at a time instead of in parallel
+
+       -z, --zero-terminated
+	      line delimiter is NUL, not newline
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by David M. Ihnat and David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       Full documentation <https://www.gnu.org/software/coreutils/paste>
+       or available locally via: info '(coreutils) paste invocation'
+
+GNU coreutils 8.32			   February 2022				   PASTE(1)

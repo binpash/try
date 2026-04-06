@@ -1,0 +1,57 @@
+{
+  "version": "timeout (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--preserve-status"
+      ]
+    },
+    {
+      "long": [
+        "--foreground"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-k"
+      ],
+      "long": [
+        "--kill-after"
+      ],
+      "args": [
+        "DURATION"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--signal"
+      ],
+      "args": [
+        "SIGNAL"
+      ]
+    }
+  ]
+}

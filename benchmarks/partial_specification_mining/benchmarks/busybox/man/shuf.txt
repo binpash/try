@@ -1,0 +1,11 @@
+shuf
+
+Usage: shuf [-e|-i L-H] [-n NUM] [-o FILE] [-z] [FILE|ARG...]
+
+Randomly permute lines
+
+	-e	Treat ARGs as lines
+	-i L-H	Treat numbers L-H as lines
+	-n NUM	Output at most NUM lines
+	-o FILE	Write to FILE, not standard output
+	-z	End lines with zero byte, not newline

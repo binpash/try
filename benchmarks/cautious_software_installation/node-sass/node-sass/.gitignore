@@ -1,0 +1,15 @@
+*.log
+.DS_Store
+.sass-cache
+build
+lib-cov
+node_modules
+vendor
+test/html-report
+test/lcov-report
+test/lcov.info
+test/fixtures/watching-css-out-01
+test/fixtures/watching-css-out-02
+coverage
+package-lock.json
+.nyc_output

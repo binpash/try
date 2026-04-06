@@ -1,0 +1,64 @@
+{
+  "version": "head (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--quiet",
+        "--silent"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--bytes"
+      ],
+      "args": [
+        "[-]NUM"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--lines"
+      ],
+      "args": [
+        "[-]NUM"
+      ]
+    }
+  ]
+}

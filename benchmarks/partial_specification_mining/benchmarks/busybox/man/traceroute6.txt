@@ -1,0 +1,19 @@
+traceroute6
+
+Usage: traceroute6 [-nrv] [-m MAXTTL] [-q PROBES] [-p PORT]
+	[-t TOS] [-w WAIT_SEC] [-s SRC_IP] [-i IFACE]
+	HOST [BYTES]
+
+Trace the route to HOST
+
+	-n	Print numeric addresses
+	-r	Bypass routing tables, send directly to HOST
+	-v	Verbose
+	-m N	Max number of hops
+	-q N	Number of probes per hop (default 3)
+	-p N	Base UDP port number used in probes
+		(default 33434)
+	-s IP	Source address
+	-i IFACE Source interface
+	-t N	Type-of-service in probe packets (default 0)
+	-w SEC	Time wait for a response (default 3)

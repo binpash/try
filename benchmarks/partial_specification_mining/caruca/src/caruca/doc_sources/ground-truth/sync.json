@@ -1,0 +1,32 @@
+{
+  "version": "sync (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--data"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--file-system"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

@@ -1,0 +1,9 @@
+rmmod
+
+Usage: rmmod [-wfa] [MODULE]...
+
+Unload kernel modules
+
+	-w	Wait until the module is no longer used
+	-f	Force unload
+	-a	Remove all unused modules (recursively)

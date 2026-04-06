@@ -1,0 +1,8 @@
+local_data/
+find_exec_touch/find_exec_touch/data/
+find_exec_zip/find_exec_zip/data/
+find_txt/find_txt/large_directory/
+grep_log/grep_log/large_log_file.log
+sort_large_file/sort_large_file/book.txt
+temp_results/
+tmp_results/

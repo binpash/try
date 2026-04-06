@@ -1,0 +1,6 @@
+# Results of a run
+*.csv
+*.pkl
+# Experimenting with Jupyter Notebooks
+*.ipynb
+outputs/

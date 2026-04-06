@@ -1,0 +1,17 @@
+nsenter
+
+Usage: nsenter [OPTIONS] [PROG [ARGS]]
+
+	-t PID		Target process to get namespaces from
+	-m[FILE]	Enter mount namespace
+	-u[FILE]	Enter UTS namespace (hostname etc)
+	-i[FILE]	Enter System V IPC namespace
+	-n[FILE]	Enter network namespace
+	-p[FILE]	Enter pid namespace
+	-U[FILE]	Enter user namespace
+	-S UID		Set uid in entered namespace
+	-G GID		Set gid in entered namespace
+	--preserve-credentials	Don't touch uids or gids
+	-r[DIR]		Set root directory
+	-w[DIR]		Set working directory
+	-F		Don't fork before exec'ing PROG

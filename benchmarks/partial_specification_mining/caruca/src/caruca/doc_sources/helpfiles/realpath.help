@@ -1,0 +1,21 @@
+Usage: realpath [OPTION]... FILE...
+Print the resolved absolute file name;
+all but the last component must exist
+
+  -e, --canonicalize-existing  all components of the path must exist
+  -m, --canonicalize-missing   no path components need exist or be a directory
+  -L, --logical                resolve '..' components before symlinks
+  -P, --physical               resolve symlinks as encountered (default)
+  -q, --quiet                  suppress most error messages
+      --relative-to=DIR        print the resolved path relative to DIR
+      --relative-base=DIR      print absolute paths unless paths below DIR
+  -s, --strip, --no-symlinks   don't expand symlinks
+  -z, --zero                   end each output line with NUL, not newline
+
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/realpath>
+or available locally via: info '(coreutils) realpath invocation'

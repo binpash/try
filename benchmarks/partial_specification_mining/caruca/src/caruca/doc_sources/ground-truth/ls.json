@@ -1,0 +1,413 @@
+{
+  "version": "ls (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "short": [
+        "-A"
+      ],
+      "long": [
+        "--almost-all"
+      ]
+    },
+    {
+      "long": [
+        "--author"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--escape"
+      ]
+    },
+    {
+      "short": [
+        "-B"
+      ],
+      "long": [
+        "--ignore-backups"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ]
+    },
+    {
+      "short": [
+        "-C"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--directory"
+      ]
+    },
+    {
+      "short": [
+        "-D"
+      ],
+      "long": [
+        "--dired"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ]
+    },
+    {
+      "short": [
+        "-F"
+      ],
+      "long": [
+        "--classify"
+      ]
+    },
+    {
+      "long": [
+        "--file-type"
+      ]
+    },
+    {
+      "long": [
+        "--full-time"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ]
+    },
+    {
+      "long": [
+        "--group-directories-first"
+      ]
+    },
+    {
+      "short": [
+        "-G"
+      ],
+      "long": [
+        "--no-group"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--human-readable"
+      ]
+    },
+    {
+      "long": [
+        "--si"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ],
+      "long": [
+        "--dereference-command-line"
+      ]
+    },
+    {
+      "long": [
+        "--dereference-command-line-symlink-to-dir"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--inode"
+      ]
+    },
+    {
+      "short": [
+        "-k"
+      ],
+      "long": [
+        "--kibibytes"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--numeric-uid-gid"
+      ]
+    },
+    {
+      "short": [
+        "-N"
+      ],
+      "long": [
+        "--literal"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ]
+    },
+    {
+        "short": [
+            "-p"
+        ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--hide-control-chars"
+      ]
+    },
+    {
+      "long": [
+        "--show-control-chars"
+      ]
+    },
+    {
+      "short": [
+        "-Q"
+      ],
+      "long": [
+        "--quote-name"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--reverse"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--recursive"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--size"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ]
+    },
+    {
+      "short": [
+        "-U"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ]
+    },
+    {
+      "short": [
+        "-X"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ],
+      "long": [
+        "--context"
+      ]
+    },
+    {
+      "short": [
+        "-1"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--block-size"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "long": [
+        "--color"
+      ],
+      "args": [
+        "WHEN"
+      ]
+    },
+    {
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--hide"
+      ],
+      "args": [
+        "PATTERN"
+      ]
+    },
+    {
+      "long": [
+        "--hyperlink"
+      ],
+      "args": [
+        "WHEN"
+      ]
+    },
+    {
+      "long": [
+        "--indicator-style"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "short": [
+        "-I"
+      ],
+      "long": [
+        "--ignore"
+      ],
+      "args": [
+        "PATTERN"
+      ]
+    },
+    {
+      "long": [
+        "--quoting-style"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--sort"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--time"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--time-style"
+      ],
+      "args": [
+        "TIME_STYLE"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--tabsize"
+      ],
+      "args": [
+        "COLS"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "COLS"
+      ]
+    }
+  ]
+}

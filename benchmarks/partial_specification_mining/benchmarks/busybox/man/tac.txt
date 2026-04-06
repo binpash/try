@@ -1,0 +1,5 @@
+tac
+
+Usage: tac [FILE]...
+
+Concatenate FILEs and print them in reverse

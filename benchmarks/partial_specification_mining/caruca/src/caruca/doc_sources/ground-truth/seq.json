@@ -1,0 +1,47 @@
+{
+  "version": "seq (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--equal-width"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--separator"
+      ],
+      "args": [
+        "STRING"
+      ]
+    }
+  ]
+}

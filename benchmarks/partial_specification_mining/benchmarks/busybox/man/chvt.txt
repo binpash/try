@@ -1,0 +1,5 @@
+chvt
+
+Usage: chvt N
+
+Change the foreground virtual terminal to /dev/ttyN

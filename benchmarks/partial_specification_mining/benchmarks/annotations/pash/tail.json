@@ -1,0 +1,13 @@
+{
+    "command": "tail",
+    "aggregate": "$PASH_TOP/runtime/agg/py/tail.py",
+    "cases":
+    [
+        {
+            "predicate": "default",
+            "class": "pure",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        }
+    ]
+}

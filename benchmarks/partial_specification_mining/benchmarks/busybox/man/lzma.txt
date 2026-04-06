@@ -1,0 +1,10 @@
+lzma
+
+Usage: lzma -d [-cfk] [FILE]...
+
+Decompress FILE (or stdin)
+
+	-d	Decompress
+	-c	Write to stdout
+	-f	Force
+	-k	Keep input files

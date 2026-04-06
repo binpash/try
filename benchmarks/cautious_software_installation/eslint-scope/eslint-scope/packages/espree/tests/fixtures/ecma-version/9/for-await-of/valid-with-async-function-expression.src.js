@@ -1,0 +1,1 @@
+f = async function() { for await (x of xs); }

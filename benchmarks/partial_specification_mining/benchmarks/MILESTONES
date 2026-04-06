@@ -1,0 +1,202 @@
+Command from PaSH
+
+
+[ ] awk
+[ ] convert
+[ ] dgsh_tee
+[ ] eager
+[ ] export
+[ ] ffmpeg
+[ ] find
+[ ] groff
+[ ] gunzip
+[ ] gzip
+[ ] hdfs
+[ ] history
+[ ] jobs
+[ ] nc
+[ ] pandoc
+[ ] ps
+[ ] read
+[ ] readelf
+[ ] resize
+[ ] set
+[ ] set_diff
+[ ] stem-words
+[ ] xargs
+[ ] xxd
+[X] bc
+[X] cat
+[X] chmod
+[X] col
+[X] comm
+[X] cut
+[X] date
+[X] dd
+[X] diff
+[X] echo
+[X] fmt
+[X] grep - later
+[X] head
+[X] iconv
+[X] ls
+[X] mkfifo
+[X] mktemp
+[X] mv (only in new annotations)
+[X] nl
+[X] paste
+[X] pr
+[X] pwd
+[X] rev
+[X] rm
+[X] sed
+[X] seq
+[X] sha256sum
+[X] shuf
+[X] sort
+[X] split
+[X] tac
+[X] tail
+[X] tee
+[X] tr
+[X] uniq
+[X] wc
+
+Commands from POSH
+
+[ ] awk
+[X] cat
+[X] comm
+[X] cut
+[X] echo
+[ ] git add
+[ ] git commit
+[ ] git status
+[X] grep
+[X] head
+[ ] jq
+[ ] mogrify
+[X] pr
+[ ] q
+[ ] sed
+[X] sort
+[ ] tar
+[X] tr
+[X] wc
+
+Commands from ShSheer
+
+rm 
+
+Extra (GNU Coreutils)
+
+[ ] dircolors
+[ ] du
+[ ] env
+[ ] install
+[ ] ln
+[ ] mkfifo
+[ ] mknod
+[ ] nice
+[ ] nohup
+[ ] nproc
+[ ] od
+[ ] pinky
+[ ] printenv
+[ ] printf
+[ ] rmdir
+[ ] runcon
+[ ] sha1sum
+[ ] sha224sum
+[ ] sha256sum
+[ ] sha384sum
+[ ] sha512sum
+[ ] stat
+[ ] stdbuf
+[ ] stty
+[ ] sync
+[ ] test
+[ ] timeout
+[ ] truncate
+[ ] tty
+[ ] uname
+[ ] unexpand
+[ ] unlink
+[ ] uptime
+[ ] users
+[ ] vdir
+[ ] who
+[ ] whoami
+[ ] yes
+[X] arch
+[X] b2sum
+[X] base32
+[X] base64
+[X] basename
+[X] basenc
+[X] cat
+[X] chcon
+[X] chgrp
+[X] chksum
+[X] chmod
+[X] chown
+[X] chroot
+[X] cksum
+[X] comm
+[X] cp
+[X] csplit
+[X] cut
+[X] date
+[X] dd
+[X] df
+[X] dir
+[X] dirname
+[X] echo
+[X] expand
+[X] expr
+[X] factor
+[X] false
+[X] fmt
+[X] fold
+[X] grep
+[X] groups
+[X] head
+[X] hostid
+[X] hostname
+[X] id
+[X] join
+[X] kill
+[X] link
+[X] logname
+[X] ls
+[X] md5sum
+[X] mkdir
+[X] mktemp
+[X] mv
+[X] nl
+[X] numfmt
+[X] paste
+[X] pathchk
+[X] pr
+[X] ptx
+[X] pwd
+[X] readlink
+[X] realpath
+[X] rm
+[X] seq
+[X] shred
+[X] shuf
+[X] sleep
+[X] sort
+[X] split
+[X] sum
+[X] tac
+[X] tail
+[X] tee
+[X] touch
+[X] tr
+[X] tsort
+[X] tsort
+[X] uniq
+[X] wc
+[x] true

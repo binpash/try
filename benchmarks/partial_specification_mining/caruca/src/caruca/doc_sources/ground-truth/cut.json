@@ -1,0 +1,95 @@
+{
+  "version": "cut (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-n"
+      ]
+    },
+    {
+      "long": [
+        "--complement"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--only-delimited"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--bytes"
+      ],
+      "args": [
+        "LIST"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--characters"
+      ],
+      "args": [
+        "LIST"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--delimiter"
+      ],
+      "args": [
+        "DELIM"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--fields"
+      ],
+      "args": [
+        "LIST"
+      ]
+    },
+    {
+      "long": [
+        "--output-delimiter"
+      ],
+      "args": [
+        "STRING"
+      ]
+    }
+  ]
+}

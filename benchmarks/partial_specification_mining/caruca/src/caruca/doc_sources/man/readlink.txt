@@ -1,0 +1,64 @@
+READLINK(1)				   User Commands				READLINK(1)
+
+NAME
+       readlink - print resolved symbolic links or canonical file names
+
+SYNOPSIS
+       readlink [OPTION]... FILE...
+
+DESCRIPTION
+       Note realpath(1) is the preferred command to use for canonicalization functionality.
+
+       Print value of a symbolic link or canonical file name
+
+       -f, --canonicalize
+	      canonicalize  by	following every symlink in every component of the given name recur‐
+	      sively; all but the last component must exist
+
+       -e, --canonicalize-existing
+	      canonicalize by following every symlink in every component of the given  name  recur‐
+	      sively, all components must exist
+
+       -m, --canonicalize-missing
+	      canonicalize  by	following every symlink in every component of the given name recur‐
+	      sively, without requirements on components existence
+
+       -n, --no-newline
+	      do not output the trailing delimiter
+
+       -q, --quiet
+
+       -s, --silent
+	      suppress most error messages (on by default)
+
+       -v, --verbose
+	      report error messages
+
+       -z, --zero
+	      end each output line with NUL, not newline
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by Dmitry V. Levin.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       readlink(2), realpath(1), realpath(3)
+
+       Full documentation <https://www.gnu.org/software/coreutils/readlink>
+       or available locally via: info '(coreutils) readlink invocation'
+
+GNU coreutils 8.32			   February 2022				READLINK(1)

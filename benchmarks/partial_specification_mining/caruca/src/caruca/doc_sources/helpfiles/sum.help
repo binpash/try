@@ -1,0 +1,14 @@
+Usage: sum [OPTION]... [FILE]...
+Print checksum and block counts for each FILE.
+
+With no FILE, or when FILE is -, read standard input.
+
+  -r              use BSD sum algorithm, use 1K blocks
+  -s, --sysv      use System V sum algorithm, use 512 bytes blocks
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/sum>
+or available locally via: info '(coreutils) sum invocation'

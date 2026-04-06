@@ -1,0 +1,11 @@
+
+Usage:
+ uptime [options]
+
+Options:
+ -p, --pretty   show uptime in pretty format
+ -h, --help     display this help and exit
+ -s, --since    system up since
+ -V, --version  output version information and exit
+
+For more details see uptime(1).

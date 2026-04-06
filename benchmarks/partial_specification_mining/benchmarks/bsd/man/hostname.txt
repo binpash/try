@@ -1,0 +1,47 @@
+HOSTNAME(1)		    General Commands Manual		   HOSTNAME(1)
+
+NAME
+       hostname	-- set or print	the name of current host system
+
+SYNOPSIS
+       hostname	[-f] [-s | -d] [name-of-host]
+
+DESCRIPTION
+       The  hostname  utility prints the name of the current host.  The	super-
+       user can	set the	hostname by supplying an  argument;  this  is  usually
+       done  in	 the initialization script /etc/rc.d/hostname, normally	run at
+       boot time.  This	script uses the	hostname variable in /etc/rc.conf.
+
+       Options:
+
+       -f    Include domain information	in the printed name.  This is the  de-
+	     fault behavior.
+
+       -s    Trim off any domain information from the printed name.
+
+       -d    Only print	domain information.
+
+EXAMPLES
+       Set the host name of the	machine	and check the result:
+
+	     $ hostname	beastie.localdomain.org
+	     $ hostname
+	     beastie.localdomain.org
+
+       Do not show domain information:
+
+	     $ hostname	-s
+	     beastie
+
+       Show only domain	information:
+
+	     $ hostname	-d
+	     localdomain.org
+
+SEE ALSO
+       gethostname(3), rc.conf(5)
+
+HISTORY
+       The hostname command appeared in	4.2BSD.
+
+FreeBSD	13.2			October	5, 2020			   HOSTNAME(1)

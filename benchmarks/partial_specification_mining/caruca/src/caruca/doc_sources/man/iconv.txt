@@ -1,0 +1,101 @@
+iconv(1)                                                                                    General Commands Manual                                                                                    iconv(1)
+
+NAME
+       iconv - convert text from one character encoding to another
+
+SYNOPSIS
+       iconv [options] [-f from-encoding] [-t to-encoding] [inputfile]...
+
+DESCRIPTION
+       The  iconv program reads in text in one encoding and outputs the text in another encoding.  If no input files are given, or if it is given as a dash (-), iconv reads from standard input.  If no output
+       file is given, iconv writes to standard output.
+
+       If no from-encoding is given, the default is derived from the current locale's character encoding.  If no to-encoding is given, the default is derived from the current locale's character encoding.
+
+OPTIONS
+       --from-code=from-encoding
+       -f from-encoding
+              Use from-encoding for input characters.
+
+       --to-code=to-encoding
+       -t to-encoding
+              Use to-encoding for output characters.
+
+              If the string //IGNORE is appended to to-encoding, characters that cannot be converted are discarded and an error is printed after conversion.
+
+              If the string //TRANSLIT is appended to to-encoding, characters being converted are transliterated when needed and possible.  This means that when a character cannot be represented in the  tar‐
+              get  character  set, it can be approximated through one or several similar looking characters.  Characters that are outside of the target character set and cannot be transliterated are replaced
+              with a question mark (?) in the output.
+
+       --list
+       -l     List all known character set encodings.
+
+       -c     Silently discard characters that cannot be converted instead of terminating when encountering such characters.
+
+       --output=outputfile
+       -o outputfile
+              Use outputfile for output.
+
+       --silent
+       -s     This option is ignored; it is provided only for compatibility.
+
+       --verbose
+              Print progress information on standard error when processing multiple files.
+
+       --help
+       -?     Print a usage summary and exit.
+
+       --usage
+              Print a short usage summary and exit.
+
+       --version
+       -V     Print the version number, license, and disclaimer of warranty for iconv.
+
+EXIT STATUS
+       Zero on success, nonzero on errors.
+
+ENVIRONMENT
+       Internally, the iconv program uses the iconv(3) function which in turn uses gconv modules (dynamically loaded shared libraries) to convert to and from a character set.  Before  calling  iconv(3),  the
+       iconv program must first allocate a conversion descriptor using iconv_open(3).  The operation of the latter function is influenced by the setting of the GCONV_PATH environment variable:
+
+       •  If GCONV_PATH is not set, iconv_open(3) loads the system gconv module configuration cache file created by iconvconfig(8) and then, based on the configuration, loads the gconv modules needed to per‐
+          form the conversion.  If the system gconv module configuration cache file is not available then the system gconv module configuration file is used.
+
+       •  If  GCONV_PATH  is  defined (as a colon-separated list of pathnames), the system gconv module configuration cache is not used.  Instead, iconv_open(3) first tries to load the configuration files by
+          searching the directories in GCONV_PATH in order, followed by the system default gconv module configuration file.  If a directory does not contain a gconv module configuration file, any gconv  mod‐
+          ules  that  it  may contain are ignored.  If a directory contains a gconv module configuration file and it is determined that a module needed for this conversion is available in the directory, then
+          the needed module is loaded from that directory, the order being such that the first suitable module found in GCONV_PATH is used.  This allows users to use custom modules and even  replace  system-
+          provided modules by providing such modules in GCONV_PATH directories.
+
+FILES
+       /usr/lib/gconv
+              Usual default gconv module path.
+
+       /usr/lib/gconv/gconv-modules
+              Usual system default gconv module configuration file.
+
+       /usr/lib/gconv/gconv-modules.cache
+              Usual system gconv module configuration cache.
+
+       Depending on the architecture, the above files may instead be located at directories with the path prefix /usr/lib64.
+
+STANDARDS
+       POSIX.1-2008.
+
+HISTORY
+       POSIX.1-2001.
+
+EXAMPLES
+       Convert text from the ISO/IEC 8859-15 character encoding to UTF-8:
+
+           $ iconv -f ISO-8859-15 -t UTF-8 < input.txt > output.txt
+
+       The next example converts from UTF-8 to ASCII, transliterating when possible:
+
+           $ echo abc ß α € àḃç | iconv -f UTF-8 -t ASCII//TRANSLIT
+           abc ss ? EUR abc
+
+SEE ALSO
+       locale(1), uconv(1), iconv(3), nl_langinfo(3), charsets(7), iconvconfig(8)
+
+Linux man-pages 6.7                                                                                2024-01-28                                                                                          iconv(1)

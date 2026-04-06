@@ -1,0 +1,249 @@
+{
+  "version": "pr (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--across"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--show-control-chars"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--double-space"
+      ]
+    },
+    {
+      "short": [
+        "-F",
+        "-f"
+      ],
+      "long": [
+        "--form-feed"
+      ]
+    },
+    {
+      "short": [
+        "-J"
+      ],
+      "long": [
+        "--join-lines"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--merge"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--no-file-warnings"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--omit-header"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--omit-pagination"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--show-nonprinting"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--pages"
+      ],
+      "args": [
+        ":LAST_PAGE"
+      ]
+    },
+    {
+      "short": [
+        "-COLUMN"
+      ],
+      "long": [
+        "--columns"
+      ],
+      "args": [
+        "COLUMN"
+      ]
+    },
+    {
+      "short": [
+        "-D"
+      ],
+      "long": [
+        "--date-format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--expand-tabs"
+      ],
+      "args": [
+        "CHAR[WIDTH]"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--header"
+      ],
+      "args": [
+        "HEADER"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--output-tabs"
+      ],
+      "args": [
+        "CHAR[WIDTH]"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--length"
+      ],
+      "args": [
+        "PAGE_LENGTH"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--number-lines"
+      ],
+      "args": [
+        "SEP[DIGITS]"
+      ]
+    },
+    {
+      "short": [
+        "-N"
+      ],
+      "long": [
+        "--first-line-number"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--indent"
+      ],
+      "args": [
+        "MARGIN"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--separator"
+      ],
+      "args": [
+        "CHAR"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--sep-string"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--width"
+      ],
+      "args": [
+        "PAGE_WIDTH"
+      ]
+    },
+    {
+      "short": [
+        "-W"
+      ],
+      "long": [
+        "--page-width"
+      ],
+      "args": [
+        "PAGE_WIDTH"
+      ]
+    }
+  ]
+}

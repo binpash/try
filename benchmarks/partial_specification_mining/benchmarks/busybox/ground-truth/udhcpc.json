@@ -1,0 +1,148 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "B"
+            ]
+        },
+        {
+            "short": [
+                "n"
+            ]
+        },
+        {
+            "short": [
+                "q"
+            ]
+        },
+        {
+            "short": [
+                "R"
+            ]
+        },
+        {
+            "short": [
+                "f"
+            ]
+        },
+        {
+            "short": [
+                "b"
+            ]
+        },
+        {
+            "short": [
+                "S"
+            ]
+        },
+        {
+            "short": [
+                "o"
+            ]
+        },
+        {
+            "short": [
+                "C"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "i"
+            ],
+            "args": [
+                "IFACE"
+            ]
+        },
+        {
+            "short": [
+                "s"
+            ],
+            "args": [
+                "PROG"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "t"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "T"
+            ],
+            "args": [
+                "SEC"
+            ]
+        },
+        {
+            "short": [
+                "A"
+            ],
+            "args": [
+                "SEC"
+            ]
+        },
+        {
+            "short": [
+                "a"
+            ],
+            "args": [
+                "MSEC"
+            ]
+        },
+        {
+            "short": [
+                "r"
+            ],
+            "args": [
+                "IP"
+            ]
+        },
+        {
+            "short": [
+                "O"
+            ],
+            "args": [
+                "OPT"
+            ]
+        },
+        {
+            "short": [
+                "x"
+            ],
+            "args": [
+                "OPT:VAL"
+            ]
+        },
+        {
+            "short": [
+                "F"
+            ],
+            "args": [
+                "NAME"
+            ]
+        },
+        {
+            "short": [
+                "V"
+            ],
+            "args": [
+                "VENDOR"
+            ]
+        }
+    ]
+}

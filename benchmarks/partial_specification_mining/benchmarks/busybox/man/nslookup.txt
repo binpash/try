@@ -1,0 +1,7 @@
+nslookup
+
+Usage: nslookup [-type=QUERY_TYPE] [-debug] HOST [DNS_SERVER]
+
+Query DNS about HOST
+
+QUERY_TYPE: soa,ns,a,aaaa,cname,mx,txt,ptr,any

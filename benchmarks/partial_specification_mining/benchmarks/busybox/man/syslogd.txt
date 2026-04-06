@@ -1,0 +1,15 @@
+syslogd
+
+Usage: syslogd [OPTIONS]
+
+System logging utility
+(this version of syslogd ignores /etc/syslog.conf)
+
+	-n		Run in foreground
+	-R HOST[:PORT]	Log to HOST:PORT (default PORT:514)
+	-L		Log locally and via network (default is network only if -R)
+	-C[size_kb]	Log to shared mem buffer (use logread to read it)
+	-O FILE		Log to FILE (default: /var/log/messages, stdout if -)
+	-l N		Log only messages more urgent than prio N (1-8)
+	-S		Smaller output
+	-t		Strip client-generated timestamps

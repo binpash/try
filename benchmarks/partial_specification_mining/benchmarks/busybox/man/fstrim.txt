@@ -1,0 +1,8 @@
+fstrim
+
+Usage: fstrim [OPTIONS] MOUNTPOINT
+
+	-o,--offset OFFSET	Offset in bytes to discard from
+	-l,--length LEN		Bytes to discard
+	-m,--minimum MIN	Minimum extent length
+	-v,--verbose		Print number of discarded bytes

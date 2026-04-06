@@ -1,0 +1,133 @@
+{
+  "version": "ln (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "short": [
+        "-d",
+        "-F"
+      ],
+      "long": [
+        "--directory"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--force"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--interactive"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--logical"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ],
+      "long": [
+        "--physical"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--relative"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--symbolic"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--no-target-directory"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--backup"
+      ],
+      "args": [
+        "CONTROL"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--target-directory"
+      ],
+      "args": [
+        "DIRECTORY"
+      ]
+    }
+  ]
+}

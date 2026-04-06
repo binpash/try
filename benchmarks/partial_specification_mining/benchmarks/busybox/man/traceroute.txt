@@ -1,0 +1,24 @@
+traceroute
+
+Usage: traceroute [-46FIlnrv] [-f 1ST_TTL] [-m MAXTTL] [-q PROBES] [-p PORT]
+	[-t TOS] [-w WAIT_SEC] [-s SRC_IP] [-i IFACE]
+	[-z PAUSE_MSEC] HOST [BYTES]
+
+Trace the route to HOST
+
+	-4,-6	Force IP or IPv6 name resolution
+	-F	Set don't fragment bit
+	-l	Display TTL value of the returned packet
+	-n	Print numeric addresses
+	-r	Bypass routing tables, send directly to HOST
+	-v	Verbose
+	-f N	First number of hops (default 1)
+	-m N	Max number of hops
+	-q N	Number of probes per hop (default 3)
+	-p N	Base UDP port number used in probes
+		(default 33434)
+	-s IP	Source address
+	-i IFACE Source interface
+	-t N	Type-of-service in probe packets (default 0)
+	-w SEC	Time to wait for a response (default 3)
+	-g IP	Loose source route gateway (8 max)

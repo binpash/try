@@ -1,0 +1,78 @@
+CHGRP(1)		    General Commands Manual		      CHGRP(1)
+
+NAME
+       chgrp --	change group
+
+SYNOPSIS
+       chgrp [-fhvx] [-R [-H | -L | -P]] group file ...
+
+DESCRIPTION
+       The  chgrp  utility  sets  the  group ID	of the file named by each file
+       operand to the group ID specified by the	group operand.
+
+       The following options are available:
+
+       -H      If the -R option	is specified, symbolic links  on  the  command
+	       line  are  followed and hence unaffected	by the command.	 (Sym-
+	       bolic links encountered during traversal	are not	followed.)
+
+       -L      If the -R option	is specified, all symbolic links are followed.
+
+       -P      If the -R option	is specified, no symbolic links	are  followed.
+	       This is the default.
+
+       -R      Change  the  group  ID  of  the	file hierarchies rooted	in the
+	       files, instead of just the files	themselves.  Beware  of	 unin-
+	       tentionally matching the	".." hard link to the parent directory
+	       when using wildcards like ".*".
+
+       -f      The  force  option  ignores errors, except for usage errors and
+	       does not	query about strange modes (unless the  user  does  not
+	       have proper permissions).
+
+       -h      If the file is a	symbolic link, the group ID of the link	itself
+	       is changed rather than the file that is pointed to.
+
+       -v      Cause  chgrp to be verbose, showing files as the	group is modi-
+	       fied.  If the -v	flag is	specified more than once,  chgrp  will
+	       print  the  filename, followed by the old and new numeric group
+	       ID.
+
+       -x      File system mount points	are not	traversed.
+
+       The -H, -L and -P options are ignored unless the	-R  option  is	speci-
+       fied.  In addition, these options override each other and the command's
+       actions are determined by the last one specified.
+
+       The  group  operand can be either a group name from the group database,
+       or a numeric group ID.  If a group name is also a numeric group ID, the
+       operand is used as a group name.
+
+       The user	invoking chgrp must belong to the specified group and  be  the
+       owner of	the file, or be	the super-user.
+
+       If  chgrp  receives  a  SIGINFO	signal	(see  the  status argument for
+       stty(1)), then the current filename as well as the old  and  new	 group
+       names are displayed.
+
+FILES
+       /etc/group  group ID file
+
+EXIT STATUS
+       The chgrp utility exits 0 on success, and >0 if an error	occurs.
+
+COMPATIBILITY
+       In  previous  versions  of  this	 system,  symbolic  links did not have
+       groups.
+
+       The -v and -x options are non-standard and their	use in scripts is  not
+       recommended.
+
+SEE ALSO
+       chown(2), fts(3), group(5), passwd(5), symlink(7), chown(8)
+
+STANDARDS
+       The chgrp utility is expected to	be IEEE	Std 1003.2 ("POSIX.2") compat-
+       ible.
+
+FreeBSD	13.2			January	7, 2017			      CHGRP(1)

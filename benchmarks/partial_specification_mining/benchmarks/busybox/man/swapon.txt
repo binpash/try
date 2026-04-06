@@ -1,0 +1,10 @@
+swapon
+
+Usage: swapon [-a] [-e] [-d[POL]] [DEVICE]
+
+Start swapping on DEVICE
+
+	-a	Start swapping on all swap devices
+	-d[POL]	Discard blocks at swapon (POL=once),
+		as freed (POL=pages), or both (POL omitted)
+	-e	Silently skip devices that do not exist

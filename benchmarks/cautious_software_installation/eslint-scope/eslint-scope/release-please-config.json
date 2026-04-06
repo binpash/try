@@ -1,0 +1,16 @@
+{
+  "bootstrap-sha": "ef88e3795fdf8595a71a37020956d05561b1f467",
+  "plugins": ["node-workspace"],
+  "bump-minor-pre-major": true,
+  "packages": {
+    "packages/espree": {
+      "release-type": "node"
+    },
+    "packages/eslint-scope": {
+      "release-type": "node"
+    },
+    "packages/eslint-visitor-keys": {
+      "release-type": "node"
+    }
+  }
+}

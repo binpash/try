@@ -1,0 +1,21 @@
+mdev
+
+Usage: mdev [-s]
+
+mdev -s is to be run during boot to scan /sys and populate /dev.
+
+Bare mdev is a kernel hotplug helper. To activate it:
+	echo /sbin/mdev >/proc/sys/kernel/hotplug
+
+It uses /etc/mdev.conf with lines
+	[-][ENV=regex;]...DEVNAME UID:GID PERM [>|=PATH]|[!] [@|$|*PROG]
+where DEVNAME is device name regex, @major,minor[-minor2], or
+environment variable regex. A common use of the latter is
+to load modules for hotplugged devices:
+	$MODALIAS=.* 0:0 660 @modprobe "$MODALIAS"
+
+If /dev/mdev.seq file exists, mdev will wait for its value
+to match $SEQNUM variable. This prevents plug/unplug races.
+To activate this feature, create empty /dev/mdev.seq at boot.
+
+If /dev/mdev.log file exists, debug log will be appended to it.

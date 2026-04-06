@@ -1,0 +1,14 @@
+chown
+
+Usage: chown [-RhLHPcvf]... USER[:[GRP]] FILE...
+
+Change the owner and/or group of each FILE to USER and/or GRP
+
+	-R	Recurse
+	-h	Affect symlinks instead of symlink targets
+	-L	Traverse all symlinks to directories
+	-H	Traverse symlinks on command line only
+	-P	Don't traverse symlinks (default)
+	-c	List changed files
+	-v	List all files
+	-f	Hide errors

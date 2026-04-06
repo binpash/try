@@ -1,0 +1,44 @@
+{
+  "version": "basename (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--multiple"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    }
+  ]
+}

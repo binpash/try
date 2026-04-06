@@ -1,0 +1,7 @@
+cache
+!/src/cache
+/evaluation/bash-ts/bash
+debug_log.txt
+/target
+/venv
+.venv

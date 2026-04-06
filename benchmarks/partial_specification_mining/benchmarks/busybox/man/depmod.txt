@@ -1,0 +1,8 @@
+depmod
+
+Usage: depmod [-n] [-b BASE] [VERSION] [MODFILES]...
+
+Generate modules.dep, alias, and symbols files
+
+	-b BASE	Use BASE/lib/modules/VERSION
+	-n	Dry run: print files to stdout

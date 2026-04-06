@@ -1,0 +1,139 @@
+{
+  "version": "df (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--human-readable"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ],
+      "long": [
+        "--si"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--inodes"
+      ]
+    },
+    {
+      "short": [
+        "-k"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--local"
+      ]
+    },
+    {
+      "long": [
+        "--no-sync"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ],
+      "long": [
+        "--portability"
+      ]
+    },
+    {
+      "long": [
+        "--sync"
+      ]
+    },
+    {
+      "long": [
+        "--total"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--print-type"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-B"
+      ],
+      "long": [
+        "--block-size"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "long": [
+        "--output"
+      ],
+      "args": [
+        "FIELD_LIST"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--type"
+      ],
+      "args": [
+        "TYPE"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ],
+      "long": [
+        "--exclude-type"
+      ],
+      "args": [
+        "TYPE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+Usage: fmt [-WIDTH] [OPTION]... [FILE]...
+Reformat each paragraph in the FILE(s), writing to standard output.
+The option -WIDTH is an abbreviated form of --width=DIGITS.
+
+With no FILE, or when FILE is -, read standard input.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -c, --crown-margin        preserve indentation of first two lines
+  -p, --prefix=STRING       reformat only lines beginning with STRING,
+                              reattaching the prefix to reformatted lines
+  -s, --split-only          split long lines, but do not refill
+  -t, --tagged-paragraph    indentation of first line different from second
+  -u, --uniform-spacing     one space between words, two after sentences
+  -w, --width=WIDTH         maximum line width (default of 75 columns)
+  -g, --goal=WIDTH          goal width (default of 93% of width)
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/fmt>
+or available locally via: info '(coreutils) fmt invocation'

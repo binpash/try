@@ -1,0 +1,4 @@
+static-sh
+
+No help available.
+

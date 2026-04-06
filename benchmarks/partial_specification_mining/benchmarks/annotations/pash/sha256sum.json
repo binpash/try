@@ -1,0 +1,12 @@
+{
+    "command": "sha256sum",
+    "cases":
+    [
+        {
+            "predicate": "default",
+            "class": "non-pure",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        }
+    ]
+}

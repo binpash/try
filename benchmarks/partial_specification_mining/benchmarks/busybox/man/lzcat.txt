@@ -1,0 +1,5 @@
+lzcat
+
+Usage: lzcat [FILE]...
+
+Decompress to stdout

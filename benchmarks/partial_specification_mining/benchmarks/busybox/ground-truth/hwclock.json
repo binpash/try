@@ -1,0 +1,60 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "r"
+            ],
+            "long": [
+                "show"
+            ]
+        },
+        {
+            "short": [
+                "s"
+            ],
+            "long": [
+                "hctosys"
+            ]
+        },
+        {
+            "short": [
+                "w"
+            ],
+            "long": [
+                "systohc"
+            ]
+        },
+        {
+            "long": [
+                "systz"
+            ]
+        },
+        {
+            "long": [
+                "localtime"
+            ]
+        },
+        {
+            "short": [
+                "u"
+            ],
+            "long": [
+                "utc"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "f"
+            ],
+            "long": [
+                "rtc"
+            ],
+            "args": [
+                "FILE"
+            ]
+        }
+    ]
+}

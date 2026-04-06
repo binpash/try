@@ -1,0 +1,12 @@
+bc
+
+Usage: bc [-sqlw] FILE...
+
+Arbitrary precision calculator
+
+	-q	Quiet
+	-l	Load standard math library
+	-s	Be POSIX compatible
+	-w	Warn if extensions are used
+
+$BC_LINE_LENGTH changes output width

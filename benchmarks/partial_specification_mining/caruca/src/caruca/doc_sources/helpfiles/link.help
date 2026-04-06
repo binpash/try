@@ -1,0 +1,11 @@
+Usage: link FILE1 FILE2
+  or:  link OPTION
+Call the link function to create a link named FILE2 to an existing FILE1.
+
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/link>
+or available locally via: info '(coreutils) link invocation'

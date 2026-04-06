@@ -1,0 +1,9 @@
+nameif
+
+Usage: nameif [-s] [-c FILE] [IFNAME HWADDR]...
+
+Rename network interface while it in the down state.
+The device with address HWADDR is renamed to IFACE.
+
+	-c FILE	Configuration file (default: /etc/mactab)
+	-s	Log to syslog

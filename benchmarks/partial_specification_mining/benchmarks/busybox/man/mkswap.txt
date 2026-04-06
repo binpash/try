@@ -1,0 +1,7 @@
+mkswap
+
+Usage: mkswap [-L LBL] BLOCKDEV [KBYTES]
+
+Prepare BLOCKDEV to be used as swap partition
+
+	-L LBL	Label

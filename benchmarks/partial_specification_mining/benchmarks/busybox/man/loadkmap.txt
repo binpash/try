@@ -1,0 +1,5 @@
+loadkmap
+
+Usage: loadkmap < keymap
+
+Load a binary keyboard translation table from stdin

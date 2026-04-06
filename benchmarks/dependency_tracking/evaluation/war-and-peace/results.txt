@@ -1,0 +1,51 @@
+[NO INCR]
+
+real    0m0.070s
+user    0m0.010s
+sys     0m0.060s
+
+real    0m0.115s
+user    0m0.036s
+sys     0m0.115s
+
+real    0m0.277s
+user    0m0.243s
+sys     0m0.175s
+
+real    0m18.595s
+user    0m18.545s
+sys     0m0.347s
+
+real    0m18.640s
+user    0m19.056s
+sys     0m0.365s
+
+real    0m19.054s
+user    0m19.542s
+sys     0m0.344s
+
+[INCR STREAM]
+
+real    0m0.059s
+user    0m0.005s
+sys     0m0.055s
+
+real    0m0.117s
+user    0m0.055s
+sys     0m0.100s
+
+real    0m0.260s
+user    0m0.230s
+sys     0m0.170s
+
+real    0m21.134s
+user    0m21.233s
+sys     0m0.729s
+
+real    0m0.684s
+user    0m0.700s
+sys     0m0.405s
+
+real    0m0.591s
+user    0m0.574s
+sys     0m0.332s

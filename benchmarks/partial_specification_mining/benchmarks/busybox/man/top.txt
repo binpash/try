@@ -1,0 +1,17 @@
+top
+
+Usage: top [-b] [-nCOUNT] [-dSECONDS]
+
+Provide a view of process activity in real time.
+Read the status of all processes from /proc each SECONDS
+and display a screenful of them.
+Keys:
+	N/M/P/T: sort by pid/mem/cpu/time
+	R: reverse sort
+	H: toggle threads
+	Q,^C: exit
+
+Options:
+	-b	Batch mode
+	-n N	Exit after N iterations
+	-d N	Delay between updates

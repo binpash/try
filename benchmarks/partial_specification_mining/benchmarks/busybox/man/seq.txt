@@ -1,0 +1,9 @@
+seq
+
+Usage: seq [-w] [-s SEP] [FIRST [INC]] LAST
+
+Print numbers from FIRST to LAST, in steps of INC.
+FIRST, INC default to 1.
+
+	-w	Pad to last with leading zeros
+	-s SEP	String separator

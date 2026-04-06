@@ -1,0 +1,49 @@
+{
+  "version": "tr (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c",
+        "-C"
+      ],
+      "long": [
+        "--complement"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--delete"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--squeeze-repeats"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--truncate-set1"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

@@ -1,0 +1,65 @@
+{
+  "version": "wc (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--bytes"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--chars"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--lines"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--max-line-length"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--words"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--files0-from"
+      ],
+      "args": [
+        "F"
+      ]
+    }
+  ]
+}

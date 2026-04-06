@@ -1,0 +1,5 @@
+hostid
+
+Usage: hostid
+
+Print out a unique 32-bit identifier for the machine

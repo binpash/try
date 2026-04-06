@@ -1,0 +1,9 @@
+reboot
+
+Usage: reboot [-d DELAY] [-n] [-f]
+
+Reboot the system
+
+	-d SEC	Delay interval
+	-n	Do not sync
+	-f	Force (don't go through init)

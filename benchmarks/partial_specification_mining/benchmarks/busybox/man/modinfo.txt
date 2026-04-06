@@ -1,0 +1,10 @@
+modinfo
+
+Usage: modinfo [-adlpn0] [-F keyword] MODULE
+
+	-a		Shortcut for '-F author'
+	-d		Shortcut for '-F description'
+	-l		Shortcut for '-F license'
+	-p		Shortcut for '-F parm'
+	-F keyword	Keyword to look for
+	-0		Separate output with NULs

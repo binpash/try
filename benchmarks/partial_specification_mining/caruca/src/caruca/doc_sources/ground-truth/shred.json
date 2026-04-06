@@ -1,0 +1,92 @@
+{
+  "version": "shred (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--force"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ],
+      "long": [
+        "--exact"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--iterations"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--random-source"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--size"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--remove"
+      ],
+      "args": [
+        "HOW"
+      ]
+    }
+  ]
+}

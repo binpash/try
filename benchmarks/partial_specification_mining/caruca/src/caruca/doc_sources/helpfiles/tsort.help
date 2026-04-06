@@ -1,0 +1,12 @@
+Usage: tsort [OPTION] [FILE]
+Write totally ordered list consistent with the partial ordering in FILE.
+
+With no FILE, or when FILE is -, read standard input.
+
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/tsort>
+or available locally via: info '(coreutils) tsort invocation'

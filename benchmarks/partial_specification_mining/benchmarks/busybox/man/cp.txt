@@ -1,0 +1,17 @@
+cp
+
+Usage: cp [OPTIONS] SOURCE... DEST
+
+Copy SOURCE(s) to DEST
+
+	-a	Same as -dpR
+	-R,-r	Recurse
+	-d,-P	Preserve symlinks (default if -R)
+	-L	Follow all symlinks
+	-H	Follow symlinks on command line
+	-p	Preserve file attributes if possible
+	-f	Overwrite
+	-i	Prompt before overwrite
+	-l,-s	Create (sym)links
+	-T	Treat DEST as a normal file
+	-u	Copy only newer files

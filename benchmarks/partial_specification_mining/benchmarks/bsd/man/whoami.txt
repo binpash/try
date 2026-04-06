@@ -1,0 +1,22 @@
+WHOAMI(1)		    General Commands Manual		     WHOAMI(1)
+
+NAME
+       whoami -- display effective user	id
+
+SYNOPSIS
+       whoami
+
+DESCRIPTION
+       The  whoami  utility  has  been	obsoleted by the id(1) utility,	and is
+       equivalent to "id -un".	The command "id	-p" is	suggested  for	normal
+       interactive use.
+
+       The whoami utility displays your	effective user ID as a name.
+
+EXIT STATUS
+       The whoami utility exits	0 on success, and >0 if	an error occurs.
+
+SEE ALSO
+       id(1)
+
+FreeBSD	13.2			 June 6, 1993			     WHOAMI(1)

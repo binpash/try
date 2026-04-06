@@ -1,0 +1,34 @@
+REALPATH(1)		    General Commands Manual		   REALPATH(1)
+
+NAME
+       realpath	-- return resolved physical path
+
+SYNOPSIS
+       realpath	[-q] [path ...]
+
+DESCRIPTION
+       The  realpath utility uses the realpath(3) function to resolve all sym-
+       bolic links, extra `/' characters and references	to  /./	 and  /../  in
+       path.   If  path	 is absent, the	current	working	directory (`.')	is as-
+       sumed.
+
+       If -q is	specified, warnings  will  not	be  printed  when  realpath(3)
+       fails.
+
+EXIT STATUS
+       The realpath utility exits 0 on success,	and >0 if an error occurs.
+
+EXAMPLES
+       Show  the physical path of the /dev/log directory silencing warnings if
+       any:
+
+	     $ realpath	-q /dev/log
+	     /var/run/log
+
+SEE ALSO
+       realpath(3)
+
+HISTORY
+       The realpath utility first appeared in FreeBSD 4.3.
+
+FreeBSD	13.2			 June 21, 2011			   REALPATH(1)

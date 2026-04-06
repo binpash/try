@@ -1,0 +1,20 @@
+ping
+
+Usage: ping [OPTIONS] HOST
+
+Send ICMP ECHO_REQUEST packets to network hosts
+
+	-4,-6		Force IP or IPv6 name resolution
+	-c CNT		Send only CNT pings
+	-s SIZE		Send SIZE data bytes in packets (default 56)
+	-i SECS		Interval
+	-A		Ping as soon as reply is recevied
+	-t TTL		Set TTL
+	-I IFACE/IP	Source interface or IP address
+	-W SEC		Seconds to wait for the first response (default 10)
+			(after all -c CNT packets are sent)
+	-w SEC		Seconds until ping exits (default:infinite)
+			(can exit earlier with -c CNT)
+	-q		Quiet, only display output at start
+			and when finished
+	-p HEXBYTE	Pattern to use for payload

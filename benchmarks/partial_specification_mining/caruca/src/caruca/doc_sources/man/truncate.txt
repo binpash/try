@@ -1,0 +1,63 @@
+TRUNCATE(1)				   User Commands				TRUNCATE(1)
+
+NAME
+       truncate - shrink or extend the size of a file to the specified size
+
+SYNOPSIS
+       truncate OPTION... FILE...
+
+DESCRIPTION
+       Shrink or extend the size of each FILE to the specified size
+
+       A FILE argument that does not exist is created.
+
+       If  a FILE is larger than the specified size, the extra data is lost.  If a FILE is shorter,
+       it is extended and the sparse extended part (hole) reads as zero bytes.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -c, --no-create
+	      do not create any files
+
+       -o, --io-blocks
+	      treat SIZE as number of IO blocks instead of bytes
+
+       -r, --reference=RFILE
+	      base size on RFILE
+
+       -s, --size=SIZE
+	      set or adjust the file size by SIZE bytes
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       The SIZE argument is an integer and optional unit (example:  10K	 is  10*1024).	 Units	are
+       K,M,G,T,P,E,Z,Y	(powers	 of  1024)  or	KB,MB,... (powers of 1000).  Binary prefixes can be
+       used, too: KiB=K, MiB=M, and so on.
+
+       SIZE may also be prefixed by one of the following modifying characters: '+' extend  by,	'-'
+       reduce  by, '<' at most, '>' at least, '/' round down to multiple of, '%' round up to multi‐
+       ple of.
+
+AUTHOR
+       Written by Padraig Brady.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       dd(1), truncate(2), ftruncate(2)
+
+       Full documentation <https://www.gnu.org/software/coreutils/truncate>
+       or available locally via: info '(coreutils) truncate invocation'
+
+GNU coreutils 8.32			   February 2022				TRUNCATE(1)

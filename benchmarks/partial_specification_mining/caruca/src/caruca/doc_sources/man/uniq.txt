@@ -1,0 +1,81 @@
+UNIQ(1)					   User Commands				    UNIQ(1)
+
+NAME
+       uniq - report or omit repeated lines
+
+SYNOPSIS
+       uniq [OPTION]... [INPUT [OUTPUT]]
+
+DESCRIPTION
+       Filter  adjacent	 matching lines from INPUT (or standard input), writing to OUTPUT (or stan‐
+       dard output).
+
+       With no options, matching lines are merged to the first occurrence.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -c, --count
+	      prefix lines by the number of occurrences
+
+       -d, --repeated
+	      only print duplicate lines, one for each group
+
+       -D     print all duplicate lines
+
+       --all-repeated[=METHOD]
+	      like  -D,	 but  allow  separating	 groups	 with  an  empty   line;   METHOD={none(de‐
+	      fault),prepend,separate}
+
+       -f, --skip-fields=N
+	      avoid comparing the first N fields
+
+       --group[=METHOD]
+	      show   all   items,  separating  groups  with  an	 empty	line;  METHOD={separate(de‐
+	      fault),prepend,append,both}
+
+       -i, --ignore-case
+	      ignore differences in case when comparing
+
+       -s, --skip-chars=N
+	      avoid comparing the first N characters
+
+       -u, --unique
+	      only print unique lines
+
+       -z, --zero-terminated
+	      line delimiter is NUL, not newline
+
+       -w, --check-chars=N
+	      compare no more than N characters in lines
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       A field is a run of blanks (usually spaces and/or TABs), then non-blank characters.   Fields
+       are skipped before chars.
+
+       Note:  'uniq' does not detect repeated lines unless they are adjacent.  You may want to sort
+       the input first, or use 'sort -u' without 'uniq'.
+
+AUTHOR
+       Written by Richard M. Stallman and David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       comm(1), join(1), sort(1)
+
+       Full documentation <https://www.gnu.org/software/coreutils/uniq>
+       or available locally via: info '(coreutils) uniq invocation'
+
+GNU coreutils 8.32			   February 2022				    UNIQ(1)

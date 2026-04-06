@@ -1,0 +1,24 @@
+{
+  "version": "printenv (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-0"
+      ],
+      "long": [
+        "--null"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

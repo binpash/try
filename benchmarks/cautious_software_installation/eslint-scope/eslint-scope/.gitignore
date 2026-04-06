@@ -1,0 +1,14 @@
+build
+coverage
+node_modules
+.DS_Store
+dist
+npm-debug.log
+_test.js
+.idea
+.vscode
+*.code-workspace
+.nyc_output
+.eslint-release-info.json
+yarn.lock
+package-lock.json

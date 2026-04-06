@@ -1,0 +1,44 @@
+{
+  "version": "base32 (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--decode"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-garbage"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--wrap"
+      ],
+      "args": [
+        "COLS"
+      ]
+    }
+  ]
+}

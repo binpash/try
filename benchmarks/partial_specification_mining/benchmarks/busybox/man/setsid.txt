@@ -1,0 +1,8 @@
+setsid
+
+Usage: setsid [-c] PROG ARGS
+
+Run PROG in a new session. PROG will have no controlling terminal
+and will not be affected by keyboard signals (^C etc).
+
+	-c	Set controlling terminal to stdin

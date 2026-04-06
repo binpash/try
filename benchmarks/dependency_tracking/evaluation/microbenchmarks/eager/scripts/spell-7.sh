@@ -1,0 +1,15 @@
+#!/bin/bash
+# Calculate mispelled words in an input
+
+dict=/usr/share/dict/words
+cat $dict | sort > /tmp/dict
+
+find "$IN" -type f -exec cat {} + |
+    sed 's/[^[:print:]]//g' |      # remove non-printing characters
+    col -bx            |           # remove backspaces / linefeeds
+    tr -cs A-Za-z '\n' |
+    tr A-Z a-z |                   # map upper to lower case
+    tr -d '[:punct:]' |            # remove punctuation
+    sort |                         # put words in alphabetical order
+    uniq |                         # remove duplicate words
+    comm -23 - /tmp/dict               # report words not in dictionary 

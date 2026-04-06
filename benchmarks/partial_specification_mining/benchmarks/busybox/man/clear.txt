@@ -1,0 +1,5 @@
+clear
+
+Usage: clear
+
+Clear screen

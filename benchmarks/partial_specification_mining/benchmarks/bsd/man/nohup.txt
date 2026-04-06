@@ -1,0 +1,49 @@
+NOHUP(1)		    General Commands Manual		      NOHUP(1)
+
+NAME
+       nohup --	invoke a utility immune	to hangups
+
+SYNOPSIS
+       nohup [--] utility [arguments]
+
+DESCRIPTION
+       The  nohup  utility invokes utility with	its arguments and at this time
+       sets the	signal SIGHUP to be ignored.  If the standard output is	a ter-
+       minal, the standard output is appended to the  file  nohup.out  in  the
+       current	directory.  If standard	error is a terminal, it	is directed to
+       the same	place as the standard output.
+
+       Some shells may provide a builtin nohup command	which  is  similar  or
+       identical to this utility.  Consult the builtin(1) manual page.
+
+ENVIRONMENT
+       The following variables are utilized by nohup:
+
+       HOME  If	the output file	nohup.out cannot be created in the current di-
+	     rectory,  the  nohup  utility uses	the directory named by HOME to
+	     create the	file.
+
+       PATH  Used to locate the	requested utility if the name contains no  `/'
+	     characters.
+
+EXIT STATUS
+       The nohup utility exits with one	of the following values:
+
+       126     The utility was found, but could	not be invoked.
+
+       127     The utility could not be	found or an error occurred in nohup.
+
+       Otherwise, the exit status of nohup will	be that	of utility.
+
+SEE ALSO
+       builtin(1), csh(1), timeout(1), signal(3), daemon(8)
+
+STANDARDS
+       The nohup utility is expected to	be IEEE	Std 1003.2 ("POSIX.2") compat-
+       ible.
+
+BUGS
+       Two or more instances of	nohup can append to the	same file, which makes
+       for a confusing output.
+
+FreeBSD	13.2			 June 26, 2023			      NOHUP(1)

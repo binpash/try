@@ -1,0 +1,10 @@
+ftpput
+
+Usage: ftpput [OPTIONS] HOST [REMOTE_FILE] LOCAL_FILE
+
+Upload a file to a FTP server
+
+	-v	Verbose
+	-u USER	Username
+	-p PASS	Password
+	-P NUM	Port number

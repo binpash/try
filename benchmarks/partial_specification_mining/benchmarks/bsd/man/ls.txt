@@ -1,0 +1,499 @@
+LS(1)			    General Commands Manual			 LS(1)
+
+NAME
+       ls -- list directory contents
+
+SYNOPSIS
+       ls      [-ABCFGHILPRSTUWZabcdfghiklmnopqrstuvwxy1,]	[--color=when]
+	  [-D format] [file ...]
+
+DESCRIPTION
+       For each	operand	that names a file of a type other than	directory,  ls
+       displays	 its  name  as	well as	any requested, associated information.
+       For each	operand	that names a file of type directory, ls	 displays  the
+       names  of  files	 contained  within  that directory, as well as any re-
+       quested,	associated information.
+
+       If no operands are given, the contents of  the  current	directory  are
+       displayed.   If	more than one operand is given,	non-directory operands
+       are displayed first; directory and non-directory	 operands  are	sorted
+       separately and in lexicographical order.
+
+       The following options are available:
+
+       -A      Include	directory  entries  whose names	begin with a dot (`.')
+	       except for . and	...  Automatically set for the super-user  un-
+	       less -I is specified.
+
+       -B      Force  printing	of  non-printable  characters  (as  defined by
+	       ctype(3)	and current locale settings) in	file  names  as	 \xxx,
+	       where xxx is the	numeric	value of the character in octal.  This
+	       option is not defined in	IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -C      Force  multi-column  output; this is the	default	when output is
+	       to a terminal.
+
+       -D format
+	       When printing in	the long (-l) format, use format to format the
+	       date and	time output.  The argument format is a string used  by
+	       strftime(3).   Depending	 on  the choice	of format string, this
+	       may result in a different number	 of  columns  in  the  output.
+	       This  option  overrides	the -T option.	This option is not de-
+	       fined in	IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -F      Display a slash (`/') immediately after each pathname that is a
+	       directory, an asterisk (`*') after each that is executable,  an
+	       at  sign	 (`@')	after each symbolic link, an equals sign (`=')
+	       after each socket, a percent sign (`%')	after  each  whiteout,
+	       and a vertical bar (`|')	after each that	is a FIFO.
+
+       -G      Enable colorized	output.	 This option is	equivalent to defining
+	       CLICOLOR	  or   COLORTERM   in	the  environment  and  setting
+	       --color=auto.  (See below.)  This functionality can be compiled
+	       out by removing the definition of COLORLS.  This	option is  not
+	       defined in IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -H      Symbolic	 links	on the command line are	followed.  This	option
+	       is assumed if none of the -F, -d, or -l options are specified.
+
+       -I      Prevent -A from being automatically  set	 for  the  super-user.
+	       This option is not defined in IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -L      If  argument is a symbolic link,	list the file or directory the
+	       link references rather than the link itself.  This option  can-
+	       cels the	-P option.
+
+       -P      If  argument  is	 a  symbolic link, list	the link itself	rather
+	       than the	object the link	references.  This option  cancels  the
+	       -H and -L options.
+
+       -R      Recursively list	subdirectories encountered.
+
+       -S      Sort  by	 size (largest file first) before sorting the operands
+	       in lexicographical order.
+
+       -T      When printing in	the long (-l) format,  display	complete  time
+	       information  for	 the file, including month, day, hour, minute,
+	       second, and year.  The -D option	gives even more	 control  over
+	       the  output  format.   This  option  is not defined in IEEE Std
+	       1003.1-2008 ("POSIX.1").
+
+       -U      Use time	when file was created for sorting or  printing.	  This
+	       option is not defined in	IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -W      Display	whiteouts  when	 scanning directories.	This option is
+	       not defined in IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -Z      Display each file's MAC label; see maclabel(7).	This option is
+	       not defined in IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -a      Include directory entries whose names begin with	a dot (`.').
+
+       -b      As -B, but use C	escape codes whenever possible.	  This	option
+	       is not defined in IEEE Std 1003.1-2008 ("POSIX.1").
+
+       -c      Use  time  when	file  status  was  last	changed	for sorting or
+	       printing.
+
+       --color=when
+	       Output colored escape sequences based on	when, which may	be set
+	       to either always, auto, or never.
+
+	       always will make	ls always output color.	 If TERM is  unset  or
+	       set  to an invalid terminal, then ls will fall back to explicit
+	       ANSI escape sequences without the help of  termcap(5).	always
+	       is the default if --color is specified without an argument.
+
+	       auto  will make ls output escape	sequences based	on termcap(5),
+	       but only	if stdout is a tty and either the -G flag is specified
+	       or one of the environment variables COLORTERM  or  CLICOLOR  is
+	       set and not empty.
+
+	       never  will  disable color regardless of	environment variables.
+	       never is	the default when neither --color nor -G	is specified.
+
+	       For compatibility with GNU coreutils, ls	supports yes or	 force
+	       as equivalent to	always,	no or none as equivalent to never, and
+	       tty or if-tty as	equivalent to auto.
+
+       -d      Directories  are	 listed	 as  plain  files (not searched	recur-
+	       sively).
+
+       -f      Output is not sorted.   This  option  turns  on	-a.   It  also
+	       negates the effect of the -r, -S	and -t options.	 As allowed by
+	       IEEE  Std 1003.1-2008 ("POSIX.1"), this option has no effect on
+	       the -d, -l, -R and -s options.
+
+       -g      Display the long	(-l) format output without  the	 file  owner's
+	       name or number.
+
+       -h      When  used  with	 the -l	option,	use unit suffixes: Byte, Kilo-
+	       byte, Megabyte, Gigabyte, Terabyte and Petabyte in order	to re-
+	       duce the	number of digits to four or fewer  using  base	2  for
+	       sizes.	This  option  is  not  defined in IEEE Std 1003.1-2008
+	       ("POSIX.1").
+
+       -i      For each	file, print the	file's file serial number (inode  num-
+	       ber).
+
+       -k      This  has  the  same  effect  as	 setting  environment variable
+	       BLOCKSIZE to 1024, except that it also nullifies	any -h options
+	       to its left.
+
+       -l      (The lowercase letter "ell".)  List files in the	 long  format,
+	       as described in the "The	Long Format" subsection	below.
+
+       -m      Stream  output format; list files across	the page, separated by
+	       commas.
+
+       -n      Display user and	group IDs numerically rather  than  converting
+	       to a user or group name in a long (-l) output.
+
+       -o      Include	the  file flags	in a long (-l) output.	This option is
+	       incompatible  with  IEEE	 Std  1003.1-2008  ("POSIX.1").	   See
+	       chflags(1) for a	list of	file flags and their meanings.
+
+       -p      Write  a	 slash (`/') after each	filename if that file is a di-
+	       rectory.
+
+       -q      Force printing of non-graphic characters	in file	names  as  the
+	       character  `?';	this is	the default when output	is to a	termi-
+	       nal.
+
+       -r      Reverse the order of the	sort.
+
+       -s      Display the number of blocks used in the	file  system  by  each
+	       file.   Block  sizes  and  directory  totals are	handled	as de-
+	       scribed in "The Long Format" subsection below, except  (if  the
+	       long format is not also requested) the directory	totals are not
+	       output  when  the  output is in a single	column,	even if	multi-
+	       column output is	requested.
+
+       -t      Sort  by	 descending  time  modified  (most  recently  modified
+	       first).	 If  two  files	 have the same modification timestamp,
+	       sort their names	in ascending lexicographical  order.   The  -r
+	       option reverses both of these sort orders.
+
+	       Note  that  these  sort	orders are contradictory: the time se-
+	       quence is in descending order, the lexicographical sort	is  in
+	       ascending  order.  This behavior	is mandated by IEEE Std	1003.2
+	       ("POSIX.2").  This feature can  cause  problems	listing	 files
+	       stored  with sequential names on	FAT file systems, such as from
+	       digital cameras,	where it is possible to	have more than one im-
+	       age with	the same timestamp.  In	such a case, the photos	cannot
+	       be listed in the	sequence in which they were taken.  To	ensure
+	       the  same  sort order for time and for lexicographical sorting,
+	       set the environment variable LS_SAMESORT	or use the -y  option.
+	       This  causes  ls	to reverse the lexicographical sort order when
+	       sorting files with the same modification	timestamp.
+
+       -u      Use time	of last	access,	instead	of time	of  last  modification
+	       of the file for sorting (-t) or printing	(-l).
+
+       -v      Sort  following a natural ordering, using strverscmp(3) instead
+	       of strcoll(3) as	the comparison function.  E.g.,	files  lexico-
+	       graphically ordered "bloem1", "bloem10",	and "bloem9" would in-
+	       stead  be  ordered  "bloem1",  "bloem9",	 and "bloem10",	as one
+	       would perhaps expect.
+
+       -w      Force raw printing of non-printable characters.	 This  is  the
+	       default	when  output is	not to a terminal.  This option	is not
+	       defined in IEEE Std 1003.1-2001 ("POSIX.1").
+
+       -x      The same	as -C, except that the multi-column output is produced
+	       with entries sorted across, rather than down, the columns.
+
+       -y      When the	-t option is set, sort the alphabetical	output in  the
+	       same  order  as	the  time output.  This	has the	same effect as
+	       setting LS_SAMESORT.  See the description of the	-t option  for
+	       more   details.	 This  option  is  not	defined	 in  IEEE  Std
+	       1003.1-2001 ("POSIX.1").
+
+       -1      (The numeric digit "one".)  Force output	to be  one  entry  per
+	       line.  This is the default when output is not to	a terminal.
+
+       -,      (Comma) When the	-l option is set, print	file sizes grouped and
+	       separated  by  thousands	 using	the non-monetary separator re-
+	       turned by localeconv(3),	typically a comma or  period.	If  no
+	       locale is set, or the locale does not have a non-monetary sepa-
+	       rator,  this  option has	no effect.  This option	is not defined
+	       in IEEE Std 1003.1-2001 ("POSIX.1").
+
+       The -1, -C, -x, and -l options all override each	other;	the  last  one
+       specified determines the	format used.
+
+       The -c, -u, and -U options all override each other; the last one	speci-
+       fied determines the file	time used.
+
+       The  -S,	 -t and	-v options override each other;	the last one specified
+       determines the sort order used.
+
+       The -B, -b, -w, and -q options all override each	other;	the  last  one
+       specified determines the	format used for	non-printable characters.
+
+       The  -H,	-L and -P options all override each other (either partially or
+       fully); they are	applied	in the order specified.
+
+       By default, ls lists one	entry per line to standard output; the	excep-
+       tions are to terminals or when the -C or	-x options are specified.
+
+       File  information is displayed with one or more <blank>s	separating the
+       information associated with the -i, -s, and -l options.
+
+   The Long Format
+       If the -l option	is given, the following	information is	displayed  for
+       each  file: file	mode, number of	links, owner name, group name, MAC la-
+       bel, number of bytes in the file, abbreviated month, day-of-month  file
+       was  last modified, hour	file last modified, minute file	last modified,
+       and the pathname.
+
+       If the modification time	of the file is more than 6 months in the  past
+       or  future,  and	 the  -D or -T are not specified, then the year	of the
+       last modification is displayed in place of the hour and minute fields.
+
+       If the owner or group names are not a known user	or group name, or  the
+       -n option is given, the numeric ID's are	displayed.
+
+       If  the	file  is a character special or	block special file, the	device
+       number for the file is displayed	in the size field.  If the file	 is  a
+       symbolic	link the pathname of the linked-to file	is preceded by "->".
+
+       The  listing  of	 a directory's contents	is preceded by a labeled total
+       number of blocks	used in	the file system	by the files which are	listed
+       as  the directory's contents (which may or may not include . and	.. and
+       other files which start with a dot, depending on	other options).
+
+       The default block size is 512 bytes.  The block size may	 be  set  with
+       option  -k or environment variable BLOCKSIZE.  Numbers of blocks	in the
+       output will have	been rounded up	so the numbers of bytes	is at least as
+       many as used by the corresponding file system blocks (which might  have
+       a different size).
+
+       The  file  mode	printed	under the -l option consists of	the entry type
+       and the permissions.  The entry type character describes	 the  type  of
+       file, as	follows:
+
+	     -	   Regular file.
+	     b	   Block special file.
+	     c	   Character special file.
+	     d	   Directory.
+	     l	   Symbolic link.
+	     p	   FIFO.
+	     s	   Socket.
+	     w	   Whiteout.
+
+       The  next  three	 fields	 are three characters each: owner permissions,
+       group permissions, and other permissions.  Each field has three charac-
+       ter positions:
+
+	     1.	  If r,	the file is readable; if -, it is not readable.
+
+	     2.	  If w,	the file is writable; if -, it is not writable.
+
+	     3.	  The first of the following that applies:
+
+			S     If in the	owner permissions, the file is not ex-
+			      ecutable and set-user-ID mode is set.  If	in the
+			      group permissions, the file  is  not  executable
+			      and set-group-ID mode is set.
+
+			s     If  in  the  owner permissions, the file is exe-
+			      cutable and set-user-ID mode is set.  If in  the
+			      group  permissions,  the	file is	executable and
+			      setgroup-ID mode is set.
+
+			x     The file	is  executable	or  the	 directory  is
+			      searchable.
+
+			-     The  file	 is  neither  readable,	writable, exe-
+			      cutable, nor set-user-ID nor set-group-ID	 mode,
+			      nor sticky.  (See	below.)
+
+		  These	next two apply only to the third character in the last
+		  group	(other permissions).
+
+			T     The  sticky bit is set (mode 1000), but not exe-
+			      cute or search  permission.   (See  chmod(1)  or
+			      sticky(7).)
+
+			t     The  sticky  bit	is  set	 (mode	1000),	and is
+			      searchable  or  executable.   (See  chmod(1)  or
+			      sticky(7).)
+
+       The  next field contains	a plus (`+') character if the file has an ACL,
+       or a space (` ')	if it does not.	 The ls	utility	does not show the  ac-
+       tual ACL; use getfacl(1)	to do this.
+
+ENVIRONMENT
+       The following environment variables affect the execution	of ls:
+
+       BLOCKSIZE       If this is set, its value, rounded up to	512 or down to
+		       a  multiple  of	512, will be used as the block size in
+		       bytes by	the -l and -s options.	See "The Long  Format"
+		       subsection for more information.
+
+       CLICOLOR	       Use  ANSI  color	 sequences  to distinguish file	types.
+		       See LSCOLORS below.  In addition	to the file types men-
+		       tioned in the -F	option some extra  attributes  (setuid
+		       bit set,	etc.) are also displayed.  The colorization is
+		       dependent on a terminal type with the proper termcap(5)
+		       capabilities.   The  default  "cons25"  console has the
+		       proper capabilities, but	to display the	colors	in  an
+		       xterm(1)	(ports/x11/xterm), for example,	the TERM vari-
+		       able  must  be  set  to	"xterm-color".	Other terminal
+		       types may require similar adjustments.  Colorization is
+		       silently	disabled if the	output is not  directed	 to  a
+		       terminal	 unless	the CLICOLOR_FORCE variable is defined
+		       or --color is set to "always".
+
+       CLICOLOR_FORCE  Color sequences are normally disabled if	the output  is
+		       not  directed to	a terminal.  This can be overridden by
+		       setting this variable.  The TERM	variable  still	 needs
+		       to reference a color capable terminal however otherwise
+		       it  is  not possible to determine which color sequences
+		       to use.
+
+       COLORTERM       See description for CLICOLOR above.
+
+       COLUMNS	       If this variable	contains a string representing a deci-
+		       mal integer, it is used as the  column  position	 width
+		       for  displaying	multiple-text-column  output.	The ls
+		       utility calculates how many pathname  text  columns  to
+		       display based on	the width provided.  (See -C and -x.)
+
+       LANG	       The locale to use when determining the order of day and
+		       month in	the long -l format output.  See	environ(7) for
+		       more information.
+
+       LSCOLORS	       The  value of this variable describes what color	to use
+		       for  which  attribute  when  colors  are	 enabled  with
+		       CLICOLOR	 or COLORTERM.	This string is a concatenation
+		       of pairs	of the format fb, where	f  is  the  foreground
+		       color  and  b  is the background	color.	When the back-
+		       ground color is capitalized, the	text is	underlined.
+
+		       The color designators are as follows:
+
+			     a	   black
+			     b	   red
+			     c	   green
+			     d	   brown
+			     e	   blue
+			     f	   magenta
+			     g	   cyan
+			     h	   light grey
+			     A	   bold	or underlined black, usually shows  up
+				   as dark grey
+			     B	   bold	or underlined red
+			     C	   bold	or underlined green
+			     D	   bold	 or underlined brown, usually shows up
+				   as yellow
+			     E	   bold	or underlined blue
+			     F	   bold	or underlined magenta
+			     G	   bold	or underlined cyan
+			     H	   bold	or underlined light grey;  looks  like
+				   bright white
+			     x	   default foreground or background
+			     X	   default  foreground	or background, with an
+				   underline or	bold
+
+		       Note that the above are standard	ANSI colors.  The  ac-
+		       tual display may	differ depending on the	color capabil-
+		       ities of	the terminal in	use.
+
+		       The order of the	attributes are as follows:
+
+			     1.	  directory
+			     2.	  symbolic link
+			     3.	  socket
+			     4.	  pipe
+			     5.	  executable
+			     6.	  block	special
+			     7.	  character special
+			     8.	  executable with setuid bit set
+			     9.	  executable with setgid bit set
+			     10.  directory  writable  to  others, with	sticky
+				  bit
+			     11.  directory writable to	others,	without	sticky
+				  bit
+
+		       The default  is	"exfxcxdxbxegedabagacad",  i.e.,  blue
+		       foreground  and default background for regular directo-
+		       ries, black foreground and red  background  for	setuid
+		       executables, etc.
+
+       LS_COLWIDTHS    If  this	 variable  is  set,  it	 is considered to be a
+		       colon-delimited list of minimum column widths.	Unrea-
+		       sonable	and insufficient widths	are ignored (thus zero
+		       signifies a dynamically sized column).  Not all columns
+		       have changeable widths.	The fields are,	in order:  in-
+		       ode,  block  count,  number  of links, user name, group
+		       name, flags, file size, file name.
+
+       LS_SAMESORT     If this variable	is set,	the -t option sorts the	 names
+		       of  files  with	the same modification timestamp	in the
+		       same sense as the time sort.  See  the  description  of
+		       the -t option for more details.
+
+       TERM	       The  CLICOLOR  and COLORTERM functionality depends on a
+		       terminal	type with color	capabilities.
+
+       TZ	       The  timezone  to  use  when  displaying	 dates.	   See
+		       environ(7) for more information.
+
+EXIT STATUS
+       The ls utility exits 0 on success, and >0 if an error occurs.
+
+EXAMPLES
+       List the	contents of the	current	working	directory in long format:
+
+	     $ ls -l
+
+       In addition to listing the contents of the current working directory in
+       long  format, show inode	numbers, file flags (see chflags(1)), and suf-
+       fix each	filename with a	symbol representing its	file type:
+
+	     $ ls -lioF
+
+       List the	files in /var/log, sorting the output such that	the mostly re-
+       cently modified entries are printed first:
+
+	     $ ls -lt /var/log
+
+COMPATIBILITY
+       The group field is now automatically included in	the long  listing  for
+       files  in  order	 to be compatible with the IEEE	Std 1003.2 ("POSIX.2")
+       specification.
+
+SEE ALSO
+       chflags(1), chmod(1), getfacl(1), sort(1), xterm(1)  (ports/x11/xterm),
+       localeconv(3),	strcoll(3),  strftime(3),  strmode(3),	strverscmp(3),
+       termcap(5), maclabel(7),	sticky(7), symlink(7), getfmac(8)
+
+STANDARDS
+       With the	exception of options -g, -n and	-o, the	ls utility conforms to
+       IEEE Std	1003.1-2001 ("POSIX.1")	and IEEE Std 1003.1-2008  ("POSIX.1").
+       The  options  -B, -D, -G, -I, -T, -U, -W, -Z, -b, -h, -v, -w, -y	and -,
+       are non-standard	extensions.
+
+       The ACL support	is  compatible	with  IEEE  Std	 1003.2c  ("POSIX.2c")
+       Draft 17	(withdrawn).
+
+HISTORY
+       An ls command appeared in Version 1 AT&T	UNIX.
+
+       The -v option was added in FreeBSD 13.2.
+
+BUGS
+       To  maintain backward compatibility, the	relationships between the many
+       options are quite complex.
+
+       The exception mentioned in the -s option	description might be a feature
+       that was	based on the fact that single-column output  usually  goes  to
+       something other than a terminal.	 It is debatable whether this is a de-
+       sign bug.
+
+       IEEE  Std  1003.2  ("POSIX.2")  mandates	opposite sort orders for files
+       with the	same timestamp when sorting with the -t	option.
+
+FreeBSD	13.2		       February	21, 2024			 LS(1)

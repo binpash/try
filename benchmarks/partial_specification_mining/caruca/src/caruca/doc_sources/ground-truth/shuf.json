@@ -1,0 +1,82 @@
+{
+  "version": "shuf (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--echo"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--repeat"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--input-range"
+      ],
+      "args": [
+        "LO-HI"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--head-count"
+      ],
+      "args": [
+        "COUNT"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--output"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "long": [
+        "--random-source"
+      ],
+      "args": [
+        "FILE"
+      ]
+    }
+  ]
+}

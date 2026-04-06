@@ -1,0 +1,63 @@
+{
+  "version": "comm (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-1"
+      ]
+    },
+    {
+      "short": [
+        "-2"
+      ]
+    },
+    {
+      "short": [
+        "-3"
+      ]
+    },
+    {
+      "long": [
+        "--check-order"
+      ]
+    },
+    {
+      "long": [
+        "--nocheck-order"
+      ]
+    },
+    {
+      "long": [
+        "--total"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--output-delimiter"
+      ],
+      "args": [
+        "STR"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+link
+
+Usage: link FILE LINK
+
+Create hard LINK to FILE

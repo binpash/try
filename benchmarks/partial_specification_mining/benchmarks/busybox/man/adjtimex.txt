@@ -1,0 +1,12 @@
+adjtimex
+
+Usage: adjtimex [-q] [-o OFF] [-f FREQ] [-p TCONST] [-t TICK]
+
+Read or set kernel time variables. See adjtimex(2)
+
+	-q	Quiet
+	-o OFF	Time offset, microseconds
+	-f FREQ	Frequency adjust, integer kernel units (65536 is 1ppm)
+	-t TICK	Microseconds per tick, usually 10000
+		(positive -t or -f values make clock run faster)
+	-p TCONST

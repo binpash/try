@@ -1,0 +1,224 @@
+{
+  "version": "du (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-0"
+      ],
+      "long": [
+        "--null"
+      ]
+    },
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "long": [
+        "--apparent-size"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--bytes"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--total"
+      ]
+    },
+    {
+      "short": [
+        "-D"
+      ],
+      "long": [
+        "--dereference-args"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--human-readable"
+      ]
+    },
+    {
+      "long": [
+        "--inodes"
+      ]
+    },
+    {
+      "short": [
+        "-k"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--count-links"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--separate-dirs"
+      ]
+    },
+    {
+      "long": [
+        "--si"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--summarize"
+      ]
+    },
+    {
+      "long": [
+        "--time"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ],
+      "long": [
+        "--one-file-system"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-B"
+      ],
+      "long": [
+        "--block-size"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--max-depth"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--files0-from"
+      ],
+      "args": [
+        "F"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--threshold"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "long": [
+        "--time"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--time-style"
+      ],
+      "args": [
+        "STYLE"
+      ]
+    },
+    {
+      "short": [
+        "-X"
+      ],
+      "long": [
+        "--exclude-from"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "long": [
+        "--exclude"
+      ],
+      "args": [
+        "PATTERN"
+      ]
+    }
+  ]
+}

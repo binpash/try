@@ -1,0 +1,6 @@
+timeout
+
+Usage: timeout [-s SIG] SECS PROG ARGS
+
+Runs PROG. Sends SIG to it if it is not gone in SECS seconds.
+Default SIG: TERM.

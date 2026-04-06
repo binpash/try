@@ -1,0 +1,20 @@
+i2cset
+
+Usage: i2cset [-fy] [-m MASK] BUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]
+
+Set I2C registers
+
+	I2CBUS	I2C bus number
+	ADDRESS	0x03-0x77
+MODE is:
+	c	Byte, no value
+	b	Byte data (default)
+	w	Word data
+	i	I2C block data
+	s	SMBus block data
+	Append p for SMBus PEC
+
+	-f	Force access
+	-y	Disable interactive mode
+	-r	Read back and compare the result
+	-m MASK	Mask specifying which bits to write

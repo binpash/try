@@ -1,0 +1,159 @@
+DU(1)			    General Commands Manual			 DU(1)
+
+NAME
+       du -- display disk usage	statistics
+
+SYNOPSIS
+       du   [--libxo]  [-Aclnx]	 [-H  |	 -L  |	-P]  [-g  |  -h	 |  -k	|  -m]
+	  [-a |	-s |  -d  depth]  [-B  blocksize]  [-I	mask]  [-t  threshold]
+	  [file	...]
+
+DESCRIPTION
+       The du utility displays the file	system block usage for each file argu-
+       ment and	for each directory in the file hierarchy rooted	in each	direc-
+       tory argument.  If no file is specified,	the block usage	of the hierar-
+       chy rooted in the current directory is displayed.
+
+       The options are as follows:
+
+       --libxo
+	       Generate	 output	via libxo(3) in	a selection of different human
+	       and machine readable formats.  See xo_parse_args(3) for details
+	       on command line arguments.
+
+       -A      Display the apparent size instead of the	disk usage.  This  can
+	       be  helpful  when  operating  on	 compressed  volumes or	sparse
+	       files.
+
+       -B blocksize
+	       Calculate block counts in blocksize byte	blocks.	 This is  dif-
+	       ferent  from  the  -h,  -k,  -m,	--si and -g options or setting
+	       BLOCKSIZE and gives an estimate of how much space the  examined
+	       file  hierarchy	would  require	on a filesystem	with the given
+	       blocksize.  Unless in -A	mode, blocksize	is rounded up  to  the
+	       next multiple of	512.
+
+       -H      Symbolic	links on the command line are followed,	symbolic links
+	       in file hierarchies are not followed.
+
+       -I mask
+	       Ignore files and	directories matching the specified mask.
+
+       -L      Symbolic	 links on the command line and in file hierarchies are
+	       followed.
+
+       -P      No symbolic links are followed.	This is	the default.
+
+       -a      Display an entry	for each file in a file	hierarchy.
+
+       -c      Display a grand total.
+
+       -d depth
+	       Display an entry	for all	files and directories  depth  directo-
+	       ries deep.
+
+       -g      Display block counts in 1073741824-byte (1 GiB) blocks.
+
+       -h      "Human-readable"	 output.   Use	unit suffixes: Byte, Kilobyte,
+	       Megabyte, Gigabyte, Terabyte and	Petabyte based	on  powers  of
+	       1024.
+
+       -k      Display block counts in 1024-byte (1 kiB) blocks.
+
+       -l      If  a  file  has	 multiple  hard	links, count its size multiple
+	       times.  The default behavior of du is to	count files with  mul-
+	       tiple  hard  links only once.  When the -l option is specified,
+	       the hard	link checks are	disabled, and these files are  counted
+	       (and displayed) as many times as	they are found.
+
+       -m      Display block counts in 1048576-byte (1 MiB) blocks.
+
+       -n      Ignore	files	and   directories   with  user	"nodump"  flag
+	       (UF_NODUMP) set.
+
+       -r      Generate	messages about directories that	cannot be read,	 files
+	       that  cannot  be	 opened, and so	on.  This is the default case.
+	       This  option  exists  solely  for   conformance	 with	X/Open
+	       Portability Guide Issue 4 ("XPG4").
+
+       -s      Display an entry	for each specified file.  (Equivalent to -d 0)
+
+       --si    "Human-readable"	 output.   Use	unit suffixes: Byte, Kilobyte,
+	       Megabyte, Gigabyte, Terabyte and	Petabyte based	on  powers  of
+	       1000.
+
+       -t threshold
+	       Display	only  entries  for  which  size	exceeds	threshold.  If
+	       threshold is negative, display only entries for which  size  is
+	       less than the absolute value of threshold.
+
+       -x      File system mount points	are not	traversed.
+
+       The  du	utility	 counts	the storage used by symbolic links and not the
+       files they reference unless the -H or -L	option is specified.   If  ei-
+       ther  the  -H  or  -L option is specified, storage used by any symbolic
+       links which are followed	is not counted (or displayed).	The -H,	-L and
+       -P options override each	other and the command's	actions	are determined
+       by the last one specified.
+
+       The -h, -k, -m and --si options all override each other;	the  last  one
+       specified determines the	block counts used.
+
+ENVIRONMENT
+       BLOCKSIZE  If  the  environment	variable BLOCKSIZE is set, and the -h,
+		  -k, -m or --si options are not specified, the	 block	counts
+		  will be displayed in units of	that block size.  If BLOCKSIZE
+		  is not set, and the -h, -k, -m or --si options are not spec-
+		  ified,  the  block  counts  will  be	displayed  in 512-byte
+		  blocks.
+
+EXAMPLES
+       Show disk usage for all files in	the current directory.	Output	is  in
+       human-readable form:
+
+	     # du -ah
+
+       Summarize disk usage in the current directory:
+
+	     # du -hs
+
+       Summarize disk usage for	a specific directory:
+
+	     # du -hs /home
+
+       Show  name  and size of all C files in a	specific directory.  Also dis-
+       play a grand total at the end:
+
+	     # du -ch /usr/src/sys/kern/*.c
+
+SEE ALSO
+       df(1),  chflags(2),  fts(3),  libxo(3),	xo_parse_args(3),  symlink(7),
+       quot(8)
+
+STANDARDS
+       The  du	utility	is compliant with the IEEE Std 1003.1-2008 ("POSIX.1")
+       specification.
+
+       The flags [-cdhP], as well as the BLOCKSIZE environment	variable,  are
+       extensions to that specification.
+
+       The  flag  [-r] is accepted but ignored,	for compatibility with systems
+       implementing  the  obsolete  X/Open  Commands  and  Utilities  Issue  5
+       ("XCU5")	standard.
+
+HISTORY
+       The  du	utility	 and its -a and	-s options first appeared in Version 1
+       AT&T UNIX.
+
+       The -r option first appeared in AT&T System III UNIX and	 is  available
+       since FreeBSD 3.5.  The -k and -x options first appeared	in 4.3BSD-Reno
+       and  -H	in  4.4BSD.   The  -c and -L options first appeared in the GNU
+       fileutils; -L and  -P  are  available  since  4.4BSD  Lite1,  -c	 since
+       FreeBSD	2.2.6.	 The -d	option first appeared in FreeBSD 2.2, -h first
+       appeared	in FreeBSD 4.0.
+
+AUTHORS
+       This version of du was written by  Chris	 Newcomb  for  4.3BSD-Reno  in
+       1989.
+
+FreeBSD	13.2			April 29, 2024				 DU(1)

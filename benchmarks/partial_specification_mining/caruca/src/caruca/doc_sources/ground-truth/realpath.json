@@ -1,0 +1,90 @@
+{
+  "version": "realpath (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--canonicalize-existing"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--canonicalize-missing"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--logical"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ],
+      "long": [
+        "--physical"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--quiet"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--strip",
+        "--no-symlinks"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--relative-to"
+      ],
+      "args": [
+        "DIR"
+      ]
+    },
+    {
+      "long": [
+        "--relative-base"
+      ],
+      "args": [
+        "DIR"
+      ]
+    }
+  ]
+}

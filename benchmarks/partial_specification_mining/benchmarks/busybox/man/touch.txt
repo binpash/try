@@ -1,0 +1,11 @@
+touch
+
+Usage: touch [-c] [-d DATE] [-t DATE] [-r FILE] FILE...
+
+Update the last-modified date on the given FILE[s]
+
+	-c	Don't create files
+	-h	Don't follow links
+	-d DT	Date/time to use
+	-t DT	Date/time to use
+	-r FILE	Use FILE's date/time

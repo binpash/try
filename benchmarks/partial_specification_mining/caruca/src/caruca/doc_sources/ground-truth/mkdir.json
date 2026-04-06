@@ -1,0 +1,57 @@
+{
+  "version": "mkdir (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--parents"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--mode"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "long": [
+        "--context"
+      ],
+      "args": [
+        "CTX"
+      ]
+    }
+  ]
+}

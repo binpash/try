@@ -1,0 +1,9 @@
+login
+
+Usage: login [-p] [-h HOST] [[-f] USER]
+
+Begin a new session on the system
+
+	-f	Don't authenticate (user already authenticated)
+	-h HOST	Host user came from (for network logins)
+	-p	Preserve environment

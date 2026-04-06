@@ -1,0 +1,10 @@
+gunzip
+
+Usage: gunzip [-cfkt] [FILE]...
+
+Decompress FILEs (or stdin)
+
+	-c	Write to stdout
+	-f	Force
+	-k	Keep input files
+	-t	Test file integrity

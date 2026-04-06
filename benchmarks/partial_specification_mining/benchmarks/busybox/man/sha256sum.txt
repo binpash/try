@@ -1,0 +1,9 @@
+sha256sum
+
+Usage: sha256sum [-c[sw]] [FILE]...
+
+Print or check SHA256 checksums
+
+	-c	Check sums against list in FILEs
+	-s	Don't output anything, status code shows success
+	-w	Warn about improperly formatted checksum lines

@@ -1,0 +1,10 @@
+uv-metrics_run-leak.sh,8.80,8.88,9.21,9.31,9.28
+uv-metrics_try-run-leak.sh,11.06,10.46,9.54,10.62,10.02
+okteto_run-leak.sh,0.26,0.23,0.23,0.24,0.32
+okteto_try-run-leak.sh,0.54,0.49,0.48,0.54,0.54
+LinOTP_run-leak.sh,20.70,20.59,20.55,20.16,20.57
+LinOTP_try-run-leak.sh,23.26,23.12,25.00,22.67,23.32
+kibble_run-leak.sh,57.49,50.11,50.91,49.74,51.38
+kibble_try-run-leak.sh,55.73,60.51,56.29,52.75,51.91
+frogmouth_run-leak.sh,7.38,7.83,7.63,8.16,7.67
+frogmouth_try-run-leak.sh,8.13,8.82,7.83,8.04,8.15

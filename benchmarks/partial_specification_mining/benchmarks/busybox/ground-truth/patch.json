@@ -1,0 +1,43 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "R"
+            ]
+        },
+        {
+            "short": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "E"
+            ]
+        },
+        {
+            "long": [
+                "dry-run"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "N"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ],
+            "args": [
+                "DIFF"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,5 @@
+w
+
+Usage: w
+
+Show who is logged on

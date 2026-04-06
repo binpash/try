@@ -1,0 +1,11 @@
+svc
+
+Usage: svc [-udopchaitkx] SERVICE_DIR...
+
+Control services monitored by runsv supervisor
+
+	-u	If service is not running, start it; restart if it stops
+	-d	If service is running, send TERM+CONT signals; do not restart it
+	-o	Once: if service is not running, start it; do not restart it
+	-pchaitk Send STOP, CONT, HUP, ALRM, INT, TERM, KILL signal to service
+	-x	Exit: runsv will exit as soon as the service is down

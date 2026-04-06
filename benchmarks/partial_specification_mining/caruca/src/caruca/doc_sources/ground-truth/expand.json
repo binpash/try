@@ -1,0 +1,47 @@
+{
+  "version": "expand (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--initial"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--tabs"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--tabs"
+      ],
+      "args": [
+        "LIST"
+      ]
+    }
+  ]
+}

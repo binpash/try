@@ -1,0 +1,8 @@
+expand
+
+Usage: expand [-i] [-t N] [FILE]...
+
+Convert tabs to spaces, writing to stdout
+
+	-i	Don't convert tabs after non blanks
+	-t	Tabstops every N chars

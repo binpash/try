@@ -1,0 +1,81 @@
+{
+  "version": "sha1sum (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--binary"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--check"
+      ]
+    },
+    {
+      "long": [
+        "--tag"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--text"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--ignore-missing"
+      ]
+    },
+    {
+      "long": [
+        "--quiet"
+      ]
+    },
+    {
+      "long": [
+        "--status"
+      ]
+    },
+    {
+      "long": [
+        "--strict"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--warn"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

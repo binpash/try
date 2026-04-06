@@ -1,0 +1,104 @@
+{
+  "version": "chown (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--changes"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--silent",
+        "--quiet"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "long": [
+        "--no-preserve-root"
+      ]
+    },
+    {
+      "long": [
+        "--preserve-root"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--recursive"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--from"
+      ],
+      "args": [
+        "CURRENT_OWNER:CURRENT_GROUP"
+      ]
+    },
+    {
+      "long": [
+        "--reference"
+      ],
+      "args": [
+        "RFILE"
+      ]
+    }
+  ]
+}

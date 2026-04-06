@@ -1,0 +1,46 @@
+{
+  "version": "tee (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--append"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-interrupts"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--output-error"
+      ],
+      "args": [
+        "MODE"
+      ]
+    }
+  ]
+}

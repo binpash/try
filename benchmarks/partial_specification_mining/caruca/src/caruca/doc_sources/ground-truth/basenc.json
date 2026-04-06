@@ -1,0 +1,84 @@
+{
+  "version": "basenc (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--base64"
+      ]
+    },
+    {
+      "long": [
+        "--base64url"
+      ]
+    },
+    {
+      "long": [
+        "--base32"
+      ]
+    },
+    {
+      "long": [
+        "--base32hex"
+      ]
+    },
+    {
+      "long": [
+        "--base16"
+      ]
+    },
+    {
+      "long": [
+        "--base2msbf"
+      ]
+    },
+    {
+      "long": [
+        "--base2lsbf"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--decode"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-garbage"
+      ]
+    },
+    {
+      "long": [
+        "--z85"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--wrap"
+      ],
+      "args": [
+        "COLS"
+      ]
+    }
+  ]
+}

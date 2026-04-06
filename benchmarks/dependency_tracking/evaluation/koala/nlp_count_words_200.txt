@@ -1,0 +1,47 @@
+No incr time: 101.487 s
+Incr stream time: 105.973 s
+Cache size: 219 MB
+
+[NO INCR]
+
+real    0m0.828s
+user    0m0.449s
+sys     0m0.425s
+
+real    0m1.174s
+user    0m0.832s
+sys     0m0.816s
+
+real    0m14.813s
+user    0m14.687s
+sys     0m1.213s
+
+real    0m41.830s
+user    0m42.446s
+sys     0m2.276s
+
+real    0m42.842s
+user    0m45.198s
+sys     0m2.554s
+
+[INCR STREAM]
+
+real    0m1.208s
+user    0m0.510s
+sys     0m0.743s
+
+real    0m1.562s
+user    0m0.835s
+sys     0m1.431s
+
+real    0m35.072s
+user    0m31.483s
+sys     0m6.973s
+
+real    0m47.001s
+user    0m44.237s
+sys     0m6.746s
+
+real    0m21.130s
+user    0m19.367s
+sys     0m7.065s

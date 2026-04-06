@@ -1,0 +1,65 @@
+PWD(1)			    General Commands Manual			PWD(1)
+
+NAME
+       pwd -- return working directory name
+
+SYNOPSIS
+       pwd [-L | -P]
+
+DESCRIPTION
+       The pwd utility writes the absolute pathname of the current working di-
+       rectory to the standard output.
+
+       Some shells may provide a builtin pwd command which is similar or iden-
+       tical to	this utility.  Consult the builtin(1) manual page.
+
+       The options are as follows:
+
+       -L      Display the logical current working directory.
+
+       -P      Display	the  physical  current working directory (all symbolic
+	       links resolved).
+
+       If no options are specified, the	-P option is assumed.
+
+ENVIRONMENT
+       Environment variables used by pwd:
+
+       PWD  Logical current working directory.
+
+EXIT STATUS
+       The pwd utility exits 0 on success, and >0 if an	error occurs.
+
+EXAMPLES
+       Show current working directory with symbolic links resolved:
+
+	     $ /bin/pwd
+	     /usr/src/sys/kern
+
+       Show the	logical	current	directory.  Then use file(1)  to  inspect  the
+       /sys directory:
+
+	     $ /bin/pwd	-L
+	     /sys/kern
+	     $ file /sys
+	     /sys: symbolic link to usr/src/sys
+
+SEE ALSO
+       builtin(1), cd(1), csh(1), realpath(1), sh(1), getcwd(3)
+
+STANDARDS
+       The pwd utility conforms	to IEEE	Std 1003.1-2001	("POSIX.1").
+
+HISTORY
+       The pwd command appeared	in Version 5 AT&T UNIX.
+
+BUGS
+       In  csh(1)  the	command	dirs is	always faster because it is built into
+       that shell.  However, it	can give a different answer in the  rare  case
+       that  the  current  directory or	a containing directory was moved after
+       the shell descended into	it.
+
+       The -L option does not work unless the PWD environment variable is  ex-
+       ported by the shell.
+
+FreeBSD	13.2			 May 22, 2023				PWD(1)

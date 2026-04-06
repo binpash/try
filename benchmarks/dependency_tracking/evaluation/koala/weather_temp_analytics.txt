@@ -1,0 +1,119 @@
+No incr time: 171.735 s
+Incr stream time: 41.025 s
+Cache size: 69 MB
+
+[NO INCR]
+
+real    0m1.189s
+user    0m0.005s
+sys     0m1.184s
+
+real    0m3.253s
+user    0m2.650s
+sys     0m1.869s
+
+real    0m3.051s
+user    0m3.323s
+sys     0m1.878s
+
+real    0m9.411s
+user    0m10.294s
+sys     0m2.253s
+
+real    0m7.309s
+user    0m8.258s
+sys     0m2.055s
+
+real    0m9.254s
+user    0m9.230s
+sys     0m3.057s
+
+real    0m11.426s
+user    0m11.797s
+sys     0m3.984s
+
+real    0m11.369s
+user    0m12.399s
+sys     0m4.052s
+
+real    0m17.549s
+user    0m19.374s
+sys     0m4.519s
+
+real    0m17.820s
+user    0m19.601s
+sys     0m4.395s
+
+real    0m18.189s
+user    0m18.956s
+sys     0m5.421s
+
+real    0m21.303s
+user    0m22.568s
+sys     0m6.177s
+
+real    0m19.800s
+user    0m21.857s
+sys     0m6.148s
+
+real    0m20.812s
+user    0m25.265s
+sys     0m5.910s
+
+[INCR STREAM]
+
+real    0m1.191s
+user    0m0.010s
+sys     0m1.181s
+
+real    0m3.489s
+user    0m3.078s
+sys     0m3.462s
+
+real    0m1.405s
+user    0m0.926s
+sys     0m2.167s
+
+real    0m3.924s
+user    0m3.996s
+sys     0m2.380s
+
+real    0m1.077s
+user    0m0.461s
+sys     0m2.020s
+
+real    0m2.427s
+user    0m0.527s
+sys     0m3.281s
+
+real    0m2.447s
+user    0m0.843s
+sys     0m4.199s
+
+real    0m2.311s
+user    0m0.857s
+sys     0m4.243s
+
+real    0m4.958s
+user    0m4.440s
+sys     0m3.972s
+
+real    0m2.268s
+user    0m0.812s
+sys     0m4.048s
+
+real    0m3.507s
+user    0m0.858s
+sys     0m5.260s
+
+real    0m3.756s
+user    0m1.308s
+sys     0m6.454s
+
+real    0m3.402s
+user    0m1.396s
+sys     0m6.034s
+
+real    0m4.863s
+user    0m3.711s
+sys     0m6.263s

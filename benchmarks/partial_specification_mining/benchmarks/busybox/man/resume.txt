@@ -1,0 +1,5 @@
+resume
+
+Usage: resume BLOCKDEV [OFFSET]
+
+Restore system state from 'suspend-to-disk' data in BLOCKDEV

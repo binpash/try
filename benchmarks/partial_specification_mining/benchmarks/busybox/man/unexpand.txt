@@ -1,0 +1,9 @@
+unexpand
+
+Usage: unexpand [-fa][-t N] [FILE]...
+
+Convert spaces to tabs, writing to stdout
+
+	-a	Convert all blanks
+	-f	Convert only leading blanks
+	-t N	Tabstops every N chars

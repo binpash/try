@@ -1,0 +1,87 @@
+{
+  "version": "cat (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-A"
+      ],
+      "long": [
+        "--show-all"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--number-nonblank"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ]
+    },
+    {
+      "short": [
+        "-E"
+      ],
+      "long": [
+        "--show-ends"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--number"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--squeeze-blank"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--show-tabs"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--show-nonprinting"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

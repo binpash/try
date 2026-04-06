@@ -1,0 +1,111 @@
+TAIL(1)			    General Commands Manual		       TAIL(1)
+
+NAME
+       tail -- display the last	part of	a file
+
+SYNOPSIS
+       tail  [-F  |  -f	 |  -r]	 [-qv]	[-b  number  |	-c number | -n number]
+	    [file ...]
+
+DESCRIPTION
+       The tail	utility	displays the contents of  file	or,  by	 default,  its
+       standard	input, to the standard output.
+
+       The  display  begins  at	a byte,	line or	512-byte block location	in the
+       input.  Numbers having a	leading	plus (`+') sign	are  relative  to  the
+       beginning  of the input,	for example, "-c +2" starts the	display	at the
+       second byte of the input.  Numbers having a leading minus (`-') sign or
+       no explicit sign	are relative to	the end	of the input, for example, "-n
+       2" displays the last two	lines of the input.  The default starting  lo-
+       cation is "-n 10", or the last 10 lines of the input.
+
+       The options are as follows:
+
+       -b number, --blocks=number
+	       The location is number 512-byte blocks.
+
+       -c number, --bytes=number
+	       The location is number bytes.
+
+       -f      The  -f	option	causes	tail  to  not stop when	end of file is
+	       reached,	but rather to wait for additional data to be  appended
+	       to  the	input.	The -f option is ignored if the	standard input
+	       is a pipe, but not if it	is a FIFO.
+
+       -F      The -F option implies the -f option, but	tail will  also	 check
+	       to  see if the file being followed has been renamed or rotated.
+	       The file	is closed and reopened	when  tail  detects  that  the
+	       filename	being read from	has a new inode	number.
+
+	       If the file being followed does not (yet) exist or if it	is re-
+	       moved,  tail  will  keep	looking	and will display the file from
+	       the beginning if	and when it is created.
+
+	       The -F option is	the same as the	 -f  option  if	 reading  from
+	       standard	input rather than a file.
+
+       -n number, --lines=number
+	       The location is number lines.
+
+       -q, --quiet, --silent
+	       Suppresses  printing  of	 headers when multiple files are being
+	       examined.
+
+       -r      The -r option causes the	input to be displayed in  reverse  or-
+	       der, by line.  Additionally, this option	changes	the meaning of
+	       the  -b,	 -c  and -n options.  When the -r option is specified,
+	       these options specify the number	of bytes,  lines  or  512-byte
+	       blocks  to  display, instead of the bytes, lines	or blocks from
+	       the beginning or	end of the input from which to begin the  dis-
+	       play.   The  default for	the -r option is to display all	of the
+	       input.
+
+       -v, --verbose
+	       Prepend each file with a	header.
+
+       If more than a single file is specified,	or if the -v option  is	 used,
+       each  file  is  preceded	 by a header consisting	of the string "==> XXX
+       <==" where XXX is the name of the  file.	  The  -q  flag	 disables  the
+       printing	of the header in all cases.
+
+       All number arguments may	also be	specified with size suffixes supported
+       by expand_number(3).
+
+EXIT STATUS
+       The tail	utility	exits 0	on success, and	>0 if an error occurs.
+
+EXAMPLES
+       Display the last	500 lines of the file foo:
+
+	     $ tail -n 500 foo
+
+       Keep /var/log/messages open, displaying to the standard output anything
+       appended	to the file:
+
+	     $ tail -F /var/log/messages
+
+       Read  /var/log/messages	from the beginning and then follow the file as
+       usual:
+
+	     $ tail -F -n +1 /var/log/messages
+
+SEE ALSO
+       cat(1), head(1),	sed(1),	expand_number(3)
+
+STANDARDS
+       The tail	utility	 is  expected  to  be  a  superset  of	the  IEEE  Std
+       1003.2-1992  ("POSIX.2")	 specification.	 In particular,	the -F,	-b and
+       -r options are extensions to that standard.
+
+       The historic command line syntax	of tail	is supported by	this implemen-
+       tation.	The only difference between this implementation	 and  historic
+       versions	 of  tail,  once  the command line syntax translation has been
+       done, is	that the -b, -c	and -n options modify the -r option, i.e., "-r
+       -c 4" displays the last 4 characters of the last	 line  of  the	input,
+       while the historic tail (using the historic syntax "-4cr") would	ignore
+       the -c option and display the last 4 lines of the input.
+
+HISTORY
+       A tail command appeared in PWB UNIX.
+
+FreeBSD	13.2		       November	28, 2023		       TAIL(1)

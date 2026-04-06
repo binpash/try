@@ -1,0 +1,44 @@
+{
+  "version": "tac (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--before"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--regex"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--separator"
+      ],
+      "args": [
+        "STRING"
+      ]
+    }
+  ]
+}

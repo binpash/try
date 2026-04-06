@@ -1,0 +1,25 @@
+{
+  "version": "tty (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--silent",
+        "--quiet"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

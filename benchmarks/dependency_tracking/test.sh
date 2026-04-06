@@ -1,0 +1,1 @@
+cat README.md | tee output.txt

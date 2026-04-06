@@ -1,0 +1,7 @@
+sync
+
+Usage: sync [-df] [FILE]...
+
+Write all buffered blocks (in FILEs) to disk
+	-d	Avoid syncing metadata
+	-f	Sync filesystems underlying FILEs

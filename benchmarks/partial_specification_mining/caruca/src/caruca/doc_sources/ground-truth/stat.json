@@ -1,0 +1,68 @@
+{
+  "version": "stat (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--file-system"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--terse"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--cached"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "short": [
+        "-c"  
+      ],
+      "long": [
+        "--format"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    },
+    {
+      "long": [
+        "--printf"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+    }
+  ]
+}

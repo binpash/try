@@ -1,0 +1,84 @@
+{
+  "version": "stty (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--save"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    },
+    {
+      "short": [
+        "-cbreak"
+      ]
+    },
+    {
+      "short": [
+        "-cooked"
+      ]
+    },
+    {
+      "short": [
+        "-evenp"
+      ]
+    },
+    {
+      "short": [
+        "-litout"
+      ]
+    },
+    {
+      "short": [
+        "-nl"
+      ]
+    },
+    {
+      "short": [
+        "-oddp"
+      ]
+    },
+    {
+      "short": [
+        "-pass8"
+      ]
+    },
+    {
+      "short": [
+        "-raw"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-F"
+      ],
+      "long": [
+        "--file"
+      ],
+      "args": [
+        "DEVICE"
+      ]
+    }
+  ]
+}

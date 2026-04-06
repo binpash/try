@@ -1,0 +1,16 @@
+Usage: tac [OPTION]... [FILE]...
+Write each FILE to standard output, last line first.
+
+With no FILE, or when FILE is -, read standard input.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -b, --before             attach the separator before instead of after
+  -r, --regex              interpret the separator as a regular expression
+  -s, --separator=STRING   use STRING as the separator instead of newline
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/tac>
+or available locally via: info '(coreutils) tac invocation'

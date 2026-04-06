@@ -1,0 +1,20 @@
+{
+  "version": "pwd (GNU coreutils) 8.32",
+  "flags": [
+      {
+          "short": ["-L"],
+          "long": ["--logical"]
+      },
+      {
+          "short": ["-P"],
+          "long": ["--physical"]
+      },
+      {
+          "long": ["--help"]
+      },
+      {
+          "long": ["--version"]
+      }
+  ],
+  "options": []
+}

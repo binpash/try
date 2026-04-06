@@ -1,0 +1,38 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [],
+    "options": [
+        {
+            "short": [
+                "v"
+            ],
+            "args": [
+                "VAR=VAL"
+            ]
+        },
+        {
+            "short": [
+                "F"
+            ],
+            "args": [
+                "SEP"
+            ]
+        },
+        {
+            "short": [
+                "f"
+            ],
+            "args": [
+                "FILE"
+            ]
+        },
+        {
+            "short": [
+                "e"
+            ],
+            "args": [
+                "AWK_PROG"
+            ]
+        }
+    ]
+}

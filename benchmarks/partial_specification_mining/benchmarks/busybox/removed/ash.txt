@@ -1,0 +1,5 @@
+ash
+
+Usage: ash [-/+OPTIONS] [-/+o OPT]... [-c 'SCRIPT' [ARG0 [ARGS]] / FILE [ARGS] / -s [ARGS]]
+
+Unix shell interpreter

@@ -1,0 +1,7 @@
+taskset
+
+Usage: taskset [-p] [HEXMASK] PID | PROG ARGS
+
+Set or get CPU affinity
+
+	-p	Operate on an existing PID

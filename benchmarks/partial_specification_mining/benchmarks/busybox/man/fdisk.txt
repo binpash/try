@@ -1,0 +1,12 @@
+fdisk
+
+Usage: fdisk [-ul] [-C CYLINDERS] [-H HEADS] [-S SECTORS] [-b SSZ] DISK
+
+Change partition table
+
+	-u		Start and End are in sectors (instead of cylinders)
+	-l		Show partition table for each DISK, then exit
+	-b 2048		(for certain MO disks) use 2048-byte sectors
+	-C CYLINDERS	Set number of cylinders/heads/sectors
+	-H HEADS	Typically 255
+	-S SECTORS	Typically 63

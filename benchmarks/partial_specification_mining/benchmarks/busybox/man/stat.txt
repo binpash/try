@@ -1,0 +1,52 @@
+stat
+
+Usage: stat [OPTIONS] FILE...
+
+Display file (default) or filesystem status
+
+	-c FMT	Use the specified format
+	-f	Display filesystem status
+	-L	Follow links
+	-t	Terse display
+
+FMT sequences for files:
+ %a	Access rights in octal
+ %A	Access rights in human readable form
+ %b	Number of blocks allocated (see %B)
+ %B	Size in bytes of each block reported by %b
+ %d	Device number in decimal
+ %D	Device number in hex
+ %f	Raw mode in hex
+ %F	File type
+ %g	Group ID
+ %G	Group name
+ %h	Number of hard links
+ %i	Inode number
+ %n	File name
+ %N	File name, with -> TARGET if symlink
+ %o	I/O block size
+ %s	Total size in bytes
+ %t	Major device type in hex
+ %T	Minor device type in hex
+ %u	User ID
+ %U	User name
+ %x	Time of last access
+ %X	Time of last access as seconds since Epoch
+ %y	Time of last modification
+ %Y	Time of last modification as seconds since Epoch
+ %z	Time of last change
+ %Z	Time of last change as seconds since Epoch
+
+FMT sequences for file systems:
+ %a	Free blocks available to non-superuser
+ %b	Total data blocks
+ %c	Total file nodes
+ %d	Free file nodes
+ %f	Free blocks
+ %i	File System ID in hex
+ %l	Maximum length of filenames
+ %n	File name
+ %s	Block size (for faster transfer)
+ %S	Fundamental block size (for block counts)
+ %t	Type in hex
+ %T	Type in human readable form

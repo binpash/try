@@ -1,0 +1,19 @@
+getty
+
+Usage: getty [OPTIONS] BAUD_RATE[,BAUD_RATE]... TTY [TERMTYPE]
+
+Open TTY, prompt for login name, then invoke /bin/login
+
+	-h		Enable hardware RTS/CTS flow control
+	-L		Set CLOCAL (ignore Carrier Detect state)
+	-m		Get baud rate from modem's CONNECT status message
+	-n		Don't prompt for login name
+	-w		Wait for CR or LF before sending /etc/issue
+	-i		Don't display /etc/issue
+	-f ISSUE_FILE	Display ISSUE_FILE instead of /etc/issue
+	-l LOGIN	Invoke LOGIN instead of /bin/login
+	-t SEC		Terminate after SEC if no login name is read
+	-I INITSTR	Send INITSTR before anything else
+	-H HOST		Log HOST into the utmp file as the hostname
+
+BAUD_RATE of 0 leaves it unchanged

@@ -1,0 +1,41 @@
+{
+  "version": "mknod (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-Z"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--mode"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "long": [
+        "--context"
+      ],
+      "args": [
+        "CTX"
+      ]
+    }
+  ]
+}

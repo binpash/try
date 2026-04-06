@@ -1,0 +1,6 @@
+sleep
+
+Usage: sleep [N]...
+
+Pause for a time equal to the total of the args given, where each arg can
+have an optional suffix of (s)econds, (m)inutes, (h)ours, or (d)ays

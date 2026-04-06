@@ -1,0 +1,40 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "l"
+            ]
+        },
+        {
+            "short": [
+                "y"
+            ]
+        },
+        {
+            "short": [
+                "a"
+            ]
+        },
+        {
+            "short": [
+                "q"
+            ]
+        },
+        {
+            "short": [
+                "r"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "F"
+            ],
+            "args": [
+                "BUS"
+            ]
+        }
+    ]
+}

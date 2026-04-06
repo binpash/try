@@ -1,0 +1,10 @@
+halt
+
+Usage: halt [-d DELAY] [-n] [-f] [-w]
+
+Halt the system
+
+	-d SEC	Delay interval
+	-n	Do not sync
+	-f	Force (don't go through init)
+	-w	Only write a wtmp record

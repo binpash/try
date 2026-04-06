@@ -1,0 +1,8 @@
+rdate
+
+Usage: rdate [-s/-p] HOST
+
+Set and print time from HOST using RFC 868
+
+	-s	Only set system time
+	-p	Only print time

@@ -1,0 +1,173 @@
+DF(1)			    General Commands Manual			 DF(1)
+
+NAME
+       df -- display free disk space
+
+SYNOPSIS
+       df  [--libxo]  [-b  |  -g  |  -H	 |  -h	| -k | -m | -P]	[-acilnT] [-,]
+	  [-t type] [file | filesystem ...]
+
+DESCRIPTION
+       The df utility displays statistics about	the amount of free disk	 space
+       on  the	specified  mounted  file system	or on the file system of which
+       file is a part.	By default block counts	are displayed with an  assumed
+       block size of 512 bytes.	 If neither a file or a	file system operand is
+       specified,  statistics for all mounted file systems are displayed (sub-
+       ject to the -t option below).
+
+       The following options are available:
+
+       --libxo
+	       Generate	output via libxo(3) in a selection of different	 human
+	       and machine readable formats.  See xo_parse_args(3) for details
+	       on command line arguments.
+
+       -a      Show  all  mount	points,	including those	that were mounted with
+	       the MNT_IGNORE flag.  This is implied for file  systems	speci-
+	       fied on the command line.
+
+       -b      Explicitly use 512 byte blocks, overriding any BLOCKSIZE	speci-
+	       fication	 from the environment.	This is	the same as the	-P op-
+	       tion.  The -k option overrides this option.
+
+       -c      Display a grand total.
+
+       -g      Use 1073741824 byte (1 Gibibyte)	blocks	rather	than  the  de-
+	       fault.  This overrides any BLOCKSIZE specification from the en-
+	       vironment.
+
+       -h      "Human-readable"	 output.   Use	unit suffixes: Byte, Kibibyte,
+	       Mebibyte, Gibibyte, Tebibyte and	Pebibyte (based	on  powers  of
+	       1024) in	order to reduce	the number of digits to	four or	fewer.
+
+       -H, --si
+	       Same as -h but based on powers of 1000.
+
+       -i      Include	statistics  on the number of free and used inodes.  In
+	       conjunction with	the -h or -H options, the number of inodes  is
+	       scaled by powers	of 1000.  In case the filesystem has no	inodes
+	       then `-'	is displayed instead of	the usage percentage.
+
+       -k      Use  1024  byte	(1  Kibibyte)  blocks rather than the default.
+	       This overrides the -P option and	 any  BLOCKSIZE	 specification
+	       from the	environment.
+
+       -l      Select  a  locally-mounted file system for display.  If used in
+	       combination with	the -t type option, file system	types will  be
+	       added or	excluded according to the parameters of	that option.
+
+       -m      Use  1048576  byte (1 Mebibyte) blocks rather than the default.
+	       This overrides any BLOCKSIZE specification  from	 the  environ-
+	       ment.
+
+       -n      Print out the previously	obtained statistics from the file sys-
+	       tems.  This option should be used if it is possible that	one or
+	       more  file  systems  are	 in a state such that they will	not be
+	       able to provide statistics without a long delay.	 When this op-
+	       tion is specified, df will not request new statistics from  the
+	       file  systems, but will respond with the	possibly stale statis-
+	       tics that were previously obtained.
+
+       -P      Explicitly use 512 byte blocks, overriding any BLOCKSIZE	speci-
+	       fication	from the environment.  This is the same	as the -b  op-
+	       tion.  The -k option overrides this option.
+
+       -t type
+	       Select  file  systems  to  display.   More than one type	may be
+	       specified in a comma separated list.  The list of  file	system
+	       types  can  be  prefixed	 with  "no" to specify the file	system
+	       types for which action should not be taken.  If used in	combi-
+	       nation  with  the -l option, the	parameters of this option will
+	       modify the list of locally-mounted file systems selected	by the
+	       -l option.  For example,	the df command:
+
+		     df	-t nonfs,nullfs
+
+	       lists all file systems except those of  type  NFS  and  NULLFS.
+	       The  lsvfs(1) command can be used to find out the types of file
+	       systems that are	available on the system.
+
+       -T      Include file system type.
+
+       -,      (Comma) Print sizes grouped and separated  by  thousands	 using
+	       the non-monetary	separator returned by localeconv(3), typically
+	       a comma or period.  If no locale	is set,	or the locale does not
+	       have a non-monetary separator, this option has no effect.
+
+ENVIRONMENT
+       BLOCKSIZE  Specifies  the  units	in which to report block counts.  This
+		  uses getbsize(3), which allows units	of  bytes  or  numbers
+		  scaled  with	the letters k (for multiples of	1024 bytes), m
+		  (for multiples of 1048576 bytes) or g	(for gibibytes).   The
+		  allowed  range  is  512 bytes	to 1 GB.  If the value is out-
+		  side,	it will	be set to the appropriate limit.
+
+EXAMPLES
+       Show human readable free	disk space for all mount points	including file
+       system type:
+
+	     $ df -ahT
+	     Filesystem	  Type	      Size    Used   Avail Capacity  Mounted on
+	     /dev/ada1p2  ufs	      213G    152G     44G    78%    /
+	     devfs	  devfs	      1.0K    1.0K	0B   100%    /dev
+	     /dev/ada0p1  ufs	      1.8T    168G    1.5T    10%    /data
+	     linsysfs	  linsysfs    4.0K    4.0K	0B   100%    /compat/linux/sys
+	     /dev/da0	  msdosfs     7.6G    424M    7.2G     5%    /mnt/usb
+
+       Show previously collected data including	inode  statistics  except  for
+       devfs  or linsysfs file systems.	 Note that the "no" prefix affects all
+       the file	systems	in the list and	the -t option can  be  specified  only
+       once:
+
+	     $ df -i -n	-t nodevfs,linsysfs
+	     Filesystem	  1K-blocks	 Used	   Avail Capacity iused	    ifree %iused
+	     Mounted on
+	     /dev/ada1p2  223235736 159618992	45757888    78%	1657590	 27234568    6%	  /
+	     /dev/ada0p1 1892163184 176319420 1564470712    10%	1319710	243300576    1%
+	     /data
+	     /dev/da0	    7989888    433664	 7556224     5%	      0		0  100%
+	     /mnt/usb
+
+       Show human readable information for the file system containing the file
+       /etc/rc.conf:
+
+	     $ df -h /etc/rc.conf
+	     Filesystem	    Size    Used   Avail Capacity  Mounted on
+	     /dev/ada1p2    213G    152G     44G    78%	   /
+
+       Same as above but specifying some file system:
+
+	     $ df -h /dev/ada1p2
+	     Filesystem	    Size    Used   Avail Capacity  Mounted on
+	     /dev/ada1p2    213G    152G     44G    78%	   /
+
+NOTES
+       For  non-Unix file systems, the reported	values of used and free	inodes
+       may have	a different meaning than that of used and available files  and
+       directories.   An  example  is  msdosfs,	 which in the case of FAT12 or
+       FAT16 file systems reports the number of	available and free root	direc-
+       tory entries instead of inodes (where 1 to 21  such  directory  entries
+       are required to store each file or directory name or disk label).
+
+SEE ALSO
+       lsvfs(1),  quota(1),  fstatfs(2), getfsstat(2), statfs(2), getbsize(3),
+       getmntinfo(3),  libxo(3),  localeconv(3),  xo_parse_args(3),  fstab(5),
+       mount(8), pstat(8), quot(8), swapinfo(8)
+
+STANDARDS
+       With the	exception of most options, the df utility conforms to IEEE Std
+       1003.1-2004 ("POSIX.1"),	which defines only the -k, -P and -t options.
+
+HISTORY
+       A df command appeared in	Version	1 AT&T UNIX.
+
+BUGS
+       The -n flag is ignored if a file	or file	system is specified.  Also, if
+       a  mount	 point	is not accessible by the user, it is possible that the
+       file system information could be	stale.
+
+       The -b and -P options are identical.  The former	 comes	from  the  BSD
+       tradition,  and	the  latter  is	 required  for	IEEE  Std  1003.1-2004
+       ("POSIX.1") conformity.
+
+FreeBSD	13.2			March 29, 2023				 DF(1)

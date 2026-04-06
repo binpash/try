@@ -1,0 +1,23 @@
+date
+
+Usage: date [OPTIONS] [+FMT] [TIME]
+
+Display time (using +FMT), or set time
+
+	[-s,--set] TIME	Set time to TIME
+	-u,--utc	Work in UTC (don't convert to local time)
+	-R,--rfc-2822	Output RFC-2822 compliant date string
+	-I[SPEC]	Output ISO-8601 compliant date string
+			SPEC='date' (default) for date only,
+			'hours', 'minutes', or 'seconds' for date and
+			time to the indicated precision
+	-r,--reference FILE	Display last modification time of FILE
+	-d,--date TIME	Display TIME, not 'now'
+	-D FMT		Use FMT for -d TIME conversion
+
+Recognized TIME formats:
+	hh:mm[:ss]
+	[YYYY.]MM.DD-hh:mm[:ss]
+	YYYY-MM-DD hh:mm[:ss]
+	[[[[[YY]YY]MM]DD]hh]mm[.ss]
+	'date TIME' form accepts MMDDhhmm[[YY]YY][.ss] instead

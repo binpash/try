@@ -1,0 +1,7 @@
+svok
+
+Usage: svok SERVICE_DIR
+
+Check whether runsv supervisor is running.
+Exit code is 0 if it does, 100 if it does not,
+111 (with error message) if SERVICE_DIR does not exist.

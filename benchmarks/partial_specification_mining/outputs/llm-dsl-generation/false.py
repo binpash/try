@@ -1,0 +1,12 @@
+from caruca.ir.syntax import *
+
+false_syntax_spec: list[SyntaxSpecification] = [
+    [
+        [
+            Flag("--help"),
+            Flag("--version"),
+        ],
+        [],
+    ]
+]
+

@@ -1,0 +1,63 @@
+REALPATH(1)				   User Commands				REALPATH(1)
+
+NAME
+       realpath - print the resolved path
+
+SYNOPSIS
+       realpath [OPTION]... FILE...
+
+DESCRIPTION
+       Print the resolved absolute file name; all but the last component must exist
+
+       -e, --canonicalize-existing
+	      all components of the path must exist
+
+       -m, --canonicalize-missing
+	      no path components need exist or be a directory
+
+       -L, --logical
+	      resolve '..' components before symlinks
+
+       -P, --physical
+	      resolve symlinks as encountered (default)
+
+       -q, --quiet
+	      suppress most error messages
+
+       --relative-to=DIR
+	      print the resolved path relative to DIR
+
+       --relative-base=DIR
+	      print absolute paths unless paths below DIR
+
+       -s, --strip, --no-symlinks
+	      don't expand symlinks
+
+       -z, --zero
+	      end each output line with NUL, not newline
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by Padraig Brady.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright  © 2020 Free Software Foundation, Inc.	 License GPLv3+: GNU GPL version 3 or later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       readlink(1), readlink(2), realpath(3)
+
+       Full documentation <https://www.gnu.org/software/coreutils/realpath>
+       or available locally via: info '(coreutils) realpath invocation'
+
+GNU coreutils 8.32			   February 2022				REALPATH(1)

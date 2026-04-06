@@ -1,0 +1,16 @@
+acpid
+
+Usage: acpid [-df] [-c CONFDIR] [-l LOGFILE] [-a ACTIONFILE] [-M MAPFILE] [-e PROC_EVENT_FILE] [-p PIDFILE]
+
+Listen to ACPI events and spawn specific helpers on event arrival
+
+	-d	Log to stderr, not log file (implies -f)
+	-f	Run in foreground
+	-c DIR	Config directory [/etc/acpi]
+	-e FILE	/proc event file [/proc/acpi/event]
+	-l FILE	Log file [/var/log/acpid.log]
+	-p FILE	Pid file [/var/run/acpid.pid]
+	-a FILE	Action file [/etc/acpid.conf]
+	-M FILE Map file [/etc/acpi.map]
+
+Accept and ignore compatibility options -g -m -s -S -v

@@ -1,0 +1,14 @@
+unzip
+
+Usage: unzip [-lnojpq] FILE[.zip] [FILE]... [-x FILE...] [-d DIR]
+
+Extract FILEs from ZIP archive
+
+	-l	List contents (with -q for short form)
+	-n	Never overwrite files (default: ask)
+	-o	Overwrite
+	-j	Do not restore paths
+	-p	Print to stdout
+	-q	Quiet
+	-x FILE	Exclude FILEs
+	-d DIR	Extract into DIR

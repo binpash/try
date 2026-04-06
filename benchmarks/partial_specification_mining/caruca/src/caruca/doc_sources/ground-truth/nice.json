@@ -1,0 +1,28 @@
+{
+  "version": "nice (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--adjustment"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

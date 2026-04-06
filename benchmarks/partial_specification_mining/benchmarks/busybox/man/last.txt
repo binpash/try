@@ -1,0 +1,5 @@
+last
+
+Usage: last
+
+Show listing of the last users that logged into the system

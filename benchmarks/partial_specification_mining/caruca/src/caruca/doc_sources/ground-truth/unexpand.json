@@ -1,0 +1,52 @@
+{
+  "version": "unexpand (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "long": [
+        "--first-only"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--tabs"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--tabs"
+      ],
+      "args": [
+        "LIST"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+pivot_root
+
+Usage: pivot_root NEW_ROOT PUT_OLD
+
+Move the current root file system to PUT_OLD and make NEW_ROOT
+the new root file system

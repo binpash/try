@@ -1,0 +1,108 @@
+{
+  "version": "hostname 3.23",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--alias"
+      ]
+    },
+    {
+      "short": [
+        "-A"
+      ],
+      "long": [
+        "--all-fqdns"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--boot"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--domain"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--fqdn",
+        "--long"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ip-address"
+      ]
+    },
+    {
+      "short": [
+        "-I"
+      ],
+      "long": [
+        "--all-ip-addresses"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--short"
+      ]
+    },
+    {
+      "short": [
+        "-V"
+      ],
+      "long": [
+        "--version"
+      ]
+    },
+    {
+      "short": [
+        "-y"
+      ],
+      "long": [
+        "--yp",
+        "--nis"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--help"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-F"
+      ],
+      "long": [
+        "--file"
+      ],
+      "args": [
+        "filename"
+      ]
+    }
+  ]
+}

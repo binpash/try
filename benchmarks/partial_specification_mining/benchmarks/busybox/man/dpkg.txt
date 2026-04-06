@@ -1,0 +1,15 @@
+dpkg
+
+Usage: dpkg [-ilCPru] [-F OPT] PACKAGE
+
+Install, remove and manage Debian packages
+
+	-i,--install	Install the package
+	-l,--list	List of installed packages
+	--configure	Configure an unpackaged package
+	-P,--purge	Purge all files of a package
+	-r,--remove	Remove all but the configuration files for a package
+	--unpack	Unpack a package, but don't configure it
+	--force-depends	Ignore dependency problems
+	--force-confnew	Overwrite existing config files when installing
+	--force-confold	Keep old config files when installing

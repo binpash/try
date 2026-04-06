@@ -1,0 +1,113 @@
+{
+  "version": "mv (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--force"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--interactive"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--no-clobber"
+      ]
+    },
+    {
+      "long": [
+        "--strip-trailing-slashes"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--no-target-directory"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--update"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ],
+      "long": [
+        "--context"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--backup"
+      ],
+      "args": [
+        "CONTROL"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--target-directory"
+      ],
+      "args": [
+        "DIRECTORY"
+      ]
+    }
+  ]
+}

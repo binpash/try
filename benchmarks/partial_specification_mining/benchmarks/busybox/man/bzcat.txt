@@ -1,0 +1,5 @@
+bzcat
+
+Usage: bzcat [FILE]...
+
+Decompress to stdout

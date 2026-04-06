@@ -1,0 +1,48 @@
+EXPAND(1)		    General Commands Manual		     EXPAND(1)
+
+NAME
+       expand, unexpand	-- expand tabs to spaces, and vice versa
+
+SYNOPSIS
+       expand [-t tab1,tab2,...,tabn] [file ...]
+       unexpand	[-a | -t tab1,tab2,...,tabn] [file ...]
+
+DESCRIPTION
+       The  expand  utility  processes	the  named files or the	standard input
+       writing the standard output with	tabs changed into  blanks.   Backspace
+       characters are preserved	into the output	and decrement the column count
+       for  tab	calculations.  The expand utility is useful for	pre-processing
+       character files (before sorting,	looking	 at  specific  columns,	 etc.)
+       that contain tabs.
+
+       The unexpand utility puts tabs back into	the data from the standard in-
+       put or the named	files and writes the result on the standard output.
+
+       The following options are available:
+
+       -a      (unexpand  only.)  By default, only leading blanks and tabs are
+	       reconverted to maximal strings of tabs.	If the	-a  option  is
+	       given,  then tabs are inserted whenever they would compress the
+	       resultant file by replacing two or more characters.
+
+       -t tab1,tab2,...,tabn
+	       Set tab stops at	column positions tab1,tab2,...,tabn.  If  only
+	       a single	number is given, tab stops are set that	number of col-
+	       umn positions apart instead of the default number of 8.
+
+ENVIRONMENT
+       The  LANG,  LC_ALL and LC_CTYPE environment variables affect the	execu-
+       tion of expand and unexpand as described	in environ(7).
+
+EXIT STATUS
+       The expand and unexpand utilities exit 0	on success, and	>0 if an error
+       occurs.
+
+STANDARDS
+       The expand and unexpand	utilities  conform  to	IEEE  Std  1003.1-2001
+       ("POSIX.1").
+
+HISTORY
+       The expand utility first	appeared in 1BSD.
+
+FreeBSD	13.2			 June 6, 2015			     EXPAND(1)

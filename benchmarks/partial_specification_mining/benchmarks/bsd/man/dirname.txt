@@ -1,0 +1,46 @@
+BASENAME(1)		    General Commands Manual		   BASENAME(1)
+
+NAME
+       basename, dirname -- return filename or directory portion of pathname
+
+SYNOPSIS
+       basename	string [suffix]
+       basename	[-a] [-s suffix] string	[...]
+       dirname string [...]
+
+DESCRIPTION
+       The  basename utility deletes any prefix	ending with the	last slash `/'
+       character present in string (after first	stripping  trailing  slashes),
+       and  a suffix, if given.	 The suffix is not stripped if it is identical
+       to the remaining	characters in string.  The resulting filename is writ-
+       ten to the standard output.  A non-existent suffix is ignored.	If  -a
+       is specified, then every	argument is treated as a string	as if basename
+       were  invoked  with  just  one  argument.  If -s	is specified, then the
+       suffix is taken as its argument,	and all	other arguments	are treated as
+       a string.
+
+       The dirname utility deletes the filename	portion,  beginning  with  the
+       last  slash  `/'	 character to the end of string	(after first stripping
+       trailing	slashes), and writes the result	to the standard	output.
+
+EXIT STATUS
+       The basename and	dirname	utilities exit 0 on success, and >0 if an  er-
+       ror occurs.
+
+EXAMPLES
+       The following line sets the shell variable FOO to /usr/bin.
+
+	     FOO=`dirname /usr/bin/trail`
+
+SEE ALSO
+       csh(1), sh(1), basename(3), dirname(3)
+
+STANDARDS
+       The  basename  and dirname utilities are	expected to be IEEE Std	1003.2
+       ("POSIX.2") compatible.
+
+HISTORY
+       The basename utility first  appeared  in	 Version  7  AT&T  UNIX.   The
+       dirname utility first appeared in AT&T System III UNIX.
+
+FreeBSD	13.2			 June 21, 2021			   BASENAME(1)

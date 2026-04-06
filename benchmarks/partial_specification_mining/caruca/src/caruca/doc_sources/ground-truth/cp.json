@@ -1,0 +1,242 @@
+{
+  "version": "cp (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--archive"
+      ]
+    },
+    {
+      "long": [
+        "--attributes-only"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "long": [
+        "--copy-contents"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--force"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--interactive"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--link"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ],
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--no-clobber"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ]
+    },
+    {
+      "long": [
+        "--parents"
+      ]
+    },
+    {
+      "short": [
+        "-R",
+        "-r"
+      ],
+      "long": [
+        "--recursive"
+      ]
+    },
+    {
+      "long": [
+        "--remove-destination"
+      ]
+    },
+    {
+      "long": [
+        "--strip-trailing-slashes"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--symbolic-link"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--no-target-directory"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--update"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ],
+      "long": [
+        "--one-file-system"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--backup"
+      ],
+      "args": [
+        "CONTROL"
+      ]
+    },
+    {
+      "long": [
+        "--preserve"
+      ],
+      "args": [
+        "ATTR_LIST"
+      ]
+    },
+    {
+      "long": [
+        "--no-preserve"
+      ],
+      "args": [
+        "ATTR_LIST"
+      ]
+    },
+    {
+      "long": [
+        "--reflink"
+      ],
+      "args": [
+        "WHEN"
+      ]
+    },
+    {
+      "long": [
+        "--sparse"
+      ],
+      "args": [
+        "WHEN"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--target-directory"
+      ],
+      "args": [
+        "DIRECTORY"
+      ]
+    },
+    {
+      "long": [
+        "--context"
+      ],
+      "args": [
+        "CTX"
+      ]
+    }
+  ]
+}

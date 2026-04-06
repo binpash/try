@@ -1,0 +1,37 @@
+{
+    "command": "cat",
+    "aggregate": "$PASH_TOP/runtime/agg/py/cat.py", "comment": "TODO(@DanielSongShen) Can't capture all cases of cat i.e. cat -n needs a different aggregator. Perhaps have an aggregate record per predicate.",
+    "cases":
+    [
+		{
+            "predicate":
+            {
+                "operator": "exists",
+                "operands": ["-n"]
+            },
+            "class": "pure",
+            "inputs": ["args[:]"],
+            "outputs": ["stdout"],
+			"comment": "Pure because -n prints line numbering, and splitting affects it"
+		},
+        {
+            "predicate":
+            {
+                "operator": "len_args_eq",
+                "operands": [0]
+            },
+            "comment": ":')",
+            "class": "stateless",
+            "inputs": ["stdin"],
+            "outputs": ["stdout"]
+        },
+        {
+            "predicate": "default",
+            "class": "stateless",
+            "inputs": ["args[:]"],
+            "outputs": ["stdout"],
+            "options": ["stdin-hyphen"]
+        }
+    ],
+    "options": ["stdin-hyphen"]
+}

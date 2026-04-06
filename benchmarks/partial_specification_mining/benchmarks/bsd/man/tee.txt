@@ -1,0 +1,42 @@
+TEE(1)			    General Commands Manual			TEE(1)
+
+NAME
+       tee -- duplicate	standard input
+
+SYNOPSIS
+       tee [-ai] [file ...]
+
+DESCRIPTION
+       The tee utility copies standard input to	standard output, making	a copy
+       in zero or more files.  The output is unbuffered.
+
+       The following options are available:
+
+       -a      Append the output to the	files rather than overwriting them.
+
+       -i      Ignore the SIGINT signal.
+
+       The following operands are available:
+
+       file    A pathname of an	output file.
+
+       The tee utility takes the default action	for all	signals, except	in the
+       event of	the -i option.
+
+EXIT STATUS
+       The tee utility exits 0 on success, and >0 if an	error occurs.
+
+EXAMPLES
+       Send the	echoed message both to stdout and to the greetings.txt file:
+
+	     $ echo "Hello" | tee greetings.txt
+	     Hello
+
+STANDARDS
+       The  tee	utility	is expected to be IEEE Std 1003.2 ("POSIX.2") compati-
+       ble.
+
+HISTORY
+       The tee command first appeared in Version 7 AT&T	UNIX.
+
+FreeBSD	13.2		       October 30, 2022				TEE(1)

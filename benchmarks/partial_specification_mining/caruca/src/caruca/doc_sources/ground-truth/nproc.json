@@ -1,0 +1,30 @@
+{
+  "version": "nproc (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--ignore"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

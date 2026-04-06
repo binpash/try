@@ -1,0 +1,10 @@
+dumpleases
+
+Usage: dumpleases [-r|-a] [-d] [-f LEASEFILE]
+
+Display DHCP leases granted by udhcpd
+
+	-f,--file FILE	Lease file
+	-r,--remaining	Show remaining time
+	-a,--absolute	Show expiration time
+	-d,--decimal	Show time in seconds

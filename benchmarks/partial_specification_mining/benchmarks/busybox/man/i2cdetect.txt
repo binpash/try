@@ -1,0 +1,13 @@
+i2cdetect
+
+Usage: i2cdetect -l | -F I2CBUS | [-ya] [-q|-r] I2CBUS [FIRST LAST]
+
+Detect I2C chips
+
+	-l	List installed buses
+	-F BUS#	List functionalities on this bus
+	-y	Disable interactive mode
+	-a	Force scanning of non-regular addresses
+	-q	Use smbus quick write commands for probing (default)
+	-r	Use smbus read byte commands for probing
+	FIRST and LAST limit probing range

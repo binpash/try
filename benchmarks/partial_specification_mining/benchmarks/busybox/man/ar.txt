@@ -1,0 +1,11 @@
+ar
+
+Usage: ar [-o] [-v] [-p] [-t] [-x] ARCHIVE FILES
+
+Extract or list FILES from an ar archive
+
+	-o	Preserve original dates
+	-p	Extract to stdout
+	-t	List
+	-x	Extract
+	-v	Verbose

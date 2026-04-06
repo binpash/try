@@ -1,0 +1,11 @@
+xxd
+
+Usage: xxd [OPTIONS] [FILE]
+
+Hex dump FILE (or stdin)
+
+	-g N		Bytes per group
+	-c N		Bytes per line
+	-p		Show only hex bytes, assumes -c30
+	-l LENGTH	Show only first LENGTH bytes
+	-s OFFSET	Skip OFFSET bytes

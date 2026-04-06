@@ -1,0 +1,112 @@
+{
+  "version": "tail (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-F"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--quiet",
+        "--silent"
+      ]
+    },
+    {
+      "long": [
+        "--retry"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--bytes"
+      ],
+      "args": [
+        "[+]NUM"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--follow"
+      ],
+      "args": [
+        "{name|descriptor}"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--lines"
+      ],
+      "args": [
+        "[+]NUM"
+      ]
+    },
+    {
+      "long": [
+        "--max-unchanged-stats"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--pid"
+      ],
+      "args": [
+        "PID"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--sleep-interval"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

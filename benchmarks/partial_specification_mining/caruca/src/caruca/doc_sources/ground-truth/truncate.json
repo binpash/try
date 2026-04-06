@@ -1,0 +1,55 @@
+{
+  "version": "truncate (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--no-create"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--io-blocks"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--reference"
+      ],
+      "args": [
+        "RFILE"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--size"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    }
+  ]
+}

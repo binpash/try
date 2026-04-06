@@ -1,0 +1,65 @@
+PATHCHK(1)		    General Commands Manual		    PATHCHK(1)
+
+NAME
+       pathchk -- check	pathnames
+
+SYNOPSIS
+       pathchk [-pP] pathname ...
+
+DESCRIPTION
+       The pathchk utility checks whether each of the specified	pathname argu-
+       ments is	valid or portable.
+
+       A diagnostic message is written for each	argument that:
+
+       o   Is longer than PATH_MAX bytes.
+
+       o   Contains  any  component longer than	NAME_MAX bytes.	 (The value of
+	   NAME_MAX depends on the underlying file system.)
+
+       o   Contains a directory	component that is not searchable.
+
+       It is not considered an error if	a pathname argument contains a	nonex-
+       istent component	as long	as a component by that name could be created.
+
+       The options are as follows:
+
+       -p      Perform portability checks on the specified pathname arguments.
+	       Diagnostic messages will	be written for each argument that:
+
+	       o   Is longer than _POSIX_PATH_MAX (255)	bytes.
+
+	       o   Contains  a	component  longer  than	 _POSIX_NAME_MAX  (14)
+		   bytes.
+
+	       o   Contains any	character not in the portable filename charac-
+		   ter set (that is, alphanumeric  characters,	`.',  `-'  and
+		   `_').  No component may start with the hyphen (`-') charac-
+		   ter.
+
+       -P      In addition to the default or -p	checks,	write a	diagnostic for
+	       each argument that:
+
+	       o   Is empty.
+
+	       o   Contains a component	that starts with a hyphen.
+
+EXIT STATUS
+       The pathchk utility exits 0 on success, and >0 if an error occurs.
+
+EXAMPLES
+       Check  whether the names	of files in the	current	directory are portable
+       to other	POSIX systems:
+
+	     find . -exec pathchk -p --	{} +
+
+SEE ALSO
+       getconf(1), pathconf(2),	stat(2)
+
+STANDARDS
+       The pathchk utility conforms to IEEE Std	1003.1-2001 ("POSIX.1").
+
+HISTORY
+       A pathchk utility appeared in FreeBSD 5.0.
+
+FreeBSD	13.2			  May 1, 2010			    PATHCHK(1)

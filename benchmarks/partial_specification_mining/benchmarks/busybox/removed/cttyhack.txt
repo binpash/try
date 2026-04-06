@@ -1,0 +1,11 @@
+cttyhack
+
+Usage: cttyhack [PROG ARGS]
+
+Give PROG a controlling tty if possible.
+Example for /etc/inittab (for busybox init):
+	::respawn:/bin/cttyhack /bin/sh
+Giving controlling tty to shell running with PID 1:
+	$ exec cttyhack sh
+Starting interactive shell from boot shell script:
+	setsid cttyhack sh

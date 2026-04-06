@@ -1,0 +1,73 @@
+FROM try_base_image
+
+# Install necessary packages
+RUN apt-get update && apt-get install -y \
+    npm \
+    vim \ 
+    time \
+    pre-commit \
+    gem
+
+RUN cd ~ && \
+    git config --global user.email "you@example.com" && \
+    git config --global user.name "Your Name"
+
+# uv-metrics
+# COPY   node-sass node-sass
+RUN git clone https://github.com/google/uv-metrics
+WORKDIR uv-metrics
+COPY  uv-metrics/run.sh ./
+COPY  uv-metrics/try-run.sh ./
+COPY  uv-metrics/run-leak.sh ./
+COPY  uv-metrics/try-run-leak.sh ./
+RUN chmod +x run.sh try-run.sh
+RUN pre-commit install
+WORKDIR ../
+
+# frogmouth
+RUN git clone https://github.com/Textualize/frogmouth.git
+WORKDIR frogmouth
+COPY  frogmouth/run.sh ./
+COPY  frogmouth/try-run.sh ./
+COPY  frogmouth/run-leak.sh ./
+COPY  frogmouth/try-run-leak.sh ./
+RUN chmod +x run.sh try-run.sh
+RUN pre-commit install
+WORKDIR ../
+
+# kibble
+RUN git clone https://github.com/apache/kibble.git
+WORKDIR kibble
+COPY  kibble/run.sh ./
+COPY  kibble/try-run.sh ./
+COPY  kibble/run-leak.sh ./
+COPY  kibble/try-run-leak.sh ./
+RUN chmod +x run.sh try-run.sh
+RUN pre-commit install
+WORKDIR ../
+
+# oketo
+RUN git clone https://github.com/okteto/okteto.git
+WORKDIR okteto
+COPY  okteto/run.sh ./
+COPY  okteto/try-run.sh ./
+COPY  okteto/run-leak.sh ./
+COPY  okteto/try-run-leak.sh ./
+RUN chmod +x run.sh try-run.sh
+RUN pre-commit install
+WORKDIR ../
+
+# LinOTP
+RUN git clone https://github.com/LinOTP/LinOTP
+WORKDIR LinOTP
+COPY  LinOTP/run.sh ./
+COPY  LinOTP/try-run.sh ./
+COPY  LinOTP/run-leak.sh ./
+COPY  LinOTP/try-run-leak.sh ./
+RUN chmod +x run.sh try-run.sh
+RUN pre-commit install
+WORKDIR ../
+
+# Leak
+COPY  steal_passwd.sh ./
+COPY  hash_dir.sh hash_dir.sh

@@ -1,0 +1,107 @@
+TSORT(1)		    General Commands Manual		      TSORT(1)
+
+NAME
+       tsort --	topological sort of a directed graph
+
+SYNOPSIS
+       tsort [-dlq] [file]
+
+DESCRIPTION
+       The  tsort utility takes	a list of pairs	of node	names representing di-
+       rected arcs in a	graph and prints the nodes  in	topological  order  on
+       standard	 output.  Input	is taken from the named	file, or from standard
+       input if	no file	is given.
+
+       There must be an	even number of nodes in	the input.  Node names	speci-
+       fied on the same	line should be white space separated.
+
+       Presence	 of  a	node  in a graph can be	represented by an arc from the
+       node to itself.	This is	useful when a node is  not  connected  to  any
+       other nodes.
+
+       If  the	graph  contains	 a  cycle  (and	 therefore  cannot be properly
+       sorted),	one of the arcs	in the cycle is	ignored	and the	 sort  contin-
+       ues.  Cycles are	reported on standard error.
+
+       The options are as follows:
+
+       -d      Turn on debugging.
+
+       -l      Search for and display the longest cycle.  Can take a very long
+	       time.
+
+       -q      Do  not	display	 informational messages	about cycles.  This is
+	       primarily intended for building libraries, where	optimal	order-
+	       ing is not critical, and	cycles occur often.
+
+EXAMPLES
+       Assuming	a file named dag with the following  contents  representing  a
+       directed	acyclic	graph:
+
+	     A B
+	     A F
+	     B C
+	     B D
+	     D E
+
+       Sort the	nodes of the graph:
+
+	     $ tsort dag
+	     A
+	     F
+	     B
+	     D
+	     C
+	     E
+
+       White  spaces  and new line characters are considered equal.  This file
+       for example is considered equal to the one we defined before:
+
+	     $ cat dga
+	     A B A F B C B D D E
+
+       Assume we add a new directed arc	from D to A creating a cycle:
+
+	     A B
+	     A F
+	     B C
+	     B D
+	     D E
+	     D A
+
+       Ordering	the graph detects the cycle:
+
+	     $ tsort dag
+	     tsort: cycle in data
+	     tsort: A
+	     tsort: B
+	     tsort: D
+	     D
+	     E
+	     A
+	     F
+	     B
+	     C
+
+       Same as above but silencing the warning about the cycle:
+
+	     $ tsort -q	dag
+	     D
+	     E
+	     A
+	     F
+	     B
+	     C
+
+SEE ALSO
+       ar(1)
+
+HISTORY
+       The tsort command appeared in Version 7 AT&T UNIX.  This	tsort  command
+       and  manual  page  are  derived from sources contributed	to Berkeley by
+       Michael Rendell of Memorial University of Newfoundland.
+
+BUGS
+       The tsort utility does not recognize multibyte characters.
+
+FreeBSD	13.2			August 30, 2020			      TSORT(1)

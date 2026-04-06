@@ -1,0 +1,14 @@
+ping6
+
+Usage: ping6 [OPTIONS] HOST
+
+Send ICMP ECHO_REQUEST packets to network hosts
+
+	-c CNT		Send only CNT pings
+	-s SIZE		Send SIZE data bytes in packets (default 56)
+	-i SECS		Interval
+	-A		Ping as soon as reply is recevied
+	-I IFACE/IP	Source interface or IP address
+	-q		Quiet, only display output at start
+			and when finished
+	-p HEXBYTE	Pattern to use for payload

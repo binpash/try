@@ -1,0 +1,9 @@
+mkpasswd
+
+Usage: mkpasswd [OPTIONS] [PASSWORD] [SALT]
+
+Print crypt(3) hashed PASSWORD
+
+	-P,--password-fd N	Read password from fd N
+	-m,--method TYPE	des,md5,sha256/512 (default sha256)
+	-S,--salt SALT

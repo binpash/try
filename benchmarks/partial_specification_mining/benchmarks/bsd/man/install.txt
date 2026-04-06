@@ -1,0 +1,189 @@
+INSTALL(1)		    General Commands Manual		    INSTALL(1)
+
+NAME
+       install -- install binaries
+
+SYNOPSIS
+       install	[-bCcpSsUv]  [-B  suffix]  [-D	destdir] [-f flags] [-g	group]
+	       [-h hash] [-l linkflags]	[-M  metalog]  [-m  mode]  [-N	dbdir]
+	       [-o owner] [-T tags] file1 file2
+       install	[-bCcpSsUv]  [-B  suffix]  [-D	destdir] [-f flags] [-g	group]
+	       [-h hash] [-l linkflags]	[-M  metalog]  [-m  mode]  [-N	dbdir]
+	       [-o owner] [-T tags] file1 ... fileN directory
+       install	-d  [-Uv]  [-D	destdir]  [-g  group]  [-h  hash] [-M metalog]
+	       [-m mode] [-N dbdir] [-o	owner] [-T tags] directory ...
+
+DESCRIPTION
+       The file(s) are copied (or linked if the	-l option is specified)	to the
+       target file or directory.  If the destination is	a directory, then  the
+       file  is	copied into directory with its original	filename.  If the tar-
+       get file	already	exists,	it is either renamed to	file.old if the	-b op-
+       tion is given or	overwritten if permissions allow.  An alternate	backup
+       suffix may be specified via the -B option's argument.
+
+       The options are as follows:
+
+       -B suffix
+	       Use suffix as the backup	suffix if -b is	given.
+
+       -b      Back up any existing files before overwriting them by  renaming
+	       them  to	 file.old.   See  -B for specifying a different	backup
+	       suffix.
+
+       -C      Copy the	file.  If the target file already exists and the files
+	       are the same, then do not change	the modification time  of  the
+	       target.	 If  the  target's  file flags and mode	need not to be
+	       changed,	the target's inode change time is also unchanged.
+
+       -c      Copy the	file.  This is actually	the default.  The -c option is
+	       only included for backwards compatibility.
+
+       -D destdir
+	       Specify the DESTDIR (top	of the file hierarchy) that the	 items
+	       are installed in	to.  If	-M metalog is in use, a	leading	string
+	       of  "destdir" will be removed from the file names logged	to the
+	       metalog.	 This option does not affect where  the	 actual	 files
+	       are installed.
+
+       -d      Create  directories.  Missing parent directories	are created as
+	       required.
+
+       -f flags
+	       Specify the target's file flags;	see chflags(1) for a  list  of
+	       possible	flags and their	meanings.
+
+       -g group
+	       Specify a group.	 A numeric GID is allowed.
+
+       -h hash
+	       When  copying,  calculate  the digest of	the files with hash to
+	       store in	the -M metalog.	 When -d is given no hash is  emitted.
+	       Supported digests:
+
+		     none    No	hash.  This is the default.
+
+		     md5     The MD5 cryptographic message digest.
+
+		     rmd160  The RMD-160 cryptographic message digest.
+
+		     sha1    The SHA-1 cryptographic message digest.
+
+		     sha256  The  256-bits  SHA-2 cryptographic	message	digest
+			     of	the file.
+
+		     sha512  The 512-bits SHA-2	cryptographic  message	digest
+			     of	the file.
+
+       -l linkflags
+	       Instead	of  copying  the  file make a link to the source.  The
+	       type of the link	 is  determined	 by  the  linkflags  argument.
+	       Valid  linkflags	 are:  a (absolute), r (relative), h (hard), s
+	       (symbolic), m (mixed).  Absolute	and relative have effect  only
+	       for  symbolic  links.   Mixed links are hard links for files on
+	       the same	filesystem, symbolic otherwise.
+
+       -M metalog
+	       Write the metadata  associated  with  each  item	 installed  to
+	       metalog	in  an	mtree(8)  "full	path" specification line.  The
+	       metadata	includes: the file name	and file type,	and  depending
+	       upon  other options, the	owner, group, file flags, modification
+	       time, and tags.
+
+       -m mode
+	       Specify an alternate mode.  The default mode is set to rwxr-xr-
+	       x (0755).  The specified	mode may be either an  octal  or  sym-
+	       bolic  value;  see  chmod(1) for	a description of possible mode
+	       values.
+
+       -N dbdir
+	       Use the user database text file master.passwd and  group	 data-
+	       base  text file group from dbdir, rather	than using the results
+	       from the	system's getpwnam(3) and getgrnam(3) (and related) li-
+	       brary calls.
+
+       -o owner
+	       Specify an owner.  A numeric UID	is allowed.
+
+       -p      Preserve	the access and modification times.  Copy the file,  as
+	       if the -C (compare and copy) option is specified, except	if the
+	       target  file  does not already exist or is different, then pre-
+	       serve the access	and modification times of the source file.
+
+       -S      Flush each file to disk after copying.  This has	a non-negligi-
+	       ble impact on performance, but reduces the risk of  being  left
+	       with  a	partial	 file  if  the	system	crashes	or loses power
+	       shortly after install runs.
+
+	       Historically, -S	also enabled the use of	temporary files	to en-
+	       sure atomicity when replacing an	 existing  target.   Temporary
+	       files are no longer optional.
+
+       -s      install	exec's	the command strip(1) to	strip binaries so that
+	       install can be portable over a large number of systems and  bi-
+	       nary types.  See	below for how install can be instructed	to use
+	       another program to strip	binaries.
+
+       -T tags
+	       Specify	the mtree(8) tags to write out for the file when using
+	       -M metalog.
+
+       -U      Indicate	that install is	 running  unprivileged,	 and  that  it
+	       should  not  try	 to  change  the owner,	the group, or the file
+	       flags of	the destination.  The information that would have been
+	       updated can be stored in	a log file with	-M metalog.
+
+       -v      Cause install to	be verbose, showing  files  as	they  are  in-
+	       stalled or backed up.
+
+       By default, install preserves all file flags, with the exception	of the
+       "nodump"	flag.
+
+       The install utility attempts to prevent moving a	file onto itself.
+
+       Installing /dev/null creates an empty file.
+
+ENVIRONMENT
+       The install utility checks for the presence of the STRIPBIN environment
+       variable	 and if	present, uses the assigned value as the	program	to run
+       if and when the -s option has been specified.
+
+       If the DONTSTRIP	environment variable is	present, install  will	ignore
+       any  specification  of the -s option.  This is mainly for use in	debug-
+       ging the	FreeBSD	Ports Collection.
+
+FILES
+       INS@XXXXXX  Temporary files named INS@XXXXXX, where XXXXXX  is  decided
+		   by mkstemp(3), are created in the target directory.
+
+EXIT STATUS
+       The install utility exits 0 on success, and >0 if an error occurs.
+
+COMPATIBILITY
+       Historically  install  moved files by default.  The default was changed
+       to copy in FreeBSD 4.4.
+
+SEE ALSO
+       chflags(1), chgrp(1), chmod(1), cp(1),  mv(1),  strip(1),  getgrnam(3),
+       getpwnam(3), chown(8)
+
+HISTORY
+       The install utility appeared in 4.2BSD.
+
+BUGS
+       The  meaning  of	the -M option has changed as of	FreeBSD	9.2 and	it now
+       takes an	argument.  Command lines that used the old -M will get an  er-
+       ror  or	in rare	cases will append logs to the first of multiple	source
+       files rather than installing it.
+
+       Temporary files may be left in the target directory  if	install	 exits
+       abnormally.
+
+       File  flags cannot be set by fchflags(2)	over a NFS file	system.	 Other
+       file systems do not have	a concept of flags.  The install utility  will
+       only  warn  when	 flags could not be set	on a file system that does not
+       support them.
+
+       The install utility with	-v falsely says	a file is copied when -C snaps
+       hard links.
+
+FreeBSD	13.2			April 16, 2024			    INSTALL(1)

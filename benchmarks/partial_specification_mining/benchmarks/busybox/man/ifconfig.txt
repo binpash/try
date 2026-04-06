@@ -1,0 +1,16 @@
+ifconfig
+
+Usage: ifconfig [-a] interface [address]
+
+Configure a network interface
+
+	[add ADDRESS[/PREFIXLEN]]
+	[del ADDRESS[/PREFIXLEN]]
+	[[-]broadcast [ADDRESS]] [[-]pointopoint [ADDRESS]]
+	[netmask ADDRESS] [dstaddr ADDRESS]
+	[outfill NN] [keepalive NN]
+	[hw ether|infiniband ADDRESS] [metric NN] [mtu NN]
+	[[-]trailers] [[-]arp] [[-]allmulti]
+	[multicast] [[-]promisc] [txqueuelen NN] [[-]dynamic]
+	[mem_start NN] [io_addr NN] [irq NN]
+	[up|down] ...

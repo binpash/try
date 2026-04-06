@@ -1,0 +1,123 @@
+{
+  "version": "chcon (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--dereference"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--no-dereference"
+      ]
+    },
+    {
+      "long": [
+        "--no-preserve-root"
+      ]
+    },
+    {
+      "long": [
+        "--preserve-root"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--recursive"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ]
+    },
+    {
+      "short": [
+        "-L"
+      ]
+    },
+    {
+      "short": [
+        "-P"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--user"
+      ],
+      "args": [
+        "USER"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--role"
+      ],
+      "args": [
+        "ROLE"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--type"
+      ],
+      "args": [
+        "TYPE"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--range"
+      ],
+      "args": [
+        "RANGE"
+      ]
+    },
+    {
+      "long": [
+        "--reference"
+      ],
+      "args": [
+        "RFILE"
+      ]
+    }
+  ]
+}

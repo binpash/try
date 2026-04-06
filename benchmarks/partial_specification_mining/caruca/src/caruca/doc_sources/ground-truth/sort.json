@@ -1,0 +1,263 @@
+{
+  "version": "sort (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--ignore-leading-blanks"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--dictionary-order"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--ignore-case"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--general-numeric-sort"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-nonprinting"
+      ]
+    },
+    {
+      "short": [
+        "-M"
+      ],
+      "long": [
+        "--month-sort"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ],
+      "long": [
+        "--human-numeric-sort"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--numeric-sort"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--random-sort"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--reverse"
+      ]
+    },
+    {
+      "short": [
+        "-V"
+      ],
+      "long": [
+        "--version-sort"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--check",
+        "--check=diagnose-first"
+      ]
+    },
+    {
+      "short": [
+        "-C"
+      ],
+      "long": [
+        "--check=quiet",
+        "--check=silent"
+      ]
+    },
+    {
+      "long": [
+        "--debug"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--merge"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--stable"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--unique"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--random-source"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "long": [
+        "--sort"
+      ],
+      "args": [
+        "WORD"
+      ]
+    },
+    {
+      "long": [
+        "--batch-size"
+      ],
+      "args": [
+        "NMERGE"
+      ]
+    },
+    {
+      "long": [
+        "--compress-program"
+      ],
+      "args": [
+        "PROG"
+      ]
+    },
+    {
+      "long": [
+        "--files0-from"
+      ],
+      "args": [
+        "F"
+      ]
+    },
+    {
+      "short": [
+        "-k"
+      ],
+      "long": [
+        "--key"
+      ],
+      "args": [
+        "KEYDEF"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--output"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--buffer-size"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--field-separator"
+      ],
+      "args": [
+        "SEP"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--temporary-directory"
+      ],
+      "args": [
+        "DIR"
+      ]
+    },
+    {
+      "long": [
+        "--parallel"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

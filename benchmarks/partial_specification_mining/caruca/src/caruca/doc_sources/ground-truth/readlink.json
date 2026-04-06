@@ -1,0 +1,80 @@
+{
+  "version": "readlink (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--canonicalize"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--canonicalize-existing"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--canonicalize-missing"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--no-newline"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--quiet"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--silent"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

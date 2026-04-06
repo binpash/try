@@ -1,0 +1,5 @@
+ubirename
+
+Usage: ubirename UBI_DEVICE OLD_VOLNAME NEW_VOLNAME [OLD2 NEW2]...
+
+Rename UBI volumes on UBI_DEVICE

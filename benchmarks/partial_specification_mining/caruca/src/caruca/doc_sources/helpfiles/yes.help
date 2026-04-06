@@ -1,0 +1,11 @@
+Usage: yes [STRING]...
+  or:  yes OPTION
+Repeatedly output a line with all specified STRING(s), or 'y'.
+
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/yes>
+or available locally via: info '(coreutils) yes invocation'

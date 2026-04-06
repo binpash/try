@@ -1,0 +1,16 @@
+unshare
+
+Usage: unshare [OPTIONS] [PROG [ARGS]]
+
+	-m,--mount[=FILE]	Unshare mount namespace
+	-u,--uts[=FILE]		Unshare UTS namespace (hostname etc.)
+	-i,--ipc[=FILE]		Unshare System V IPC namespace
+	-n,--net[=FILE]		Unshare network namespace
+	-p,--pid[=FILE]		Unshare PID namespace
+	-U,--user[=FILE]	Unshare user namespace
+	-f,--fork		Fork before execing PROG
+	-r,--map-root-user	Map current user to root (implies -U)
+	--mount-proc[=DIR]	Mount /proc filesystem first (implies -m)
+	--propagation slave|shared|private|unchanged
+				Modify mount propagation in mount namespace
+	--setgroups allow|deny	Control the setgroups syscall in user namespaces

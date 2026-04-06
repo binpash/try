@@ -1,0 +1,9 @@
+tunctl
+
+Usage: tunctl [-f device] ([-t name] | -d name)
+
+Create or delete tun interfaces
+
+	-f name		tun device (/dev/net/tun)
+	-t name		Create iface 'name'
+	-d name		Delete iface 'name'

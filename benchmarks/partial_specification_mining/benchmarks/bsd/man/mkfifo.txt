@@ -1,0 +1,39 @@
+MKFIFO(1)		    General Commands Manual		     MKFIFO(1)
+
+NAME
+       mkfifo -- make fifos
+
+SYNOPSIS
+       mkfifo [-m mode]	fifo_name ...
+
+DESCRIPTION
+       The mkfifo utility creates the fifos requested, in the order specified.
+
+       The options are as follows:
+
+       -m      Set the file permission bits of the created fifos to the	speci-
+	       fied  mode,  ignoring the umask(2) of the calling process.  The
+	       mode argument takes any format that can	be  specified  to  the
+	       chmod(1)	command.  If a symbolic	mode is	specified, the op sym-
+	       bols `+'	(plus) and `-' (hyphen)	are interpreted	relative to an
+	       assumed	initial	mode of	"a=rw" (read and write permissions for
+	       all).
+
+       If the -m option	is not specified, fifos	are  created  with  mode  0666
+       modified	 by  the  umask(2) of the calling process.  The	mkfifo utility
+       requires	write permission in the	parent directory.
+
+EXIT STATUS
+       The mkfifo utility exits	0 on success, and >0 if	an error occurs.
+
+SEE ALSO
+       mkdir(1), rm(1),	mkfifo(2), mknod(2), mknod(8)
+
+STANDARDS
+       The mkfifo utility is expected to be IEEE Std 1003.2  ("POSIX.2")  com-
+       pliant.
+
+HISTORY
+       The mkfifo command appeared in 4.4BSD.
+
+FreeBSD	13.2			January	5, 1994			     MKFIFO(1)

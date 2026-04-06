@@ -1,0 +1,108 @@
+FMT(1)			    General Commands Manual			FMT(1)
+
+NAME
+       fmt -- simple text formatter
+
+SYNOPSIS
+       fmt	[-cmnps]      [-d     chars]	 [-l	 num]	  [-t	  num]
+	   [goal [maximum] | -width | -w width]	[file ...]
+
+DESCRIPTION
+       The fmt utility is a simple text	formatter which	reads  the  concatena-
+       tion  of	input files (or	standard input if none are given) and produces
+       on standard output a version of its input with lines as	close  to  the
+       goal length as possible without exceeding the maximum.  The goal	length
+       defaults	to 65 and the maximum to 10 more than the goal length.	Alter-
+       natively,  a single width parameter can be specified either by prepend-
+       ing a hyphen to it or by	using -w.  For	example,  "fmt	-w  72",  "fmt
+       -72", and "fmt 72 72" all produce identical output.  The	spacing	at the
+       beginning  of  the input	lines is preserved in the output, as are blank
+       lines and interword spacing.  Lines are joined or split only  at	 white
+       space; that is, words are never joined or hyphenated.
+
+       The options are as follows:
+
+       -c      Center the text,	line by	line.  In this case, most of the other
+	       options are ignored; no splitting or joining of lines is	done.
+
+       -m      Try  to	format mail header lines contained in the input	sensi-
+	       bly.
+
+       -n      Format lines beginning with a `.' (dot) character.
+
+       -p      Allow indented paragraphs.  Without the -p flag,	any change  in
+	       the  amount  of	whitespace at the start	of a line results in a
+	       new paragraph being begun.
+
+       -s      Collapse	whitespace inside lines, so that  multiple  whitespace
+	       characters  are turned into a single space.  (Or, at the	end of
+	       a sentence, a double space.)
+
+       -d chars
+	       Treat the chars (and no others) as sentence-ending  characters.
+	       By  default the sentence-ending characters are full stop	(`.'),
+	       question	mark (`?') and exclamation mark	(`!').	Remember  that
+	       some  characters	 may  need  to be escaped to protect them from
+	       your shell.
+
+       -l number
+	       Replace multiple	spaces with tabs at the	start of  each	output
+	       line,  if  possible.   Each number spaces will be replaced with
+	       one tab.	 The default is	8.  If number is 0,  spaces  are  pre-
+	       served.
+
+       -t number
+	       Assume  that the	input files' tabs assume number	spaces per tab
+	       stop.  The default is 8.
+
+       The fmt utility is meant	to format mail messages	prior to sending,  but
+       may also	be useful for other simple tasks.  For instance, within	visual
+       mode of the ex(1) editor	(e.g., vi(1)) the command
+
+	     !}fmt
+
+       will reformat a paragraph, evening the lines.
+
+ENVIRONMENT
+       The  LANG,  LC_ALL and LC_CTYPE environment variables affect the	execu-
+       tion of fmt as described	in environ(7).
+
+EXAMPLES
+       Center the text in standard input:
+
+	     $ echo -e 'The merit of all things\nlies\nin their	difficulty' | fmt -c
+				  The merit of all things
+					    lies
+				    in their difficulty
+
+       Format the text in standard input collapsing spaces:
+
+	     $ echo -e 'Multiple   spaces    will be collapsed'	| fmt -s
+	     Multiple spaces will be collapsed
+
+SEE ALSO
+       fold(1),	mail(1)
+
+HISTORY
+       The fmt command appeared	in 3BSD.
+
+       The version described herein is a  complete  rewrite  and  appeared  in
+       FreeBSD 4.4.
+
+AUTHORS
+       Kurt Shoens
+       Liz Allen (added	goal length concept)
+       Gareth McCaughan
+
+BUGS
+       The program was designed	to be simple and fast -	for more complex oper-
+       ations, the standard text processors are	likely to be more appropriate.
+
+       When  the  first	 line of an indented paragraph is very long (more than
+       about twice the goal length), the indentation  in  the  output  can  be
+       wrong.
+
+       The fmt utility is not infallible in guessing what lines	are mail head-
+       ers and what lines are not.
+
+FreeBSD	13.2		       October 29, 2020				FMT(1)

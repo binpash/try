@@ -1,0 +1,27 @@
+UPTIME(1)		    General Commands Manual		     UPTIME(1)
+
+NAME
+       uptime -- show how long system has been running
+
+SYNOPSIS
+       uptime
+
+DESCRIPTION
+       The  uptime  utility  displays the current time,	the length of time the
+       system has been up, the number of users,	and the	load  average  of  the
+       system over the last 1, 5, and 15 minutes.
+
+FILES
+       /boot/kernel/kernel  system name	list
+
+EXAMPLES
+	     $ uptime
+	     11:23AM  up  3:01,	8 users, load averages:	21.09, 15.43, 12.79
+
+SEE ALSO
+       w(1)
+
+HISTORY
+       The uptime command appeared in 3.0BSD.
+
+FreeBSD	13.2			August 18, 2020			     UPTIME(1)

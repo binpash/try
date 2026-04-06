@@ -1,0 +1,37 @@
+{
+  "version": "rmdir (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--ignore-fail-on-non-empty"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--parents"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

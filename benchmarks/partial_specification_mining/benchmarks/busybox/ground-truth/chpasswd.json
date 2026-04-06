@@ -1,0 +1,39 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "long": [
+                "e,encrypted"
+            ]
+        },
+        {
+            "long": [
+                "m,md5"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "c"
+            ],
+            "long": [
+                "crypt-method"
+            ],
+            "args": [
+                "ALG"
+            ]
+        },
+        {
+            "short": [
+                "R"
+            ],
+            "long": [
+                "root"
+            ],
+            "args": [
+                "DIR"
+            ]
+        }
+    ]
+}

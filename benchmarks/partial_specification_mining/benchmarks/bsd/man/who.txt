@@ -1,0 +1,116 @@
+WHO(1)			    General Commands Manual			WHO(1)
+
+NAME
+       who -- display who is on	the system
+
+SYNOPSIS
+       who [-abHmqsTu] [am I] [file]
+
+DESCRIPTION
+       The  who	 utility displays information about currently logged in	users.
+       By default, this	includes the login name, tty name, date	 and  time  of
+       login and remote	hostname if not	local.
+
+       The options are as follows:
+
+       -a      Equivalent  to  -bTu, with the exception	that output is not re-
+	       stricted	to the time and	date of	the last system	reboot.
+
+       -b      Write the time and date of the last system reboot.
+
+       -H      Write column headings above the output.
+
+       -m      Show information	about the terminal attached to standard	 input
+	       only.
+
+       -q      "Quick  mode":  List the	names and number of logged in users in
+	       columns.	 All other command line	options	are ignored.
+
+       -s      Show the	name, line and time fields only.  This is the default.
+
+       -T      Indicate	whether	each user is accepting messages.  One  of  the
+	       following characters is written:
+
+	       +  User is accepting messages.
+	       -  User is not accepting	messages.
+	       ?  An error occurred.
+
+       -u      Show idle time for each user in hours and minutes as hh:mm, `.'
+	       if  the user has	been idle less than a minute, and "old"	if the
+	       user has	been idle more than 24 hours.
+
+       am I    Equivalent to -m.
+
+       By default, who gathers information from	the file  /var/run/utx.active.
+       An  alternate  file  may	be specified which is usually /var/log/utx.log
+       (or /var/log/utx.log.[0-6] depending on site policy as utx.log can grow
+       quite large and daily versions may or may not be	kept around after com-
+       pression	by ac(8)).  The	utx.log	file contains a	record of every	login,
+       logout, crash, shutdown and date	change since utx.log  was  last	 trun-
+       cated or	created.
+
+       If  /var/log/utx.log  is	 being	used as	the file, the user name	may be
+       empty or	one of the special characters '|', '}' and '~'.	 Logouts  pro-
+       duce an output line without any user name.  For more information	on the
+       special characters, see getutxent(3).
+
+ENVIRONMENT
+       The  COLUMNS, LANG, LC_ALL and LC_TIME environment variables affect the
+       execution of who	as described in	environ(7).
+
+FILES
+       /var/run/utx.active
+       /var/log/utx.log
+       /var/log/utx.log.[0-6]
+
+EXIT STATUS
+       The who utility exits 0 on success, and >0 if an	error occurs.
+
+EXAMPLES
+       Show a brief summary of who is logged in:
+
+	     $ who -q
+	     fernape	      root	       root
+	     # users = 3
+
+       Show who	is logged in along with	the line and time fields (without  the
+       headers):
+
+	     $ who -s
+	     fernape	      ttyv0	   Aug 26 16:23
+	     root	      ttyv1	   Aug 26 16:23
+	     root	      ttyv2	   Aug 26 16:23
+
+       Show information	about the terminal attached to standard	input:
+
+	     $ who am i
+	     fernape			   Aug 26 16:24
+
+       Show  time and date of the last system reboot, whether the users	accept
+       messages	and the	idle time for each of them:
+
+	     $ who -a
+			      -	system boot  Aug 26 16:23   .
+	     fernape	      -	ttyv0	     Aug 26 16:23   .
+	     root	      -	ttyv1	     Aug 26 16:23   .
+	     root	      -	ttyv2	     Aug 26 16:23   .
+
+       Same as above but showing headers:
+
+	     $ who -aH
+	     NAME	      S	LINE	     TIME	  IDLE	FROM
+			      -	system boot  Aug 26 16:23   .
+	     fernape	      -	ttyv0	     Aug 26 16:23   .
+	     root	      -	ttyv1	     Aug 26 16:23 00:01
+	     root	      -	ttyv2	     Aug 26 16:23 00:01
+
+SEE ALSO
+       last(1),	users(1), w(1),	getutxent(3)
+
+STANDARDS
+       The who utility conforms	to IEEE	Std 1003.1-2001	("POSIX.1").
+
+HISTORY
+       A who command appeared in Version 1 AT&T	UNIX.
+
+FreeBSD	13.2			August 30, 2020				WHO(1)

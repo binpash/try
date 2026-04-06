@@ -1,0 +1,38 @@
+{
+  "version": "chroot (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--skip-chdir"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--groups"
+      ],
+      "args": [
+        "G_LIST"
+      ]
+    },
+    {
+      "long": [
+        "--userspec"
+      ],
+      "args": [
+        "USER:GROUP"
+      ]
+    }
+  ]
+}

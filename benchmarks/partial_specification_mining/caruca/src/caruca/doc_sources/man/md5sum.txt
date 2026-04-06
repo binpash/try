@@ -1,0 +1,78 @@
+MD5SUM(1)				   User Commands				  MD5SUM(1)
+
+NAME
+       md5sum - compute and check MD5 message digest
+
+SYNOPSIS
+       md5sum [OPTION]... [FILE]...
+
+DESCRIPTION
+       Print or check MD5 (128-bit) checksums.
+
+       With no FILE, or when FILE is -, read standard input.
+
+       -b, --binary
+	      read in binary mode
+
+       -c, --check
+	      read MD5 sums from the FILEs and check them
+
+       --tag  create a BSD-style checksum
+
+       -t, --text
+	      read in text mode (default)
+
+       -z, --zero
+	      end each output line with NUL, not newline, and disable file name escaping
+
+   The following five options are useful only when verifying checksums:
+       --ignore-missing
+	      don't fail or report status for missing files
+
+       --quiet
+	      don't print OK for each successfully verified file
+
+       --status
+	      don't output anything, status code shows success
+
+       --strict
+	      exit non-zero for improperly formatted checksum lines
+
+       -w, --warn
+	      warn about improperly formatted checksum lines
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       The sums are computed as described in RFC 1321.	When checking, the input should be a former
+       output of this program.	The default mode is to print a line with checksum, a space, a char‐
+       acter indicating input mode ('*' for binary, ' ' for text or where binary is insignificant),
+       and name for each FILE.
+
+       Note: There is no difference between binary mode and text mode on GNU systems.
+
+BUGS
+       Do not use the MD5 algorithm for security related purposes.  Instead,  use  an  SHA-2  algo‐
+       rithm,  implemented  in the programs sha224sum(1), sha256sum(1), sha384sum(1), sha512sum(1),
+       or the BLAKE2 algorithm, implemented in b2sum(1)
+
+AUTHOR
+       Written by Ulrich Drepper, Scott Miller, and David Madore.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       Full documentation <https://www.gnu.org/software/coreutils/md5sum>
+       or available locally via: info '(coreutils) md5sum invocation'
+
+GNU coreutils 8.32			   February 2022				  MD5SUM(1)

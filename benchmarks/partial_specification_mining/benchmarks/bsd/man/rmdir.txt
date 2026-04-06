@@ -1,0 +1,58 @@
+RMDIR(1)		    General Commands Manual		      RMDIR(1)
+
+NAME
+       rmdir --	remove directories
+
+SYNOPSIS
+       rmdir [-pv] directory ...
+
+DESCRIPTION
+       The  rmdir  utility  removes  the  directory  entry  specified  by each
+       directory argument, provided it is empty.
+
+       Arguments are processed in the order given.  In order to	remove both  a
+       parent  directory  and  a subdirectory of that parent, the subdirectory
+       must be specified first so the parent directory	is  empty  when	 rmdir
+       tries to	remove it.
+
+       The following option is available:
+
+       -p      Each  directory	argument is treated as a pathname of which all
+	       components will be removed, if they are	empty,	starting  with
+	       the last	most component.	 (See rm(1) for	fully non-discriminant
+	       recursive removal.)
+
+       -v      Be verbose, listing each	directory as it	is removed.
+
+EXIT STATUS
+       The rmdir utility exits with one	of the following values:
+
+       0       Each  directory	referred to an empty directory and was removed
+	       successfully.
+
+       1       An error	occurred while attempting to remove one	or more	direc-
+	       tories.
+
+       2       Invalid arguments.
+
+EXAMPLES
+       Remove the directory foobar, if it is empty:
+
+	     $ rmdir foobar
+
+       Remove all directories up to and	including cow, stopping	at  the	 first
+       non-empty directory (if any):
+
+	     $ rmdir -p	cow/horse/monkey
+
+SEE ALSO
+       rm(1) rmdir(2)
+
+STANDARDS
+       The rmdir utility is expected to	be IEEE	Std 1003.2 ("POSIX.2") compat-
+       ible.
+
+HISTORY
+       A rmdir command appeared	in Version 1 AT&T UNIX.
+
+FreeBSD	13.2			March 15, 2013			      RMDIR(1)

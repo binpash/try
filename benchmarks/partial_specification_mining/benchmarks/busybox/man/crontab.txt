@@ -1,0 +1,10 @@
+crontab
+
+Usage: crontab [-c DIR] [-u USER] [-ler]|[FILE]
+
+	-c	Crontab directory
+	-u	User
+	-l	List crontab
+	-e	Edit crontab
+	-r	Delete crontab
+	FILE	Replace crontab by FILE ('-': stdin)

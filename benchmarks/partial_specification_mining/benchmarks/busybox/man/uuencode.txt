@@ -1,0 +1,7 @@
+uuencode
+
+Usage: uuencode [-m] [FILE] STORED_FILENAME
+
+Uuencode FILE (or stdin) to stdout
+
+	-m	Use base64 encoding per RFC1521

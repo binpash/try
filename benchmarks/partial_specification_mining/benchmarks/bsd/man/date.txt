@@ -1,0 +1,340 @@
+DATE(1)			    General Commands Manual		       DATE(1)
+
+NAME
+       date -- display or set date and time
+
+SYNOPSIS
+       date  [-nRu]  [-z  output_zone]	[-I[FMT]]  [-r	filename] [-r seconds]
+	    [-v[+|-]val[y|m|w|d|H|M|S]]	[+output_fmt]
+       date [-jnRu]  [-z  output_zone]	[-I[FMT]]  [-v[+|-]val[y|m|w|d|H|M|S]]
+	    [[[[[cc]yy]mm]dd]HH]MM[.SS]	[+output_fmt]
+       date  [-jnRu] [-z output_zone] [-I[FMT]]	[-v[+|-]val[y|m|w|d|H|M|S]] -f
+	    input_fmt new_date [+output_fmt]
+
+DESCRIPTION
+       When invoked without arguments, the date	utility	displays  the  current
+       date  and  time.	  Otherwise,  depending	on the options specified, date
+       will set	the date and time or print it in a user-defined	way.
+
+       The date	utility	displays the date and time read	from the kernel	clock.
+       When used to set	the date and time, both	the kernel clock and the hard-
+       ware clock are updated.
+
+       Only the	superuser may set the date, and	if the system securelevel (see
+       securelevel(7)) is greater than 1, the time may not be changed by  more
+       than 1 second.
+
+       The options are as follows:
+
+       -f input_fmt
+	       Use  input_fmt  as the format string to parse the new_date pro-
+	       vided rather than using the default [[[[[cc]yy]mm]dd]HH]MM[.SS]
+	       format.	Parsing	is done	using strptime(3).
+
+       -I[FMT]
+	       Use ISO 8601 output format.  FMT	may be omitted,	in which  case
+	       the  default  is	 date.	 Valid	FMT  values  are  date,	hours,
+	       minutes,	seconds, and ns	(for nanoseconds).  The	date and  time
+	       is formatted to the specified precision.	 When FMT is hours (or
+	       the  more precise minutes, seconds, or ns), the ISO 8601	format
+	       includes	the timezone.
+
+       -j      Do not try to set the date.  This allows	you to use the -f flag
+	       in addition to the + option to convert one date format  to  an-
+	       other.	Note  that  any	date or	time components	unspecified by
+	       the -f format string take their values from the current time.
+
+       -n      Obsolete	flag, accepted and ignored for compatibility.
+
+       -R      Use RFC 2822 date and time output format.  This	is  equivalent
+	       to  using  "%a,	%d %b %Y %T %z"	as output_fmt while LC_TIME is
+	       set to the "C" locale .
+
+       -r seconds
+	       Print the date and time represented by seconds,	where  seconds
+	       is the number of	seconds	since the Epoch	(00:00:00 UTC, January
+	       1,  1970; see time(3)), and can be specified in decimal,	octal,
+	       or hex.
+
+       -r filename
+	       Print the date and time of the last modification	of filename.
+
+       -u      Display or set the date in UTC  (Coordinated  Universal)	 time.
+	       By default date displays	the time in the	time zone described by
+	       /etc/localtime or the TZ	environment variable.
+
+       -z output_zone
+	       Just  before  printing  the time, change	to the specified time-
+	       zone; see the description of TZ below.  This can	be  used  with
+	       -j  to  easily convert time specifications from one zone	to an-
+	       other.
+
+       -v [+|-]val[y|m|w|d|H|M|S]
+	       Adjust (i.e., take the current date and display the  result  of
+	       the  adjustment;	not actually set the date) the second, minute,
+	       hour, month day,	week day, month	or year	according to val.   If
+	       val  is	preceded by a plus or minus sign, the date is adjusted
+	       forward or backward according to	the remaining  string,	other-
+	       wise the	relevant part of the date is set.  The date can	be ad-
+	       justed  as many times as	required using these flags.  Flags are
+	       processed in the	order given.
+
+	       When setting values (rather than	adjusting them),  seconds  are
+	       in  the range 0-59, minutes are in the range 0-59, hours	are in
+	       the range 0-23, month days are in the range 1-31, week days are
+	       in the range 0-6	(Sun-Sat), months are in the range 1-12	 (Jan-
+	       Dec)  and  years	 are in	a limited range	depending on the plat-
+	       form.
+
+	       On i386,	years are in the range 69-38  representing  1969-2038.
+	       On  every other platform, years 0-68 are	accepted and represent
+	       2000-2068, and 69-99 are	accepted and represent 1969-1999.   In
+	       both  cases, years between 100 and 1900 (both included) are ac-
+	       cepted and interpreted as relative to  1900  of	the  Gregorian
+	       calendar	with a limit of	138 on i386 and	a much higher limit on
+	       every  other  platform.	 Years	starting  at 1901 are also ac-
+	       cepted, and are interpreted as absolute years.
+
+	       If val is numeric, one of either	y, m, w, d, H, M or S must  be
+	       used to specify which part of the date is to be adjusted.
+
+	       The week	day or month may be specified using a name rather than
+	       a number.  If a name is used with the plus (or minus) sign, the
+	       date will be put	forwards (or backwards)	to the next (previous)
+	       date  that  matches the given week day or month.	 This will not
+	       adjust the date,	if the given week day or month is the same  as
+	       the current one.
+
+	       When a date is adjusted to a specific value or in units greater
+	       than  hours,  daylight savings time considerations are ignored.
+	       Adjustments in units of hours or	 less  honor  daylight	saving
+	       time.  So, assuming the current date is March 26, 0:30 and that
+	       the  DST	 adjustment means that the clock goes forward at 01:00
+	       to 02:00, using -v +1H will adjust the date to March 26,	 2:30.
+	       Likewise,  if  the date is October 29, 0:30 and the DST adjust-
+	       ment means that the clock goes back at 02:00 to 01:00, using -v
+	       +3H will	be necessary to	reach October 29, 2:30.
+
+	       When the	date is	adjusted to a specific value that does not ac-
+	       tually exist (for example March 26, 1:30	BST 2000  in  the  Eu-
+	       rope/London  timezone), the date	will be	silently adjusted for-
+	       ward in units of	one hour until it reaches a valid time.	  When
+	       the date	is adjusted to a specific value	that occurs twice (for
+	       example	October	29, 1:30 2000),	the resulting timezone will be
+	       set so that the date matches the	earlier	of the two times.
+
+	       It is not possible to adjust a date to an invalid absolute day,
+	       so using	the switches -v	31d  -v	 12m  will  simply  fail  five
+	       months of the year.  It is therefore usual to set the month be-
+	       fore setting the	day; using -v 12m -v 31d always	works.
+
+	       Adjusting  the date by months is	inherently ambiguous because a
+	       month is	a unit of variable length  depending  on  the  current
+	       date.   This kind of date adjustment is applied in the most in-
+	       tuitive way.  First of all, date	tries to preserve the  day  of
+	       the  month.   If	 it  is	impossible because the target month is
+	       shorter than the	present	one, the last day of the target	 month
+	       will  be	 the result.  For example, using -v +1m	on May 31 will
+	       adjust the date to June 30, while using the same	option on Jan-
+	       uary 30 will result in the date adjusted	to  the	 last  day  of
+	       February.   This	 approach  is  also  believed to make the most
+	       sense for shell scripting.  Nevertheless, be aware  that	 going
+	       forth  and  back	by the same number of months may take you to a
+	       different date.
+
+	       Refer to	the examples below for further details.
+
+       An operand with a leading plus (`+') sign signals a user-defined	format
+       string which specifies the format in which  to  display	the  date  and
+       time.   The  format string may contain any of the conversion specifica-
+       tions described in the strftime(3) manual page and `for nanoseconds, as
+       well as any arbitrary text.  A newline ()' character is	always	output
+       after the characters specified by the format string.  The format	string
+       for the default display is "+%+".
+
+       If an operand does not have a leading plus sign,	it is interpreted as a
+       value  for  setting  the	 system's notion of the	current	date and time.
+       The canonical representation for	setting	the date and time is:
+
+	     cc	     Century (either 19	or 20) prepended  to  the  abbreviated
+		     year.
+	     yy	     Year  in  abbreviated  form  (e.g.,  89  for 1989,	06 for
+		     2006).
+	     mm	     Numeric month, a number from 1 to 12.
+	     dd	     Day, a number from	1 to 31.
+	     HH	     Hour, a number from 0 to 23.
+	     MM	     Minutes, a	number from 0 to 59.
+	     SS	     Seconds, a	number from 0 to 60 (59	plus a potential  leap
+		     second).
+
+       Everything but the minutes is optional.
+
+       date  understands  the  time  zone  definitions from the	IANA Time Zone
+       Database, tzdata, located in  /usr/share/zoneinfo.   Time  changes  for
+       Daylight	 Saving	 Time,	standard time, leap seconds and	leap years are
+       handled automatically.
+
+       There are two ways to specify the time zone:
+
+       If the file or symlink /etc/localtime exists, it	is  interpreted	 as  a
+       time   zone   definition	 file,	usually	 in  the  directory  hierarchy
+       /usr/share/zoneinfo, which contains  the	 time  zone  definitions  from
+       tzdata.
+
+       If  the environment variable TZ is set, its value is interpreted	as the
+       name of a time zone definition file, either an absolute path or a rela-
+       tive path to a time zone	definition  in	/usr/share/zoneinfo.   The  TZ
+       variable	overrides /etc/localtime.
+
+       If  the	time zone definition file is invalid, date silently reverts to
+       UTC.
+
+       Previous	versions of date included the -d  (set	daylight  saving  time
+       flag) and -t (set negative time zone offset) options, but these details
+       are  now	 handled automatically by tzdata.  Modern offsets are positive
+       for time	zones ahead of UTC and negative	for time zones behind UTC, but
+       like the	obsolete -t option,  the  tzdata  files	 in  the  subdirectory
+       /usr/share/zoneinfo/Etc still use an older convention where times ahead
+       of UTC are considered negative.
+
+ENVIRONMENT
+       The following environment variable affects the execution	of date:
+
+       TZ      The  timezone  to use when displaying dates.  The normal	format
+	       is a pathname relative to  /usr/share/zoneinfo.	 For  example,
+	       the  command "TZ=America/Los_Angeles date" displays the current
+	       time in California.  The	variable can also specify an  absolute
+	       path.  See environ(7) for more information.
+
+FILES
+       /etc/localtime	  Time	zone  information file for default system time
+			  zone.	 May be	omitted, in  which  case  the  default
+			  time zone is UTC.
+       /usr/share/zoneinfo
+			  Directory containing time zone information files.
+       /var/log/messages  Record of the	user setting the time.
+       /var/log/utx.log	  Record of date resets	and time changes.
+
+EXIT STATUS
+       The date	utility	exits 0	on success, 1 if unable	to set the date, and 2
+       if able to set the local	date, but unable to set	it globally.
+
+EXAMPLES
+       The command:
+
+	     date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+
+       will display:
+
+	     DATE: 1987-11-21
+	     TIME: 13:36:16
+
+       In the Europe/London timezone, the command:
+
+	     date -v1m -v+1y
+
+       will display:
+
+	     Sun Jan  4	04:15:24 GMT 1998
+
+       where it	is currently Mon Aug  4	04:15:24 BST 1997.
+
+       The command:
+
+	     date -v1d -v3m -v0y -v-1d
+
+       will display the	last day of February in	the year 2000:
+
+	     Tue Feb 29	03:18:00 GMT 2000
+
+       So will the command:
+
+	     date -v3m -v30d -v0y -v-1m
+
+       because there is	no such	date as	the 30th of February.
+
+       The command:
+
+	     date -v1d -v+1m -v-1d -v-fri
+
+       will display the	last Friday of the month:
+
+	     Fri Aug 29	04:31:11 BST 1997
+
+       where it	is currently Mon Aug  4	04:31:11 BST 1997.
+
+       The command:
+
+	     date 8506131627
+
+       sets the	date to	"June 13, 1985,	4:27 PM".
+
+	     date "+%Y%m%d%H%M.%S"
+
+       may  be	used on	one machine to print out the date suitable for setting
+       on another.  ("+%m%d%H%M%Y.%S" for use on Linux.)
+
+       The command:
+
+	     date 1432
+
+       sets the	time to	2:32 PM, without modifying the date.
+
+       The command
+
+	     TZ=America/Los_Angeles date -Iseconds -r 1533415339
+
+       will display
+
+	     2018-08-04T13:42:19-07:00
+
+       The command:
+
+	     env LC_ALL=C date -j -f "%a %b %d %T %Z %Y" "`env LC_ALL=C	date`"
+	     "+%s"
+
+       can be used to parse the	output from date and express it	in Epoch time.
+
+       Finally the command
+
+	     TZ=America/Los_Angeles date -z Europe/Paris -j 0900
+
+       will print the time in the "Europe/Paris" timezone when it is  9:00  in
+       The America/Los_Angeles timezone.
+
+DIAGNOSTICS
+       It is invalid to	combine	the -I flag with either	-R or an output	format
+       ("+...")	 operand.   If	this  occurs,  date  prints:  `multiple	output
+       formats specified' and exits with status	1.
+
+SEE ALSO
+       locale(1),     clock_gettime(2),	    gettimeofday(2),	 getutxent(3),
+       strftime(3), strptime(3), tzset(3), adjkerntz(8), ntpd(8), tzsetup(8)
+
+       R.  Gusella  and	 S.  Zatti, TSP: The Time Synchronization Protocol for
+       UNIX 4.3BSD.
+
+       Time Zone Database, https://iana.org/time-zones.
+
+STANDARDS
+       The date	utility	is expected to be  compatible  with  IEEE  Std	1003.2
+       ("POSIX.2").   With the exception of the	-u option, all options are ex-
+       tensions	to the standard.
+
+       The format selected by the -I flag is compatible	with ISO 8601.
+
+       The  `conversion	 specification	for  nanoseconds  is  a	  non-standard
+       extension.  It is compatible with GNU date's `''
+
+HISTORY
+       A date command appeared in Version 1 AT&T UNIX.
+
+       A number	of options were	added and then removed again, including	the -d
+       (set  DST flag) and -t (set negative time zone offset).	Time zones are
+       now handled by code bundled with	tzdata.
+
+       The -I flag was added in	FreeBSD	12.0.
+
+       The `conversion specification was added in FreeBSD'
+
+FreeBSD	13.2			  May 2, 2024			       DATE(1)

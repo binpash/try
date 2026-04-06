@@ -1,0 +1,89 @@
+UNAME(1)		    General Commands Manual		      UNAME(1)
+
+NAME
+       uname --	display	information about the system
+
+SYNOPSIS
+       uname [-abiKmnoprsUv]
+
+DESCRIPTION
+       The  uname  command writes the name of the operating system implementa-
+       tion to standard	output.	 When options are  specified,  strings	repre-
+       senting one or more system characteristics are written to standard out-
+       put.
+
+       The options are as follows:
+
+       -a      Behave as though	the options -m,	-n, -r,	-s, and	-v were	speci-
+	       fied.
+
+       -b      Write  the  kernel's linker-generated build-id to standard out-
+	       put.
+
+       -i      Write the kernel	ident to standard output.
+
+       -K      Write the FreeBSD version of the	kernel.
+
+       -m      Write the type of the current  hardware	platform  to  standard
+	       output.	(make(1) uses it to set	the MACHINE variable.)
+
+       -n      Write the name of the system to standard	output.
+
+       -o      This  is	 a  synonym  for the -s	option,	for compatibility with
+	       other systems.
+
+       -p      Write the type of the machine processor architecture  to	 stan-
+	       dard   output.	(make(1)  uses	it  to	set  the  MACHINE_ARCH
+	       variable.)
+
+       -r      Write the current release level of the kernel to	standard  out-
+	       put.  freebsd-version(1)	can be used to print the release level
+	       of the userland.
+
+       -s      Write  the name of the operating	system implementation to stan-
+	       dard output.
+
+       -U      Write the FreeBSD version of the	user environment.
+
+       -v      Write the version level of this release of the operating	system
+	       to standard output.
+
+       If the -a flag is specified, or multiple	flags are specified, all  out-
+       put is written on a single line,	separated by spaces.
+
+       The -K and -U flags are intended	to be used for fine grain differentia-
+       tion of incremental FreeBSD development and user	visible	changes.  Note
+       that  when both of these	two options are	specified, regardless of their
+       order, the kernel version would be printed first, followed by the  user
+       environment version.
+
+ENVIRONMENT
+       An  environment	variable composed of the string	UNAME_ followed	by any
+       flag to the uname utility (except for -a) will allow the	 corresponding
+       data  to	 be  set  to  the  contents  of	the environment	variable.  See
+       uname(3)	for more information.
+
+EXIT STATUS
+       The uname utility exits 0 on success, and >0 if an error	occurs.
+
+EXAMPLES
+       The hardware platform (-m) can be different from	the machine's  proces-
+       sor architecture	(-p), e.g., on 64-bit PowerPC, -m would	return powerpc
+       and -p would return powerpc64.
+
+SEE ALSO
+       freebsd-version(1),   feature_present(3),  getosreldate(3),  sysctl(3),
+       uname(3), sysctl(8)
+
+STANDARDS
+       The uname command is  expected  to  conform  to	the  IEEE  Std	1003.2
+       ("POSIX.2") specification.
+
+HISTORY
+       The  uname  command  appeared  in  PWB UNIX 1.0,	however	4.4BSD was the
+       first Berkeley release with the uname command.
+
+       The -K and -U extension flags appeared in FreeBSD 10.0.	The -b	exten-
+       sion flag appeared in FreeBSD 13.0.
+
+FreeBSD	13.2		      September	14, 2022		      UNAME(1)

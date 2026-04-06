@@ -1,0 +1,22 @@
+sort
+
+Usage: sort [-nrugMcszbdfiokt] [-o FILE] [-k start[.offset][opts][,end[.offset][opts]] [-t CHAR] [FILE]...
+
+Sort lines of text
+
+	-o FILE	Output to FILE
+	-c	Check whether input is sorted
+	-b	Ignore leading blanks
+	-f	Ignore case
+	-i	Ignore unprintable characters
+	-d	Dictionary order (blank or alphanumeric only)
+	-n	Sort numbers
+	-g	General numerical sort
+	-M	Sort month
+	-V	Sort version
+	-t CHAR	Field separator
+	-k N[,M] Sort by Nth field
+	-r	Reverse sort order
+	-s	Stable (don't sort ties alphabetically)
+	-u	Suppress duplicate lines
+	-z	Lines are terminated by NUL, not newline

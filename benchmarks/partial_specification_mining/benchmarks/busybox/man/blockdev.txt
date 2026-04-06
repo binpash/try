@@ -1,0 +1,14 @@
+blockdev
+
+Usage: blockdev OPTION BLOCKDEV
+
+	--setro		Set ro
+	--setrw		Set rw
+	--getro		Get ro
+	--getss		Get sector size
+	--getbsz	Get block size
+	--setbsz BYTES	Set block size
+	--getsz		Get device size in 512-byte sectors
+	--getsize64	Get device size in bytes
+	--flushbufs	Flush buffers
+	--rereadpt	Reread partition table

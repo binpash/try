@@ -1,0 +1,8 @@
+nproc
+
+Usage: nproc --all --ignore=N
+
+Print number of available CPUs
+
+	--all		Number of installed CPUs
+	--ignore=N	Exclude N CPUs

@@ -1,0 +1,18 @@
+wget
+
+Usage: wget [-c|--continue] [--spider] [-q|--quiet] [-O|--output-document FILE]
+	[--header 'header: value'] [-Y|--proxy on/off] [-P DIR]
+	[--no-check-certificate]
+	[-S|--server-response] [-U|--user-agent AGENT] URL...
+
+Retrieve files via HTTP or FTP
+
+	--spider	Only check URL existence: $? is 0 if exists
+	--no-check-certificate	Don't validate the server's certificate
+	-c		Continue retrieval of aborted transfer
+	-q		Quiet
+	-P DIR		Save to DIR (default .)
+	-S    		Show server response
+	-O FILE		Save to FILE ('-' for stdout)
+	-U STR		Use STR for User-Agent header
+	-Y on/off	Use proxy

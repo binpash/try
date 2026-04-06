@@ -1,0 +1,102 @@
+{
+  "version": "date (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--debug"
+      ]
+    },
+    {
+      "short": [
+        "-R"
+      ],
+      "long": [
+        "--rfc-email"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--utc",
+        "--universal"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--date"
+      ],
+      "args": [
+        "STRING"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--file"
+      ],
+      "args": [
+        "DATEFILE"
+      ]
+    },
+    {
+      "short": [
+        "-I"
+      ],
+      "long": [
+        "--iso-8601"
+      ],
+      "args": [
+        "FMT"
+      ]
+    },
+    {
+      "long": [
+        "--rfc-3339"
+      ],
+      "args": [
+        "FMT"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--reference"
+      ],
+      "args": [
+        "FILE"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--set"
+      ],
+      "args": [
+        "STRING"
+      ]
+    }
+  ]
+}

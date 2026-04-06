@@ -1,0 +1,1 @@
+class A { async* f() { await a; yield b; } }

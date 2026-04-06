@@ -1,0 +1,111 @@
+{
+  "version": "uniq (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--count"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--repeated"
+      ]
+    },
+    {
+      "short": [
+        "-D"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-case"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--unique"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--all-repeated"
+      ],
+      "args": [
+        "METHOD"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ],
+      "long": [
+        "--skip-fields"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--group"
+      ],
+      "args": [
+        "METHOD"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--skip-chars"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ],
+      "long": [
+        "--check-chars"
+      ],
+      "args": [
+        "N"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+nuke
+
+Usage: nuke DIR...
+
+Remove DIRs

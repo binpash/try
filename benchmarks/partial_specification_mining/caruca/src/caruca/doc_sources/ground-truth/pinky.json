@@ -1,0 +1,61 @@
+{
+  "version": "pinky (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-l"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "short": [
+        "-h"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ]
+    },
+    {
+      "short": [
+        "-f"
+      ]
+    },
+    {
+      "short": [
+        "-w"
+      ]
+    },
+    {
+      "short": [
+        "-i"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

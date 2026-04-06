@@ -1,0 +1,54 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "K"
+            ]
+        },
+        {
+            "short": [
+                "F"
+            ]
+        },
+        {
+            "short": [
+                "i"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "l"
+            ],
+            "args": [
+                "LOGIN"
+            ]
+        },
+        {
+            "short": [
+                "f"
+            ],
+            "args": [
+                "ISSUE_FILE"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "PORT"
+            ]
+        },
+        {
+            "short": [
+                "b"
+            ],
+            "args": [
+                "ADDR:PORT"
+            ]
+        }
+    ]
+}

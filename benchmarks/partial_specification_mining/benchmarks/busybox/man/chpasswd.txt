@@ -1,0 +1,10 @@
+chpasswd
+
+Usage: chpasswd [--md5|--encrypted|--crypt-method|--root]
+
+Read user:password from stdin and update /etc/passwd
+
+	-e,--encrypted		Supplied passwords are in encrypted form
+	-m,--md5		Encrypt using md5, not des
+	-c,--crypt-method ALG	des,md5,sha256/512 (default sha256)
+	-R,--root DIR		Directory to chroot into

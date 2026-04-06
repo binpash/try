@@ -1,0 +1,5 @@
+{
+    "packages/espree": "10.4.0",
+    "packages/eslint-scope": "8.4.0",
+    "packages/eslint-visitor-keys": "4.2.1"
+}

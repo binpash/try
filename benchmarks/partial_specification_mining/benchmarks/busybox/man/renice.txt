@@ -1,0 +1,11 @@
+renice
+
+Usage: renice [-n] PRIORITY [[-p | -g | -u] ID...]...
+
+Change scheduling priority of a running process
+
+	-n	Add PRIORITY to current nice value
+		Without -n, nice value is set to PRIORITY
+	-p	Process ids (default)
+	-g	Process group ids
+	-u	Process user names

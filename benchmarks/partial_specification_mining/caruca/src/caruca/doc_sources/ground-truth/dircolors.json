@@ -1,0 +1,42 @@
+{
+  "version": "dircolors (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--sh",
+        "--bourne-shell"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--csh",
+        "--c-shell"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--print-database"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

@@ -1,0 +1,14 @@
+chgrp
+
+Usage: chgrp [-RhLHPcvf]... GROUP FILE...
+
+Change the group membership of each FILE to GROUP
+
+	-R	Recurse
+	-h	Affect symlinks instead of symlink targets
+	-L	Traverse all symlinks to directories
+	-H	Traverse symlinks on command line only
+	-P	Don't traverse symlinks (default)
+	-c	List changed files
+	-v	Verbose
+	-f	Hide errors

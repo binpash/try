@@ -1,0 +1,115 @@
+{
+  "version": "join (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--ignore-case"
+      ]
+    },
+    {
+      "long": [
+        "--check-order"
+      ]
+    },
+    {
+      "long": [
+        "--nocheck-order"
+      ]
+    },
+    {
+      "long": [
+        "--header"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero-terminated"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-a"
+      ],
+      "args": [
+        "FILENUM"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ],
+      "args": [
+        "EMPTY"
+      ]
+    },
+    {
+      "short": [
+        "-j"
+      ],
+      "args": [
+        "FIELD"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "args": [
+        "FORMAT"
+      ]
+
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "args": [
+        "CHAR"
+      ]
+
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "args": [
+        "FILENUM"
+      ]
+
+    },
+    {
+      "short": [
+        "-1"
+      ],
+      "args": [
+        "FIELD"
+      ]
+    },
+    {
+      "short": [
+        "-2"
+      ],
+      "args": [
+        "FIELD"
+      ]
+    }
+  ]
+}

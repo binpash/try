@@ -1,0 +1,20 @@
+Usage: runcon CONTEXT COMMAND [args]
+  or:  runcon [ -c ] [-u USER] [-r ROLE] [-t TYPE] [-l RANGE] COMMAND [args]
+Run a program in a different SELinux security context.
+With neither CONTEXT nor COMMAND, print the current security context.
+
+Mandatory arguments to long options are mandatory for short options too.
+  CONTEXT            Complete security context
+  -c, --compute      compute process transition context before modifying
+  -t, --type=TYPE    type (for same role as parent)
+  -u, --user=USER    user identity
+  -r, --role=ROLE    role
+  -l, --range=RANGE  levelrange
+
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/runcon>
+or available locally via: info '(coreutils) runcon invocation'

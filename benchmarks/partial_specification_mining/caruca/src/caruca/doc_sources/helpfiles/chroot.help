@@ -1,0 +1,16 @@
+Usage: chroot [OPTION] NEWROOT [COMMAND [ARG]...]
+  or:  chroot OPTION
+Run COMMAND with root directory set to NEWROOT.
+
+  --groups=G_LIST        specify supplementary groups as g1,g2,..,gN
+  --userspec=USER:GROUP  specify user and group (ID or name) to use
+  --skip-chdir           do not change working directory to '/'
+      --help     display this help and exit
+      --version  output version information and exit
+
+If no command is given, run '"$SHELL" -i' (default: '/bin/sh -i').
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/chroot>
+or available locally via: info '(coreutils) chroot invocation'

@@ -1,0 +1,50 @@
+{
+  "version": "stdbuf (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-i"
+      ],
+      "long": [
+        "--input"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--output"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--error"
+      ],
+      "args": [
+        "MODE"
+      ]
+    }
+  ]
+}

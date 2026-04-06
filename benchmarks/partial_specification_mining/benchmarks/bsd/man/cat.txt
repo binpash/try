@@ -1,0 +1,100 @@
+CAT(1)			    General Commands Manual			CAT(1)
+
+NAME
+       cat -- concatenate and print files
+
+SYNOPSIS
+       cat [-belnstuv] [file ...]
+
+DESCRIPTION
+       The  cat	utility	reads files sequentially, writing them to the standard
+       output.	The file operands are processed	 in  command-line  order.   If
+       file  is	a single dash (`-') or absent, cat reads from the standard in-
+       put.  If	file is	a Unix domain socket, cat  connects  to	 it  and  then
+       reads  it until EOF.  This complements the Unix domain binding capabil-
+       ity available in	inetd(8).
+
+       The options are as follows:
+
+       -b      Number the non-blank output lines, starting at 1.
+
+       -e      Display non-printing characters (see the	-v option),  and  dis-
+	       play a dollar sign (`$')	at the end of each line.
+
+       -l      Set  an exclusive advisory lock on the standard output file de-
+	       scriptor.  This lock is set using fcntl(2)  with	 the  F_SETLKW
+	       command.	  If the output	file is	already	locked,	cat will block
+	       until the lock is acquired.
+
+       -n      Number the output lines,	starting at 1.
+
+       -s      Squeeze multiple	adjacent empty lines, causing the output to be
+	       single spaced.
+
+       -t      Display non-printing characters (see the	-v option),  and  dis-
+	       play tab	characters as `^I'.
+
+       -u      Disable output buffering.
+
+       -v      Display	non-printing  characters so they are visible.  Control
+	       characters print	as `^X'	for control-X;	the  delete  character
+	       (octal  0177)  prints  as `^?'.	Non-ASCII characters (with the
+	       high bit	set) are printed as `M-' (for meta)  followed  by  the
+	       character for the low 7 bits.
+
+EXIT STATUS
+       The cat utility exits 0 on success, and >0 if an	error occurs.
+
+EXAMPLES
+       The command:
+
+	     cat file1
+
+       will print the contents of file1	to the standard	output.
+
+       The command:
+
+	     cat file1 file2 > file3
+
+       will  sequentially  print  the  contents	of file1 and file2 to the file
+       file3, truncating file3 if it already exists.  See the manual page  for
+       your shell (e.g., sh(1))	for more information on	redirection.
+
+       The command:
+
+	     cat file1 - file2 - file3
+
+       will print the contents of file1, print data it receives	from the stan-
+       dard  input  until  it receives an EOF (`^D') character,	print the con-
+       tents of	file2, read and	output contents	of the standard	 input	again,
+       then  finally  output the contents of file3.  Note that if the standard
+       input refers to a file, the second dash on the command-line would  have
+       no  effect,  since  the	entire contents	of the file would have already
+       been read and printed by	cat when it encountered	the first `-' operand.
+
+SEE ALSO
+       head(1),	more(1), pr(1),	sh(1),	tail(1),  vis(1),  zcat(1),  fcntl(2),
+       setbuf(3)
+
+       Rob  Pike,  "UNIX  Style,  or cat -v Considered Harmful", USENIX	Summer
+       Conference Proceedings, 1983.
+
+STANDARDS
+       The cat utility is compliant with the IEEE Std 1003.2-1992  ("POSIX.2")
+       specification.
+
+       The flags [-belnstv] are	extensions to the specification.
+
+HISTORY
+       A cat utility appeared in Version 1 AT&T	UNIX.  Dennis Ritchie designed
+       and wrote the first man page.  It appears to have been for cat.
+
+BUGS
+       Because of the shell language mechanism used to perform output redirec-
+       tion,  the  command  "cat  file1	file2 >	file1" will cause the original
+       data in file1 to	be destroyed!
+
+       The cat utility does not	recognize multibyte characters when the	-t  or
+       -v option is in effect.
+
+FreeBSD	13.2		       January 29, 2013				CAT(1)

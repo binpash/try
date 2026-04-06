@@ -1,0 +1,1 @@
+export { " 👶 " as foo } from "mod";

@@ -1,0 +1,40 @@
+NPROC(1)				   User Commands				   NPROC(1)
+
+NAME
+       nproc - print the number of processing units available
+
+SYNOPSIS
+       nproc [OPTION]...
+
+DESCRIPTION
+       Print  the  number  of  processing units available to the current process, which may be less
+       than the number of online processors
+
+       --all  print the number of installed processors
+
+       --ignore=N
+	      if possible, exclude N processing units
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by Giuseppe Scrivano.
+
+REPORTING BUGS
+       GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+       Report any translation bugs to <https://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright © 2020 Free Software Foundation, Inc.	License GPLv3+: GNU GPL version 3 or  later
+       <https://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to
+       the extent permitted by law.
+
+SEE ALSO
+       Full documentation <https://www.gnu.org/software/coreutils/nproc>
+       or available locally via: info '(coreutils) nproc invocation'
+
+GNU coreutils 8.32			   February 2022				   NPROC(1)

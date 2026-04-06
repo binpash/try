@@ -1,0 +1,12 @@
+modprobe
+
+Usage: modprobe [-alrqvsDb] MODULE [SYMBOL=VALUE]...
+
+	-a	Load multiple MODULEs
+	-l	List (MODULE is a pattern)
+	-r	Remove MODULE (stacks) or do autoclean
+	-q	Quiet
+	-v	Verbose
+	-s	Log to syslog
+	-D	Show dependencies
+	-b	Apply blacklist to module names too

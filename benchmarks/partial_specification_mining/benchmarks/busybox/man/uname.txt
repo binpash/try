@@ -1,0 +1,15 @@
+uname
+
+Usage: uname [-amnrspvio]
+
+Print system information
+
+	-a	Print all
+	-m	The machine (hardware) type
+	-n	Hostname
+	-r	Kernel release
+	-s	Kernel name (default)
+	-p	Processor type
+	-v	Kernel version
+	-i	The hardware platform
+	-o	OS name

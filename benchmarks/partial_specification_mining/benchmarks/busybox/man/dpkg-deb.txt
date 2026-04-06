@@ -1,0 +1,11 @@
+dpkg-deb
+
+Usage: dpkg-deb [-cefxX] FILE [DIR]
+
+Perform actions on Debian packages (.deb)
+
+	-c	List files
+	-f	Print control fields
+	-e	Extract control files to DIR (default: ./DEBIAN)
+	-x	Extract files to DIR (no default)
+	-X	Verbose -x

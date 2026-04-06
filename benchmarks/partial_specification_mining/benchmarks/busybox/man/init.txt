@@ -1,0 +1,6 @@
+init
+
+Usage: init
+
+Init is the first process started during boot. It never exits.
+It (re)spawns children according to /etc/inittab.

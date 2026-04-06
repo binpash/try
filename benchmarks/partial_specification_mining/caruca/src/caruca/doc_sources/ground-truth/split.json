@@ -1,0 +1,146 @@
+{
+  "version": "split (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-d"
+      ]
+    },
+    {
+      "short": [
+        "-x"
+      ]
+    },
+    {
+      "short": [
+        "-e"
+      ],
+      "long": [
+        "--elide-empty-files"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--unbuffered"
+      ]
+    },
+    {
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--suffix-length"
+      ],
+      "args": [
+        "N"
+      ]
+    },
+    {
+      "long": [
+        "--additional-suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--bytes"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "short": [
+        "-C"
+      ],
+      "long": [
+        "--line-bytes"
+      ],
+      "args": [
+        "SIZE"
+      ]
+    },
+    {
+      "long": [
+        "--numeric-suffixes"
+      ],
+      "args": [
+        "FROM"
+      ]
+    },
+    {
+      "long": [
+        "--hex-suffixes"
+      ],
+      "args": [
+        "FROM"
+      ]
+    },
+    {
+      "long": [
+        "--filter"
+      ],
+      "args": [
+        "COMMAND"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--lines"
+      ],
+      "args": [
+        "NUMBER"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--number"
+      ],
+      "args": [
+        "CHUNKS"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--separator"
+      ],
+      "args": [
+        "SEP"
+      ]
+    }
+  ]
+}

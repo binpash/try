@@ -1,0 +1,77 @@
+{
+  "version": "id (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ],
+      "long": [
+        "--context"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--group"
+      ]
+    },
+    {
+      "short": [
+        "-G"
+      ],
+      "long": [
+        "--groups"
+      ]
+    },
+    {
+      "short": [
+        "-n"
+      ],
+      "long": [
+        "--name"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--real"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--user"
+      ]
+    },
+    {
+      "short": [
+        "-z"
+      ],
+      "long": [
+        "--zero"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

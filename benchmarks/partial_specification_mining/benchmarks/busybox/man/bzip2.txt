@@ -1,0 +1,12 @@
+bzip2
+
+Usage: bzip2 [OPTIONS] [FILE]...
+
+Compress FILEs (or stdin) with bzip2 algorithm
+
+	-1..9	Compression level
+	-d	Decompress
+	-t	Test file integrity
+	-c	Write to stdout
+	-f	Force
+	-k	Keep input files

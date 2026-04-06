@@ -1,0 +1,5 @@
+rev
+
+Usage: rev [FILE]...
+
+Reverse lines of FILE

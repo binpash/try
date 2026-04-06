@@ -1,0 +1,11 @@
+id
+
+Usage: id [OPTIONS] [USER]
+
+Print information about USER or the current user
+
+	-u	User ID
+	-g	Group ID
+	-G	Supplementary group IDs
+	-n	Print names instead of numbers
+	-r	Print real ID instead of effective ID

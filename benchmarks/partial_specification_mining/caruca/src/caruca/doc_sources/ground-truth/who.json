@@ -1,0 +1,138 @@
+{
+  "version": "who (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-a"
+      ],
+      "long": [
+        "--all"
+      ]
+    },
+    {
+      "short": [
+        "-b"
+      ],
+      "long": [
+        "--boot"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--dead"
+      ]
+    },
+    {
+      "short": [
+        "-H"
+      ],
+      "long": [
+        "--heading"
+      ]
+    },
+    {
+      "long": [
+        "--ips"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--login"
+      ]
+    },
+    {
+      "long": [
+        "--lookup"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--process"
+      ]
+    },
+    {
+      "short": [
+        "-q"
+      ],
+      "long": [
+        "--count"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--runlevel"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--short"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--time"
+      ]
+    },
+    {
+      "short": [
+        "-T",
+        "-w"
+      ],
+      "long": [
+        "--mesg"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--users"
+      ]
+    },
+    {
+      "long": [
+        "--message"
+      ]
+    },
+    {
+      "long": [
+        "--writable"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": []
+}

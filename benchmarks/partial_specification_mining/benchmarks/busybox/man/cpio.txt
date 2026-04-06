@@ -1,0 +1,21 @@
+cpio
+
+Usage: cpio [-dmvu] [-F FILE] [-R USER[:GRP]] [-H newc] [-tio] [EXTR_FILE]...
+
+Extract (-i) or list (-t) files from a cpio archive, or
+take file list from stdin and create an archive (-o)
+
+Main operation mode:
+	-t	List
+	-i	Extract EXTR_FILEs (or all)
+	-o	Create (requires -H newc)
+Options:
+	-H newc	Archive format
+	-d	Make leading directories
+	-m	Preserve mtime
+	-v	Verbose
+	-u	Overwrite
+	-F FILE	Input (-t,-i,-p) or output (-o) file
+	-R USER[:GRP]	Set owner of created files
+	-L	Dereference symlinks
+	-0	Input is separated by NULs

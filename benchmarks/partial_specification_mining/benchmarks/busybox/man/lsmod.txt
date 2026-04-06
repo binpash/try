@@ -1,0 +1,5 @@
+lsmod
+
+Usage: lsmod
+
+List loaded kernel modules

@@ -1,0 +1,7 @@
+# libdash @ git+https://github.com/binpash/libdash 
+libdash
+libbash>=0.1.14
+matplotlib>=3.10.7
+numpy>=2.2.6
+pandas>=2.3.3
+shasta>=0.2.2

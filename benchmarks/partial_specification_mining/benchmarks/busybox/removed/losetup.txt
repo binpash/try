@@ -1,0 +1,10 @@
+losetup
+
+Usage: losetup [-r] [-o OFS] {-f|LOOPDEV} FILE - associate loop devices
+	losetup -d LOOPDEV - disassociate
+	losetup -a - show status
+	losetup -f - show next free loop device
+
+	-o OFS	Start OFS bytes into FILE
+	-r	Read-only
+	-f	Show/use next free loop device

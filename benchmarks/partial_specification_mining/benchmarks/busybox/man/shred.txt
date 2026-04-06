@@ -1,0 +1,10 @@
+shred
+
+Usage: shred FILE...
+
+Overwrite/delete FILEs
+
+	-f	Chmod to ensure writability
+	-n N	Overwrite N times (default 3)
+	-z	Final overwrite with zeros
+	-u	Remove file

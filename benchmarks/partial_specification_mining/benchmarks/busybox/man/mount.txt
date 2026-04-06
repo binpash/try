@@ -1,0 +1,32 @@
+mount
+
+Usage: mount [OPTIONS] [-o OPT] DEVICE NODE
+
+Mount a filesystem. Filesystem autodetection requires /proc.
+
+	-a		Mount all filesystems in fstab
+	-f		Dry run
+	-i		Don't run mount helper
+	-r		Read-only mount
+	-t FSTYPE[,...]	Filesystem type(s)
+	-T FILE		Read FILE instead of /etc/fstab
+	-O OPT		Mount only filesystems with option OPT (-a only)
+-o OPT:
+	loop		Ignored (loop devices are autodetected)
+	[a]sync		Writes are [a]synchronous
+	[no]atime	Disable/enable updates to inode access times
+	[no]diratime	Disable/enable atime updates to directories
+	[no]relatime	Disable/enable atime updates relative to modification time
+	[no]dev		(Dis)allow use of special device files
+	[no]exec	(Dis)allow use of executable files
+	[no]suid	(Dis)allow set-user-id-root programs
+	[r]shared	Convert [recursively] to a shared subtree
+	[r]slave	Convert [recursively] to a slave subtree
+	[r]private	Convert [recursively] to a private subtree
+	[un]bindable	Make mount point [un]able to be bind mounted
+	[r]bind		Bind a file or directory [recursively] to another location
+	move		Relocate an existing mount point
+	remount		Remount a mounted filesystem, changing flags
+	ro		Same as -r
+
+There are filesystem-specific -o flags.

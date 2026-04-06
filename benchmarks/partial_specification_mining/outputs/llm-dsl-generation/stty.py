@@ -1,0 +1,50 @@
+from caruca.ir.syntax import *
+
+stty_syntax_spec: list[SyntaxSpecification] = [
+    [
+        [
+            Flag("-a", alias=["--all"]),
+            Flag("-g", alias=["--save"]),
+            Path(flag="-F", alias=["--file"]),
+            Flag("--help"),
+            Flag("--version"),
+            Char(flag="eof"),
+            Char(flag="eol"),
+            Char(flag="erase"),
+            Char(flag="intr"),
+            Char(flag="kill"),
+            Char(flag="quit"),
+            Char(flag="start"),
+            Char(flag="stop"),
+            Char(flag="susp"),
+            Integer(flag="cols"),
+            Integer(flag="ispeed"),
+            Integer(flag="ospeed"),
+            Integer(flag="rows"),
+            Integer(flag="speed"),
+            Integer(flag="time"),
+            Selection(flag="cs", choices=("5", "6", "7", "8")),
+            Flag("-clocal"),
+            Flag("-cread"),
+            Flag("-parenb"),
+            Flag("-parodd"),
+            Flag("-brkint"),
+            Flag("-icrnl"),
+            Flag("-ignbrk"),
+            Flag("-igncr"),
+            Flag("-ignpar"),
+            Flag("-inlcr"),
+            Flag("-inpck"),
+            Flag("-istrip"),
+            Flag("-ixoff"),
+            Flag("-ixon"),
+            Flag("-opost"),
+            Flag("-cooked"),
+            Flag("-raw"),
+            Flag("-sane"),
+            # Add more flags and settings as needed
+        ],
+        [Path(arity=Arity.ZERO_OR_MORE)],
+    ]
+]
+

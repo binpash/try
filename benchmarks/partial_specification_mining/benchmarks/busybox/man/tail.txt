@@ -1,0 +1,17 @@
+tail
+
+Usage: tail [OPTIONS] [FILE]...
+
+Print last 10 lines of each FILE (or stdin) to stdout.
+With more than one FILE, precede each with a filename header.
+
+	-f		Print data as file grows
+	-c [+]N[kbm]	Print last N bytes
+	-n N[kbm]	Print last N lines
+	-n +N[kbm]	Start on Nth line and print the rest
+	-q		Never print headers
+	-s SECONDS	Wait SECONDS between reads with -f
+	-v		Always print headers
+	-F		Same as -f, but keep retrying
+
+N may be suffixed by k (x1024), b (x512), or m (x1024^2).

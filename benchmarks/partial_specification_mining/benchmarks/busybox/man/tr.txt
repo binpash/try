@@ -1,0 +1,9 @@
+tr
+
+Usage: tr [-cds] STRING1 [STRING2]
+
+Translate, squeeze, or delete characters from stdin, writing to stdout
+
+	-c	Take complement of STRING1
+	-d	Delete input characters coded STRING1
+	-s	Squeeze multiple output characters of STRING2 into one character

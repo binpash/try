@@ -1,0 +1,56 @@
+HEAD(1)			    General Commands Manual		       HEAD(1)
+
+NAME
+       head -- display first lines of a	file
+
+SYNOPSIS
+       head [-qv] [-n count | -c bytes]	[file ...]
+
+DESCRIPTION
+       This  filter  displays  the  first  count lines or bytes	of each	of the
+       specified files,	or of the standard input if no	files  are  specified.
+       If count	is omitted it defaults to 10.
+
+       The following options are available:
+
+       -c bytes, --bytes=bytes
+	       Print bytes of each of the specified files.
+
+       -n count, --lines=count
+	       Print count lines of each of the	specified files.
+
+	       Both  count  and	bytes may also be specified with size suffixes
+	       supported by expand_number(3).
+
+       -q, --quiet, --silent
+	       Suppresses printing of headers when multiple  files  are	 being
+	       examined.
+
+       -v, --verbose
+	       Prepend each file with a	header.
+
+       If  more	 than a	single file is specified, or if	the -v option is used,
+       each file is preceded by	a header consisting of	the  string  "==>  XXX
+       <=="  where  "XXX"  is  the name	of the file.  The -q flag disables the
+       printing	of the header in all cases.
+
+EXIT STATUS
+       The head	utility	exits 0	on success, and	>0 if an error occurs.
+
+EXAMPLES
+       To display the first 500	lines of the file foo:
+
+	     $ head -n 500 foo
+
+       head can	be used	in conjunction with tail(1) in the following  way  to,
+       for example, display only line 500 from the file	foo:
+
+	     $ head -n 500 foo | tail -n 1
+
+SEE ALSO
+       tail(1),	expand_number(3)
+
+HISTORY
+       The head	command	appeared in PWB	UNIX.
+
+FreeBSD	13.2			 June 12, 2022			       HEAD(1)

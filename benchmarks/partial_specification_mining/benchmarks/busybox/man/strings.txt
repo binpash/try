@@ -1,0 +1,10 @@
+strings
+
+Usage: strings [-fo] [-t o/d/x] [-n LEN] [FILE]...
+
+Display printable strings in a binary file
+
+	-f		Precede strings with filenames
+	-o		Precede strings with octal offsets
+	-t o/d/x	Precede strings with offsets in base 8/10/16
+	-n LEN		At least LEN characters form a string (default 4)

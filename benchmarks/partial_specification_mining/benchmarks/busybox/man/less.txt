@@ -1,0 +1,15 @@
+less
+
+Usage: less [-EFIMmNSRh~] [FILE]...
+
+View FILE (or stdin) one screenful at a time
+
+	-E	Quit once the end of a file is reached
+	-F	Quit if entire file fits on first screen
+	-I	Ignore case in all searches
+	-M,-m	Display status line with line numbers
+		and percentage through the file
+	-N	Prefix line number to each line
+	-S	Truncate long lines
+	-R	Remove color escape codes in input
+	-~	Suppress ~s displayed past EOF

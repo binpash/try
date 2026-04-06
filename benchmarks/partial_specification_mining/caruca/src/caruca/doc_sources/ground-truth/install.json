@@ -1,0 +1,169 @@
+{
+  "version": "install (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-b"
+      ]
+    },
+    {
+      "short": [
+        "-c"
+      ]
+    },
+    {
+      "short": [
+        "-C"
+      ],
+      "long": [
+        "--compare"
+      ]
+    },
+    {
+      "short": [
+        "-d"
+      ],
+      "long": [
+        "--directory"
+      ]
+    },
+    {
+      "short": [
+        "-D"
+      ]
+    },
+    {
+      "short": [
+        "-p"
+      ],
+      "long": [
+        "--preserve-timestamps"
+      ]
+    },
+    {
+      "short": [
+        "-s"
+      ],
+      "long": [
+        "--strip"
+      ]
+    },
+    {
+      "short": [
+        "-T"
+      ],
+      "long": [
+        "--no-target-directory"
+      ]
+    },
+    {
+      "short": [
+        "-v"
+      ],
+      "long": [
+        "--verbose"
+      ]
+    },
+    {
+      "long": [
+        "--preserve-context"
+      ]
+    },
+    {
+      "short": [
+        "-Z"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "long": [
+        "--backup"
+      ],
+      "args": [
+        "CONTROL"
+      ]
+    },
+    {
+      "short": [
+        "-g"
+      ],
+      "long": [
+        "--group"
+      ],
+      "args": [
+        "GROUP"
+      ]
+    },
+    {
+      "short": [
+        "-m"
+      ],
+      "long": [
+        "--mode"
+      ],
+      "args": [
+        "MODE"
+      ]
+    },
+    {
+      "short": [
+        "-o"
+      ],
+      "long": [
+        "--owner"
+      ],
+      "args": [
+        "OWNER"
+      ]
+    },
+    {
+      "long": [
+        "--strip-program"
+      ],
+      "args": [
+        "PROGRAM"
+      ]
+    },
+    {
+      "short": [
+        "-S"
+      ],
+      "long": [
+        "--suffix"
+      ],
+      "args": [
+        "SUFFIX"
+      ]
+    },
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--target-directory"
+      ],
+      "args": [
+        "DIRECTORY"
+      ]
+    },
+    {
+      "long": [
+        "--context"
+      ],
+      "args": [
+        "CTX"
+      ]
+    }
+  ]
+}

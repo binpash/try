@@ -1,0 +1,41 @@
+{
+    "version": "Busybox v1.30.1",
+    "flags": [
+        {
+            "short": [
+                "q"
+            ]
+        },
+        {
+            "short": [
+                "o"
+            ]
+        }
+    ],
+    "options": [
+        {
+            "short": [
+                "f"
+            ],
+            "args": [
+                "FREQ"
+            ]
+        },
+        {
+            "short": [
+                "t"
+            ],
+            "args": [
+                "TICK"
+            ]
+        },
+        {
+            "short": [
+                "p"
+            ],
+            "args": [
+                "TCONST"
+            ]
+        }
+    ]
+}

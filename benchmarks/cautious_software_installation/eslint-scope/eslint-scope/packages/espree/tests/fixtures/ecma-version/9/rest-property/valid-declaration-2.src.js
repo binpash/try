@@ -1,0 +1,1 @@
+let {a, ...obj} = foo

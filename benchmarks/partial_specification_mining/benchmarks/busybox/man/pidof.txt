@@ -1,0 +1,5 @@
+pidof
+
+Usage: pidof [NAME]...
+
+List PIDs of all processes with names that match NAMEs

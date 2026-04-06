@@ -1,0 +1,69 @@
+{
+  "version": "runcon (GNU coreutils) 8.32",
+  "flags": [
+    {
+      "short": [
+        "-c"
+      ],
+      "long": [
+        "--compute"
+      ]
+    },
+    {
+      "long": [
+        "--help"
+      ]
+    },
+    {
+      "long": [
+        "--version"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "short": [
+        "-t"
+      ],
+      "long": [
+        "--type"
+      ],
+      "args": [
+        "TYPE"
+      ]
+    },
+    {
+      "short": [
+        "-u"
+      ],
+      "long": [
+        "--user"
+      ],
+      "args": [
+        "USER"
+      ]
+    },
+    {
+      "short": [
+        "-r"
+      ],
+      "long": [
+        "--role"
+      ],
+      "args": [
+        "ROLE"
+      ]
+    },
+    {
+      "short": [
+        "-l"
+      ],
+      "long": [
+        "--range"
+      ],
+      "args": [
+        "RANGE"
+      ]
+    }
+  ]
+}

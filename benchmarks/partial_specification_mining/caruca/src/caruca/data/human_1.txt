@@ -1,0 +1,16 @@
+c
+a
+r
+u
+c
+a
+
+Hi
+Hello
+
+The quick brown fox jumped over the lazy dog.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+
+Here's some punctuation characters like " or ; or |. How about { or ]!
+Here's even more such as %, ^ and @. Maybe | and ; one more time
