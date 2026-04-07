@@ -1,5 +1,8 @@
 # Overview
 
+_Note_: Due to double-blind requirements, in the original submission, the subsystem presented in the paper was referred to as `ef`.
+The artifact uses the name `try`, as will the published paper.
+
 The paper makes the following claims on pg. 2 (Comments to AEC reviewers after `:`):
 
 1. **Several case studies for which current effect-control is insufficient**: the paper presents are five use cases with accompanying programs that motivate the semisolate abstraction (§2)
@@ -21,9 +24,9 @@ Confirm that the paper, code, and automation scripts are all publicly available:
 > [!IMPORTANT]
 > AEC Reviewers: From this point on, the instructions assume you have cloned the repository locally. **All following steps are optional.**
 
-# Artifact Functional (1 hour)
+# Getting Started Instructions (5 minutes)
 
-# Results Reproducible (3 hours)
+# Detailed Instructions (3 hours)
 
 # Contact
 
