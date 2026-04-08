@@ -146,15 +146,11 @@ Open the generated summary and plot files:
 4. Figure 3 plot:
    `artifacts/paper_eval/micro_breakdown.png`
 
-Once you are done: inside the guest, exit back to the host:
+Once you are done: inside the guest, exit back to the host and run the cleanup script:
 
 ```sh
 exit
-```
-
-From the repository root on the host, run:
-
-```sh
+# In host:
 ./scripts/cleanup-ae.sh
 ```
 
