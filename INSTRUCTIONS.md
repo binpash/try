@@ -57,18 +57,12 @@ This will:
 5. Build `try`
 
 The first run may take several minutes (depending on your network speed).
-
-## Verify The VM
-
-Check that the VM is running:
+Run the following:
 
 ```sh
+# Check the VM is running
 vagrant status debian
-```
-
-Enter the VM:
-
-```sh
+# Enter the VM
 vagrant ssh debian
 ```
 
@@ -86,7 +80,7 @@ Summary: 32/32 tests passed.
 
 **Optional**: To futher explore `try`'s capabilities, you can go over the short [TUTORIAL](TUTORIAL.md) document.
 
-# Detailed Instructions (3 hours)
+# Detailed Instructions (5 hours)
 
 These steps assume you have a working Debian Vagrant guest with the `try` test suite passing, as described in the previous section.
 The following go over replicating `try`'s evaluation:
@@ -94,7 +88,7 @@ The following go over replicating `try`'s evaluation:
 Inside the guest, run:
 
 ```sh
-cd /vagrant
+cd ~/try
 ```
 
 Run the one-time setup step:
@@ -102,10 +96,8 @@ Run the one-time setup step:
 ```sh
 python3 scripts/eval_ae.py run setup
 ```
-
 This prepares the Docker images, installs the local partial-specification miner package, and builds the dependency-tracking components used by the later steps.
-
-Run the paper sections one by one:
+Then, run each step of the evaluation:
 
 ```sh
 # §5.1 Risky or Cryptic LLM Suggestions
