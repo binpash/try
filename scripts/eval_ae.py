@@ -15,6 +15,47 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RESULTS_ROOT = ROOT
 DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "paper_eval"
+ARCHIVE_RESULTS_ROOT = ROOT / "benchmarks" / "precomputed_results"
+
+ARCHIVE_TABLE2_RESULTS = {
+    "benchmarks/results/llm_scripts/benchmark_results.csv": {
+        "archive_file": ARCHIVE_RESULTS_ROOT / "llm_scripts" / "benchmark_results_nuc.csv",
+        "key_map": {
+            "find_exec_touch": "find_touch",
+            "find_exec_zip": "find_zip",
+            "find_txt": "find",
+            "grep_log": "grep",
+            "sort_large_file": "sort",
+        },
+        "try_suffix": "try-run.sh",
+        "docker_suffix": "run-docker-high.sh",
+        "vanilla_suffix": "vanilla.sh",
+    },
+    "benchmarks/results/pre_commit_hook/benchmark_results.csv": {
+        "archive_file": ARCHIVE_RESULTS_ROOT / "pre_commit_hook" / "benchmark_results_nuc.csv",
+        "try_suffix": "try-run.sh",
+        "docker_suffix": "run-leak-docker.sh",
+        "vanilla_suffix": "vanilla.sh",
+    },
+    "benchmarks/results/npm_pre_postinstall/benchmark_results.csv": {
+        "archive_file": ARCHIVE_RESULTS_ROOT / "npm_pre_postinstall" / "benchmark_results_nuc.csv",
+        "try_suffix": "try-run.sh",
+        "docker_suffix": "run-docker-high.sh",
+        "vanilla_suffix": "vanilla.sh",
+    },
+    "benchmarks/dependency_tracking/results/incr": {
+        "archive_file": ARCHIVE_RESULTS_ROOT / "incr" / "benchmark_results_nuc.csv",
+        "try_suffix": "try-run.sh",
+        "docker_suffix": "run-docker.sh",
+        "vanilla_suffix": "vanilla.sh",
+    },
+    "benchmarks/partial_specification_mining/caruca/results/caruca": {
+        "archive_file": ARCHIVE_RESULTS_ROOT / "caruca" / "benchmark_results_nuc.csv",
+        "try_suffix": "try-run.sh",
+        "docker_suffix": "run-docker.sh",
+        "vanilla_suffix": "vanilla.sh",
+    },
+}
 
 
 @dataclass(frozen=True)
@@ -130,6 +171,18 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 title="Risky or Cryptic LLM Suggestions",
                 section="§5.1",
                 steps=(
+                    Step(
+                        name="prepare-image",
+                        cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
+                        cmd=("/bin/bash", "scripts/setup.sh"),
+                        note="Builds the benchmark image used by the Docker comparison runs.",
+                    ),
+                    Step(
+                        name="prepare-data",
+                        cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
+                        cmd=("/bin/bash", "setup_baremetal.sh"),
+                        note="Generates the clean local datasets restored between LLM benchmark iterations.",
+                    ),
                     Step(
                         name="performance",
                         cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
@@ -597,6 +650,8 @@ def run_evaluations(selected: list[str], dry_run: bool) -> None:
 
 
 def read_results_csv(path: Path) -> dict[str, list[float]]:
+    if not path.exists():
+        return {}
     rows: dict[str, list[float]] = {}
     with path.open(newline="") as handle:
         for raw in csv.reader(handle):
@@ -615,12 +670,35 @@ def read_results_csv(path: Path) -> dict[str, list[float]]:
     return rows
 
 
+def lookup_archived_table2_values(
+    spec: dict[str, object],
+    role: str,
+    archive_cache: dict[Path, dict[str, list[float]]],
+) -> tuple[list[float], str | None]:
+    config = ARCHIVE_TABLE2_RESULTS.get(str(spec["results_file"]))
+    if config is None:
+        return [], None
+
+    archive_path = config["archive_file"]
+    if archive_path not in archive_cache:
+        archive_cache[archive_path] = read_results_csv(archive_path)
+
+    archive_key = config.get("key_map", {}).get(str(spec["key"]), str(spec["key"]))
+    suffix = str(config[f"{role}_suffix"])
+    values = archive_cache[archive_path].get(f"{archive_key}_{suffix}", [])
+    if not values:
+        return [], None
+    return values, str(archive_path.relative_to(ROOT))
+
+
 def load_table2_rows(results_root: Path) -> list[dict[str, object]]:
     grouped_cache: dict[Path, dict[str, list[float]]] = {}
+    archive_cache: dict[Path, dict[str, list[float]]] = {}
     rows: list[dict[str, object]] = []
     for spec in TABLE2_ROWS:
         csv_path = results_root / spec["results_file"]
         key = str(spec["key"])
+        fallback_refs: list[str] = []
         if spec.get("results_layout") == "split_by_provider":
             try_path = csv_path / "benchmark_results_try.csv"
             docker_path = csv_path / "benchmark_results_docker.csv"
@@ -643,6 +721,18 @@ def load_table2_rows(results_root: Path) -> list[dict[str, object]]:
             docker_values = data.get(docker_name, [])
             vanilla_values = data.get(vanilla_name, [])
             csv_ref = str(csv_path.relative_to(ROOT))
+        if not try_values:
+            try_values, fallback_ref = lookup_archived_table2_values(spec, "try", archive_cache)
+            if fallback_ref:
+                fallback_refs.append(f"try:{fallback_ref}")
+        if not docker_values:
+            docker_values, fallback_ref = lookup_archived_table2_values(spec, "docker", archive_cache)
+            if fallback_ref:
+                fallback_refs.append(f"docker:{fallback_ref}")
+        if not vanilla_values:
+            vanilla_values, fallback_ref = lookup_archived_table2_values(spec, "vanilla", archive_cache)
+            if fallback_ref:
+                fallback_refs.append(f"vanilla:{fallback_ref}")
         if not try_values or not docker_values or not vanilla_values:
             missing = []
             if not try_values:
@@ -654,6 +744,8 @@ def load_table2_rows(results_root: Path) -> list[dict[str, object]]:
             raise RuntimeError(
                 f"Missing {', '.join(missing)} results for {spec['name']} in {csv_ref}"
             )
+        if fallback_refs:
+            csv_ref = f"{csv_ref} (fallback {'; '.join(fallback_refs)})"
         try_median = statistics.median(try_values)
         docker_median = statistics.median(docker_values)
         vanilla_median = statistics.median(vanilla_values)
@@ -739,39 +831,6 @@ def write_table2_summary(rows: list[dict[str, object]], out_dir: Path) -> tuple[
         )
     md_path.write_text("\n".join(header + body) + "\n")
     return csv_path, md_path
-
-
-def plot_table2(rows: list[dict[str, object]], out_dir: Path) -> Path:
-    plt = load_pyplot()
-
-    out_dir.mkdir(parents=True, exist_ok=True)
-    output = out_dir / "table2_ratios.png"
-    labels = [f"{row['name']} ({row['section']})" for row in rows]
-    vs_docker = [float(row["vs_docker"]) for row in rows]
-    vs_vanilla = [float(row["vs_vanilla"]) for row in rows]
-    y_positions = list(range(len(rows)))
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 9), sharey=True)
-    ax1.barh(y_positions, vs_docker, color="#4C78A8")
-    ax1.set_title("Try Speedup vs Docker")
-    ax1.set_xlabel("Docker median / try median")
-    ax1.set_yticks(y_positions)
-    ax1.set_yticklabels(labels, fontsize=8)
-    ax1.invert_yaxis()
-
-    ax2.barh(y_positions, vs_vanilla, color="#F58518")
-    ax2.set_title("Try Overhead vs Vanilla")
-    ax2.set_xlabel("try median / vanilla median")
-    ax2.set_yticks(y_positions)
-    ax2.set_yticklabels(labels, fontsize=8)
-
-    for axis in (ax1, ax2):
-        axis.grid(axis="x", alpha=0.3)
-
-    fig.tight_layout()
-    fig.savefig(output, dpi=200, bbox_inches="tight")
-    plt.close(fig)
-    return output
 
 
 def parse_time_log(path: Path) -> list[tuple[float, str]]:
@@ -895,10 +954,11 @@ def write_micro_breakdown_csv(summary: dict[str, dict[str, float]], out_dir: Pat
 
 def plot_micro_breakdown(summary: dict[str, dict[str, float]], out_dir: Path) -> Path:
     plt = load_pyplot()
+    from matplotlib import rcParams
 
     out_dir.mkdir(parents=True, exist_ok=True)
     output = out_dir / "micro_breakdown.png"
-    benchmarks = ["echo", "rustup", "big_file"]
+    benchmarks = ["big_file", "rustup", "echo"]
     stages = [
         "startup",
         "mkdirs",
@@ -910,36 +970,66 @@ def plot_micro_breakdown(summary: dict[str, dict[str, float]], out_dir: Path) ->
         "exit_ns",
         "commit",
     ]
-    colors = [
-        "#4C78A8",
-        "#F58518",
-        "#E45756",
-        "#72B7B2",
-        "#54A24B",
-        "#EECA3B",
-        "#B279A2",
-        "#FF9DA6",
-        "#9D755D",
-    ]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bottoms = [0.0] * len(benchmarks)
-    x_positions = list(range(len(benchmarks)))
-    for stage, color in zip(stages, colors):
-        values = []
-        for benchmark in benchmarks:
-            total = sum(summary.get(benchmark, {}).values())
-            value = summary.get(benchmark, {}).get(stage, 0.0)
-            values.append((value / total) if total else 0.0)
-        ax.bar(x_positions, values, bottom=bottoms, label=stage, color=color)
-        bottoms = [bottom + value for bottom, value in zip(bottoms, values)]
+    rcParams["font.family"] = "Times New Roman"
+    rcParams["font.size"] = 12
 
-    ax.set_xticks(x_positions)
-    ax.set_xticklabels(benchmarks)
-    ax.set_ylabel("Fraction of try runtime")
-    ax.set_title("Approximate Figure 3 Breakdown from try-timed Logs")
-    ax.legend(loc="upper right", ncol=2, fontsize=8)
-    ax.set_ylim(0, 1.0)
+    cmap = plt.get_cmap("tab20")
+    stage_colors = [cmap(i / len(stages)) for i in range(len(stages))]
+
+    ratios: list[list[float]] = []
+    for benchmark in benchmarks:
+        row = summary.get(benchmark, {})
+        total = sum(row.get(stage, 0.0) for stage in stages)
+        ratios.append([(row.get(stage, 0.0) / total) if total else 0.0 for stage in stages])
+
+    fig, (ax, legend_ax) = plt.subplots(
+        2,
+        1,
+        figsize=(7.0, 2.8),
+        gridspec_kw={"height_ratios": [2.5, 1]},
+    )
+
+    y_positions = list(range(len(benchmarks)))
+    bar_height = 0.4
+    lefts = [0.0] * len(benchmarks)
+    bars = []
+
+    for stage_idx, stage in enumerate(stages):
+        values = [row[stage_idx] for row in ratios]
+        bar = ax.barh(
+            y_positions,
+            values,
+            bar_height,
+            left=lefts,
+            label=stage,
+            color=stage_colors[stage_idx],
+            edgecolor="black",
+            linewidth=0.3,
+        )
+        bars.append(bar)
+        lefts = [left + value for left, value in zip(lefts, values)]
+
+    ax.set_yticks(y_positions)
+    ax.set_yticklabels(benchmarks, fontsize=18)
+    ax.set_xlabel("Time ratio", fontsize=18)
+    ax.set_xlim(0, 1)
+    ax.tick_params(axis="x", labelsize=17)
+    ax.xaxis.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
+
+    legend_ax.axis("off")
+    legend_ax.legend(
+        bars,
+        stages,
+        loc="center",
+        ncol=5,
+        fontsize=14,
+        columnspacing=0.8,
+        handlelength=1.2,
+        handletextpad=0.4,
+    )
+
+    plt.subplots_adjust(hspace=0.35)
     fig.tight_layout()
     fig.savefig(output, dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -951,9 +1041,6 @@ def cmd_summarize(args: argparse.Namespace) -> int:
     csv_path, md_path = write_table2_summary(rows, args.output_dir)
     print(f"[ok] wrote {csv_path}")
     print(f"[ok] wrote {md_path}")
-    if args.plot:
-        plot_path = plot_table2(rows, args.output_dir)
-        print(f"[ok] wrote {plot_path}")
     return 0
 
 
@@ -996,7 +1083,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_OUTPUT_DIR,
         help=f"Directory for generated summaries. Default: {DEFAULT_OUTPUT_DIR}",
     )
-    summary_parser.add_argument("--plot", action="store_true", help="Also generate a table-ratio plot PNG.")
     summary_parser.set_defaults(handler=cmd_summarize)
 
     micro_parser = subparsers.add_parser("plot-micro", help="Generate a Figure 3-style microbenchmark breakdown.")
@@ -1043,7 +1129,6 @@ def build_parser() -> argparse.ArgumentParser:
             argparse.Namespace(
                 results_root=args.results_root,
                 output_dir=args.output_dir,
-                plot=True,
             )
         )
         cmd_plot_micro(

@@ -83,7 +83,7 @@ Summary: 32/32 tests passed.
 # Detailed Instructions (5 hours)
 
 These steps assume you have a working Debian Vagrant guest with the `try` test suite passing, as described in the previous section.
-You should have at least 50GB of free disk space on your host.
+You should have at least 100GB of free disk space on your host.
 The following go over replicating `try`'s evaluation:
 
 Inside the VM, run the one-time setup step:
@@ -118,19 +118,16 @@ This writes the final outputs:
 
 1. `artifacts/paper_eval/table2_summary.csv`
 2. `artifacts/paper_eval/table2_summary.md`
-3. `artifacts/paper_eval/table2_ratios.png`
-4. `artifacts/paper_eval/micro_breakdown.csv`
-5. `artifacts/paper_eval/micro_breakdown.png`
+3. `artifacts/paper_eval/micro_breakdown.csv`
+4. `artifacts/paper_eval/micro_breakdown.png`
 
 Open the generated summary and plot files:
 
 1. Table 2 summary:
    `artifacts/paper_eval/table2_summary.md`
-2. Table 2 chart:
-   `artifacts/paper_eval/table2_ratios.png`
-3. Figure 3 data:
+2. Figure 3 data:
    `artifacts/paper_eval/micro_breakdown.csv`
-4. Figure 3 plot:
+3. Figure 3 plot:
    `artifacts/paper_eval/micro_breakdown.png`
 
 Once you are done: inside the guest, exit back to the host and run the cleanup script:
