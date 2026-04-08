@@ -1,45 +1,43 @@
-# Short `try` Tutorial (5 minutes)
+# Short `try` Tutorial (10 minutes)
 
 Inside the Vagrant guest:
 
 ```sh
-cd /vagrant
-mkdir -p /tmp/try-tour
-cd /tmp/try-tour
+mkdir -p ~/try-tour
+cd ~/try-tour
 ```
 
-Creation, stack over prior effects `-L`:
-
+Basic effect inspection and selective application:
 ```sh
-rm -rf /tmp/try-lower-a /tmp/try-lower-b
-try -D /tmp/try-lower-a sh -c 'printf "A\n" > a.txt'
-try -D /tmp/try-lower-b sh -c 'printf "B\n" > b.txt'
-try -L /tmp/try-lower-b:/tmp/try-lower-a sh -c 'cat a.txt b.txt'
+try -h 'echo hello > hello.txt' 
+try -h 'rm hello.txt' 
 ```
 
 Creation, name current effect group `-N`:
 
 ```sh
-SANDBOX=$(try -N sh -c 'printf "named\n" > named.txt')
+SANDBOX=$(try -N sh -c 'echo "named" > named.txt')
 echo "$SANDBOX"
 ```
 
 Creation, ignore specific paths `-i`:
 
 ```sh
-try -i '/ignored.txt$' -y sh -c 'printf "shown\n" > shown.txt; printf "ignored\n" > ignored.txt'
+try -i '/ignored.txt$' -y sh -c 'echo "shown" > shown.txt; echo "ignored" > ignored.txt'
 ```
 
 Execution, disable the network `-x`:
 
 ```sh
-try -x sh -c 'printf "offline\n" > offline.txt'
+try curl https://example.com
+try -x curl https://example.com
 ```
 
 Execution, create filesystem trace `-t`:
 
 ```sh
-try -t trace.log -y sh -c 'printf "trace\n" > trace.txt'
+touch {1..5}.txt
+try -t trace.log -y 'rm 1.txt 3.txt 2.txt 4.txt 5.txt'
 ```
 
 Execution, collect effect delta `--diff`:
@@ -48,41 +46,36 @@ Execution, collect effect delta `--diff`:
 try --diff "$SANDBOX"
 ```
 
-Conclusion, apply all effects `-y`:
-
-```sh
-try -y sh -c 'printf "yes\n" > applied.txt'
-```
-
 Conclusion, discard all effects `-n`:
 
 ```sh
-try -n sh -c 'printf "no\n" > discarded.txt'
+try -n 'echo "data" > discarded.txt'
+[ ! -f discarded.txt ] && echo "effect was discarded"
+try -y 'echo "data" > discarded.txt'
+[ -f discarded.txt ] && echo "effect was kept"
 ```
 
-Conclusion, inspect effects `-e`:
+Inspect and selectively apply effects `-e`:
 
 ```sh
-try -e sh -c 'printf "keep\n" > keep.txt; printf "drop\n" > drop.txt'
+try -e 'echo "keep" > keep.txt; echo "drop" > drop.txt'
 ```
 
 Conclusion, include and exclude specific paths `-I`, `-E`:
 
 ```sh
-# `-I` is not wired in the main `try` script yet.
-try -E /etc/hostname sh -c 'if [ -e /etc/hostname ]; then printf "visible\n"; else printf "hidden\n"; fi'
+try -I kept.txt:kept-dir -y 'touch kept.txt dropped.txt; mkdir -p kept-dir; touch kept-dir/file.txt'
+try -E /etc/hostname 'if [ -e /etc/hostname ]; then echo "visible"; else echo "hidden"; fi'
 ```
 
-Conclusion, summarize effects `-s`:
+Creation, stack over prior effects `-L`:
 
 ```sh
-# `-s` is not wired in the main `try` script yet.
-try summary "$SANDBOX"
+sudo rm -rf /tmp/try-lower-a /tmp/try-lower-b
+mkdir -p /tmp/try-lower-a /tmp/try-lower-b
+try -D /tmp/try-lower-a 'echo "A" > a.txt'
+try -D /tmp/try-lower-b 'echo "B" > b.txt'
+try summary /tmp/try-lower-a
+try summary /tmp/try-lower-b
+try -L /tmp/try-lower-b:/tmp/try-lower-a 'cat a.txt b.txt'
 ```
-
-Conclusion, offer friendlier summary `-h`:
-
-```sh
-try -h summary "$SANDBOX"
-```
-

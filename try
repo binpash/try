@@ -385,48 +385,58 @@ EOF
 # Summarize the overlay in `$SANDBOX_DIR`
 ################################################################################
 
+shell_human_summary() {
+    if ! [ -d "$SANDBOX_DIR" ]
+    then
+        error "could not find directory $SANDBOX_DIR" 2
+    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+    then
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
+    fi
+
+    ## Finds all potential changes
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+    summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE" "$INCLUDE_FILE")
+    if [ -z "$summary_output" ]
+    then
+        return 1
+    fi
+
+    echo
+    echo "Changes detected in the following files:"
+    echo
+
+    echo "$summary_output" | while IFS= read -r summary_line
+    do
+        local_file="$(echo "$summary_line" | cut -c 4-)"
+        case "$summary_line" in
+            (ln*) echo "$local_file (symlink)";;
+            (rd*) echo "$local_file (replaced with dir)";;
+            (md*) echo "$local_file (created dir)";;
+            (de*) echo "$local_file (deleted)";;
+            (mo*) echo "$local_file (modified)";;
+            (ad*) echo "$local_file (added)";;
+        esac
+    done
+
+    TRY_EXIT_STATUS=0
+}
+
 if type try-summary >/dev/null 2>&1
 then
     human_summary() {
+        if [ -s "$INCLUDE_FILE" ]
+        then
+            shell_human_summary
+            return
+        fi
+
         try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
     human_summary() {
-        if ! [ -d "$SANDBOX_DIR" ]
-        then
-            error "could not find directory $SANDBOX_DIR" 2
-        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-        then
-            error "could not find directory $SANDBOX_DIR/upperdir" 1
-        fi
-
-        ## Finds all potential changes
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE")
-        if [ -z "$summary_output" ]
-        then
-            return 1
-        fi
-
-        echo
-        echo "Changes detected in the following files:"
-        echo
-
-        echo "$summary_output" | while IFS= read -r summary_line
-        do
-            local_file="$(echo "$summary_line" | cut -c 4-)"
-            case "$summary_line" in
-                (ln*) echo "$local_file (symlink)";;
-                (rd*) echo "$local_file (replaced with dir)";;
-                (md*) echo "$local_file (created dir)";;
-                (de*) echo "$local_file (deleted)";;
-                (mo*) echo "$local_file (modified)";;
-                (ad*) echo "$local_file (added)";;
-            esac
-        done
-
-        TRY_EXIT_STATUS=0
+        shell_human_summary
     }
 fi
 
@@ -455,7 +465,7 @@ collect_effect_lines() {
     validate_effect_sandbox
 
     changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE"
+    process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE" "$INCLUDE_FILE"
 }
 
 validate_effect_sandbox() {
@@ -562,9 +572,21 @@ edit_effects() {
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
 
+shell_commit() {
+    summary_output=$(collect_effect_lines) || return "$?"
+    apply_effect_lines "$summary_output"
+    write_trace_output
+}
+
 if type try-commit >/dev/null 2>&1
 then
     commit() {
+        if [ -s "$INCLUDE_FILE" ]
+        then
+            shell_commit
+            return
+        fi
+
         validate_effect_sandbox
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
         write_trace_output
@@ -572,9 +594,7 @@ then
     }
 else
     commit() {
-        summary_output=$(collect_effect_lines) || return "$?"
-        apply_effect_lines "$summary_output"
-        write_trace_output
+        shell_commit
     }
 fi
 
@@ -600,6 +620,56 @@ find_upperdir_changes() {
 }
 
 ################################################################################
+## Returns 0 when a path should be retained by the include filter
+################################################################################
+
+effect_is_included() {
+    local_file="$1"
+    include_file="$2"
+
+    if ! [ -s "$include_file" ]
+    then
+        return 0
+    fi
+
+    while IFS= read -r include_path
+    do
+        case "$include_path" in
+            ("") continue;;
+            (/)  return 0;;
+        esac
+
+        case "$local_file" in
+            ("$include_path"|"$include_path"/*) return 0;;
+        esac
+    done < "$include_file"
+
+    return 1
+}
+
+append_include_paths() {
+    include_spec="$1"
+    oldifs="$IFS"
+    IFS=":"
+
+    for include_path in $include_spec
+    do
+        case "$include_path" in
+            ("") continue;;
+            (/)  printf '/\n' >>"$INCLUDE_FILE";;
+            (/*) printf '%s\n' "${include_path%/}" >>"$INCLUDE_FILE";;
+            (*)  include_abs="$PWD/$include_path"
+                 case "$include_abs" in
+                     (/) printf '/\n' >>"$INCLUDE_FILE";;
+                     (*) printf '%s\n' "${include_abs%/}" >>"$INCLUDE_FILE";;
+                 esac;;
+        esac
+    done
+
+    IFS="$oldifs"
+}
+
+################################################################################
 # Processes upperdir changes to an internal format that can be processed by summary and commit
 #
 # Output format:
@@ -621,11 +691,16 @@ process_changes() {
     sandbox_dir="$1"
     changed_files="$2"
     ignore_file="${3:-}"
+    include_file="${4:-}"
 
     while IFS= read -r changed_file
     do
         local_file="${changed_file#"$sandbox_dir/upperdir"}"
         if [ -n "$ignore_file" ] && printf '%s\n' "$local_file" | grep -q -f "$ignore_file"
+        then
+            continue
+        fi
+        if [ -n "$include_file" ] && ! effect_is_included "$local_file" "$include_file"
         then
             continue
         fi
@@ -743,7 +818,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-I path1:path2:...] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
        $TRY_COMMAND --diff DIR
 
   -e                edit the effect list and apply only the retained lines
@@ -754,6 +829,7 @@ Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:..
   -t FILE           create a filesystem trace and write it to FILE on commit
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
+  -I path1:path2:... keep only effects for the listed paths (colon-separated)
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
@@ -785,6 +861,7 @@ HUMAN_SUMMARY=0
 # We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
 IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 echo "$TRY_TRACE_PATH" >>"$IGNORE_FILE"
+INCLUDE_FILE="$(mktemp --suffix ".try-include-$EXECID")"
 
 if [ "${1-}" = "--diff" ]
 then
@@ -795,7 +872,7 @@ then
     set -- diff "$2"
 fi
 
-while getopts ":eyvnNhxt:i:D:U:L:E:" opt
+while getopts ":eyvnNhxt:i:I:D:U:L:E:" opt
 do
     case "$opt" in
         (e)   NO_COMMIT="edit";;
@@ -803,6 +880,7 @@ do
         (n|N) NO_COMMIT="show";;
         (t)   TRACE_FILE="$OPTARG";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
+        (I)   append_include_paths "$OPTARG";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
@@ -854,22 +932,28 @@ case "$1" in
                   printf '%s\n' "$summary_output"
                   TRY_EXIT_STATUS=0
               fi
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$INCLUDE_FILE"
               ;;
     (summary) : "${SANDBOX_DIR=$2}"
               summary
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$INCLUDE_FILE"
               ;;
     (commit)  : "${SANDBOX_DIR=$2}"
               commit
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm -f "$INCLUDE_FILE"
               ;;
     (explore) : "${SANDBOX_DIR=$2}"
               set_TRY_SHELL
-              try "$TRY_SHELL";;
+              try "$TRY_SHELL"
+              rm -f "$INCLUDE_FILE";;
     (--)      shift
-              try "$@";;
-    (*)       try "$@";;
+              try "$@"
+              rm -f "$INCLUDE_FILE";;
+    (*)       try "$@"
+              rm -f "$INCLUDE_FILE";;
 esac
 
 exit "$TRY_EXIT_STATUS"
