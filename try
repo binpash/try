@@ -12,6 +12,7 @@ TRY_COMMAND="${0##*/}"
 EXECID="$(date +%s%3N)"
 export EXECID
 export TRY_COMMAND
+TRY_TRACE_PATH="/run/try_trace.log"
 
 # exit status invariants
 #
@@ -303,6 +304,11 @@ exit $exitcode
 EOF
 
     # NB we substitute in the heredoc, so the early unsets are okay!
+    if [ -n "${TRACE_FILE-}" ]; then
+        EXECUTE_SCRIPT="strace -y -f --seccomp-bpf --trace=fork,clone,%file -o ${TRY_TRACE_PATH} sh \"$script_to_execute\""
+    else
+        EXECUTE_SCRIPT="OLDPWD=\$OLDPWD . \"$script_to_execute\""
+    fi
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
@@ -317,7 +323,7 @@ ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
-OLDPWD=$OLDPWD . "$script_to_execute"
+${EXECUTE_SCRIPT}
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -456,6 +462,24 @@ collect_effect_lines() {
     process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE"
 }
 
+write_trace_output() {
+    [ -n "${TRACE_FILE-}" ] || return 0
+
+    if command -v parse_trace.py >/dev/null 2>&1
+    then
+        trace_parser="$(command -v parse_trace.py)"
+    else
+        trace_parser="$(cd "$(dirname "$0")" && pwd)/utils/parse_trace.py"
+    fi
+
+    if ! [ -x "$trace_parser" ]
+    then
+        error "could not find parse_trace.py required for -t" 1
+    fi
+
+    "$trace_parser" "${SANDBOX_DIR}/upperdir/${TRY_TRACE_PATH}" > "${TRACE_FILE}"
+}
+
 ################################################################################
 # Apply a set of effect lines to the host
 ################################################################################
@@ -536,12 +560,14 @@ if type try-commit >/dev/null 2>&1
 then
     commit() {
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
+        write_trace_output
         TRY_EXIT_STATUS=$?
     }
 else
     commit() {
         summary_output=$(collect_effect_lines)
         apply_effect_lines "$summary_output"
+        write_trace_output
     }
 fi
 
@@ -710,7 +736,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-enNvyhx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
        $TRY_COMMAND --diff DIR
 
   -e                edit the effect list and apply only the retained lines
@@ -718,6 +744,7 @@ Usage: $TRY_COMMAND [-enNvyhx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...
   -N                alias for -n
   -y                assume yes to all prompts (overrides -n)
   -h                print the human-readable summary instead of raw effect codes
+  -t FILE           create a filesystem trace and write it to FILE on commit
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
@@ -750,6 +777,7 @@ HUMAN_SUMMARY=0
 # We have to create this temporary up front.
 # We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
 IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
+echo "$TRY_TRACE_PATH" >>"$IGNORE_FILE"
 
 if [ "${1-}" = "--diff" ]
 then
@@ -760,12 +788,13 @@ then
     set -- diff "$2"
 fi
 
-while getopts ":eyvnNhxi:D:U:L:E:" opt
+while getopts ":eyvnNhxt:i:D:U:L:E:" opt
 do
     case "$opt" in
         (e)   NO_COMMIT="edit";;
         (y)   NO_COMMIT="commit";;
         (n|N) NO_COMMIT="show";;
+        (t)   TRACE_FILE="$OPTARG";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
         (D)   if ! [ -d "$OPTARG" ]
               then

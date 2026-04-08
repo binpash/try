@@ -39,7 +39,7 @@ try -x sh -c 'printf "offline\n" > offline.txt'
 Execution, create filesystem trace `-t`:
 
 ```sh
-scripts/try-timed -t trace.log -y sh -c 'printf "trace\n" > trace.txt'
+try -t trace.log -y sh -c 'printf "trace\n" > trace.txt'
 ```
 
 Execution, collect effect delta `--diff`:
@@ -85,5 +85,4 @@ Conclusion, offer friendlier summary `-h`:
 ```sh
 try -h summary "$SANDBOX"
 ```
-
 
