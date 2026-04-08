@@ -1,12 +1,35 @@
 #!/bin/bash
 
-TOP=$(git rev-parse --show-toplevel)
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+find_top() {
+    local dir="$script_dir"
+    while [ "$dir" != "/" ]; do
+        if [ -f "$dir/incr.sh" ] && [ -d "$dir/src/scripts" ] && [ -d "$dir/evaluation" ]; then
+            printf '%s\n' "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+
+    echo "Could not locate dependency_tracking root from $script_dir" >&2
+    exit 1
+}
+
+TOP="$(find_top)"
 URL="https://atlas.cs.brown.edu/data"
 BENCHMARK="eager"
 
-input_dir="${TOP}/evaluation/microbenchmarks/${BENCHMARK}/inputs"
+input_dir="${INCR_EAGER_INPUT_DIR:-${TOP}/evaluation/microbenchmarks/${BENCHMARK}/inputs}"
 mkdir -p "$input_dir"
 cd "$input_dir" || exit 1
+
+normalize_tree_permissions() {
+    local dir="$1"
+    if [ -d "$dir" ]; then
+        chmod -R u+rwX,go+rX "$dir"
+    fi
+}
 
 size=full
 for arg in "$@"; do
@@ -50,7 +73,7 @@ if [[ "$size" == "small" ]]; then
             echo "Failed to download pg-small.tar.gz"
             exit 1
         fi
-        tar -xzf pg-small.tar.gz
+        tar --no-same-owner --no-same-permissions -xzf pg-small.tar.gz
         rm pg-small.tar.gz
         input_dir="$input_dir/pg-small"
         limit=$((200 * 1024 * 1024))
@@ -64,6 +87,7 @@ if [[ "$size" == "small" ]]; then
             fi
         done
     fi
+    normalize_tree_permissions ./pg-small
     exit 0
 elif [[ "$size" == "min" ]]; then
     if [ ! -e ./pg-min ]; then
@@ -80,6 +104,7 @@ elif [[ "$size" == "min" ]]; then
 
         cd ..
     fi
+    normalize_tree_permissions ./pg-min
     exit 0
 fi
 
@@ -90,7 +115,8 @@ if [ ! -e ./pg ]; then
         echo "Failed to download pg.tar.gz"
         exit 1
     fi
-    tar -xzf pg.tar.gz
+    tar --no-same-owner --no-same-permissions -xzf pg.tar.gz
     rm pg.tar.gz
-    exit 0
 fi
+
+normalize_tree_permissions ./pg

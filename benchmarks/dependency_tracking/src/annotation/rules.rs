@@ -116,5 +116,26 @@ pub(crate) const IGNORE_COMMANDS: &[&str] = &[
 ];
 
 pub(crate) const PURE_COMMANDS: &[Condition] = &[];
-pub(crate) const STATELESS_COMMANDS: &[Condition] = &[];
+
+// These benchmark workloads are dominated by standard streaming filters.
+// Routing them through plain strace avoids spinning up a full `try` sandbox for
+// every pipeline stage, which is unreliable under heavy parallelism in the VM.
+pub(crate) const STATELESS_COMMANDS: &[Condition] = &[
+    Condition::with_name("awk"),
+    Condition::with_name("cat"),
+    Condition::with_name("col"),
+    Condition::with_name("comm"),
+    Condition::with_name("cut"),
+    Condition::with_name("find"),
+    Condition::with_name("grep"),
+    Condition::with_name("head"),
+    Condition::with_name("perl"),
+    Condition::with_name("rev"),
+    Condition::with_name("sed"),
+    Condition::with_name("sort"),
+    Condition::with_name("tr"),
+    Condition::with_name("uniq"),
+    Condition::with_name("wc"),
+];
+
 pub(crate) const READ_ONLY_COMMANDS: &[Condition] = &[];

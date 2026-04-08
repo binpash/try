@@ -22,6 +22,8 @@ docker build -t incr .
 docker run -it --rm -v $(pwd):/app --privileged incr
 ```
 
+The benchmark harness runs [setup.sh](/Users/vagozino/wrk/try/benchmarks/dependency_tracking/setup.sh) automatically, which ensures the release `incr` binary exists and builds the `incr` Docker image if it is missing.
+
 Toggle the `DEBUG` and `DEBUG_LOGS` flag in `src/config.rs` to enable debug information to be saved in the cache directory and a log file to be generated.
 
 ## Benchmark Setup

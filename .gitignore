@@ -5,6 +5,9 @@ test/try_workspace/
 .vagrant/
 .vagrant
 autom4te.cache/
+artifacts/paper_eval/
+benchmarks/results/
+benchmarks/dependency_tracking/results/
 config.log
 config.status
 Makefile
@@ -12,3 +15,5 @@ configure.scan
 autoscan.log
 configure
 try-0.2.0.tgz
+.vagrant*
+scripts/__pycache__

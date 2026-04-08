@@ -17,7 +17,8 @@ set -euo pipefail
 
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${1:-$SCRIPT_DIR/try_leak_env}"
+DEFAULT_WORK_ROOT="${TRY_LEAK_WORK_ROOT:-${XDG_CACHE_HOME:-$HOME/.cache}/try-paper/third_party_library_risks}"
+TARGET_DIR="${1:-${TRY_LEAK_ENV_DIR:-$DEFAULT_WORK_ROOT/try_leak_env}}"
 mkdir -p "$TARGET_DIR"
 
 

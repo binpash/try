@@ -1,4 +1,10 @@
+require "rbconfig"
+
 Vagrant.configure("2") do |config|
+  host_os = RbConfig::CONFIG["host_os"]
+  host_cpu = RbConfig::CONFIG["host_cpu"]
+  apple_silicon = host_os.include?("darwin") && ["arm64", "aarch64"].include?(host_cpu)
+  debian_box = apple_silicon ? "bento/debian-12" : "generic/debian12"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 8192
@@ -7,11 +13,15 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box
   config.vm.define "debian" do |debian|
-    debian.vm.box = "generic/debian12"
+    debian.vm.box = debian_box
+    debian.vm.box_architecture = "arm64" if apple_silicon
     debian.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debian.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
-      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf mergerfs
+      sudo apt-get install -y git expect curl attr pandoc gcc make autoconf automake libtool mergerfs python3-matplotlib python3-pip docker.io nodejs npm time cargo rustc strace
+      sudo systemctl enable docker || true
+      sudo systemctl start docker || sudo service docker start
+      sudo usermod -aG docker vagrant
       sudo chown -R vagrant:vagrant try
       cd try
       scripts/run_tests.sh
@@ -26,7 +36,8 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box but we try the rustup oneliner
   config.vm.define "debianrustup" do |debianrustup|
-    debianrustup.vm.box = "generic/debian12"
+    debianrustup.vm.box = debian_box
+    debianrustup.vm.box_architecture = "arm64" if apple_silicon
     debianrustup.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianrustup.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
@@ -50,7 +61,8 @@ Vagrant.configure("2") do |config|
 
   # Regular debian testing box with LVM
   config.vm.define "debianlvm" do |debianlvm|
-    debianlvm.vm.box = "generic/debian12"
+    debianlvm.vm.box = debian_box
+    debianlvm.vm.box_architecture = "arm64" if apple_silicon
     debianlvm.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianlvm.vm.provision "shell", privileged: false, inline: "
       sudo apt-get update
@@ -91,7 +103,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "debianloginshell" do |debianloginshell|
-    debianloginshell.vm.box = "generic/debian12"
+    debianloginshell.vm.box = debian_box
+    debianloginshell.vm.box_architecture = "arm64" if apple_silicon
     debianloginshell.vm.provision "file", source: "./", destination: "/home/vagrant/try"
     debianloginshell.vm.provision "shell", privileged: false, inline: <<-'SHELL'
       sudo apt-get update

@@ -1,7 +1,20 @@
 #!/bin/bash
+set -euo pipefail
 
-mkdir -p /tmp/hashes
-for x in $(ls -1 / | sort | grep -v "tmp" | grep -v "proc" | grep -v "sys" | grep -v "dev"); do
-    tar --sort=name -cf /tmp/hashes/$x.tar /$x >/dev/null 2>&1
-    sha1sum /tmp/hashes/$x.tar
-done
+tmp_tar=$(mktemp /tmp/hash_dir.XXXXXX.tar)
+trap 'rm -f "$tmp_tar"' EXIT
+
+tar \
+  --sort=name \
+  --mtime='UTC 1970-01-01' \
+  --owner=0 \
+  --group=0 \
+  --numeric-owner \
+  --exclude='./.git' \
+  --exclude='./.ruff_cache' \
+  --exclude='./.pytest_cache' \
+  --exclude='./__pycache__' \
+  --exclude='./.mypy_cache' \
+  -cf "$tmp_tar" .
+
+sha1sum "$tmp_tar" | awk '{print $1}'

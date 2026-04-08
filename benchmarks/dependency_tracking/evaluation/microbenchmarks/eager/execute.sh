@@ -1,7 +1,23 @@
 #!/bin/bash
 cd "$(dirname "$0")" || exit 1
 
-TOP=$(git rev-parse --show-toplevel)
+script_dir="$(pwd)"
+
+find_top() {
+    local dir="$script_dir"
+    while [ "$dir" != "/" ]; do
+        if [ -f "$dir/incr.sh" ] && [ -d "$dir/src/scripts" ] && [ -d "$dir/evaluation" ]; then
+            printf '%s\n' "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+
+    echo "Could not locate dependency_tracking root from $script_dir" >&2
+    exit 1
+}
+
+TOP="$(find_top)"
 EVAL_DIR="${TOP}/evaluation"
 BENCHMARK="eager"
 BENCHMARK_DIR="${EVAL_DIR}/microbenchmarks/${BENCHMARK}"

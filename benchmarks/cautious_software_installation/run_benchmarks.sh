@@ -1,16 +1,23 @@
 #!/bin/bash
+set -euo pipefail
 
-BASE_DIR=$(realpath $(dirname $0))
-RESULT_DIR=$(realpath ${BASE_DIR}/..)/results/npm_pre_postinstall
+BASE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+RESULT_DIR="${BASE_DIR}/../results/npm_pre_postinstall"
+mkdir -p "$RESULT_DIR"
+TIME_BIN="${TIME_BIN:-/usr/bin/time}"
+ITERATIONS="${ITERATIONS:-10}"
+BENCHMARK_CASES="${BENCHMARK_CASES:-eslint-scope node-sass coa ua-parser-js}"
 
-# Directory containing the cases
-OUTPUT_FILE=$RESULT_DIR/"benchmark_results.csv"
+OUTPUT_FILE="$RESULT_DIR/benchmark_results.csv"
+rm -f "$OUTPUT_FILE"
 
-# Remove results from previous runs 
-rm -f $OUTPUT_FILE
+cleanup() {
+    /bin/bash "${BASE_DIR}/clean_generated_files.sh" all
+}
+trap cleanup EXIT INT TERM
 
 # Iterate over each case in the directory, skipping the 'scripts' folder
-for case_name in eslint-scope node-sass coa ua-parser-js; do
+for case_name in $BENCHMARK_CASES; do
     case=${BASE_DIR}/${case_name}
 
     # Define the script paths for run.sh and try-run.sh
@@ -27,14 +34,15 @@ for case_name in eslint-scope node-sass coa ua-parser-js; do
 	local times=""
 
 	# Run the script 10 times and collect the timing results
-	for i in {1..10}; do
+	for ((i = 1; i <= ITERATIONS; i++)); do
 	    echo "Running $script_path (Iteration $i)"
-	    time_output=$(/bin/bash "$script_path" --time-only | sed 's/\r//g')
+	    /bin/bash "${BASE_DIR}/clean_generated_files.sh" "$case_name"
+	    time_output=$(/bin/bash "$script_path" --time-only | tr -d '\r')
 	    times="$times,$time_output"
+	    /bin/bash "${BASE_DIR}/clean_generated_files.sh" "$case_name"
 	done
 
-	# Append the benchmark results to the CSV file
-	echo "$benchmark_name$times" >> $OUTPUT_FILE
+	echo "$benchmark_name$times" >> "$OUTPUT_FILE"
     }
 
     run_docker_benchmark() {
@@ -44,14 +52,13 @@ for case_name in eslint-scope node-sass coa ua-parser-js; do
         local container_script_path="${case_name}/$(basename $script_path)"
         
         
-        for i in {1..10}; do
+        for ((i = 1; i <= ITERATIONS; i++)); do
             echo "Running $script_path (Iteration $i)"
-            time_output=$(/usr/bin/time -f "%e" sh -c "docker run --privileged --network=host -it --rm --name try-greg2 -v /tmp:/tmp try_prepostinstall_benchmarks /bin/bash \"$container_script_path\" >/dev/null 2>&1" 2>&1)
+            time_output=$("$TIME_BIN" -f "%e" sh -c "docker run --privileged --network=host --rm --name try-greg2 -v /tmp:/tmp try_prepostinstall_benchmarks /bin/bash \"$container_script_path\" >/dev/null 2>&1" 2>&1)
             times="$times,$time_output"
         done
 
-        # Append the benchmark results to the CSV file
-        echo "$benchmark_name$times" >> $OUTPUT_FILE
+        echo "$benchmark_name$times" >> "$OUTPUT_FILE"
     }
 
     # Run benchmarks for both run.sh and try-run.sh if they exist

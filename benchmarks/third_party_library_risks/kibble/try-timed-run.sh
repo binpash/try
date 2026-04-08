@@ -12,6 +12,7 @@ usage() {
 print_time=false
 print_hash=false
 time_only=false
+TRY_TIMED_BIN="${TRY_TIMED_BIN:-try-timed}"
 
 # Parse the input flags
 for arg in "$@"; do
@@ -48,12 +49,12 @@ git add .
 
 # Run script.sh and handle time output based on the flags
 if $time_only; then
-  time_output=$(/usr/bin/time -f "%e" try-timed -E /etc/passwd -y git commit -m 'message' 2>&1 >/dev/null)
+  time_output=$(/usr/bin/time -f "%e" "$TRY_TIMED_BIN" -E /etc/passwd -y git commit -m 'message' 2>&1 >/dev/null)
   echo "$(echo $time_output | awk 'END{print $NF}')"
 elif $print_time; then
-  /usr/bin/time -f "%e" try-timed -E /etc/passwd -y git commit -m 'message'
+  /usr/bin/time -f "%e" "$TRY_TIMED_BIN" -E /etc/passwd -y git commit -m 'message'
 else
-  /usr/bin/time -f "%e" try-timed -E /etc/passwd -y git commit -m 'message' &> /dev/null
+  /usr/bin/time -f "%e" "$TRY_TIMED_BIN" -E /etc/passwd -y git commit -m 'message' &> /dev/null
 fi
 
 # Run hash_dir.sh and handle output based on the flag

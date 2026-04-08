@@ -10,6 +10,8 @@ usage() {
 print_time=false
 print_hash=false
 time_only=false
+TRY_BIN="${TRY_BIN:-try}"
+TRY_LEAK_ARGS="${TRY_LEAK_ARGS:--y}"
 
 # Parse the input flags
 for arg in "$@"; do
@@ -46,12 +48,15 @@ git add .
 
 # Run script.sh and handle time output based on the flags
 if $time_only; then
-  time_output=$(/usr/bin/time -f "%e" try -E /etc/passwd -y git commit -m 'message' 2>&1 >/dev/null)
+  # shellcheck disable=SC2086
+  time_output=$(/usr/bin/time -f "%e" "$TRY_BIN" $TRY_LEAK_ARGS git commit -m 'message' 2>&1 >/dev/null)
   echo "$(echo $time_output | awk 'END{print $NF}')"
 elif $print_time; then
-  /usr/bin/time -f "%e" try -E /etc/passwd -y git commit -m 'message'
+  # shellcheck disable=SC2086
+  /usr/bin/time -f "%e" "$TRY_BIN" $TRY_LEAK_ARGS git commit -m 'message'
 else
-  /usr/bin/time -f "%e" try -E /etc/passwd -y git commit -m 'message' &> /dev/null
+  # shellcheck disable=SC2086
+  /usr/bin/time -f "%e" "$TRY_BIN" $TRY_LEAK_ARGS git commit -m 'message' &> /dev/null
 fi
 
 # Run hash_dir.sh and handle output based on the flag

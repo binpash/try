@@ -224,7 +224,6 @@ fn spawn_child(config: &Config, command: &Command, runtime: &Runtime) -> Result<
         RuntimeType::TraceFile(file) => {
             let mut arguments = vec![
                 "-yf".to_owned(),
-                "--seccomp-bpf".to_owned(),
                 "--trace=fork,clone,%file".to_owned(),
                 "-o".to_owned(),
                 ops::file::path_to_string(file)?.to_string(),

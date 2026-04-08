@@ -2,6 +2,22 @@
 
 incr_shell=${INCR_SHELL:-bash}
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+find_top() {
+    local dir="$script_dir"
+    while [ "$dir" != "/" ]; do
+        if [ -f "$dir/incr.sh" ] && [ -d "$dir/src/scripts" ] && [ -d "$dir/evaluation" ]; then
+            printf '%s\n' "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+
+    echo "Could not locate dependency_tracking root from $script_dir" >&2
+    exit 1
+}
+
 while getopts "c:" opt; do
     case "$opt" in
         c) cmd_str="$OPTARG" ;;
@@ -26,8 +42,8 @@ mkdir -p "$cache_dir"
 [ -z "$script" ] && echo "Usage: $0 <script>" && exit 1
 [ -z "$cache_dir" ] && echo "Usage: $0 <script>" && exit 1
 
-TOP=$(git rev-parse --show-toplevel)
-TRY_PATH="$TOP/src/scripts/try.sh"
+TOP="$(find_top)"
+TRY_PATH="${INCR_TRY_PATH:-$TOP/src/scripts/try.sh}"
 tmp_incr=$(mktemp "$(dirname $script)/incr_script_$(basename $script).XXXXXXXX.sh")
 tmp_orig=$(mktemp)
 

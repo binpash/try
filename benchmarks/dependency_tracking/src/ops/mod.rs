@@ -5,7 +5,7 @@ pub(crate) mod serialize_bytes;
 pub(crate) mod thread;
 
 use std::env;
-use std::fs::{File, OpenOptions};
+use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::sync::{Mutex, OnceLock};
 use time::format_description::FormatItem;
@@ -40,6 +40,9 @@ pub(crate) fn initialize_log_file() {
     if DEBUG_LOGS {
         let log_file = env::home_dir().unwrap().join(DEBUG_LOG_PATH);
         LOG_FILE.get_or_init(|| {
+            if let Some(parent) = log_file.parent() {
+                fs::create_dir_all(parent).unwrap();
+            }
             let file = OpenOptions::new()
                 .append(true)
                 .create(true)

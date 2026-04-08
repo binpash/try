@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Script to run an experiment in a Docker container
 # Usage: ./run-docker-high.sh [experiment_path] [script_to_run]
@@ -30,11 +31,12 @@ EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 CONTAINER_NAME="${EXPERIMENT_NAME}-tmp"
 RESULTS_DIR="tmp_results"
 
-# Clean up any existing container
-docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
+cleanup() {
+    docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    rm -rf "$RESULTS_DIR"
+}
+trap cleanup EXIT INT TERM
 
-# Create tmp_results directory
-rm -rf "$RESULTS_DIR"
 mkdir -p "$RESULTS_DIR"
 
 echo "Starting container from try_base_image..."
@@ -55,9 +57,3 @@ docker exec "$CONTAINER_NAME" bash -c "cd /root/experiment && chmod +x $SCRIPT_T
 echo "Copying results from container..."
 # Copy results from container to tmp_results directory
 docker cp "$CONTAINER_NAME:/root/experiment" "$RESULTS_DIR/"
-
-echo "Cleaning up container..."
-# Stop and remove the container
-docker stop "$CONTAINER_NAME"
-docker rm "$CONTAINER_NAME"
-

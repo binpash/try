@@ -5,10 +5,28 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 LOCAL_DATA="$SCRIPT_DIR/local_data"
+available_kb=$(df -Pk "$SCRIPT_DIR" | awk 'NR==2 {print $4}')
+
+if [ "$available_kb" -lt 4000000 ]; then
+    export FIND_TXT_DIRS="${FIND_TXT_DIRS:-10}"
+    export FIND_TXT_FILES_PER_DIR="${FIND_TXT_FILES_PER_DIR:-1000}"
+    export SORT_LARGE_FILE_LINES="${SORT_LARGE_FILE_LINES:-1000000}"
+elif [ "$available_kb" -lt 20000000 ]; then
+    export FIND_TXT_DIRS="${FIND_TXT_DIRS:-20}"
+    export FIND_TXT_FILES_PER_DIR="${FIND_TXT_FILES_PER_DIR:-2000}"
+    export SORT_LARGE_FILE_LINES="${SORT_LARGE_FILE_LINES:-2000000}"
+else
+    export FIND_TXT_DIRS="${FIND_TXT_DIRS:-100}"
+    export FIND_TXT_FILES_PER_DIR="${FIND_TXT_FILES_PER_DIR:-10000}"
+    export SORT_LARGE_FILE_LINES="${SORT_LARGE_FILE_LINES:-10000000}"
+fi
 
 mkdir -p "$LOCAL_DATA"
 
 echo "[*] Generating fresh data for all benchmarks..."
+/bin/bash "$SCRIPT_DIR/clean_local_files.sh" all
+echo "[*] Using find_txt dataset: ${FIND_TXT_DIRS} directories x ${FIND_TXT_FILES_PER_DIR} files"
+echo "[*] Using sort_large_file dataset: ${SORT_LARGE_FILE_LINES} lines"
 
 ###############################################################################
 # find_txt
@@ -19,11 +37,11 @@ chmod +x ./create_data.sh
 ./create_data.sh
 
 # Save clean copy
-if [ -d "find_txt/data" ]; then
+if [ -d "find_txt/large_directory" ]; then
     echo "[*] Saving clean data to local_data/find_txt_data"
     mkdir -p "$LOCAL_DATA/find_txt_data"
     rm -rf "$LOCAL_DATA/find_txt_data"/*
-    cp -r "find_txt/data" "$LOCAL_DATA/find_txt_data/"
+    cp -r "find_txt/large_directory" "$LOCAL_DATA/find_txt_data/"
 fi
 
 ###############################################################################
@@ -63,18 +81,6 @@ fi
 ###############################################################################
 cd "$SCRIPT_DIR"
 echo "[*] Restoring clean data copies into experiment directories..."
-
-# find_exec_touch
-echo "[*] Copying clean exec_zip data → find_exec_touch..."
-rm -rf "find_exec_touch/find_exec_touch/data"
-mkdir -p "find_exec_touch/find_exec_touch/data"
-cp -r "$LOCAL_DATA/find_exec_zip_data/data/" \
-      "find_exec_touch/find_exec_touch/"
-
-# grep_log
-echo "[*] Copying clean book.txt → grep_log/large_log_file.log..."
-mkdir -p "grep_log/grep_log"
-cp "$LOCAL_DATA/sort_large_file/book.txt" \
-   "grep_log/grep_log/large_log_file.log"
+/bin/bash "$SCRIPT_DIR/restore_clean_data.sh" all
 
 echo "[*] All data generated and clean backups saved to: $LOCAL_DATA"

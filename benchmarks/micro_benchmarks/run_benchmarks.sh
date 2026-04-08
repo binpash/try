@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-BASE_DIR=$(realpath $(dirname $0))
-BASE_DIR="."
-echo $BASE_DIR
+set -euo pipefail
 
-# Directory containing the cases
-OUTPUT_FILE=${BASE_DIR}/"benchmark_results.csv"
+BASE_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+RESULT_DIR="${BASE_DIR}/../results/micro_benchmarks"
+OUTPUT_FILE="${RESULT_DIR}/benchmark_results.csv"
+ITERATIONS="${ITERATIONS:-10}"
+BENCHMARK_CASES="${BENCHMARK_CASES:-big_io small_files small_command}"
 
-# Remove results from previous runs 
-rm -f $OUTPUT_FILE
+mkdir -p "$RESULT_DIR"
+rm -f "$OUTPUT_FILE"
 
 # Iterate over each case in the directory, skipping the 'scripts' folder
-for case_name in big_io small_files small_command; do
+for case_name in $BENCHMARK_CASES; do
 
   # Define the script paths for run.sh and try-run.sh
   run_script="${BASE_DIR}/$case_name/run.sh"
@@ -21,18 +22,17 @@ for case_name in big_io small_files small_command; do
   run_benchmark() {
     local script_path=$1
     local benchmark_name="${case_name}_$(basename $script_path)"
+    local container_script_path="${case_name}/$(basename "$script_path")"
     local times=""
 
     # Run the script 10 times and collect the timing results
-    for i in {1..10}; do
+    for ((i = 1; i <= ITERATIONS; i++)); do
       echo "Running $script_path (Iteration $i)"
-      echo docker run --privileged -it --rm --name try-microb -v /tmp:/tmp try_micro_benchmarks /bin/bash "$script_path"
-      time_output=$(docker run --privileged -it --rm --name try-microb -v /tmp:/tmp try_micro_benchmarks /bin/bash "$script_path" | sed 's/\r//g')
+      time_output=$(docker run --privileged --rm --name try-microb -v /tmp:/tmp try_micro_benchmarks /bin/bash "$container_script_path" | tr -d '\r')
       times="$times,$time_output"
     done
 
-    # Append the benchmark results to the CSV file
-    echo "$benchmark_name$times" >> $OUTPUT_FILE
+    echo "$benchmark_name$times" >> "$OUTPUT_FILE"
   }
 
   # Run benchmarks for both run.sh and try-run.sh if they exist

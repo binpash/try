@@ -125,6 +125,8 @@ class Tracer:
             except UnicodeDecodeError:
                 cmd_stderr = "Decoding Failed"
 
+        joined_traces = "\n".join(strace_traces)
+
         self.logger.info(
             "\n".join(
                 (
@@ -134,7 +136,7 @@ class Tracer:
                     f"stdin: {config.stdin.name}",
                     f"stdout:\n{indent(cmd_stdout, ' ' * 4)}",
                     f"stderr:\n{indent(cmd_stderr, ' ' * 4)}",
-                    f"traces:\n{indent("\n".join(strace_traces), ' ' * 4)}",
+                    f"traces:\n{indent(joined_traces, ' ' * 4)}",
                     f"returncode: {strace_run.returncode}",
                     "=" * 16,
                 )
