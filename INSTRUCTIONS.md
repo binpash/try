@@ -76,6 +76,8 @@ The test suite should report:
 Summary: 32/32 tests passed.
 ```
 
+**Optional**: To futher explore `try`'s capabilities, you can go over the short [TUTORIAL](TUTORIAL.md) document.
+
 # Detailed Instructions (3 hours)
 
 These steps reproduce the live evaluation from inside the Debian Vagrant guest and then generate the final paper-style outputs.
