@@ -1,0 +1,15 @@
+.git
+.vagrant
+.vagrant-home
+artifacts
+try-ae
+benchmarks/**/node_modules
+benchmarks/**/times
+benchmarks/**/tmp_results
+benchmarks/**/local_data
+benchmarks/**/results
+benchmarks/dependency_tracking/target
+benchmarks/third_party_library_risks/probe_base
+benchmarks/third_party_library_risks/probe_try
+benchmarks/third_party_library_risks/try_leak_env
+benchmarks/third_party_library_risks/try_leak_env_cur

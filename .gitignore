@@ -17,3 +17,4 @@ configure
 try-0.2.0.tgz
 .vagrant*
 scripts/__pycache__
+benchmarks/micro_benchmarks/create_files/target

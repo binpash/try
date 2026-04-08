@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 LOCAL_DATA="$SCRIPT_DIR/local_data"
+STAGE_ROOT="${LLM_BENCH_SETUP_ROOT:-${TMPDIR:-/tmp}/try-paper/llm-setup}"
 available_kb=$(df -Pk "$SCRIPT_DIR" | awk 'NR==2 {print $4}')
 
 if [ "$available_kb" -lt 4000000 ]; then
@@ -22,17 +23,45 @@ else
 fi
 
 mkdir -p "$LOCAL_DATA"
-
-echo "[*] Generating fresh data for all benchmarks..."
-/bin/bash "$SCRIPT_DIR/clean_local_files.sh" all
 echo "[*] Using find_txt dataset: ${FIND_TXT_DIRS} directories x ${FIND_TXT_FILES_PER_DIR} files"
 echo "[*] Using sort_large_file dataset: ${SORT_LARGE_FILE_LINES} lines"
+
+cleanup() {
+    rm -rf "$STAGE_ROOT"
+}
+trap cleanup EXIT INT TERM
+
+copy_case_static() {
+    local src_case=$1
+    local dst_case=$2
+
+    rm -rf "$dst_case"
+    mkdir -p "$dst_case"
+
+    (
+        cd "$src_case"
+        tar \
+            --exclude='./find_exec_zip/data' \
+            --exclude='./find_exec_touch/data' \
+            --exclude='./find_txt/large_directory' \
+            --exclude='./grep_log/large_log_file.log' \
+            --exclude='./grep_log/filtered_errors.log' \
+            --exclude='./sort_large_file/book.txt' \
+            --exclude='./sort_large_file/sortedBook.txt' \
+            -cf - .
+    ) | (
+        cd "$dst_case"
+        tar -xf -
+    )
+}
 
 ###############################################################################
 # find_txt
 ###############################################################################
+find_txt_stage="$STAGE_ROOT/find_txt"
+copy_case_static "$SCRIPT_DIR/find_txt" "$find_txt_stage"
 echo "[*] Running create_data.sh in find_txt..."
-cd "$SCRIPT_DIR/find_txt"
+cd "$find_txt_stage"
 chmod +x ./create_data.sh
 ./create_data.sh
 
@@ -47,8 +76,10 @@ fi
 ###############################################################################
 # find_exec_zip
 ###############################################################################
+find_exec_zip_stage="$STAGE_ROOT/find_exec_zip"
+copy_case_static "$SCRIPT_DIR/find_exec_zip" "$find_exec_zip_stage"
 echo "[*] Running create_data.sh in find_exec_zip..."
-cd "$SCRIPT_DIR/find_exec_zip"
+cd "$find_exec_zip_stage"
 chmod +x ./create_data.sh
 ./create_data.sh
 
@@ -63,8 +94,10 @@ fi
 ###############################################################################
 # sort_large_file
 ###############################################################################
+sort_large_file_stage="$STAGE_ROOT/sort_large_file"
+copy_case_static "$SCRIPT_DIR/sort_large_file" "$sort_large_file_stage"
 echo "[*] Running create_data.sh in sort_large_file..."
-cd "$SCRIPT_DIR/sort_large_file"
+cd "$sort_large_file_stage"
 chmod +x ./create_data.sh
 ./create_data.sh
 
@@ -75,12 +108,5 @@ if [ -f "sort_large_file/book.txt" ]; then
     rm -rf "$LOCAL_DATA/sort_large_file"/*
     cp "sort_large_file/book.txt" "$LOCAL_DATA/sort_large_file/book.txt"
 fi
-
-###############################################################################
-# Restore working copies for experiments
-###############################################################################
-cd "$SCRIPT_DIR"
-echo "[*] Restoring clean data copies into experiment directories..."
-/bin/bash "$SCRIPT_DIR/restore_clean_data.sh" all
 
 echo "[*] All data generated and clean backups saved to: $LOCAL_DATA"
