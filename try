@@ -103,6 +103,22 @@ try() {
     find / -maxdepth 1 >"$DIRS_AND_MOUNTS"
     sort -u -o "$DIRS_AND_MOUNTS" "$DIRS_AND_MOUNTS"
 
+    # Setup excluded entries
+    excldir="$SANDBOX_DIR/excldir"
+    if [ -n "$EXCL_ENTS" ]
+    then
+        OLDIFS=$IFS
+        IFS=":"
+        mkdir "$excldir"
+        for exclent in $EXCL_ENTS
+        do
+            whiteout_file="$SANDBOX_DIR/excldir/$(realpath "$exclent")"
+            mkdir -p "$(dirname "$whiteout_file")"
+            mknod "$whiteout_file" c 0 0
+        done
+        IFS=$OLDIFS
+    fi
+
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
@@ -111,6 +127,11 @@ try() {
         new_mountpoint=""
         OLDIFS=$IFS
         IFS=":"
+
+        if [ -d "$excldir/$mountpoint" ]
+        then
+            new_mountpoint="$excldir/$mountpoint"
+        fi
 
         for lower_dir in $LOWER_DIRS
         do
@@ -336,6 +357,7 @@ EOF
         (quiet)       ;;
         (show)        echo "$SANDBOX_DIR";;
         (commit)      commit;;
+        (edit)        edit_effects;;
         (interactive) summary >&2
                       # shellcheck disable=SC2181
                       if [ "$?" -eq 0 ]
@@ -357,12 +379,12 @@ EOF
 
 if type try-summary >/dev/null 2>&1
 then
-    summary() {
+    human_summary() {
         try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
-    summary() {
+    human_summary() {
         if ! [ -d "$SANDBOX_DIR" ]
         then
             error "could not find directory $SANDBOX_DIR" 2
@@ -400,6 +422,112 @@ else
     }
 fi
 
+summary() {
+    if [ "$HUMAN_SUMMARY" = 1 ]
+    then
+        human_summary
+        return
+    fi
+
+    summary_output=$(collect_effect_lines)
+    if [ -z "$summary_output" ]
+    then
+        return 1
+    fi
+
+    printf '%s\n' "$summary_output"
+    TRY_EXIT_STATUS=0
+}
+
+################################################################################
+# Collect the raw effect lines for an overlay in `$SANDBOX_DIR`
+################################################################################
+
+collect_effect_lines() {
+    if ! [ -d "$SANDBOX_DIR" ]
+    then
+        error "could not find directory $SANDBOX_DIR" 2
+    elif ! [ -d "$SANDBOX_DIR/upperdir" ]
+    then
+        error "could not find directory $SANDBOX_DIR/upperdir" 1
+    fi
+
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+    process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE"
+}
+
+################################################################################
+# Apply a set of effect lines to the host
+################################################################################
+
+apply_effect_lines() {
+    effect_lines="$1"
+
+    TRY_EXIT_STATUS=0
+    echo "$effect_lines" | while IFS= read -r summary_line; do
+        local_file="$(echo "$summary_line" | cut -c 4-)"
+        changed_file="$SANDBOX_DIR/upperdir$local_file"
+        case $summary_line in
+            (ln*) rm -rf "$local_file"; ln -s "$(readlink "$changed_file")" "$local_file";;
+            (rd*) rm -rf "$local_file"; mkdir "$local_file";;
+            (md*) mkdir "$local_file";;
+            (de*) rm -rf "$local_file";;
+            (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
+            (ad*) mv "$changed_file" "$local_file";;
+            ("")  continue;;
+            (*)   warn "ignoring malformed effect line: $summary_line"
+                  TRY_EXIT_STATUS=1
+                  continue;;
+        esac
+
+        # shellcheck disable=SC2181
+        if [ "$?" -ne 0 ]
+        then
+            warn "couldn't commit $changed_file"
+            TRY_EXIT_STATUS=1
+        fi
+    done
+}
+
+################################################################################
+# Edit the effect list and apply only the retained lines
+################################################################################
+
+edit_effects() {
+    effect_lines=$(collect_effect_lines)
+    if [ -z "$effect_lines" ]
+    then
+        TRY_EXIT_STATUS=0
+        return 0
+    fi
+
+    effect_buffer=$(mktemp "${TMPDIR:-/tmp}/try-effects.XXXXXX")
+    {
+        echo "# Delete any lines you do not want to apply."
+        echo "# Keep one effect per line in the form: <code> <path>"
+        echo
+        echo "$effect_lines"
+    } > "$effect_buffer"
+
+    if ! TRY_EFFECT_BUFFER="$effect_buffer" VISUAL="${VISUAL-}" EDITOR="${EDITOR-}" sh -c '${VISUAL:-${EDITOR:-vi}} "$TRY_EFFECT_BUFFER"'
+    then
+        rm -f "$effect_buffer"
+        error "editor exited unsuccessfully" 1
+    fi
+
+    selected_effects=$(sed '/^[[:space:]]*#/d;/^[[:space:]]*$/d' "$effect_buffer")
+    rm -f "$effect_buffer"
+
+    if [ -z "$selected_effects" ]
+    then
+        echo "$SANDBOX_DIR"
+        TRY_EXIT_STATUS=0
+        return 0
+    fi
+
+    apply_effect_lines "$selected_effects"
+}
+
 ################################################################################
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
@@ -412,37 +540,8 @@ then
     }
 else
     commit() {
-        if ! [ -d "$SANDBOX_DIR" ]
-        then
-            error "could not find directory $SANDBOX_DIR" "$TRY_COMMAND" 2
-        elif ! [ -d "$SANDBOX_DIR/upperdir" ]
-        then
-            error "could not find directory $SANDBOX_DIR/upperdir" 1
-        fi
-
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE")
-
-        TRY_EXIT_STATUS=0
-        echo "$summary_output" | while IFS= read -r summary_line; do
-            local_file="$(echo "$summary_line" | cut -c 4-)"
-            changed_file="$SANDBOX_DIR/upperdir$local_file"
-            case $summary_line in
-                (ln*) rm -rf "$local_file"; ln -s "$(readlink "$changed_file")" "$local_file";;
-                (rd*) rm -rf "$local_file"; mkdir "$local_file";;
-                (md*) mkdir "$local_file";;
-                (de*) rm -rf "$local_file";;
-                (mo*) rm -rf "$local_file"; mv "$changed_file" "$local_file";;
-                (ad*) mv "$changed_file" "$local_file";;
-            esac
-
-            # shellcheck disable=SC2181
-            if [ "$?" -ne 0 ]
-            then
-                warn "couldn't commit $changed_file"
-                TRY_EXIT_STATUS=1
-            fi
-        done
+        summary_output=$(collect_effect_lines)
+        apply_effect_lines "$summary_output"
     }
 fi
 
@@ -611,19 +710,24 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-enNvyhx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
+       $TRY_COMMAND --diff DIR
 
+  -e                edit the effect list and apply only the retained lines
   -n                don't commit or prompt for commit (overrides -y)
+  -N                alias for -n
   -y                assume yes to all prompts (overrides -n)
+  -h                print the human-readable summary instead of raw effect codes
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
+  -E path1:path2:... hide specific paths from the command's view (colon-separated)
   -v                show version information (and exit)
-  -h                show this usage message (and exit)
 
 Subcommands:
+  $TRY_COMMAND diff DIR      show the raw effect delta for the overlay in DIR
   $TRY_COMMAND summary DIR   show the summary for the overlay in DIR
   $TRY_COMMAND commit DIR    commit the overlay in DIR
   $TRY_COMMAND explore DIR   start a shell inside the overlay in DIR
@@ -639,6 +743,7 @@ EOF
 # "quiet"       - do not show the result directory on stdout when we're done
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
+HUMAN_SUMMARY=0
 
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 #
@@ -646,11 +751,21 @@ NO_COMMIT="interactive"
 # We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
 IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
-while getopts ":yvnhxi:D:U:L:" opt
+if [ "${1-}" = "--diff" ]
+then
+    if [ "$#" -ne 2 ]
+    then
+        error "the --diff option requires exactly one directory argument" 2
+    fi
+    set -- diff "$2"
+fi
+
+while getopts ":eyvnNhxi:D:U:L:E:" opt
 do
     case "$opt" in
+        (e)   NO_COMMIT="edit";;
         (y)   NO_COMMIT="commit";;
-        (n)   NO_COMMIT="show";;
+        (n|N) NO_COMMIT="show";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
         (D)   if ! [ -d "$OPTARG" ]
               then
@@ -664,6 +779,11 @@ do
               fi
               LOWER_DIRS="$OPTARG"
               NO_COMMIT="quiet";;
+        (E)   if [ -n "$EXCL_ENTS" ]
+              then
+                  error "the -E option has been specified multiple times" 2
+              fi
+              EXCL_ENTS="$OPTARG";;
         (v)   echo "$TRY_COMMAND version $TRY_VERSION" >&2
               exit 0;;
         (U)   if ! [ -x "$OPTARG" ]
@@ -673,8 +793,9 @@ do
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
         (x)   EXTRA_NS="--net";;
-        (h|*) usage
-              exit 0;;
+        (h)   HUMAN_SUMMARY=1;;
+        (*)   usage
+              exit 2;;
     esac
 done
 
@@ -688,6 +809,17 @@ fi
 
 TRY_EXIT_STATUS=1
 case "$1" in
+    (diff)    : "${SANDBOX_DIR=$2}"
+              summary_output=$(collect_effect_lines)
+              if [ -z "$summary_output" ]
+              then
+                  TRY_EXIT_STATUS=1
+              else
+                  printf '%s\n' "$summary_output"
+                  TRY_EXIT_STATUS=0
+              fi
+              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              ;;
     (summary) : "${SANDBOX_DIR=$2}"
               summary
               rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
