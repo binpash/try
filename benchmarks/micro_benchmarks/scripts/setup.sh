@@ -26,5 +26,6 @@ sudo install -m 0755 target/release/gidmapper /usr/local/bin/gidmapper
 sudo setcap 'CAP_SETGID=ep' /usr/local/bin/gidmapper
 
 cd "${prefix}/create_files"
+rm -f Cargo.lock
 cargo build --release
 sudo install -m 0755 target/release/create_files /usr/local/bin/create_files
