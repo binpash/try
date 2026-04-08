@@ -83,18 +83,13 @@ Summary: 32/32 tests passed.
 # Detailed Instructions (5 hours)
 
 These steps assume you have a working Debian Vagrant guest with the `try` test suite passing, as described in the previous section.
+You should have at least 50GB of free disk space on your host.
 The following go over replicating `try`'s evaluation:
 
-Inside the guest, run:
+Inside the VM, run the one-time setup step:
 
 ```sh
-cd /home/vagrant/try
-```
-
-Run the one-time setup step:
-
-```sh
-python3 scripts/eval_ae.py run setup
+cd /home/vagrant/try && python3 scripts/eval_ae.py run setup
 ```
 This prepares the Docker images, installs the local partial-specification miner package, and builds the dependency-tracking components used by the later steps.
 Then, run each step of the evaluation:

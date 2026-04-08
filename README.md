@@ -1,7 +1,7 @@
 # try
 
 ## Artifact evaluation:
-To evaluate the artifact for the OSDI'26 paper titled "Controlling Opaque-Component Effects with Semisolates and Try", jump straight to [`INSTRUCTIONS.md`](https://github.com/binpash/benchmarks/blob/main/INSTRUCTIONS.md).
+To evaluate the artifact for the OSDI'26 paper titled "Controlling Opaque-Component Effects with Semisolates and Try", jump straight to [`INSTRUCTIONS.md`](https://github.com/binpash/try/blob/osdi26-ae/INSTRUCTIONS.md).
 
 <img src="docs/try_logo.png" alt="try logo" width="100" height="130">
 
