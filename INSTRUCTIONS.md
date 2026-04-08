@@ -88,7 +88,7 @@ The following go over replicating `try`'s evaluation:
 Inside the guest, run:
 
 ```sh
-cd ~/try
+cd /home/vagrant/try
 ```
 
 Run the one-time setup step:
