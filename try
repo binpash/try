@@ -565,7 +565,7 @@ then
     }
 else
     commit() {
-        summary_output=$(collect_effect_lines)
+        summary_output=$(collect_effect_lines) || return "$?"
         apply_effect_lines "$summary_output"
         write_trace_output
     }
