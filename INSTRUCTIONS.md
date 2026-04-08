@@ -5,9 +5,9 @@ The artifact uses the name `try`, as will the published paper.
 
 The paper makes the following claims on pg. 2 (Comments to AEC reviewers after `:`):
 
-1. **Several case studies for which current effect-control is insufficient**: the paper presents are five use cases with accompanying programs that motivate the semisolate abstraction (§2)
+1. **Several case studies for which current effect-control is insufficient**: the paper presents five use cases with accompanying programs that motivate a new effect-control abstraction (§2)
 2. **A new effect-control abstraction and subsystem**: the paper presents semisolates (§3) and `try` (§4), a Linux subsystem for controlling filesystem-related effects of opaque components.
-3. **Correctness and performance characterization**: the paper presents results by applying `try` to the five use cases, characterizing its correctness and performance relative to try-free execution and Docker-contained execution (§5).
+3. **Correctness and performance characterization**: the paper presents the results of applying `try` to the five use cases, characterizing its correctness and performance relative to typical isolation mechanisms (§5).
 
 This artifact targets the following badge:
 
@@ -22,7 +22,7 @@ Confirm that the paper, code, and automation scripts are all publicly available:
 3. Additional scripts are available in the `scripts` directory in this repository.
 
 > [!IMPORTANT]
-> AEC Reviewers: From this point on, the instructions assume you have cloned the repository locally. **All following steps are optional.**
+> AEC Reviewers: **All following steps are optional.**
 
 # Getting Started Instructions (5 minutes)
 
@@ -32,6 +32,15 @@ Install:
 
 1. Vagrant
 2. VirtualBox
+
+Download the repository with all submodules:
+
+```sh
+git clone https://github.com/binpash/try
+cd try
+git switch osdi26-ae
+git submodule update --init --recursive
+```
 
 From the repository root, run:
 
@@ -80,18 +89,10 @@ Summary: 32/32 tests passed.
 
 # Detailed Instructions (3 hours)
 
-These steps reproduce the live evaluation from inside the Debian Vagrant guest and then generate the final paper-style outputs.
+These steps assume you have a working Debian Vagrant guest with the `try` test suite passing, as described in the previous section.
+The following go over replicating `try`'s evaluation:
 
-## Enter The Guest
-
-From the repository root on the host:
-
-```sh
-vagrant up debian
-vagrant ssh debian
-```
-
-Inside the guest, move to the shared checkout:
+Inside the guest, run:
 
 ```sh
 cd /vagrant
@@ -103,7 +104,7 @@ Run the one-time setup step:
 python3 scripts/eval_ae.py run setup
 ```
 
-This prepares the Docker images, installs the local `caruca` package for the specification-mining benchmark, and builds the dependency-tracking components used by the later steps.
+This prepares the Docker images, installs the local partial-specification miner package, and builds the dependency-tracking components used by the later steps.
 
 Run the paper sections one by one:
 
