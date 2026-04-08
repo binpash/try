@@ -33,7 +33,7 @@ touch target
 
 try_example_dir=$(mktemp -d)
 "$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz; rm target; mkdir target; mkdir -p new_dir/nested" || exit 1
-"$TRY" summary "$try_example_dir" >summary.out || exit 2
+"$TRY" -h summary "$try_example_dir" >summary.out || exit 2
 
 cat summary.out
 

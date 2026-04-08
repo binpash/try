@@ -54,6 +54,8 @@ set_TRY_SHELL() {
 try() {
     set_TRY_SHELL
     START_DIR="$PWD"
+    ORIGINAL_OLDPWD="${OLDPWD-}"
+    export ORIGINAL_OLDPWD
 
     if [ "$SANDBOX_DIR" ]
     then
@@ -307,7 +309,7 @@ EOF
     if [ -n "${TRACE_FILE-}" ]; then
         EXECUTE_SCRIPT="strace -y -f --seccomp-bpf --trace=fork,clone,%file -o ${TRY_TRACE_PATH} sh \"$script_to_execute\""
     else
-        EXECUTE_SCRIPT="OLDPWD=\$OLDPWD . \"$script_to_execute\""
+        EXECUTE_SCRIPT="OLDPWD=\$ORIGINAL_OLDPWD . \"$script_to_execute\""
     fi
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
@@ -450,6 +452,13 @@ summary() {
 ################################################################################
 
 collect_effect_lines() {
+    validate_effect_sandbox
+
+    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+    process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE"
+}
+
+validate_effect_sandbox() {
     if ! [ -d "$SANDBOX_DIR" ]
     then
         error "could not find directory $SANDBOX_DIR" 2
@@ -457,9 +466,6 @@ collect_effect_lines() {
     then
         error "could not find directory $SANDBOX_DIR/upperdir" 1
     fi
-
-    changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-    process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE"
 }
 
 write_trace_output() {
@@ -559,6 +565,7 @@ edit_effects() {
 if type try-commit >/dev/null 2>&1
 then
     commit() {
+        validate_effect_sandbox
         try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
         write_trace_output
         TRY_EXIT_STATUS=$?
