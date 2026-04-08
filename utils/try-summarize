@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+(command -v llm) || { echo >&2 "llm is not installed. Please install it first."; cat - ; exit 0; }
+cat - | llm 'Summarize these filesystem effects in a human-readable way. Keep it extremely short.'
