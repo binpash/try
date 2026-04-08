@@ -3,11 +3,15 @@ set -euo pipefail
 
 base_dir=$(realpath "$(dirname "$0")")
 result_dir="$base_dir/results/caruca"
+export PATH="$HOME/.local/bin:$PATH"
 
 mkdir -p "$result_dir"
 
 # Remove results from previous runs
 rm -f "$result_dir"/*
+
+# Create outputs dir
+mkdir -p outputs
 
 # Disable Caruca's tqdm output
 export TQDM_DISABLE=1

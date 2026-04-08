@@ -213,6 +213,19 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 section="§5.5",
                 steps=(
                     Step(
+                        name="install-caruca",
+                        cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
+                        cmd=(
+                            "python3",
+                            "-m",
+                            "pip",
+                            "install",
+                            "--break-system-packages",
+                            ".",
+                        ),
+                        note="Installs the local caruca CLI required by the partial-specification mining benchmark.",
+                    ),
+                    Step(
                         name="generation",
                         cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
                         cmd=("/bin/bash", "run.sh"),
