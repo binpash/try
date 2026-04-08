@@ -829,4 +829,3 @@ date +"%s.%N date test 2" >&3
 exec 3>&-
 
 exit "$TRY_EXIT_STATUS"
-
