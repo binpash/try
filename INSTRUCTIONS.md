@@ -55,7 +55,6 @@ This will:
 3. Copy the repository into the guest
 4. Install dependencies
 5. Build `try`
-6. Run the test suite during provisioning
 
 The first run may take several minutes (depending on your network speed).
 
