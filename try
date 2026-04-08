@@ -373,7 +373,7 @@ else
 
         ## Finds all potential changes
         changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE")
         if [ -z "$summary_output" ]
         then
             return 1
@@ -421,7 +421,7 @@ else
         fi
 
         changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
-        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
+        summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files" "$IGNORE_FILE")
 
         TRY_EXIT_STATUS=0
         echo "$summary_output" | while IFS= read -r summary_line; do
@@ -488,10 +488,15 @@ find_upperdir_changes() {
 process_changes() {
     sandbox_dir="$1"
     changed_files="$2"
+    ignore_file="${3:-}"
 
     while IFS= read -r changed_file
     do
         local_file="${changed_file#"$sandbox_dir/upperdir"}"
+        if [ -n "$ignore_file" ] && printf '%s\n' "$local_file" | grep -q -f "$ignore_file"
+        then
+            continue
+        fi
         if [ -L "$changed_file" ]
         then
             # // TRYCASE(symlink, *)
