@@ -6,8 +6,8 @@ The artifact uses the name `try`, as will the published paper.
 The paper makes the following claims on pg. 2 (Comments to AEC reviewers after `:`):
 
 1. **Several case studies for which current effect-control is insufficient**: the paper presents five use cases with accompanying programs that motivate a new effect-control abstraction (§2)
-2. **A new effect-control abstraction and subsystem**: the paper presents semisolates (§3) and `try` (§4), a Linux subsystem for controlling filesystem-related effects of opaque components.
-3. **Correctness and performance characterization**: the paper presents the results of applying `try` to the five use cases, characterizing its correctness and performance relative to typical isolation mechanisms (§5).
+2. **A new effect-control abstraction and subsystem**: the paper presents semisolates (§3) and `try` (§4), a Linux subsystem for controlling the effects of opaque components.
+3. **Correctness and performance characterization**: the paper presents the results of applying `try` to the five use cases, characterizing its correctness and performance relative to typical isolation mechanisms like Docker containers (§5).
 
 This artifact targets the following badge:
 
@@ -17,7 +17,7 @@ This artifact targets the following badge:
 
 Confirm that the paper, code, and automation scripts are all publicly available:
 
-1. The artifact code is hosted at: [https://github.com/binpash/try-ae](https://github.com/binpash/try-ae)
+1. The artifact code is hosted at: [https://github.com/binpash/try](https://github.com/binpash/try/blob/osdi26-ae)
 2. The artifact is hosted in [Zenodo's permanent archive](https://zenodo.org/records/19444649).
 3. Additional scripts are available in the `scripts` directory in this repository.
 
