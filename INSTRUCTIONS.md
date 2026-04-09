@@ -5,7 +5,7 @@ The artifact uses the name `try`, as will the published paper.
 
 The paper makes the following claims on pg. 2 (Comments to AEC reviewers after `:`):
 
-1. **Several case studies for which current effect-control is insufficient**: the paper presents five use cases with accompanying programs that motivate a new effect-control abstraction (§2)
+1. **Several case studies for which current effect-control is insufficient**: the paper presents five use cases with accompanying programs that motivate a new effect-control abstraction (§2).
 2. **A new effect-control abstraction and subsystem**: the paper presents semisolates (§3) and `try` (§4), a Linux subsystem for controlling the effects of opaque components.
 3. **Correctness and performance characterization**: the paper presents the results of applying `try` to the five use cases, characterizing its correctness and performance relative to typical isolation mechanisms like Docker containers (§5).
 
@@ -20,16 +20,15 @@ This artifact targets the following USENIX badges:
 
 Confirm that the paper, code, and automation scripts are all publicly available:
 
-1. The artifact code is hosted on [GitHub](https://github.com/binpash/try/blob/osdi26-ae).
+1. The artifact code is hosted on [GitHub; `osdi26-ae` branch](https://github.com/binpash/try/blob/osdi26-ae).
 2. The artifact is hosted in [Zenodo's permanent archive](https://zenodo.org/records/19444649).
 
 Both repositories contain the `try` subsystem, its
 [documentation](https://github.com/binpash/try/tree/osdi26-ae/docs);
 its [test suite](https://github.com/binpash/try/tree/osdi26-ae/test);
-five [use cases and a set of microbenchmarks](https://github.com/binpash/try/tree/osdi26-ae/benchmarks) as presented in the paper and
-[accompanying utilities](https://github.com/binpash/try/tree/osdi26-ae/scripts); and
-[external modules](https://github.com/binpash/try/tree/osdi26-ae/utils)
-that enhance `try`'s performance, correctness, and usability corresponding to §6's "External modules" (`try-summarize` and `try-gidmapper`)
+[five use cases, a set of microbenchmarks](https://github.com/binpash/try/tree/osdi26-ae/benchmarks) with [accompanying utilities](https://github.com/binpash/try/tree/osdi26-ae/scripts), as presented in the paper; and
+two [external modules](https://github.com/binpash/try/tree/osdi26-ae/utils)
+that enhance `try`'s correctness and usability (`try-summarize` and `try-gidmapper`).
 
 <a id="artifact-functional"></a>
 # Artifact Functional (20 minutes)

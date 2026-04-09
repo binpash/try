@@ -23,7 +23,7 @@ SEMISOLATE=$(try -N sh -c 'echo "named" > named.txt')
 echo "$SEMISOLATE"
 ```
 
-With `-N`, `try` keeps the effect group instead of committing it, so you should get back a semisolate directory path and no `named.txt` should appear in your working tree yet.
+With `-N`, `try` keeps the effect group instead of committing it, so you should get back a semisolate directory path that contains all of the uncommitted effects; no `named.txt` should appear in your working tree yet.
 
 Ignore specific paths `-i`:
 
