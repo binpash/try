@@ -7,6 +7,7 @@ try - run a command in an overlay
 
 # SYNOPSIS
 | try [-enNvyhxt] [-i PATTERN] [-I PATHS] [-D DIR] [-U PATH] [-L LOWER_DIRS] [-E PATHS] [-t FILE] CMD [ARG ...]
+| try --help
 | try -s DIR [-h] [-i PATTERN] [-I PATHS]
 | try summary DIR
 | try commit DIR
@@ -44,6 +45,10 @@ You can also choose your own shell when running *try*. *try* will run your comma
 -v
 
 : Show version information (and exit).
+
+--help
+
+: Show a usage message (and exit).
 
 -h
 

@@ -819,6 +819,7 @@ error() {
 usage() {
     cat >&2 <<EOF
 Usage: $TRY_COMMAND [-enNvyhxt] [-s DIR] [-i PATTERN] [-I path1:path2:...] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
+       $TRY_COMMAND --help
        $TRY_COMMAND --diff DIR
 
   -e                edit the effect list and apply only the retained lines
@@ -836,6 +837,7 @@ Usage: $TRY_COMMAND [-enNvyhxt] [-s DIR] [-i PATTERN] [-I path1:path2:...] [-D D
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -E path1:path2:... hide specific paths from the command's view (colon-separated)
   -v                show version information (and exit)
+  --help            show this usage message and exit
 
 Subcommands:
   $TRY_COMMAND diff DIR      show the raw effect delta for the overlay in DIR
@@ -855,6 +857,12 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 HUMAN_SUMMARY=0
+
+if [ "${1-}" = "--help" ]
+then
+    usage
+    exit 0
+fi
 
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 #
