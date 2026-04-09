@@ -19,7 +19,7 @@ ARCHIVE_RESULTS_ROOT = ROOT / "benchmarks" / "precomputed_results"
 
 ARCHIVE_TABLE2_RESULTS = {
     "benchmarks/results/llm_scripts/benchmark_results.csv": {
-        "archive_file": ARCHIVE_RESULTS_ROOT / "llm_scripts" / "benchmark_results_nuc.csv",
+        "archive_file": ARCHIVE_RESULTS_ROOT / "risky_or_cryptic_llm_suggestions.csv",
         "key_map": {
             "find_exec_touch": "find_touch",
             "find_exec_zip": "find_zip",
@@ -32,25 +32,25 @@ ARCHIVE_TABLE2_RESULTS = {
         "vanilla_suffix": "vanilla.sh",
     },
     "benchmarks/results/pre_commit_hook/benchmark_results.csv": {
-        "archive_file": ARCHIVE_RESULTS_ROOT / "pre_commit_hook" / "benchmark_results_nuc.csv",
+        "archive_file": ARCHIVE_RESULTS_ROOT / "third_party_library_risks.csv",
         "try_suffix": "try-run.sh",
         "docker_suffix": "run-leak-docker.sh",
         "vanilla_suffix": "vanilla.sh",
     },
     "benchmarks/results/npm_pre_postinstall/benchmark_results.csv": {
-        "archive_file": ARCHIVE_RESULTS_ROOT / "npm_pre_postinstall" / "benchmark_results_nuc.csv",
+        "archive_file": ARCHIVE_RESULTS_ROOT / "cautious_software_installation.csv",
         "try_suffix": "try-run.sh",
         "docker_suffix": "run-docker-high.sh",
         "vanilla_suffix": "vanilla.sh",
     },
     "benchmarks/dependency_tracking/results/incr": {
-        "archive_file": ARCHIVE_RESULTS_ROOT / "incr" / "benchmark_results_nuc.csv",
+        "archive_file": ARCHIVE_RESULTS_ROOT / "dependency_tracking.csv",
         "try_suffix": "try-run.sh",
         "docker_suffix": "run-docker.sh",
         "vanilla_suffix": "vanilla.sh",
     },
     "benchmarks/partial_specification_mining/caruca/results/caruca": {
-        "archive_file": ARCHIVE_RESULTS_ROOT / "caruca" / "benchmark_results_nuc.csv",
+        "archive_file": ARCHIVE_RESULTS_ROOT / "partial_specification_mining.csv",
         "try_suffix": "try-run.sh",
         "docker_suffix": "run-docker.sh",
         "vanilla_suffix": "vanilla.sh",
