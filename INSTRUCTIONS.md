@@ -15,6 +15,7 @@ This artifact targets the following USENIX badges:
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to confirm sufficient documentation, key components as described in the paper, and execution across a comprehensive test suite (about 20 minutes).
 * [ ] [Results reproducible](#results-reproducible): Reviewers are expected to confirm the key results of section 5 of the paper (about 5 hours).
 
+<a id="artifact-available"></a>
 # Artifact Available (10 minutes)
 
 Confirm that the paper, code, and automation scripts are all publicly available:
@@ -30,6 +31,7 @@ five [use cases and a set of microbenchmarks](https://github.com/binpash/try/tre
 [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils)
 that enhance `try`'s performance, correctness, and usability.
 
+<a id="artifact-functional"></a>
 # Artifact Functional (20 minutes)
 
 Confirm sufficient documentation, key components as described in the paper, and execution across a comprehensive test suite (about 20 minutes):
@@ -93,6 +95,7 @@ Summary: 32/32 tests passed.
 
 **Complete exploration:** To further explore `try`'s capabilities, you can go through the short [TUTORIAL](TUTORIAL.md) document.
 
+<a id="results-reproducible"></a>
 # Results Reproducible (about 5 hours)
 
 The key results of `try`'s evaluation are the following:
