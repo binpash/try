@@ -28,8 +28,8 @@ Both repositories contain the `try` subsystem, its
 its [test suite](https://github.com/binpash/try/tree/osdi26-ae/test);
 five [use cases and a set of microbenchmarks](https://github.com/binpash/try/tree/osdi26-ae/benchmarks) as presented in the paper and
 [accompanying utilities](https://github.com/binpash/try/tree/osdi26-ae/scripts); and
-[several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils)
-that enhance `try`'s performance, correctness, and usability.
+[external modules](https://github.com/binpash/try/tree/osdi26-ae/utils)
+that enhance `try`'s performance, correctness, and usability corresponding to §6's "External modules" (`try-summarize` and `try-gidmapper`)
 
 <a id="artifact-functional"></a>
 # Artifact Functional (20 minutes)
@@ -41,6 +41,10 @@ Confirm sufficient documentation, key components as described in the paper, and 
 * Key components: The [try subsystem](https://github.com/binpash/try/tree/osdi26-ae/try) and [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance its performance, correctness, and usability.
 * Exercisability: The instructions below set up a Debian-based virtual machine and run `try`'s test suite, which covers a wide range of `try`'s functionality and serves as a sanity check for the artifact's executability.
                   The artifact also includes a tutorial that walks through `try`'s key features and capabilities.
+
+
+_Note_: After the evaluation, if you would like to use `try` on your own machine, you can follow the [installation instructions](https://github.com/binpash/try/tree/osdi26-ae?tab=readme-ov-file#installing).
+        For the artifact evaluation, we recommend using the provided Vagrant-based environment, however.
 
 **Quickstart:** These steps walk through setting up a working Debian-based environment inside a Vagrant virtual machine and running `try`'s test suite.
 
