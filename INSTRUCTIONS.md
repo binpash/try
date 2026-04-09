@@ -113,8 +113,12 @@ Inside the VM, run the one-time setup step:
 cd /home/vagrant/try && python3 scripts/eval_ae.py run setup
 ```
 
-**Full evaluation:**
 This installs the dependencies for all five use cases.
+
+_Note_: The following steps will take several hours to complete.
+AEC reviewers may inspect pre-computed artifacts in the [`artifacts/paper_eval`](artifacts/paper_eval) folder and jump to the report generation step.
+
+**Full evaluation:**
 After this is complete, run each step of the evaluation:
 
 ```sh
