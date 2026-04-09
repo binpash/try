@@ -818,7 +818,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-I path1:path2:...] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-enNvyhxt] [-s DIR] [-i PATTERN] [-I path1:path2:...] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-E path1:path2:...] CMD [ARG ...]
        $TRY_COMMAND --diff DIR
 
   -e                edit the effect list and apply only the retained lines
@@ -826,6 +826,7 @@ Usage: $TRY_COMMAND [-enNvyhxt] [-i PATTERN] [-I path1:path2:...] [-D DIR] [-U P
   -N                alias for -n
   -y                assume yes to all prompts (overrides -n)
   -h                print the human-readable summary instead of raw effect codes
+  -s DIR            show the summary for the overlay in DIR
   -t FILE           create a filesystem trace and write it to FILE on commit
   -x                prevent network access (by unsharing the network namespace)
   -i PATTERN        ignore paths that match PATTERN on summary and commit
@@ -872,12 +873,17 @@ then
     set -- diff "$2"
 fi
 
-while getopts ":eyvnNhxt:i:I:D:U:L:E:" opt
+while getopts ":eyvnNhs:xt:i:I:D:U:L:E:" opt
 do
     case "$opt" in
         (e)   NO_COMMIT="edit";;
         (y)   NO_COMMIT="commit";;
         (n|N) NO_COMMIT="show";;
+        (s)   if [ -n "${SUMMARY_DIR-}" ]
+              then
+                  error "the -s option has been specified multiple times" 2
+              fi
+              SUMMARY_DIR="$OPTARG";;
         (t)   TRACE_FILE="$OPTARG";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
         (I)   append_include_paths "$OPTARG";;
@@ -914,6 +920,16 @@ do
 done
 
 shift $((OPTIND - 1))
+
+if [ -n "${SUMMARY_DIR-}" ]
+then
+    if [ "$#" -ne 0 ]
+    then
+        error "the -s option does not accept a command" 2
+    fi
+
+    set -- summary "$SUMMARY_DIR"
+fi
 
 if [ "$#" -eq 0 ]
 then
