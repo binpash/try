@@ -1,6 +1,6 @@
 # Overview
 
-_Note_: Due to double-blind requirements, in the original submission, the subsystem presented in the paper was referred to as `ef`.
+_Note_: Due to double-blind requirements, in the original submission, the submitted paper refers to the semisolate subsystem as `ef`.
 The artifact uses the name `try`, as will the published paper.
 
 The paper makes the following claims on pg. 2 (Comments to AEC reviewers after `:`):
@@ -48,7 +48,7 @@ Requirements:
 1. [Vagrant](https://developer.hashicorp.com/vagrant)
 2. [VirtualBox](https://www.virtualbox.org/)
 
-Download the repository with all submodules:
+Download the repository with all sub-modules:
 
 ```sh
 git clone https://github.com/binpash/try

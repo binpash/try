@@ -19,8 +19,6 @@ We're setting out to change that: `try cmd` and commit---or not.
 Please note that `try` is a prototype and not a full sandbox, and should not be used to execute
 commands that you don't already trust on your system, (i.e. network calls are all allowed)
 
-<img src="docs/try_pip_install_example.gif" alt="try gif">
-
 If `try` is useful to you, please use the following citation:
 
 ```bib
@@ -33,6 +31,9 @@ If `try` is useful to you, please use the following citation:
   tags      = {correctness, security}
 }
 ```
+
+Using `try` to inspect a `pip install` command's effects and optionally commit them to your live system:
+<img src="docs/try_pip_install_example.gif" alt="try gif">
 
 ## Getting Started
 
