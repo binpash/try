@@ -838,6 +838,7 @@ Usage: $TRY_COMMAND [-enNvyhxt] [-s DIR] [-i PATTERN] [-I path1:path2:...] [-D D
   -E path1:path2:... hide specific paths from the command's view (colon-separated)
   -v                show version information (and exit)
   --help            show this usage message and exit
+  --diff DIR        show the raw effect delta for the overlay in DIR
 
 Subcommands:
   $TRY_COMMAND diff DIR      show the raw effect delta for the overlay in DIR
