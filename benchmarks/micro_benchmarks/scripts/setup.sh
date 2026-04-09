@@ -22,8 +22,8 @@ sudo install -m 0755 "${build_dir}/try-commit" /usr/local/bin/try-commit
 
 cd "${repo_root}/utils/gidmapper"
 cargo build --release
-sudo install -m 0755 target/release/gidmapper /usr/local/bin/gidmapper
-sudo setcap 'CAP_SETGID=ep' /usr/local/bin/gidmapper
+sudo install -m 0755 target/release/try-gidmapper /usr/local/bin/try-gidmapper
+sudo setcap 'CAP_SETGID=ep' /usr/local/bin/try-gidmapper
 
 cd "${prefix}/create_files"
 rm -f Cargo.lock

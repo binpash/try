@@ -217,7 +217,7 @@ Any command that interacts with other users/groups will fail since only the
 current user's UID/GID are mapped. However, the [future
 branch](https://github.com/binpash/try/tree/future) has support for uid/mapping;
 please refer to the that branch's readme for installation instructions for the
-uid/gidmapper (root access is required for installation).
+`try-gidmapper` helper (root access is required for installation).
 
 Shell quoting may be unintuitive, you may expect `try bash -c "echo a"` to work,
 however, try will actually execute `bash -c echo a`, which will not result in

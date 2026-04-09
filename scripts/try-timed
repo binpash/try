@@ -691,16 +691,16 @@ mapper() {
     pid=$(pgrep -P $$ -f unshare)
 
     # Map root user to current user, and all groups
-    # Usage: gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount
+    # Usage: try-gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount
     if [ "$(id -u)" = 0 ]
     then
         # If we're running as root, we can map all the users
     	date +"%s.%N mapper: calling mapper bin" >&3
-        gidmapper "$pid" 0 0 65535 0 0 65535
+        try-gidmapper "$pid" 0 0 65535 0 0 65535
     else
         # If not running as root, we can only mount the caller user
     	date +"%s.%N mapper: calling mapper bin" >&3
-        gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
+        try-gidmapper "$pid" 0 "$(id -u)" 1 0 0 65535
     fi
 
     # Notify the unshare process that we have finished

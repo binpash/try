@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "gidmapper"
+name = "try-gidmapper"
 version = "0.1.0"

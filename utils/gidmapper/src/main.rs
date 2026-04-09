@@ -3,7 +3,7 @@ use std::thread;
 fn main() {
     // Using a thread here because we can't edit the uid/gid of the current process
     let handler = thread::spawn(|| {
-        let usage = "Usage: gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount";
+        let usage = "Usage: try-gidmapper targetpid outeruid inneruid uidcount outergid innergid uidcount";
         let targetpid = std::env::args().nth(1).expect(usage);
         let outeruid = std::env::args().nth(2).expect(usage);
         let inneruid = std::env::args().nth(3).expect(usage);
