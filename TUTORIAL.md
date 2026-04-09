@@ -16,7 +16,7 @@ try -h 'rm hello.txt'
 
 With `-h`, `try` prints a friendlier summary instead of raw effect codes, so you should see a readable description of creating `hello.txt` and then deleting it.
 
-Creation, name current effect group `-N`:
+Keep an uncommitted effect group with `-N` (alias for `-n`):
 
 ```sh
 SEMISOLATE=$(try -N sh -c 'echo "named" > named.txt')
@@ -40,7 +40,7 @@ try curl https://example.com
 try -x curl https://example.com
 ```
 
-With `-x`,`try` runs the command without network access, so the first `curl` should work normally and the second should fail to reach the network.
+With `-x`, `try` runs the command without network access, so the first `curl` should work normally and the second should fail to reach the network.
 
 Create an ordered filesystem trace `-t`:
 
@@ -51,13 +51,13 @@ try -t trace.log -y 'rm 1.txt 3.txt 2.txt 4.txt 5.txt'
 
 With `-t`, `try` records a filesystem trace while applying the effects, so the files should be removed and `trace.log` should contain an ordered log of the invocation's read and write effects.
 
-Collect effect delta `--diff`:
+Collect effect delta with `diff` or `--diff`:
 
 ```sh
-try --diff "$SEMISOLATE"
+try diff "$SEMISOLATE"
 ```
 
-Using `--diff`, `try` prints the raw effect delta for a saved semisolate, so you should see coded effect lines for the uncommitted changes stored in `$SEMISOLATE`.
+Using `diff`, `try` prints the raw effect delta for a saved semisolate. `--diff` is accepted as an alias, so you should see coded effect lines for the uncommitted changes stored in `$SEMISOLATE`.
 
 Discard all effects `-n`:
 
