@@ -21,6 +21,19 @@ commands that you don't already trust on your system, (i.e. network calls are al
 
 <img src="docs/try_pip_install_example.gif" alt="try gif">
 
+If `try` is useful to you, please use the following citation:
+
+```bib
+@inproceedings{try:osdi:2026,
+  title     = {Controlling Opaque-Component Effects with Semisolates and Try},
+  author    = {Lamprou, Evangelos and Zhu, Tianyu (Ezri) and Jin, Di and Ntousakis, Grigoris and and Liargkovas, Georgios and Eng, Calvin and Kallas, Konstantinos and Greenberg, Michael and Vasilakis, Nikos},
+  booktitle = {20th USENIX Symposium on Operating Systems Design and Implementation (OSDI 26)},
+  year      = {2026},
+  publisher = {USENIX Association},
+  tags      = {correctness, security}
+}
+```
+
 ## Getting Started
 
 ### Dependencies
