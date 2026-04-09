@@ -118,17 +118,17 @@ This installs the dependencies for all five use cases.
 After this is complete, run each step of the evaluation:
 
 ```sh
-# §5.1 Risky or Cryptic LLM Suggestions
+# Risky or Cryptic LLM Suggestions (§5.1)
 python3 scripts/eval_ae.py run llm
-# §5.2 Dependency Tracking
+# Dependency Tracking (§5.2)
 python3 scripts/eval_ae.py run dependency
-# §5.3 Third-Party Library Risks
+# Third-Party Library Risks (§5.3)
 python3 scripts/eval_ae.py run pre-commit
-# §5.4 Cautious Software Installation
+# Cautious Software Installation (§5.4)
 python3 scripts/eval_ae.py run npm
-# §5.5 Partial-Specification Mining
+# Partial-Specification Mining (§5.5)
 python3 scripts/eval_ae.py run spec
-# §5.6 Microbenchmarks
+# Microbenchmarks (§5.6)
 python3 scripts/eval_ae.py run micro
 ```
 Once all six sections have completed, generate the aggregated artifacts:
