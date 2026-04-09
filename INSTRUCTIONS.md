@@ -17,7 +17,7 @@ This artifact targets the following badge:
 
 Confirm that the paper, code, and automation scripts are all publicly available:
 
-1. The artifact code is hosted at: [https://github.com/binpash/try](https://github.com/binpash/try/blob/osdi26-ae)
+1. The artifact code is hosted on [GitHub](https://github.com/binpash/try/blob/osdi26-ae)
 2. The artifact is hosted in [Zenodo's permanent archive](https://zenodo.org/records/19444649).
 
 Both repositories contain the `try` subsystem,
@@ -30,12 +30,11 @@ Both repositories contain the `try` subsystem,
 
 # Getting Started Instructions (5 minutes)
 
-These steps set up a working Debian-based `try` environment and run the test suite inside a Vagrant virtual machine.
+These steps walk through setting up a working Debian-based environment inside a Vagrant virtual machine and running `try`'s test suite.
 
-Install:
-
-1. Vagrant
-2. VirtualBox
+Requirements:
+1. [Vagrant](https://developer.hashicorp.com/vagrant)
+2. [VirtualBox](https://www.virtualbox.org/)
 
 Download the repository with all submodules:
 
@@ -61,16 +60,16 @@ This will:
 5. Build `try`
 
 The first run may take several minutes (depending on your network speed).
-Run the following:
+After it is complete, run the following:
 
 ```sh
-# Check the VM is running
+# Check that the VM is running
 vagrant status debian
 # Enter the VM
 vagrant ssh debian
 ```
 
-To rerun the test suite manually inside the guest:
+To run the test suite inside the guest:
 
 ```sh
 cd /home/vagrant/try && scripts/run_tests.sh
@@ -95,8 +94,8 @@ Inside the VM, run the one-time setup step:
 ```sh
 cd /home/vagrant/try && python3 scripts/eval_ae.py run setup
 ```
-This prepares the Docker images, installs the local partial-specification miner package, and builds the dependency-tracking components used by the later steps.
-Then, run each step of the evaluation:
+This installs the dependencies for all all five use-cases.
+After this is complete, run each step of the evaluation:
 
 ```sh
 # §5.1 Risky or Cryptic LLM Suggestions
@@ -138,14 +137,10 @@ Once you are done: inside the guest, exit back to the host and run the cleanup s
 
 ```sh
 exit
-# In host:
+# From the repository root on the host
 ./scripts/cleanup-ae.sh
 ```
 
 # Contact
 
-For questions or bug reports, please contact `evangelos_lamprou@brown.edu` or open an issue on GitHub.
-
-# Step Log
-
-- 2026-04-07: Read [try.pdf](/Users/vagozino/wrk/try/try.pdf), extracted the evaluation section, and mapped the paper's experiments and benchmark names to the runner scripts and benchmark directories in this repository.
+For questions or bug reports, please contact `evangelos_lamprou@brown.edu` or, better yet, [open an issue on GitHub](https://github.com/binpash/try/issues/new).
