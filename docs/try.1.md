@@ -6,12 +6,14 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
-| try summary [DIR]
-| try commit [DIR]
-| try explore
+| try [-enNvyhxt] [-i PATTERN] [-I PATHS] [-D DIR] [-U PATH] [-L LOWER_DIRS] [-E PATHS] [-t FILE] CMD [ARG ...]
+| try -s DIR [-h] [-i PATTERN] [-I PATHS]
+| try summary DIR
+| try commit DIR
+| try explore [DIR]
+| try diff DIR
+| try --diff DIR
 | try -v
-| try -h
 
 # DESCRIPTION
 
@@ -23,9 +25,17 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 ## Flags
 
+-e
+
+: Inspect the effect list and apply only the retained lines.
+
 -n
 
 : Don't commit or prompt for commit. Just return the overlay directory. Overrides -y.
+
+-N
+
+: Alias for -n.
 
 -y
 
@@ -37,7 +47,7 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 -h
 
-: Show a usage message (and exit).
+: Print the human-readable summary instead of raw effect codes.
 
 -x
 
@@ -48,21 +58,36 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 -i *PATTERN*
 
-: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
+: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times.
+
+-I *PATHS*
+
+: Keep only effects for the listed paths. *PATHS* is a colon-separated list, for example `foo.txt:bar:baz/qux`.
 
 -D *DIR*
 
-: Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Specify *DIR* as the overlay directory (implies -n). *DIR* must already exist.
 
 -U *PATH*
 
 : Use the unionfs helper implementation defined in the *PATH* (e.g., mergerfs, unionfs-fuse) instead of the default.
 This option is recommended in case OverlayFS fails.
 
+-t *FILE*
+
+: Create a filesystem trace and write it to *FILE* when effects are committed.
+
 -L *LOWER_DIRS*
 
 : Specify a colon-separated list of directories to be used as lower directories for the overlay, formatted as "dir1:dir2:...:dirn" (implies -n).
 
+-E *PATHS*
+
+: Hide the listed paths from the invoked command. *PATHS* is a colon-separated list.
+
+-s *DIR*
+
+: Show the summary for the overlay in *DIR*. This is equivalent to `try summary DIR`.
 
 ## Subcommands
 
@@ -74,9 +99,17 @@ try commit *DIR*
 
 : Commit the overlay in *DIR*.
 
-try explore
+try explore [*DIR*]
 
-: Run in interactive mode, i.e., start a shell in the overlay.
+: Start a shell inside the overlay in *DIR*. If *DIR* is omitted, *try* creates a fresh overlay first.
+
+try diff *DIR*
+
+: Show the raw effect delta for the overlay in *DIR*.
+
+try --diff *DIR*
+
+: Alias for `try diff DIR`.
 
 ## Arguments
 
@@ -141,6 +174,12 @@ To use multiple lower directories for overlay (by merging them), you can use the
 try -L /lowerdir1:/lowerdir2:/lowerdir3 gunzip file.txt.gz
 ```
 
+To review and selectively apply only some effects, you can invoke *try* with `-e`:
+
+```
+try -e sh -c 'echo keep > keep.txt; echo drop > drop.txt'
+```
+
 You can inspect the changes made inside a given overlay directory:
 
 ```
@@ -151,6 +190,12 @@ You can also choose to commit the overlay directory contents:
 
 ```
 try commit try_dir
+```
+
+You can inspect the raw effect delta for a saved overlay:
+
+```
+try diff try_dir
 ```
 
 # SEE ALSO
