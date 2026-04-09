@@ -42,7 +42,7 @@ Confirm sufficient documentation, key components as described in the paper, and 
 * Exercisability: The instructions below set up a Debian-based virtual machine and run `try`'s test suite, which covers a wide range of `try`'s functionality and serves as a sanity check for the artifact's executability.
                   The artifact also includes a tutorial that walks through `try`'s key features and capabilities.
 
-**Quickstart: Running the `try` test suite:** These steps walk through setting up a working Debian-based environment inside a Vagrant virtual machine and running `try`'s test suite.
+**Quickstart:** These steps walk through setting up a working Debian-based environment inside a Vagrant virtual machine and running `try`'s test suite.
 
 Requirements:
 1. [Vagrant](https://developer.hashicorp.com/vagrant)
@@ -116,7 +116,7 @@ cd /home/vagrant/try && python3 scripts/eval_ae.py run setup
 This installs the dependencies for all five use cases.
 
 _Note_: The following steps will take several hours to complete.
-AEC reviewers may inspect pre-computed artifacts in the [`artifacts/paper_eval`](artifacts/paper_eval) folder and jump to the report generation step.
+AEC reviewers may inspect pre-computed artifacts in the [`benchmarks/precomputed_results`](benchmarks/precomputed_results) folder and jump to the report generation step.
 
 **Full evaluation:**
 After this is complete, run each step of the evaluation:
