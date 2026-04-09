@@ -19,8 +19,12 @@ Confirm that the paper, code, and automation scripts are all publicly available:
 
 1. The artifact code is hosted at: [https://github.com/binpash/try](https://github.com/binpash/try/blob/osdi26-ae)
 2. The artifact is hosted in [Zenodo's permanent archive](https://zenodo.org/records/19444649).
-3. Additional scripts are available in the `scripts` directory in this repository.
 
+Both repositories contain the `try` subsystem,
+    [documentation](https://github.com/binpash/try/tree/osdi26-ae/docs),
+    `try`'s [test suite](https://github.com/binpash/try/tree/osdi26-ae/test), [benchmark suite](https://github.com/binpash/try/tree/osdi26-ae/benchmarks), and [accompanying utilities](https://github.com/binpash/try/tree/osdi26-ae/scripts);
+    and [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance `try`'s performance, correctness, and usability.
+    
 > [!IMPORTANT]
 > AEC Reviewers: **All following steps are optional.**
 
