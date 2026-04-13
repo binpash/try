@@ -20,7 +20,7 @@ This artifact targets the following USENIX badges:
 
 Confirm that the paper, code, and automation scripts are all publicly available:
 
-1. The artifact code is hosted on [GitHub; `osdi26-ae` branch](https://github.com/binpash/try/blob/osdi26-ae).
+1. The artifact code is hosted on [GitHub; `osdi26-ae` branch](https://github.com/binpash/try/tree/osdi26-ae).
 2. The artifact is hosted in [Zenodo's permanent archive](https://zenodo.org/records/19444649).
 
 Both repositories contain the `try` subsystem, its

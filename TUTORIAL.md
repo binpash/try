@@ -1,4 +1,4 @@
-# Short `try` Tutorial (10 minutes)
+# A tutorial on `try` (10 minutes)
 
 Inside the Vagrant guest:
 
