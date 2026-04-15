@@ -83,7 +83,7 @@ After it is complete, run the following:
 The test suite should report:
 
 ```text
-Summary: 32/32 tests passed.
+Summary: 34/34 tests passed.
 ```
 
 _Note_: Keep in mind that when `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem when run inside a Docker container.
