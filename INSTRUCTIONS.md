@@ -153,7 +153,7 @@ python3 scripts/eval_ae.py run all
 python3 scripts/eval_ae.py report
 ```
 
-This writes the final outputs:
+The report script writes the final outputs:
 
 1. `artifacts/paper_eval/table2_summary.csv`
 2. `artifacts/paper_eval/table2_summary.md`

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import statistics
 import subprocess
 import sys
@@ -16,11 +17,25 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RESULTS_ROOT = ROOT
 DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "paper_eval"
 ARCHIVE_RESULTS_ROOT = ROOT / "benchmarks" / "precomputed_results"
+EVAL_VENV = ROOT / ".venv"
+EVAL_VENV_BIN = EVAL_VENV / "bin"
 RUST_ENV_SNIPPET = (
     'if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; '
     'elif [ -f "/usr/local/cargo/env" ]; then . "/usr/local/cargo/env"; '
     "fi"
 )
+VENV_SHELL_SNIPPET = (
+    f'python3 -m venv --clear "{EVAL_VENV}"'
+    f' && "{EVAL_VENV_BIN / "python3"}" -m ensurepip --upgrade'
+    f' && "{EVAL_VENV_BIN / "python3"}" -m pip install --upgrade pip'
+)
+
+
+def with_eval_venv_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["VIRTUAL_ENV"] = str(EVAL_VENV)
+    env["PATH"] = f"{EVAL_VENV_BIN}{os.pathsep}{env.get('PATH', '')}"
+    return env
 
 ARCHIVE_TABLE2_RESULTS = {
     "benchmarks/results/llm_scripts/benchmark_results.csv": {
@@ -69,6 +84,7 @@ class Step:
     cwd: Path
     cmd: tuple[str, ...]
     note: str = ""
+    env: dict[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +105,12 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 title="Evaluation Setup",
                 section="Prerequisites",
                 steps=(
+                    Step(
+                        name="python-venv",
+                        cwd=ROOT,
+                        cmd=("/bin/bash", "-lc", VENV_SHELL_SNIPPET),
+                        note="Creates the workspace-local Python virtualenv used to persist Python dependencies across Docker eval invocations.",
+                    ),
                     Step(
                         name="base-image",
                         cwd=ROOT,
@@ -131,12 +153,10 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         name="spec-caruca",
                         cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
                         cmd=(
-                            "python3",
-                            "-m",
-                            "pip",
-                            "install",
-                            "--break-system-packages",
-                            ".",
+                            "/bin/bash",
+                            "-lc",
+                            f'"{EVAL_VENV_BIN / "python3"}" -m pip install '
+                            f'"{(ROOT / "benchmarks" / "partial_specification_mining" / "caruca").as_posix()}"',
                         ),
                         note="Installs the local caruca CLI used by the partial-specification mining benchmark.",
                     ),
@@ -144,13 +164,9 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         name="dependency-python",
                         cwd=ROOT / "benchmarks" / "dependency_tracking",
                         cmd=(
-                            "python3",
-                            "-m",
-                            "pip",
-                            "install",
-                            "--break-system-packages",
-                            "-r",
-                            "requirements.txt",
+                            "/bin/bash",
+                            "-lc",
+                            f'"{EVAL_VENV_BIN / "python3"}" -m pip install -r requirements.txt',
                         ),
                     ),
                     Step(
@@ -215,9 +231,21 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 section="§5.2",
                 steps=(
                     Step(
+                        name="python-preflight",
+                        cwd=ROOT / "benchmarks" / "dependency_tracking",
+                        cmd=(
+                            "python3",
+                            "-c",
+                            "import libbash, libdash, shasta",
+                        ),
+                        env=with_eval_venv_env(),
+                        note="Verifies that the dependency-tracking Python modules are available before running the benchmark harness.",
+                    ),
+                    Step(
                         name="performance",
                         cwd=ROOT / "benchmarks" / "dependency_tracking",
                         cmd=("/bin/bash", "run_benchmarks.sh"),
+                        env=with_eval_venv_env(),
                     ),
                 ),
                 note="This group has a benchmark runner but no separate one-shot compatibility script in the repo.",
@@ -275,6 +303,7 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         name="generation",
                         cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
                         cmd=("/bin/bash", "run.sh"),
+                        env=with_eval_venv_env(),
                         note="Runs the paper-style partial-specification timing harness for cp, ls, rm, sed, and xargs.",
                     ),
                 ),
@@ -618,7 +647,7 @@ def run_step(step: Step, dry_run: bool) -> None:
         print(f"      note: {step.note}")
     if dry_run:
         return
-    subprocess.run(step.cmd, cwd=step.cwd, check=True)
+    subprocess.run(step.cmd, cwd=step.cwd, check=True, env=step.env)
 
 
 def list_evaluations() -> None:

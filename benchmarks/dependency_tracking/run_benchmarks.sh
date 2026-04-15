@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 base_dir=$(realpath "$(dirname "$0")")
 cd "$base_dir" || exit 1
@@ -17,8 +16,14 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+sudo rm -rf /tmp/incr/*
 # Remove results from previous runs 
 # rm -f "$result_dir"/*
+
+top=$(git rev-parse --show-toplevel)
+source "$top/.venv/bin/activate"
+
+cp evaluation/microbenchmarks/eager/inputs/dict.txt /usr/share/dict/words
 
 default_in="$PWD/evaluation/microbenchmarks/eager/inputs/pg-small"
 used_default_in=false
@@ -54,13 +59,13 @@ run_benchmark() {
 	local times=""
 	local runner=("./incr.sh" "$script")
 
-	if grep -q "target/release/incr" "$script"; then
+	if [ $INCR_ISOLATION_MODE = "none" ]; then
 		runner=("/bin/bash" "$script")
 	fi
-	
+
 	for ((i = 1; i <= ITERATIONS; i++)); do
-		sudo rm -rf /tmp/incr
-		echo "Running $script (Iteration $i)"
+		sudo rm -rf /tmp/incr/*
+		echo "Running $script ($INCR_ISOLATION_MODE) (Iteration $i)"
 		time_output=$( { "$TIME_BIN" -f "%e" "${runner[@]}" >/dev/null; } 2>&1)
 		times="$times,$time_output"
 	done
@@ -115,3 +120,5 @@ for benchmark_name in $BENCHMARK_CASES; do
 			;;
 	esac
 done
+
+deactivate

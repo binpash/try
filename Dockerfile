@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     autoconf \
     automake \
     attr \
+    bsdextrautils \
     build-essential \
     ca-certificates \
     curl \
@@ -25,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-matplotlib \
     python3-pip \
+    python3-venv \
     strace \
     sudo \
     time \

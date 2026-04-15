@@ -18,3 +18,4 @@ try-0.2.0.tgz
 .vagrant*
 __pycache__
 benchmarks/micro_benchmarks/create_files/target
+.venv
