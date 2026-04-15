@@ -1,6 +1,21 @@
 # A tutorial on `try` (10 minutes)
 
-Inside the Vagrant guest:
+Before starting the tutorial, enter one of the prepared environments from the repository root on the host.
+
+For Docker:
+
+```sh
+./scripts/run_eval_in_docker.sh shell
+```
+
+For Vagrant:
+
+```sh
+vagrant up debian
+vagrant ssh debian
+```
+
+Once you are inside the environment, create a scratch directory:
 
 ```sh
 mkdir -p ~/try-tour
@@ -47,6 +62,7 @@ Create an ordered filesystem trace `-t`:
 ```sh
 touch {1..5}.txt
 try -t trace.log -y 'rm 1.txt 3.txt 2.txt 4.txt 5.txt'
+cat trace.log
 ```
 
 With `-t`, `try` records a filesystem trace while applying the effects, so the files should be removed and `trace.log` should contain an ordered log of the invocation's read and write effects.
@@ -54,12 +70,12 @@ With `-t`, `try` records a filesystem trace while applying the effects, so the f
 Collect effect delta with `diff` or `--diff`:
 
 ```sh
-try diff "$SEMISOLATE"
+try --diff "$SEMISOLATE"
 ```
 
-Using `diff`, `try` prints the raw effect delta for a saved semisolate. `--diff` is accepted as an alias, so you should see coded effect lines for the uncommitted changes stored in `$SEMISOLATE`.
+Using `--diff`, `try` prints the raw effect delta for a saved semisolate.
 
-Discard all effects `-n`:
+Discard/accept all effects `-n`/`-y`:
 
 ```sh
 try -n 'echo "data" > discarded.txt'
@@ -68,7 +84,7 @@ try -y 'echo "data" > discarded.txt'
 [ -f discarded.txt ] && echo "effect was kept"
 ```
 
-With `-n`, `try` discards the pending effects while with `-y` it applies them, so the first command should leave no file behind and the second should create `discarded.txt`.
+With `-n`, `try` discards the pending effects while with `-y` it applies them.
 
 Inspect and selectively apply effects `-e`:
 
@@ -91,11 +107,15 @@ Stack over prior effects with `-L`:
 
 ```sh
 sudo rm -rf /tmp/try-lower-a /tmp/try-lower-b
+# Prepare the directories where try will initialize the semisolate
 mkdir -p /tmp/try-lower-a /tmp/try-lower-b
+# Create the semisolates with the effects we want to stack
 try -D /tmp/try-lower-a 'echo "A" > a.txt'
 try -D /tmp/try-lower-b 'echo "B" > b.txt'
+# Inspect the effects inside the semisolates
 try summary /tmp/try-lower-a
 try summary /tmp/try-lower-b
+# Run a command inside a new semisolate that stacks the prior two semisolates
 try -L /tmp/try-lower-b:/tmp/try-lower-a 'cat a.txt b.txt'
 ```
 

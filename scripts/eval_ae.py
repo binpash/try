@@ -16,6 +16,11 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RESULTS_ROOT = ROOT
 DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "paper_eval"
 ARCHIVE_RESULTS_ROOT = ROOT / "benchmarks" / "precomputed_results"
+RUST_ENV_SNIPPET = (
+    'if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; '
+    'elif [ -f "/usr/local/cargo/env" ]; then . "/usr/local/cargo/env"; '
+    "fi"
+)
 
 ARCHIVE_TABLE2_RESULTS = {
     "benchmarks/results/llm_scripts/benchmark_results.csv": {
@@ -112,6 +117,12 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         cmd=("/bin/bash", "scripts/setup.sh"),
                     ),
                     Step(
+                        name="pre-commit-prepare",
+                        cwd=ROOT / "benchmarks" / "third_party_library_risks",
+                        cmd=("/bin/bash", "setup-baremetal.sh"),
+                        note="Populates the third-party-library benchmark environments used by the live runs.",
+                    ),
+                    Step(
                         name="micro-image",
                         cwd=ROOT / "benchmarks" / "micro_benchmarks",
                         cmd=("/bin/bash", "scripts/setup.sh"),
@@ -148,20 +159,31 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         cmd=(
                             "/bin/bash",
                             "-lc",
-                            "if [ ! -x \"$HOME/.cargo/bin/cargo\" ]; then "
-                            "curl https://sh.rustup.rs -sSf | sh -s -- -y; "
-                            "fi && . \"$HOME/.cargo/env\" && rustup update stable",
+                            "if command -v rustup >/dev/null 2>&1; then "
+                            "rustup update stable; "
+                            "elif command -v cargo >/dev/null 2>&1; then "
+                            "cargo --version; "
+                            "else "
+                            "curl https://sh.rustup.rs -sSf | sh -s -- -y && "
+                            + RUST_ENV_SNIPPET
+                            + " && "
+                            "rustup update stable; "
+                            "fi",
                         ),
                         note="Installs a current Rust toolchain for the dependency-tracking benchmark, which uses the Rust 2024 edition.",
                     ),
                     Step(
                         name="dependency-build",
                         cwd=ROOT / "benchmarks" / "dependency_tracking",
-                        cmd=("/bin/bash", "-lc", ". \"$HOME/.cargo/env\" && cargo build --release"),
+                        cmd=(
+                            "/bin/bash",
+                            "-lc",
+                            RUST_ENV_SNIPPET + " && cargo build --release",
+                        ),
                         note="Builds the incremental executor used by the dependency-tracking benchmark harness.",
                     ),
                 ),
-                note="Run this once in the Debian Vagrant guest before running live evaluations. The `all` target includes it automatically.",
+                note="Run this once in the Debian Vagrant guest or in the privileged Docker eval container before running live evaluations.",
             ),
         ),
         (
@@ -171,18 +193,6 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 title="Risky or Cryptic LLM Suggestions",
                 section="§5.1",
                 steps=(
-                    Step(
-                        name="prepare-image",
-                        cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
-                        cmd=("/bin/bash", "scripts/setup.sh"),
-                        note="Builds the benchmark image used by the Docker comparison runs.",
-                    ),
-                    Step(
-                        name="prepare-data",
-                        cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
-                        cmd=("/bin/bash", "setup_baremetal.sh"),
-                        note="Generates the clean local datasets restored between LLM benchmark iterations.",
-                    ),
                     Step(
                         name="performance",
                         cwd=ROOT / "benchmarks" / "risky_or_cryptic_llm_suggestions",
@@ -194,6 +204,7 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         cmd=("/bin/bash", "run_compatibility.sh"),
                     ),
                 ),
+                note="Assumes `python3 scripts/eval_ae.py run setup` has already prepared the benchmark image and local datasets.",
             ),
         ),
         (
@@ -220,12 +231,6 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 section="§5.3",
                 steps=(
                     Step(
-                        name="prepare",
-                        cwd=ROOT / "benchmarks" / "third_party_library_risks",
-                        cmd=("/bin/bash", "setup-baremetal.sh"),
-                        note="Required once to populate the benchmark environments.",
-                    ),
-                    Step(
                         name="performance",
                         cwd=ROOT / "benchmarks" / "third_party_library_risks",
                         cmd=("/bin/bash", "run_benchmarks.sh"),
@@ -236,6 +241,7 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         cmd=("/bin/bash", "run_compatibility.sh"),
                     ),
                 ),
+                note="Assumes `python3 scripts/eval_ae.py run setup` has already prepared the benchmark image and benchmark environments.",
             ),
         ),
         (
@@ -266,25 +272,13 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                 section="§5.5",
                 steps=(
                     Step(
-                        name="install-caruca",
-                        cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
-                        cmd=(
-                            "python3",
-                            "-m",
-                            "pip",
-                            "install",
-                            "--break-system-packages",
-                            ".",
-                        ),
-                        note="Installs the local caruca CLI required by the partial-specification mining benchmark.",
-                    ),
-                    Step(
                         name="generation",
                         cwd=ROOT / "benchmarks" / "partial_specification_mining" / "caruca",
                         cmd=("/bin/bash", "run.sh"),
                         note="Runs the paper-style partial-specification timing harness for cp, ls, rm, sed, and xargs.",
                     ),
                 ),
+                note="Assumes `python3 scripts/eval_ae.py run setup` has already installed the local caruca CLI.",
             ),
         ),
         (
@@ -639,7 +633,10 @@ def list_evaluations() -> None:
 
 
 def run_evaluations(selected: list[str], dry_run: bool) -> None:
-    keys = list(EVALUATIONS.keys()) if selected == ["all"] else selected
+    if selected == ["all"]:
+        keys = [key for key in EVALUATIONS.keys() if key != "setup"]
+    else:
+        keys = selected
     for key in keys:
         evaluation = EVALUATIONS[key]
         print_header(f"{evaluation.title} {evaluation.section}")

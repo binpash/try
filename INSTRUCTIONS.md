@@ -33,23 +33,22 @@ that enhance `try`'s correctness and usability (`try-summarize` and `try-gidmapp
 <a id="artifact-functional"></a>
 # Artifact Functional (20 minutes)
 
-Confirm sufficient documentation, key components as described in the paper, and execution across a comprehensive test suite (about 20 minutes):
+Confirm sufficient documentation, key components as described in the paper, and execution across `try`'s test suite (about 20 minutes):
 
 * Documentation: The top-level [README](README.md) and [docs folder](https://github.com/binpash/try/tree/osdi26-ae/docs) contain detailed information about `try`'s interface and capabilities.
                  After installation, the manual page is also available via `man try`.
-* Key components: The [try subsystem](https://github.com/binpash/try/tree/osdi26-ae/try) and [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance its performance, correctness, and usability.
-* Exercisability: The instructions below set up a Debian-based virtual machine and run `try`'s test suite, which covers a wide range of `try`'s functionality and serves as a sanity check for the artifact's executability.
+* Key components: The [try subsystem](https://github.com/binpash/try/tree/osdi26-ae/try) and [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance its correctness, and usability (`try-summarize` and `try-gidmapper`).
+* Exercisability: The instructions below set up a Docker-based environment and run `try`'s test suite, which covers a wide range of `try`'s functionality and serves as a sanity check for the artifact's executability.
                   The artifact also includes a tutorial that walks through `try`'s key features and capabilities.
 
 
 _Note_: After the evaluation, if you would like to use `try` on your own machine, you can follow the [installation instructions](https://github.com/binpash/try/tree/osdi26-ae?tab=readme-ov-file#installing).
-        For the artifact evaluation, we recommend using the provided Vagrant-based environment, however.
+        For the artifact evaluation, we recommend using the provided Docker-based environment.
 
-**Quickstart:** These steps walk through setting up a working Debian-based environment inside a Vagrant virtual machine and running `try`'s test suite.
+**Quickstart (Docker):** These steps set up the Docker-based artifact environment and run `try`'s test suite.
 
 Requirements:
-1. [Vagrant](https://developer.hashicorp.com/vagrant)
-2. [VirtualBox](https://www.virtualbox.org/)
+1. [Docker](https://www.docker.com/)
 
 Download the repository with all sub-modules:
 
@@ -63,37 +62,41 @@ git submodule update --init --recursive
 From the repository root, run:
 
 ```sh
-vagrant up debian
+./scripts/run_eval_in_docker.sh run setup
 ```
 
 This will:
 
-1. Download the Debian Vagrant box
-2. Create the VM
-3. Copy the repository into the guest
-4. Install dependencies
-5. Build `try`
+1. Build the evaluation container
+2. Mount the repository into it
+3. Install dependencies
+4. Build `try`
+5. Prepare the evaluation environment
 
 The first run may take several minutes (depending on your network speed).
 After it is complete, run the following:
 
 ```sh
-# Check that the VM is running
-vagrant status debian
-# Enter the VM
-vagrant ssh debian
-```
-
-To run the test suite inside the guest:
-
-```sh
-cd /home/vagrant/try && scripts/run_tests.sh
+./scripts/run_eval_in_docker.sh run tests
 ```
 
 The test suite should report:
 
 ```text
 Summary: 32/32 tests passed.
+```
+
+_Note_: Keep in mind that when `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem when run inside a Docker container.
+This avoids nested overlayfs issues, but it also means the sandbox contents are memory-backed, which can lead to different performance characteristics compared to running `try` on bare metal.
+
+**Quickstart (Vagrant alternative):** If you using a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
+[Vagrant](https://developer.hashicorp.com/vagrant) and
+[VirtualBox](https://www.virtualbox.org/), then run:
+
+```sh
+vagrant up debian
+vagrant ssh debian
+cd /home/vagrant/try && scripts/run_tests.sh
 ```
 
 **Complete exploration:** To further explore `try`'s capabilities, you can go through the short [TUTORIAL](TUTORIAL.md) document.
@@ -105,42 +108,48 @@ The key results of `try`'s evaluation are the following:
 - The summary of `try`'s performance and correctness across the five use cases. (§5, Table 2)
 - The breakdown of `try`'s overhead across the microbenchmarks. (§5.6, Figure 3)
 
-**Preparation:**
-These steps assume you have a working Debian Vagrant guest with the `try` test suite passing, as described in the previous section.
+**Preparation (Docker):**
+These steps assume you have a working Docker-based artifact environment with the
+`try` test suite passing, as described in the previous section.
 You should have at least 100 GB of free disk space on your host.
 The following steps walk through reproducing `try`'s evaluation:
 
-Inside the VM, run the one-time setup step:
+From the repository root on the host, run the one-time setup step:
+
+```sh
+./scripts/run_eval_in_docker.sh run setup
+```
+
+This builds the evaluation container if needed, mounts the repository into it,
+mounts the host Docker socket for benchmark image builds and Docker baselines,
+and installs the dependencies for all five use cases.
+
+**Preparation (Vagrant alternative):** Inside the guest, run:
 
 ```sh
 cd /home/vagrant/try && python3 scripts/eval_ae.py run setup
 ```
 
-This installs the dependencies for all five use cases.
-
 _Note_: The following steps will take several hours to complete.
 AEC reviewers may inspect pre-computed artifacts in the [`benchmarks/precomputed_results`](benchmarks/precomputed_results) folder and jump to the report generation step.
 
-**Full evaluation:**
-After this is complete, run each step of the evaluation:
+**Full evaluation (Docker):**
+After this is complete, run:
 
 ```sh
-# Risky or Cryptic LLM Suggestions (§5.1)
-python3 scripts/eval_ae.py run llm
-# Dependency Tracking (§5.2)
-python3 scripts/eval_ae.py run dependency
-# Third-Party Library Risks (§5.3)
-python3 scripts/eval_ae.py run pre-commit
-# Cautious Software Installation (§5.4)
-python3 scripts/eval_ae.py run npm
-# Partial-Specification Mining (§5.5)
-python3 scripts/eval_ae.py run spec
-# Microbenchmarks (§5.6)
-python3 scripts/eval_ae.py run micro
+./scripts/run_eval_in_docker.sh run all
 ```
+
 Once all six sections have completed, generate the aggregated artifacts:
 
 ```sh
+./scripts/run_eval_in_docker.sh report
+```
+
+**Full evaluation (Vagrant alternative):** Inside the guest, run:
+
+```sh
+python3 scripts/eval_ae.py run all
 python3 scripts/eval_ae.py report
 ```
 
@@ -162,8 +171,8 @@ Open the generated summary and plot files:
 4. Figure 3 plot:
    `artifacts/paper_eval/micro_breakdown.png`
 
-**Cleanup**:
-Inside the guest, exit back to the host and run the cleanup script:
+**Cleanup (Vagrant only):**
+If you used the VM-based flow, exit back to the host and run the cleanup script:
 
 ```sh
 exit
