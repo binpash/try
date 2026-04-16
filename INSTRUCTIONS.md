@@ -111,7 +111,7 @@ The key results of `try`'s evaluation are the following:
 **Preparation (Docker):**
 These steps assume you have a working Docker-based artifact environment with the
 `try` test suite passing, as described in the previous section.
-You should have at least 100 GB of free disk space on your host.
+You should have at least 50 GB of free disk space on your host.
 The following steps walk through reproducing `try`'s evaluation:
 
 From the repository root on the host, run the one-time setup step:
