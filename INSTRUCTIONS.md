@@ -137,7 +137,18 @@ AEC reviewers may inspect pre-computed artifacts in the [`benchmarks/precomputed
 After this is complete, run:
 
 ```sh
-./scripts/run_eval_in_docker.sh run all
+# §5.1 Risky or cryptic LLM suggestions
+./scripts/run_eval_in_docker.sh run llm
+# §5.2 Dependency tracking
+./scripts/run_eval_in_docker.sh run dependency
+# §5.3 Third-party library risks
+./scripts/run_eval_in_docker.sh run pre-commit
+# §5.4 Cautious software installation
+./scripts/run_eval_in_docker.sh run npm
+# §5.5 Partial-specification mining
+./scripts/run_eval_in_docker.sh run spec
+# §5.6 Microbenchmarks
+./scripts/run_eval_in_docker.sh run micro
 ```
 
 Once all six sections have completed, generate the aggregated artifacts:
@@ -149,7 +160,12 @@ Once all six sections have completed, generate the aggregated artifacts:
 **Full evaluation (Vagrant alternative):** Inside the guest, run:
 
 ```sh
-python3 scripts/eval_ae.py run all
+python3 scripts/eval_ae.py run llm
+python3 scripts/eval_ae.py run dependency
+python3 scripts/eval_ae.py run pre-commit
+python3 scripts/eval_ae.py run npm
+python3 scripts/eval_ae.py run spec
+python3 scripts/eval_ae.py run micro
 python3 scripts/eval_ae.py report
 ```
 
