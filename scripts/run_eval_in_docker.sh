@@ -21,7 +21,7 @@ if [ -t 0 ] && [ -t 1 ]; then
 fi
 
 if ! docker image inspect "$image_name" >/dev/null 2>&1; then
-    docker build -t "$image_name" "$repo_root"
+    docker build --network=host -t "$image_name" "$repo_root"
 fi
 
 ensure_container() {
