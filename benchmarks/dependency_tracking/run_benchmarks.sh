@@ -3,11 +3,14 @@
 base_dir=$(realpath "$(dirname "$0")")
 cd "$base_dir" || exit 1
 result_dir=./results/incr
+top=$(git rev-parse --show-toplevel)
+shared_result_dir="$top/benchmarks/results/dependency_tracking"
 TIME_BIN="${TIME_BIN:-/usr/bin/time}"
 ITERATIONS="${ITERATIONS:-10}"
 BENCHMARK_CASES="${BENCHMARK_CASES:-nlp spell unixfun covid}"
 
 mkdir -p "${result_dir}"
+mkdir -p "${shared_result_dir}"
 
 /bin/bash "$base_dir/setup.sh"
 
@@ -20,7 +23,6 @@ sudo rm -rf /tmp/incr/*
 # Remove results from previous runs 
 # rm -f "$result_dir"/*
 
-top=$(git rev-parse --show-toplevel)
 source "$top/.venv/bin/activate"
 
 cp evaluation/microbenchmarks/eager/inputs/dict.txt /usr/share/dict/words
@@ -89,6 +91,8 @@ for benchmark_name in $BENCHMARK_CASES; do
 	esac
 done
 
+cp "$result_dir"/benchmark_results_try.csv "$shared_result_dir"/benchmark_results_try.csv
+
 export INCR_ISOLATION_MODE=docker
 output_file=${result_dir}/"benchmark_results_docker.csv"
 : > "$output_file"
@@ -105,6 +109,8 @@ for benchmark_name in $BENCHMARK_CASES; do
 	esac
 done
 
+cp "$result_dir"/benchmark_results_docker.csv "$shared_result_dir"/benchmark_results_docker.csv
+
 export INCR_ISOLATION_MODE=none
 output_file=${result_dir}/"benchmark_results_vanilla.csv"
 : > "$output_file"
@@ -120,5 +126,7 @@ for benchmark_name in $BENCHMARK_CASES; do
 			;;
 	esac
 done
+
+cp "$result_dir"/benchmark_results_vanilla.csv "$shared_result_dir"/benchmark_results_vanilla.csv
 
 deactivate

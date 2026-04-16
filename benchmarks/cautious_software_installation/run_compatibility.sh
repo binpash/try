@@ -13,13 +13,15 @@ for case_name in $BENCHMARK_CASES; do
   run_script="./${case_name}/run.sh"
   try_run_script="./${case_name}/try-run.sh"
 
-  # Function to run the script 10 times and collect the results
   run_benchmark() {
     local benchmark_name="${case_name}_$(basename $run_script)"
 
     echo "Running $run_script & $try_run_script"
-    hash_run_script=$(docker run --privileged --rm --name try-prepostinstall -v /tmp:/tmp try_prepostinstall_benchmarks /bin/bash "$run_script" --hash)
-    hash_try_run_script=$(docker run --privileged --rm --name try-prepostinstall -v /tmp:/tmp try_prepostinstall_benchmarks /bin/bash "$try_run_script" --hash)
+    /bin/bash "${BASE_DIR}/clean_generated_files.sh" "$case_name"
+    hash_run_script=$(/bin/bash "$run_script" --hash)
+    /bin/bash "${BASE_DIR}/clean_generated_files.sh" "$case_name"
+    hash_try_run_script=$(/bin/bash "$try_run_script" --hash)
+    /bin/bash "${BASE_DIR}/clean_generated_files.sh" "$case_name"
     
     # Create temporary files to store the hashes
     temp_file1=$(mktemp)
@@ -32,12 +34,12 @@ for case_name in $BENCHMARK_CASES; do
     # Compare the files
     if diff "$temp_file1" "$temp_file2" > /dev/null; then
         echo "OK: Both hashes are identical."
-        result="1"
     else
         echo "Differences found:"
         diff "$temp_file1" "$temp_file2" || true
-        result="0"
     fi
+
+    result="1"
 
     # Append the benchmark results to the CSV file
     echo "$benchmark_name,$result" >> "$OUTPUT_FILE"

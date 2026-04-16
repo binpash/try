@@ -65,11 +65,13 @@ try() {
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
     # tail -n +2 to ignore the first line with the column name
     tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
+    SANDBOX_TMPFS_MOUNTED=0
     if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
     then
         echo "mounting sandbox '$SANDBOX_DIR' as tmpfs (underlying fs is overlayfs)" >> "$try_mount_log"
         echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
+        SANDBOX_TMPFS_MOUNTED=1
     fi
 
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
@@ -335,6 +337,11 @@ EOF
                           esac
                       fi;;
     esac
+
+    if [ "${SANDBOX_TMPFS_MOUNTED}" -eq 1 ]
+    then
+        umount "$SANDBOX_DIR" 2>>"$try_mount_log" || umount -l "$SANDBOX_DIR" 2>>"$try_mount_log" || true
+    fi
 }
 
 ################################################################################

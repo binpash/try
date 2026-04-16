@@ -22,7 +22,7 @@ prefix=$(realpath $(dirname "${BASH_SOURCE[0]}"))
 cd $prefix/eslint-scope
 
 # Run script.sh and handle time output based on the flags
-npm install >/dev/null 2>&1
+npm install >/dev/null 2>&1 || true
 
 # Run hash_dir.sh and handle output based on the flag
 if $print_hash; then

@@ -19,6 +19,7 @@ DEFAULT_OUTPUT_DIR = ROOT / "artifacts" / "paper_eval"
 ARCHIVE_RESULTS_ROOT = ROOT / "benchmarks" / "precomputed_results"
 EVAL_VENV = ROOT / ".venv"
 EVAL_VENV_BIN = EVAL_VENV / "bin"
+THIRD_PARTY_WORK_ROOT = ROOT / ".cache" / "try-paper" / "third_party_library_risks"
 RUST_ENV_SNIPPET = (
     'if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; '
     'elif [ -f "/usr/local/cargo/env" ]; then . "/usr/local/cargo/env"; '
@@ -36,6 +37,13 @@ def with_eval_venv_env() -> dict[str, str]:
     env["VIRTUAL_ENV"] = str(EVAL_VENV)
     env["PATH"] = f"{EVAL_VENV_BIN}{os.pathsep}{env.get('PATH', '')}"
     return env
+
+
+def with_third_party_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["TRY_LEAK_WORK_ROOT"] = str(THIRD_PARTY_WORK_ROOT)
+    return env
+
 
 ARCHIVE_TABLE2_RESULTS = {
     "benchmarks/results/llm_scripts/benchmark_results.csv": {
@@ -142,6 +150,7 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         name="pre-commit-prepare",
                         cwd=ROOT / "benchmarks" / "third_party_library_risks",
                         cmd=("/bin/bash", "setup-baremetal.sh"),
+                        env=with_third_party_env(),
                         note="Populates the third-party-library benchmark environments used by the live runs.",
                     ),
                     Step(
@@ -155,7 +164,7 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         cmd=(
                             "/bin/bash",
                             "-lc",
-                            f'"{EVAL_VENV_BIN / "python3"}" -m pip install '
+                            f'"{EVAL_VENV_BIN / "python3"}" -m pip install -e '
                             f'"{(ROOT / "benchmarks" / "partial_specification_mining" / "caruca").as_posix()}"',
                         ),
                         note="Installs the local caruca CLI used by the partial-specification mining benchmark.",
@@ -262,11 +271,13 @@ EVALUATIONS: "OrderedDict[str, Evaluation]" = OrderedDict(
                         name="performance",
                         cwd=ROOT / "benchmarks" / "third_party_library_risks",
                         cmd=("/bin/bash", "run_benchmarks.sh"),
+                        env=with_third_party_env(),
                     ),
                     Step(
                         name="equivalence",
                         cwd=ROOT / "benchmarks" / "third_party_library_risks",
                         cmd=("/bin/bash", "run_compatibility.sh"),
+                        env=with_third_party_env(),
                     ),
                 ),
                 note="Assumes `python3 scripts/eval_ae.py run setup` has already prepared the benchmark image and benchmark environments.",

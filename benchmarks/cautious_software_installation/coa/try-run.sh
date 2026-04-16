@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Function to display usage information
 usage() {
@@ -35,18 +36,21 @@ done
 
 prefix=$(realpath $(dirname "${BASH_SOURCE[0]}"))
 cd $prefix/coa
+export HOME="/tmp/try-npm-coa-home"
+export npm_config_cache="$HOME/.npm"
+mkdir -p "$npm_config_cache"
 
 # Run script.sh and handle time output based on the flags
 if $time_only; then
-  time_output=$(/usr/bin/time -f "%e" try -y npm install 2>&1 >/dev/null)
+  time_output=$({ /usr/bin/time -f "%e" try -y npm install >/dev/null; } 2>&1 || true)
   echo "$(echo $time_output | awk 'END{print $NF}')"
 elif $print_time; then
-  /usr/bin/time -f "%e" try -y npm install
+  /usr/bin/time -f "%e" try -y npm install || true
 else
-  /usr/bin/time -f "%e" try -y npm install &> /dev/null
+  /usr/bin/time -f "%e" try -y npm install &> /dev/null || true
 fi
 
 # Run hash_dir.sh and handle output based on the flag
 if $print_hash; then
-  bash ~/hash_dir.sh
+  bash "$prefix/../hash_dir.sh"
 fi

@@ -2,12 +2,9 @@ test/bash_workspace/
 test/results/
 test/try_workspace/
 *~
-.vagrant/
 .vagrant
 autom4te.cache/
 artifacts/paper_eval/
-benchmarks/results/
-benchmarks/dependency_tracking/results/
 config.log
 config.status
 Makefile
@@ -19,3 +16,4 @@ try-0.2.0.tgz
 __pycache__
 benchmarks/micro_benchmarks/create_files/target
 .venv
+.cache/try-paper/third_party_library_risks
