@@ -2,4 +2,4 @@
 
 mkdir tmp
 cd tmp
-/usr/bin/time -f "%e" try -y create_files 1000000000 5
+/usr/bin/time -f "%e" try -y create_files 600000000 5

@@ -88,23 +88,25 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
-    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
-    IGNORE_FILE="$SANDBOX_DIR"/ignore
-
     try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
     # If we're in a docker container, we want to mount tmpfs on sandbox_dir, #136
     # tail -n +2 to ignore the first line with the column name
     date +"%s.%N Docker handling" >&3
+    SANDBOX_TMPFS_MOUNTED=0
     tmpfstype=$(df --output=fstype "$SANDBOX_DIR" | tail -n +2)
     if [ "$tmpfstype" = "overlay" ] && [ "$(id -u)" -eq "0" ]
     then
         echo "mounting sandbox '$SANDBOX_DIR' as tmpfs (underlying fs is overlayfs)" >> "$try_mount_log"
         echo "consider docker volumes if you want persistence" >> "$try_mount_log"
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
+        SANDBOX_TMPFS_MOUNTED=1
     fi
+
+    # Move ignore patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
+    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
+    IGNORE_FILE="$SANDBOX_DIR"/ignore
 
     date +"%s.%N Making upperdir, workdir, temproot" >&3
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
@@ -419,6 +421,11 @@ EOF
                           esac
                       fi;;
     esac
+
+    if [ "${SANDBOX_TMPFS_MOUNTED}" -eq 1 ]
+    then
+        umount "$SANDBOX_DIR" 2>>"$try_mount_log" || umount -l "$SANDBOX_DIR" 2>>"$try_mount_log" || true
+    fi
 }
 
 ################################################################################
