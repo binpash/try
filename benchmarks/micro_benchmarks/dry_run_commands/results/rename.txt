@@ -1,0 +1,2 @@
+rename(rename_case/incoming/report.tmp, rename_case/incoming/report.txt)
+rename(rename_case/incoming/summary.tmp, rename_case/incoming/summary.txt)

@@ -1,0 +1,4 @@
+ad /workspace/benchmarks/micro_benchmarks/dry_run_commands/rename_case/incoming/summary.txt
+de /workspace/benchmarks/micro_benchmarks/dry_run_commands/rename_case/incoming/summary.tmp
+ad /workspace/benchmarks/micro_benchmarks/dry_run_commands/rename_case/incoming/report.txt
+de /workspace/benchmarks/micro_benchmarks/dry_run_commands/rename_case/incoming/report.tmp

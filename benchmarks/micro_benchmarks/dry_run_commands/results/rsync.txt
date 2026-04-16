@@ -1,0 +1,6 @@
+sending incremental file list
+deleting obsolete.txt
+assets/logo.txt
+
+sent 134 bytes  received 32 bytes  332.00 bytes/sec
+total size is 31  speedup is 0.19 (DRY RUN)

@@ -1,0 +1,2 @@
+ad /workspace/benchmarks/micro_benchmarks/dry_run_commands/rsync_case/dest/assets/logo.txt
+de /workspace/benchmarks/micro_benchmarks/dry_run_commands/rsync_case/dest/obsolete.txt

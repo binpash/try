@@ -1,0 +1,2 @@
+LINK: .config => ../dotfiles/git/.config
+WARNING: in simulation mode so not modifying filesystem.

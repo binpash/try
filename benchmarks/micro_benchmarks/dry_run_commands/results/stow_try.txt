@@ -1,0 +1,1 @@
+ln /workspace/benchmarks/micro_benchmarks/dry_run_commands/stow_case/home/.config
