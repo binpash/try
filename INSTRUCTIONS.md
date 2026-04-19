@@ -37,7 +37,7 @@ Confirm sufficient documentation, key components as described in the paper, and 
 
 * Documentation: The top-level [README](README.md) and [docs folder](https://github.com/binpash/try/tree/osdi26-ae/docs) contain detailed information about `try`'s interface and capabilities.
                  After installation, the manual page is also available via `man try`.
-* Key components: The [try subsystem](https://github.com/binpash/try/tree/osdi26-ae/try) and [several optional subsystems](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance its correctness, and usability (`try-summarize` and `try-gidmapper`).
+* Key components: The [try subsystem](https://github.com/binpash/try/tree/osdi26-ae/try) and [several external modules](https://github.com/binpash/try/tree/osdi26-ae/utils) that enhance its correctness, and usability (`try-summarize` and `try-gidmapper`).
 * Exercisability: The instructions below set up a Docker-based environment and run `try`'s test suite, which covers a wide range of `try`'s functionality and serves as a sanity check for the artifact's executability.
                   The artifact also includes a tutorial that walks through `try`'s key features and capabilities.
 
@@ -48,7 +48,7 @@ _Note_: After the evaluation, if you would like to use `try` on your own machine
 **Quickstart (Docker):** These steps set up the Docker-based artifact environment and run `try`'s test suite.
 
 Requirements:
-1. [Docker](https://www.docker.com/)
+1. [Docker](https://docs.docker.com/engine/install/)
 
 Download the repository with all sub-modules:
 
@@ -83,13 +83,13 @@ After it is complete, run the following:
 The test suite should report:
 
 ```text
-Summary: 34/34 tests passed.
+Summary: 35/35 tests passed.
 ```
 
 _Note_: Keep in mind that when `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem when run inside a Docker container.
 This avoids nested overlayfs issues, but it also means the sandbox contents are memory-backed, which can lead to different performance characteristics compared to running `try` on bare metal.
 
-**Quickstart (Vagrant alternative):** If you using a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
+**Quickstart (Vagrant alternative):** If you are using a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
 [Vagrant](https://developer.hashicorp.com/vagrant) and
 [VirtualBox](https://www.virtualbox.org/), then run:
 
