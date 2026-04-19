@@ -991,7 +991,6 @@ def write_micro_breakdown_csv(summary: dict[str, dict[str, float]], out_dir: Pat
 
 def plot_micro_breakdown(summary: dict[str, dict[str, float]], out_dir: Path) -> Path:
     plt = load_pyplot()
-    from matplotlib import rcParams
 
     out_dir.mkdir(parents=True, exist_ok=True)
     output = out_dir / "micro_breakdown.png"
@@ -1007,9 +1006,6 @@ def plot_micro_breakdown(summary: dict[str, dict[str, float]], out_dir: Path) ->
         "exit_ns",
         "commit",
     ]
-
-    rcParams["font.family"] = "Times New Roman"
-    rcParams["font.size"] = 12
 
     cmap = plt.get_cmap("tab20")
     stage_colors = [cmap(i / len(stages)) for i in range(len(stages))]
