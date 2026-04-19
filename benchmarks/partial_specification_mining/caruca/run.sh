@@ -3,6 +3,7 @@ set -euo pipefail
 
 base_dir=$(realpath "$(dirname "$0")")
 result_dir="$base_dir/results/caruca"
+[ -d /workspace ] && git config --global --add safe.directory /workspace
 top=$(git rev-parse --show-toplevel)
 shared_result_dir="$top/benchmarks/results/partial_specification_mining"
 

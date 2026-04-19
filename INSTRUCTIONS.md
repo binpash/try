@@ -80,16 +80,16 @@ After it is complete, run the following:
 ./scripts/run_eval_in_docker.sh run tests
 ```
 
-The test suite should report:
+[The test suite](https://github.com/binpash/try/tree/osdi26-ae/test) should report:
 
 ```text
 Summary: 35/35 tests passed.
 ```
 
-_Note_: Keep in mind that when `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem when run inside a Docker container.
+_Note_: Keep in mind that when run inside a Docker container `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem.
 This avoids nested overlayfs issues, but it also means the sandbox contents are memory-backed, which can lead to different performance characteristics compared to running `try` on bare metal.
 
-**Quickstart (Vagrant alternative):** If you are using a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
+**Quickstart (Vagrant alternative):** If you would rather use a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
 [Vagrant](https://developer.hashicorp.com/vagrant) and
 [VirtualBox](https://www.virtualbox.org/), then run:
 
