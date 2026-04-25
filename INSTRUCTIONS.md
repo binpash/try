@@ -198,4 +198,4 @@ exit
 
 # Contact
 
-For questions or bug reports, please contact `evangelos_lamprou@brown.edu` or, better yet, [open an issue on GitHub](https://github.com/binpash/try/issues/new).
+For questions or bug reports, please contact `try@googlegroups.com` or, better yet, [open an issue on GitHub](https://github.com/binpash/try/issues/new).
