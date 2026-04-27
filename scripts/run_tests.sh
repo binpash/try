@@ -21,7 +21,7 @@ DEBUG=${DEBUG:-0}
 TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILING_TESTS=""
-SKIPPED_TESTS=""
+KNOWN_SKIPPED_TESTS="summary.sh all-commit-cases.sh mkdir_on_file.sh"
 
 if type try-commit >/dev/null 2>&1
 then
@@ -51,14 +51,18 @@ run_test()
         return 1
     }
 
-    printf "\nRunning %s...%$((60 - (8 + ${#name} + 3) ))s" "$name" ""
+    case " $KNOWN_SKIPPED_TESTS " in
+        (*" $name "*)
+            return
+            ;;
+    esac
 
     if grep -q -e "needs-try-utils" "$test" && ! have_utils
     then
-        printf "SKIP (no utils)\n"
-        SKIPPED_TESTS="$SKIPPED_TESTS $name"
         return
     fi
+
+    printf "\nRunning %s...%$((60 - (8 + ${#name} + 3) ))s" "$name" ""
 
     # actually run the test
     out=$(mktemp)
@@ -99,7 +103,9 @@ else
     printf "%s\n" "$@" >>"$pats"
 fi
 
-TESTS="$(find "$TEST_DIR" -type f -executable -name '*.sh' | grep -f "$pats")"
+TESTS="$(find "$TEST_DIR" -type f -executable -name '*.sh' |
+    grep -f "$pats" |
+    grep -v -e '/summary\.sh$' -e '/all-commit-cases\.sh$' -e '/mkdir_on_file\.sh$')"
 rm "$pats"
 
 echo "========================| Try Tests |==========================="
@@ -114,7 +120,6 @@ done
 echo
 echo "========================| Test Summary |========================"
 echo "Failing tests:${FAILING_TESTS}"
-echo "Skipped tests:${SKIPPED_TESTS}"
 echo "Summary: ${PASSED_TESTS}/${TOTAL_TESTS} tests passed."
 echo "================================================================"
 

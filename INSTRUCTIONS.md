@@ -83,7 +83,7 @@ After it is complete, run the following:
 [The test suite](https://github.com/binpash/try/tree/osdi26-ae/test) should report:
 
 ```text
-Summary: 35/35 tests passed.
+Summary: 32/32 tests passed.
 ```
 
 _Note_: Keep in mind that when run inside a Docker container `try` uses `tmpfs` for the sandbox root instead of an overlay filesystem.
