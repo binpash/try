@@ -86,8 +86,8 @@ After it is complete, run the following:
 Summary: 35/35 tests passed.
 ```
 
-_Note_: Keep in mind that when run inside a Docker container `try` uses `tmpfs` for the sandbox root instead of mounting an overlay filesystem.
-This avoids nested overlayfs issues, but it also means the sandbox contents are memory-backed, which can lead to different performance characteristics compared to running `try` on bare metal.
+_Note_: Keep in mind that when run inside a Docker container `try` uses `tmpfs` for the sandbox root instead of an overlay filesystem.
+This may lead to different performance characteristics compared to running `try` on bare metal.
 
 **Quickstart (Vagrant alternative):** If you would rather use a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
 [Vagrant](https://developer.hashicorp.com/vagrant) and
