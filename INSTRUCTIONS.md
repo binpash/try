@@ -90,6 +90,7 @@ _Note_: Keep in mind that when run inside a Docker container `try` uses `tmpfs` 
 This may lead to different performance characteristics compared to running `try` on bare metal.
 
 **Quickstart (Vagrant alternative):** If you would rather use a full-fledged virtual-machine, you can follow the Vagrant-based instructions instead (not recommended for AEC reviewers, but available for completeness).
+After installing
 [Vagrant](https://developer.hashicorp.com/vagrant) and
 [VirtualBox](https://www.virtualbox.org/), then run:
 
@@ -99,7 +100,8 @@ vagrant ssh debian
 cd /home/vagrant/try && scripts/run_tests.sh
 ```
 
-**Complete exploration:** To further explore `try`'s capabilities, you can go through the short [TUTORIAL](TUTORIAL.md) document.
+### Complete exploration 
+To further explore `try`'s capabilities, you can go through the short [TUTORIAL](TUTORIAL.md) document.
 
 <a id="results-reproducible"></a>
 # Results Reproducible (about 5 hours)
