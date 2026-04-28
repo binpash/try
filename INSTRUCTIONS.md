@@ -28,7 +28,7 @@ Both repositories contain the `try` subsystem, its
 its [test suite](https://github.com/binpash/try/tree/osdi26-ae/test);
 [five use cases, a set of microbenchmarks](https://github.com/binpash/try/tree/osdi26-ae/benchmarks) with [accompanying utilities](https://github.com/binpash/try/tree/osdi26-ae/scripts), as presented in the paper; and
 two [external modules](https://github.com/binpash/try/tree/osdi26-ae/utils)
-that enhance `try`'s correctness and usability (`try-summarize` and `try-gidmapper`).
+that enhance `try`'s usability and correctness (`try-summarize` and `try-gidmapper`).
 
 <a id="artifact-functional"></a>
 # Artifact Functional (20 minutes)
