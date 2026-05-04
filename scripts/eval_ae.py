@@ -805,6 +805,13 @@ def format_ratio(value: float, direction: str) -> str:
     return f"{value:.1f}× {arrow}"
 
 
+def display_path(path: Path) -> str:
+    try:
+        return f"./{path.relative_to(ROOT)}"
+    except ValueError:
+        return str(path)
+
+
 def write_table2_summary(rows: list[dict[str, object]], out_dir: Path) -> tuple[Path, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     csv_path = out_dir / "table2_summary.csv"
@@ -1072,18 +1079,18 @@ def plot_micro_breakdown(summary: dict[str, dict[str, float]], out_dir: Path) ->
 def cmd_summarize(args: argparse.Namespace) -> int:
     rows = load_table2_rows(args.results_root)
     csv_path, md_path = write_table2_summary(rows, args.output_dir)
-    print(f"[ok] wrote {csv_path}")
-    print(f"[ok] wrote {md_path}")
+    print(f"[ok] wrote {display_path(csv_path)}")
+    print(f"[ok] wrote {display_path(md_path)}")
     return 0
 
 
 def cmd_plot_micro(args: argparse.Namespace) -> int:
     summary = summarize_micro_logs(args.times_dir)
     csv_path = write_micro_breakdown_csv(summary, args.output_dir)
-    print(f"[ok] wrote {csv_path}")
+    print(f"[ok] wrote {display_path(csv_path)}")
     if args.plot:
         plot_path = plot_micro_breakdown(summary, args.output_dir)
-        print(f"[ok] wrote {plot_path}")
+        print(f"[ok] wrote {display_path(plot_path)}")
     return 0
 
 
