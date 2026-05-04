@@ -116,7 +116,7 @@ These steps assume you have a working Docker-based artifact environment with the
 You should have at least 50 GB of free disk space on your host.
 The following steps walk through reproducing `try`'s evaluation:
 
-From the repository root on the host, run the one-time setup step:
+From the repository root on the host, run the one-time setup step (if you haven't already done so):
 
 ```sh
 ./scripts/run_eval_in_docker.sh run setup
