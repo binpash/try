@@ -17,6 +17,32 @@ require_commands() {
   done
 }
 
+run_rsync_issue_582_case() {
+  rm -rf rsync_issue_582_case
+  mkdir -p rsync_issue_582_case/source rsync_issue_582_case/dest
+  printf 'one\n' > rsync_issue_582_case/source/testfile1.txt
+  printf 'two\n' > rsync_issue_582_case/source/testfile2.txt
+  printf 'three\n' > rsync_issue_582_case/source/testfile3.txt
+
+  rsync -n -i -r -t -p -l -H -s \
+    --log-file=rsync_issue_582_case/dry.log \
+    rsync_issue_582_case/source/ \
+    rsync_issue_582_case/dest/ \
+    > "$results_dir/rsync_issue_582.txt" 2>&1
+  printf '\n--- log file ---\n' >> "$results_dir/rsync_issue_582.txt"
+  cat rsync_issue_582_case/dry.log >> "$results_dir/rsync_issue_582.txt"
+
+  rm -rf rsync_issue_582_case/dest
+  mkdir -p rsync_issue_582_case/dest
+  "$try_bin" -y rsync -i -r -t -p -l -H -s \
+    --log-file=rsync_issue_582_case/try.log \
+    rsync_issue_582_case/source/ \
+    rsync_issue_582_case/dest/ \
+    > "$results_dir/rsync_issue_582_try.txt" 2>&1
+  printf '\n--- log file ---\n' >> "$results_dir/rsync_issue_582_try.txt"
+  cat rsync_issue_582_case/try.log >> "$results_dir/rsync_issue_582_try.txt"
+}
+
 run_git_case() {
   rm -rf git_case
   mkdir -p git_case/repo/src git_case/repo/build/cache
@@ -90,10 +116,12 @@ run_git_case
 cd "$base" || exit 1
 run_rsync_case
 cd "$base" || exit 1
+run_rsync_issue_582_case
+cd "$base" || exit 1
 run_stow_case
 cd "$base" || exit 1
 run_patch_case
 cd "$base" || exit 1
 run_rename_case
 
-rm -rf git_case rsync_case stow_case patch_case rename_case
+rm -rf git_case rsync_case rsync_issue_582_case stow_case patch_case rename_case

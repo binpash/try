@@ -1,0 +1,7 @@
+>f+++++++++ testfile1.txt
+>f+++++++++ testfile2.txt
+>f+++++++++ testfile3.txt
+
+--- log file ---
+2026/05/20 01:59:47 [751] building file list
+2026/05/20 01:59:47 [751] sent 111 bytes  received 26 bytes  total size 14
