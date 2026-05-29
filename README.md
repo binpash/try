@@ -1,8 +1,5 @@
 # try
 
-## Artifact evaluation:
-To evaluate the artifact for the OSDI'26 paper titled "Controlling Opaque-Component Effects with Semisolates and Try", jump straight to [`INSTRUCTIONS.md`](https://github.com/binpash/try/blob/osdi26-ae/INSTRUCTIONS.md).
-
 <img src="docs/try_logo.png" alt="try logo" width="100" height="130">
 
 "Do, or do not. There is no try."
@@ -208,6 +205,8 @@ File 2 Contents - sandbox3
 
 In this example, `try` will merge `/sandbox1`, `/sandbox2` and `/sandbox3` together before mounting the overlay. This way, you can combine the contents of multiple `try` sandboxes.
 
+## Artifact evaluation:
+To evaluate the artifact for the OSDI'26 paper titled "Controlling Opaque-Component Effects with Semisolates and Try", jump straight to [`INSTRUCTIONS.md`](https://github.com/binpash/try/blob/osdi26-ae/INSTRUCTIONS.md).
 
 ## Known Issues
 Any command that interacts with other users/groups will fail since only the
