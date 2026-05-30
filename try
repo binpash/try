@@ -199,9 +199,12 @@ do
         continue
     fi
 
-    ## Don't do anything for the root and skip if it is /dev or /proc, we will mount it later
+    ## Don't do anything for the root and skip if it is /dev, /proc, or /sys, we will mount it later.
+    ## Also skip /sys: overlayfs over /sys would mask the bpffs submount at /sys/fs/bpf, breaking
+    ## BPF-based tools. Passing /sys through to the sandbox is safe — sysfs is read-mostly and
+    ## the host kernel handles permissions per-attribute.
     case "$pure_mountpoint" in
-        (/|/dev|/proc) continue;;
+        (/|/dev|/proc|/sys) continue;;
     esac
 
     # Try mounting everything normally
@@ -238,6 +241,16 @@ done
 
 ## Mount a few select devices in /dev
 mount_devices "$SANDBOX_DIR"
+
+## Bind-mount /sys into the sandbox so bpffs (at /sys/fs/bpf) and other
+## sysfs submounts are visible. The overlay loop skips /sys precisely so
+## this bind sees the host's real /sys; otherwise BPF-based tooling can't
+## open its pinned maps inside the sandbox.
+mkdir -p "$SANDBOX_DIR/temproot/sys"
+## Need --rbind (recursive): plain --bind would carry only the top sysfs and
+## drop submounts like /sys/fs/bpf and /sys/fs/cgroup that we actually need.
+mount --rbind /sys "$SANDBOX_DIR/temproot/sys" 2>>"$try_mount_log" || \
+    printf "%s: Warning: Failed bind-mounting /sys into sandbox, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
