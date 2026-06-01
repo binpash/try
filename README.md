@@ -206,6 +206,7 @@ File 2 Contents - sandbox3
 In this example, `try` will merge `/sandbox1`, `/sandbox2` and `/sandbox3` together before mounting the overlay. This way, you can combine the contents of multiple `try` sandboxes.
 
 ## Artifact evaluation:
+The `try` artifact as was submitted to the OSDI'26 artifact evaluation corresponds to the `osdi26-ae` branch of this repoitory.
 To evaluate the artifact for the OSDI'26 paper titled "Controlling Opaque-Component Effects with Semisolates and Try", jump straight to [`INSTRUCTIONS.md`](https://github.com/binpash/try/blob/osdi26-ae/INSTRUCTIONS.md).
 
 ## Known Issues
