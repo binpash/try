@@ -128,6 +128,7 @@ try() {
 
     export chroot_executable
     export script_to_execute
+    export EXTRA_BIND_MOUNTS
 
     cat >"$mount_and_execute" <<"EOF"
 #!/bin/sh
@@ -251,6 +252,15 @@ mkdir -p "$SANDBOX_DIR/temproot/sys"
 ## drop submounts like /sys/fs/bpf and /sys/fs/cgroup that we actually need.
 mount --rbind /sys "$SANDBOX_DIR/temproot/sys" 2>>"$try_mount_log" || \
     printf "%s: Warning: Failed bind-mounting /sys into sandbox, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
+
+## Apply caller-specified bind mounts (-B src:dst).
+for bind_spec in $EXTRA_BIND_MOUNTS; do
+    bind_src="${bind_spec%%:*}"
+    bind_dst="${bind_spec##*:}"
+    mkdir -p "$bind_src" "$SANDBOX_DIR/temproot/$bind_dst"
+    mount --bind "$bind_src" "$SANDBOX_DIR/temproot/$bind_dst" 2>>"$try_mount_log" || \
+        printf "%s: Warning: Failed bind-mounting %s into sandbox, see \"$try_mount_log\"\n" "$TRY_COMMAND" "$bind_spec" >&2
+done
 
 ## Check if chroot_executable exists, #29
 if ! [ -f "$SANDBOX_DIR/temproot/$chroot_executable" ]
@@ -593,7 +603,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-B src:dst] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
@@ -602,6 +612,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] 
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
+  -B src:dst        bind-mount src into the sandbox at dst (may be repeated)
   -v                show version information (and exit)
   -h                show this usage message (and exit)
 
@@ -625,12 +636,13 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhxi:D:U:L:" opt
+while getopts ":yvnhxi:D:U:L:B:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
+        (B)   EXTRA_BIND_MOUNTS="${EXTRA_BIND_MOUNTS:+$EXTRA_BIND_MOUNTS }$OPTARG";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
