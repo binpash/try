@@ -432,6 +432,59 @@ else
     }
 fi
 
+materialize_stack() {
+    reversed_lower_dirs=""
+    OLDIFS=$IFS
+    IFS=":"
+    for lower_dir in $LOWER_DIRS
+    do
+        reversed_lower_dirs="$lower_dir
+$reversed_lower_dirs"
+    done
+    IFS=$OLDIFS
+
+    # TODO: Find way to do this more efficiently
+    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+    while IFS= read -r lower_dir
+    do
+        [ -n "$lower_dir" ] || continue
+        if ! [ -d "$lower_dir/upperdir" ]
+        then
+            error "could not find directory $lower_dir/upperdir" 1
+        fi
+
+        changed_files=$(find_upperdir_changes "$lower_dir" "$EXCLUDE_FILE" "$INCLUDE_FILE")
+        process_changes "$lower_dir" "$changed_files" | while IFS= read -r summary_line
+        do
+            apply_upperdir_effect "$lower_dir" "$summary_line"
+        done
+    done <<EOF
+$reversed_lower_dirs
+EOF
+
+    TRY_EXIT_STATUS=0
+}
+
+apply_upperdir_effect() {
+    source_sandbox="$1"
+    summary_line="$2"
+    local_file="$(echo "$summary_line" | cut -c 4-)"
+    changed_file="$source_sandbox/upperdir$local_file"
+    dest_file="$SANDBOX_DIR/upperdir$local_file"
+
+    mkdir -p "$(dirname "$dest_file")"
+    case "$summary_line" in
+        (md*) if [ -e "$dest_file" ] && ! [ -d "$dest_file" ] || [ -L "$dest_file" ]
+              then
+                  rm -rf "$dest_file"
+              fi
+              mkdir -p "$dest_file"
+              cp -a "$changed_file/." "$dest_file/";;
+        (*)   rm -rf "$dest_file"
+              cp -a "$changed_file" "$dest_file";;
+    esac
+}
+
 ################################################################################
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
@@ -821,6 +874,12 @@ shift $((OPTIND - 1))
 
 if [ "$#" -eq 0 ]
 then
+    if [ -n "$LOWER_DIRS" ] && [ -n "$SANDBOX_DIR" ]
+    then
+        materialize_stack
+        exit "$TRY_EXIT_STATUS"
+    fi
+
     usage
     exit 2
 fi
