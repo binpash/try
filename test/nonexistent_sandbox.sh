@@ -26,7 +26,7 @@ cd "$try_workspace" || exit 9
 
 try_example_dir="non-existent"
 ! [ -d "$try_example_dir" ] || exit 2
-! "$TRY" -D $try_example_dir "touch file_1.txt" 2>/dev/null &&
+! "$TRY" -N $try_example_dir "touch file_1.txt" 2>/dev/null &&
 ! "$TRY" summary $try_example_dir 2>/dev/null &&
 ! "$TRY" commit $try_example_dir 2>/dev/null &&
 ! "$TRY" explore $try_example_dir 2>/dev/null

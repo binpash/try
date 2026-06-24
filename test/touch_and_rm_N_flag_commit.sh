@@ -39,7 +39,7 @@ touch "$expected1"
 echo 'test' >"$expected2"
 
 try_example_dir="$(mktemp -d)"
-"$TRY" -D "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || exit 1
+"$TRY" -N "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || exit 1
 "$TRY" commit "$try_example_dir" || exit 2
 
 diff -q "$expected1" file_1.txt || exit 3

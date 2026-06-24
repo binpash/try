@@ -62,9 +62,9 @@ touch "$expected1"
 echo "test2" > "$expected2"
 echo "test3" > "$expected3"
 
-"$TRY" -D "$try_example_dir1" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || exit 2
-"$TRY" -D "$try_example_dir2" "echo test2 > file_2.txt" || exit 3
-"$TRY" -D "$try_example_dir3" "echo test3 > file_3.txt" || exit 4
+"$TRY" -N "$try_example_dir1" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || exit 2
+"$TRY" -N "$try_example_dir2" "echo test2 > file_2.txt" || exit 3
+"$TRY" -N "$try_example_dir3" "echo test3 > file_3.txt" || exit 4
 "$TRY" -L "$try_example_dir3:$try_example_dir2:$try_example_dir1" -y "cat file_1.txt > out1; cat file_2.txt > out2; cat file_3.txt > out3"|| exit 5
 
 diff -q "$expected1" out1 || exit 6
