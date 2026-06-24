@@ -376,18 +376,7 @@ EOF
         (quiet)       ;;
         (show)        echo "$SANDBOX_DIR";;
         (commit)      commit;;
-        (interactive) summary >&2
-                      # shellcheck disable=SC2181
-                      if [ "$?" -eq 0 ]
-                      then
-                          printf "\nCommit these changes? [y/N] " >&2
-                          read -r DO_COMMIT
-                          case "$DO_COMMIT" in
-                              (y|Y|yes|YES) commit;;
-                              (*)           echo "Not committing." >&2
-                                            echo "$SANDBOX_DIR";;
-                          esac
-                      fi;;
+        (interactive) prompt_commit;;
     esac
 }
 
@@ -485,6 +474,63 @@ else
         done
     }
 fi
+
+################################################################################
+# Interactively choose whether and how to commit sandbox effects
+################################################################################
+
+prompt_commit() {
+    effects_file="$(mktemp --suffix ".try-$EXECID")"
+
+    summary >"$effects_file"
+    # shellcheck disable=SC2181
+    if [ "$?" -eq 0 ]
+    then
+        cat "$effects_file" >&2
+        printf "\nCommit these changes? [y/i/N] " >&2
+        read -r DO_COMMIT
+        case "$DO_COMMIT" in
+            (y|Y|yes|YES) commit;;
+            (i|I)         if choose_effects "$effects_file"
+                          then
+                              commit
+                          else
+                              echo "Not committing." >&2
+                              echo "$SANDBOX_DIR"
+                          fi;;
+            (*)           echo "Not committing." >&2
+                          echo "$SANDBOX_DIR";;
+        esac
+    fi
+
+    rm -f "$effects_file"
+}
+
+choose_effects() {
+    effects_file="$1"
+    include_file="$(mktemp --suffix ".try-$EXECID")"
+
+    "${EDITOR:-vi}" "$effects_file" || {
+        rm -f "$include_file"
+        return 1
+    }
+
+    while IFS= read -r effect
+    do
+        case "$effect" in
+            (*" (added)"|*" (created dir)"|*" (deleted)"|*" (modified)"|*" (replaced with dir)"|*" (symlink)")
+                printf "%s\n" "${effect% (*}" >>"$include_file";;
+        esac
+    done <"$effects_file"
+
+    if ! [ -s "$include_file" ]
+    then
+        rm -f "$include_file"
+        return 1
+    fi
+
+    mv "$include_file" "$INCLUDE_FILE"
+}
 
 if type try-parse-trace >/dev/null 2>&1
 then
