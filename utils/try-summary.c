@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <sys/xattr.h>
 
-#include "ignores.h"
+#include "excludes.h"
 #include "version.h"
 
 static int changes_detected = 0;
@@ -28,17 +28,20 @@ void show_change(char *local_file, char *msg) {
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-summary [-q] [-i IGNORE_FILE] SANDBOX_DIR\n");
+  fprintf(stderr, "Usage: try-summary [-q] [-E EXCLUDE_FILE] [-I INCLUDE_FILE] SANDBOX_DIR\n");
   exit(status);
 }
 
 int main(int argc, char *argv[]) {
   int skip_new_directories = 0;
   int opt;
-  while ((opt = getopt(argc, argv, "hvqi:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvqE:I:")) != -1) {
     switch (opt) {
-    case 'i':
-      load_ignores("try-summary", optarg);
+    case 'E':
+      load_excludes("try-summary", optarg);
+      break;
+    case 'I':
+      load_includes("try-summary", optarg);
       break;
     case 'q':
       skip_new_directories = 1;
@@ -106,7 +109,7 @@ int main(int argc, char *argv[]) {
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;
 
-    if (should_ignore(local_file)) { continue; }
+    if (should_exclude(local_file) || !should_include(local_file)) { continue; }
 
     struct stat local_stat;
     int local_exists = lstat(local_file, &local_stat) != -1;
@@ -203,7 +206,8 @@ int main(int argc, char *argv[]) {
   }
 
   fts_close(fts);
-  free_ignores();
+  free_excludes();
+  free_includes();
 
   return changes_detected == 0 ? 1 : 0;
 }

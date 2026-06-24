@@ -221,7 +221,8 @@ Please also report any issue you run into while using the future branch!
   - Resolve issues with `userxattr`.
   - Better support for `unionfs`.
   - Use `/bin/sh`, not `/bin/bash`.
-  - `-i` flag to ignore paths.
+  - `-E` flag to exclude paths.
+  - `-I` flag to include paths.
   - Interactive improvements.
 
 * v0.1.0 - 2023-06-25

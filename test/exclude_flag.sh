@@ -17,6 +17,12 @@ trap 'cleanup' EXIT
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
+# Set up expected output
+touch expected.bar
+
 # Exclude changes to foo
-"$TRY" -y "head -c 5 /dev/urandom >target" || exit 1
-[ -s target ] || exit 2
+"$TRY" -y -E foo1 -E foo2 "touch foo1.txt; touch foo2.txt; touch bar.txt" || exit 1
+
+diff -q expected.bar bar.txt || exit 2
+! [ -f foo1.txt ] || exit 3
+! [ -f foo2.txt ] || exit 4

@@ -93,9 +93,11 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
-    # Move ignore patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
-    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
-    IGNORE_FILE="$SANDBOX_DIR"/ignore
+    # Move filter patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
+    mv "$INCLUDE_FILE" "$SANDBOX_DIR"/include
+    INCLUDE_FILE="$SANDBOX_DIR"/include
+    mv "$EXCLUDE_FILE" "$SANDBOX_DIR"/exclude
+    EXCLUDE_FILE="$SANDBOX_DIR"/exclude
 
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
@@ -367,7 +369,7 @@ EOF
 if type try-summary >/dev/null 2>&1
 then
     summary() {
-        try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
+        try-summary -E "$EXCLUDE_FILE" -I "$INCLUDE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
@@ -381,7 +383,7 @@ else
         fi
 
         ## Finds all potential changes
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$EXCLUDE_FILE" "$INCLUDE_FILE")
         summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
         if [ -z "$summary_output" ]
         then
@@ -416,7 +418,7 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
+        try-commit -E "$EXCLUDE_FILE" -I "$INCLUDE_FILE" "$SANDBOX_DIR"
         TRY_EXIT_STATUS=$?
     }
 else
@@ -429,7 +431,7 @@ else
             error "could not find directory $SANDBOX_DIR/upperdir" 1
         fi
 
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$EXCLUDE_FILE" "$INCLUDE_FILE")
         summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
         TRY_EXIT_STATUS=0
@@ -475,13 +477,28 @@ else
 fi
 
 ################################################################################
-## Defines which changes we want to ignore in the summary and commit
+## Defines which changes we want to exclude in the summary and commit
 ################################################################################
 
-ignore_changes() {
-    ignore_file="$1"
+exclude_changes() {
+    exclude_file="$1"
 
-    grep -v -f "$ignore_file"
+    grep -v -f "$exclude_file"
+}
+
+################################################################################
+## Defines which changes we want to include in the summary and commit
+################################################################################
+
+include_changes() {
+    include_file="$1"
+
+    if [ -s "$include_file" ]
+    then
+        grep -f "$include_file"
+    else
+        cat
+    fi
 }
 
 ################################################################################
@@ -490,9 +507,10 @@ ignore_changes() {
 
 find_upperdir_changes() {
     sandbox_dir="$1"
-    ignore_file="$2"
+    exclude_file="$2"
+    include_file="$3"
 
-    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" -type f -o \( -type c -size 0 \) -o -type d -o -type l | include_changes "$include_file" | exclude_changes "$exclude_file"
 }
 
 ################################################################################
@@ -634,12 +652,13 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-t PATH] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-t PATH] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
-  -i PATTERN        ignore paths that match PATTERN on summary and commit
+  -E PATTERN        exclude paths that match PATTERN on summary and commit
+  -I PATTERN        include only paths that match PATTERN on summary and commit
   -t PATH           generate ordered log of effects in PATH
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
@@ -664,20 +683,27 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-# Includes all patterns given using the `-i` flag; will be used with `grep -f`
+# Includes all patterns given using the `-I` flag; will be used with `grep -f`
 #
 # We have to create this temporary up front.
-# We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
-IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
-echo "/run/mount" >>"$IGNORE_FILE"
-echo "$TRY_TRACE_PATH" >> "$IGNORE_FILE"
+# We move it to $SANDBOX_DIR/include in `try()`, but delete it when we don't move it.
+INCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
-while getopts ":yvnhxi:t:D:U:L:" opt
+# Excludes all patterns given using the `-E` flag; will be used with `grep -f`
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/exclude in `try()`, but delete it when we don't move it.
+EXCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
+echo "/run/mount" >>"$EXCLUDE_FILE"
+echo "$TRY_TRACE_PATH" >> "$EXCLUDE_FILE"
+
+while getopts ":yvnhxE:I:t:D:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
-        (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
+        (E)   echo "$OPTARG" >>"$EXCLUDE_FILE";;
+        (I)   echo "$OPTARG" >>"$INCLUDE_FILE";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
@@ -717,11 +743,13 @@ TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
               summary
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (commit)  : "${SANDBOX_DIR=$2}"
               commit
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (explore) : "${SANDBOX_DIR=$2}"
               set_TRY_SHELL
