@@ -94,6 +94,8 @@ try() {
     fi
 
     # Move filter patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
+    mv "$HIDE_FILE" "$SANDBOX_DIR"/hide
+    HIDE_FILE="$SANDBOX_DIR"/hide
     mv "$INCLUDE_FILE" "$SANDBOX_DIR"/include
     INCLUDE_FILE="$SANDBOX_DIR"/include
     mv "$EXCLUDE_FILE" "$SANDBOX_DIR"/exclude
@@ -123,6 +125,12 @@ try() {
             new_mountpoint="${new_mountpoint:+$new_mountpoint:}$temp_mountpoint"
         done
         IFS=$OLDIFS
+        # Add the hide layer before the original mountpoint.
+        if [ -s "$HIDE_FILE" ]
+        then
+            temp_mountpoint="$SANDBOX_DIR/hidedir$mountpoint"
+            new_mountpoint="${new_mountpoint:+$new_mountpoint:}$temp_mountpoint"
+        fi
         # Add the original mountpoint at the end
         new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
         echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
@@ -141,8 +149,29 @@ try() {
         then
             # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
             mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            if [ -s "$HIDE_FILE" ]
+            then
+                # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
+                mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/hidedir/${mountpoint}"
+            fi
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    while IFS="" read -r hide_path
+    do
+        case "$hide_path" in
+            ("") continue;;
+            (/*) hide_path="$(readlink -m "$hide_path")";;
+            (*)  hide_path="$(readlink -m "$START_DIR/$hide_path")";;
+        esac
+
+        [ "$hide_path" != "/" ] || error "cannot hide /" 2
+
+        mkdir -p "$SANDBOX_DIR/hidedir/$(dirname "$hide_path")"
+        touch "$SANDBOX_DIR/hidedir/$hide_path"
+        setfattr -n user.overlay.whiteout -v y "$SANDBOX_DIR/hidedir/$hide_path" ||
+            error "could not create whiteout for hidden path '$hide_path'" 1
+    done <"$HIDE_FILE"
 
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
@@ -652,13 +681,14 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-t PATH] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-i PATH] [-t PATH] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
   -E PATTERN        exclude paths that match PATTERN on summary and commit
   -I PATTERN        include only paths that match PATTERN on summary and commit
+  -i PATH           hide PATH inside the sandbox
   -t PATH           generate ordered log of effects in PATH
   -D DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
@@ -683,6 +713,12 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
+# Includes all paths given using the `-i` flag.
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/hide in `try()`, but delete it when we don't move it.
+HIDE_FILE="$(mktemp --suffix ".try-$EXECID")"
+
 # Includes all patterns given using the `-I` flag; will be used with `grep -f`
 #
 # We have to create this temporary up front.
@@ -697,13 +733,14 @@ EXCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
 echo "/run/mount" >>"$EXCLUDE_FILE"
 echo "$TRY_TRACE_PATH" >> "$EXCLUDE_FILE"
 
-while getopts ":yvnhxE:I:t:D:U:L:" opt
+while getopts ":yvnhxE:I:i:t:D:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
         (E)   echo "$OPTARG" >>"$EXCLUDE_FILE";;
         (I)   echo "$OPTARG" >>"$INCLUDE_FILE";;
+        (i)   echo "$OPTARG" >>"$HIDE_FILE";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
@@ -743,11 +780,13 @@ TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
               summary
+              rm "$HIDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (commit)  : "${SANDBOX_DIR=$2}"
               commit
+              rm "$HIDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;

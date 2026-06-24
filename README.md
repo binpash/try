@@ -223,6 +223,7 @@ Please also report any issue you run into while using the future branch!
   - Use `/bin/sh`, not `/bin/bash`.
   - `-E` flag to exclude paths.
   - `-I` flag to include paths.
+  - `-i` flag to hide paths inside the sandbox.
   - Interactive improvements.
 
 * v0.1.0 - 2023-06-25

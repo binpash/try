@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-E PATTERN] [-I PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
+| try [-ny] [-E PATTERN] [-I PATTERN] [-i PATH] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -53,6 +53,10 @@ You can also choose your own shell when running *try*. *try* will run your comma
 -I *PATTERN*
 
 : Include only paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in a pattern file passed to `grep`.
+
+-i *PATH*
+
+: Hide *PATH* inside the sandbox. Relative paths are resolved from the directory where *try* is invoked. This option can be passed multiple times.
 
 -D *DIR*
 
