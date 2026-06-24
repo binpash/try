@@ -25,6 +25,11 @@ cleanup() {
     then
        rm "$expected2"
     fi
+
+    if [ -f "$reuse_stderr" ]
+    then
+       rm "$reuse_stderr"
+    fi
 }
 
 trap 'cleanup' EXIT
@@ -41,7 +46,9 @@ touch "$expected2"
 
 try_example_dir="$(mktemp -d)"
 "$TRY" -N "$try_example_dir" "touch file_1.txt; echo test >file_2.txt; rm file.txt.gz" || exit 1
-"$TRY" -N "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" || exit 2
+reuse_stderr="$(mktemp)"
+"$TRY" -N "$try_example_dir" "rm file_1.txt; echo test2 >>file_2.txt; touch file.txt.gz" 2>"$reuse_stderr" || exit 2
+! grep -q -e "File exists" -e "failed to create symbolic link" "$reuse_stderr" || exit 7
 "$TRY" commit "$try_example_dir" || exit 3
 
 ! [ -f file_1.txt ] || exit 4

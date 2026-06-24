@@ -112,6 +112,7 @@ try() {
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
+    : >"$UPDATED_DIRS_AND_MOUNTS"
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
@@ -249,7 +250,9 @@ do
     ## Symlinks
     if [ -L "$pure_mountpoint" ]
     then
-        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        [ -e "$SANDBOX_DIR/temproot/$pure_mountpoint" ] ||
+            [ -L "$SANDBOX_DIR/temproot/$pure_mountpoint" ] ||
+            ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
         continue
     fi
 
@@ -277,7 +280,7 @@ do
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
             merger_dir="$SANDBOX_DIR"/mergerdir"$(echo "$pure_mountpoint" | tr '/' '.')"
-            mkdir "$merger_dir"
+            mkdir "$merger_dir" 2>>"$try_mount_log"
 
             ## Create a union directory
             ## NB $mountpoint is the local directory to mount
