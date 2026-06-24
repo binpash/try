@@ -26,6 +26,11 @@ cleanup() {
         rm "$try_example_dir3"
     fi
 
+    if [ -f "$try_example_dir4" ]
+    then
+        rm "$try_example_dir4"
+    fi
+
     if [ -f "$expected1" ]
     then
        rm "$expected1"
@@ -38,6 +43,11 @@ cleanup() {
     if [ -f "$expected3" ]
     then
        rm "$expected3"
+    fi
+
+    if [ -f "$reuse_stderr" ]
+    then
+       rm "$reuse_stderr"
     fi
 }
 
@@ -53,6 +63,7 @@ cd "$try_workspace" || exit 1
 try_example_dir1="$(mktemp -d)"
 try_example_dir2="$(mktemp -d)"
 try_example_dir3="$(mktemp -d)"
+try_example_dir4="$(mktemp -d)"
 
 expected1="$(mktemp)"
 expected2="$(mktemp)"
@@ -65,6 +76,18 @@ echo "test3" > "$expected3"
 "$TRY" -N "$try_example_dir1" "touch file_1.txt; echo test > file_2.txt; rm file.txt.gz" || exit 2
 "$TRY" -N "$try_example_dir2" "echo test2 > file_2.txt" || exit 3
 "$TRY" -N "$try_example_dir3" "echo test3 > file_3.txt" || exit 4
+"$TRY" -L "$try_example_dir3:$try_example_dir2:$try_example_dir1" -N "$try_example_dir4" || exit 10
+[ -d "$try_example_dir4/upperdir" ] || exit 18
+[ -d "$try_example_dir4/workdir" ] || exit 19
+[ -d "$try_example_dir4/temproot" ] || exit 20
+"$TRY" summary "$try_example_dir4" >summary.out || exit 11
+grep -qx "$PWD/file_1.txt (added)" summary.out || exit 12
+grep -qx "$PWD/file_2.txt (added)" summary.out || exit 13
+grep -qx "$PWD/file_3.txt (added)" summary.out || exit 14
+grep -qx "$PWD/file.txt.gz (deleted)" summary.out || exit 15
+reuse_stderr="$(mktemp)"
+"$TRY" -N "$try_example_dir4" "touch file_4.txt" 2>"$reuse_stderr" || exit 16
+! grep -q "No such file or directory" "$reuse_stderr" || exit 17
 "$TRY" -L "$try_example_dir3:$try_example_dir2:$try_example_dir1" -y "cat file_1.txt > out1; cat file_2.txt > out2; cat file_3.txt > out3"|| exit 5
 
 diff -q "$expected1" out1 || exit 6
