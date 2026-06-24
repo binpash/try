@@ -53,10 +53,10 @@ man/try.1.gz: man/try.1
 man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
 
-utils/try-summary: utils/ignores.o utils/try-summary.o
+utils/try-summary: utils/excludes.o utils/try-summary.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
-utils/try-commit: utils/ignores.o utils/try-commit.o
+utils/try-commit: utils/excludes.o utils/try-commit.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
 test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit)

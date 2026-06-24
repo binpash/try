@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
+| try [-ny] [-E PATTERN] [-I PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -17,7 +17,7 @@ try - run a command in an overlay
 
 *try* lets you run a command inside an overlay without modifying the state of the filesystem.
 
-While using *try* you can choose to commit the result to the filesystem or completely ignore it without any side-effect to the main file system.
+While using *try* you can choose to commit the result to the filesystem or completely discard it without any side-effect to the main file system.
 
 You can also choose your own shell when running *try*. *try* will run your command within your login shell by default; you can override this by setting the *TRY_SHELL* variable to the absolute path of a shell to use
 
@@ -46,9 +46,13 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 ## Options
 
--i *PATTERN*
+-E *PATTERN*
 
-: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
+: Exclude paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in a pattern file passed to `grep -v`.
+
+-I *PATTERN*
+
+: Include only paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in a pattern file passed to `grep`.
 
 -D *DIR*
 
