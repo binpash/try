@@ -727,7 +727,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-i PATH] [-t PATH] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-i PATH] [-t PATH] [-N DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
@@ -736,7 +736,7 @@ Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-i PATH] [-t PATH] [-D D
   -I PATTERN        include only paths that match PATTERN on summary and commit
   -i PATH           hide PATH inside the sandbox
   -t PATH           generate ordered log of effects in PATH
-  -D DIR            work in DIR (implies -n)
+  -N DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -v                show version information (and exit)
@@ -779,7 +779,7 @@ EXCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
 echo "/run/mount" >>"$EXCLUDE_FILE"
 echo "$TRY_TRACE_PATH" >> "$EXCLUDE_FILE"
 
-while getopts ":yvnhxE:I:i:t:D:U:L:" opt
+while getopts ":yvnhxE:I:i:t:N:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
@@ -787,7 +787,7 @@ do
         (E)   echo "$OPTARG" >>"$EXCLUDE_FILE";;
         (I)   echo "$OPTARG" >>"$INCLUDE_FILE";;
         (i)   echo "$OPTARG" >>"$HIDE_FILE";;
-        (D)   if ! [ -d "$OPTARG" ]
+        (N)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
               fi

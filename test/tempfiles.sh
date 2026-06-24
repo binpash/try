@@ -21,7 +21,7 @@ post_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 # deliberately not the pattern of try sandboxes
 sandbox=local
 mkdir "$sandbox" || exit 5
-$TRY -D "$sandbox" "touch $HOME/bar" || exit 6
+$TRY -N "$sandbox" "touch $HOME/bar" || exit 6
 
 final_count="$(ls "${TMPDIR-/tmp}" | grep -e "^.*\.try-[0-9]*$" | wc -l)"
 

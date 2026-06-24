@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-E PATTERN] [-I PATTERN] [-i PATH] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
+| try [-ny] [-E PATTERN] [-I PATTERN] [-i PATH] [-N DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -58,9 +58,9 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 : Hide *PATH* inside the sandbox. Relative paths are resolved from the directory where *try* is invoked. This option can be passed multiple times.
 
--D *DIR*
+-N *DIR*
 
-: Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Specify *DIR* as the overlay directory (implies -n). The use of -N also implies that *DIR* already exists.
 
 -U *PATH*
 
@@ -140,7 +140,7 @@ try -n gunzip file.txt.gz
 Alternatively, you can specify your own overlay directory as follows (note that *try_dir* already exists):
 
 ```
-try -D try_dir gunzip file.txt.gz
+try -N try_dir gunzip file.txt.gz
 ```
 
 To use multiple lower directories for overlay (by merging them), you can use the `-L` flag followed by a colon-separated list of directories. The directories on the left have higher precedence and can overwrite the directories on the right:

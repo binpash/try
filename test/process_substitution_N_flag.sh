@@ -29,4 +29,4 @@ try_sandbox="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
 TRY_SHELL="$(command -v bash)" \
-    "$TRY" -D "$try_sandbox" 'diff <(printf "alpha\n") <(printf "alpha\n")' || exit 1
+    "$TRY" -N "$try_sandbox" 'diff <(printf "alpha\n") <(printf "alpha\n")' || exit 1
