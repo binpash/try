@@ -34,5 +34,5 @@ cp "$TRY_TOP/test/resources/file.txt.gz" "$try_workspace/"
 
 try_example_dir="$(mktemp -d)"
 "$TRY" -N "$try_example_dir" gunzip file.txt.gz || exit 1
-"$TRY" commit "$try_example_dir" || exit 2
+"$TRY" -y commit "$try_example_dir" || exit 2
 diff -q "$expected" file.txt || exit 3
