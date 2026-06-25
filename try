@@ -893,7 +893,7 @@ case "$1" in
               rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (commit)  : "${SANDBOX_DIR=$2}"
-              commit
+              try ":"
               rm "$HIDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up

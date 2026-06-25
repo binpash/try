@@ -31,7 +31,7 @@ then
     echo "try_example_dir disappeared with no commit"
     exit 2
 fi
-"$TRY" commit "$try_example_dir" || exit 3
+"$TRY" -y commit "$try_example_dir" || exit 3
 if ! [ -d "$try_example_dir" ]
 then
     echo "try_example_dir disappeared after manual commit"
