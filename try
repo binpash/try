@@ -348,6 +348,11 @@ EOF
     # enable job control so interactive commands will play nicely with try asking for user input later(for committing). #5
     [ -t 0 ] && set -m
 
+    # fifo for signalling child process that uidmap has been installed
+    UIDMAP_FIFO="${SANDBOX_DIR}/${EXECID}.fifo"
+    export UIDMAP_FIFO
+    mkfifo "$UIDMAP_FIFO"
+
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
     # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
@@ -355,7 +360,40 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
-    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
+    unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute" &
+    UNSHARE_PID="$!"
+
+    UID="${UID-$(id -u)}"
+    UIDBASE="$(cut -d: -f2 /etc/subuid)"
+    UIDRANGE="$(cut -d: -f3 /etc/subuid)"
+    GID="$(id -g)"
+    GIDBASE="$(cut -d: -f2 /etc/subgid)"
+    GIDRANGE="$(cut -d: -f3 /etc/subgid)"
+
+    echo "spawned with pid $UNSHARE_PID"
+    ls /proc/$UNSHARE_PID
+
+    # set up the uid mapping
+    # format is: newuidmap pid [UID LOWERUID COUNT [...]]
+    #   < $UID, add 0-999 map to 100000-100999
+    #   = $UID, map to itself
+    #   > $UID, map what's left of the range
+    newuidmap "$UNSHARE_PID" \
+      0             "$UIDBASE"              "$UID"  \
+      "$UID"        "$UID"                  1       \
+      $((UID + 1))  $((UIDBASE + UID + 1))  $((UIDRANGE - UID - 1))
+
+    # set up the gid mapping (same idea)
+    newgidmap "$UNSHARE_PID" \
+      0             "$GIDBASE"              "$GID"  \
+      "$GID"        "$GID"                  1       \
+      $((GID + 1))  $((GIDBASE + GID + 1))  $((GIDRANGE - GID - 1))
+
+    # notify child
+    echo >"$UIDMAP_FIFO"
+    rm "$UIDMAP_FIFO"
+
+    wait "$UNSHARE_PID"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
