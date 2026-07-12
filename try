@@ -229,6 +229,10 @@ autodetect_union_helper() {
     fi
 }
 
+## wait for uid/gid mapping (reads a dummy line)
+read dummy <"$UIDMAP_FIFO"
+unset UIDMAP_FIFO
+
 # Detect if union_helper is set, if not, we try to autodetect them
 if [ -z "$UNION_HELPER" ]
 then
@@ -360,6 +364,7 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
+    [ -t 0 ] && set +m
     unshare --mount --user --pid --fork $EXTRA_NS "$mount_and_execute" &
     UNSHARE_PID="$!"
 
@@ -370,24 +375,19 @@ EOF
     GIDBASE="$(cut -d: -f2 /etc/subgid)"
     GIDRANGE="$(cut -d: -f3 /etc/subgid)"
 
-    echo "spawned with pid $UNSHARE_PID"
-    ls /proc/$UNSHARE_PID
-
     # set up the uid mapping
     # format is: newuidmap pid [UID LOWERUID COUNT [...]]
     #   < $UID, add 0-999 map to 100000-100999
     #   = $UID, map to itself
     #   > $UID, map what's left of the range
     newuidmap "$UNSHARE_PID" \
-      0             "$UIDBASE"              "$UID"  \
-      "$UID"        "$UID"                  1       \
-      $((UID + 1))  $((UIDBASE + UID + 1))  $((UIDRANGE - UID - 1))
+      0             "$UID"                  1 \
+      1             "$UIDBASE"              $((UIDRANGE - 1))
 
     # set up the gid mapping (same idea)
     newgidmap "$UNSHARE_PID" \
-      0             "$GIDBASE"              "$GID"  \
-      "$GID"        "$GID"                  1       \
-      $((GID + 1))  $((GIDBASE + GID + 1))  $((GIDRANGE - GID - 1))
+      0             "$GID"                  1 \
+      1             "$GIDBASE"              $((GIDRANGE - 1))
 
     # notify child
     echo >"$UIDMAP_FIFO"
