@@ -208,6 +208,22 @@ do
         (/|/dev|/proc|/sys) continue;;
     esac
 
+    ## Skip mountpoints the caller asked to bind into the sandbox (-B): the
+    ## bind applied after this loop supersedes anything mounted here, and for
+    ## mountpoints with (locked) nested submounts this avoids falling back to
+    ## a FUSE union helper for a path the caller wants passed through anyway.
+    bound=0
+    for bind_spec in $EXTRA_BIND_MOUNTS; do
+        bind_dst="${bind_spec##*:}"
+        case "$pure_mountpoint" in
+            ("$bind_dst"|"$bind_dst"/*) bound=1; break;;
+        esac
+    done
+    if [ "$bound" -eq 1 ]
+    then
+        continue
+    fi
+
     # Try mounting everything normally
     make_overlay "$SANDBOX_DIR" "$mountpoint" "$pure_mountpoint" 2>>"$try_mount_log"
     # If mounting everything normally fails, we try using either using mergerfs or unionfs to mount them.
@@ -254,11 +270,15 @@ mount --rbind /sys "$SANDBOX_DIR/temproot/sys" 2>>"$try_mount_log" || \
     printf "%s: Warning: Failed bind-mounting /sys into sandbox, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
 
 ## Apply caller-specified bind mounts (-B src:dst).
+## --rbind (recursive) rather than --bind: a non-recursive bind of a mount
+## that has locked children (e.g. /run with /run/user/*) is rejected inside
+## an unprivileged user namespace; the recursive bind carries the submounts
+## along and is always permitted.
 for bind_spec in $EXTRA_BIND_MOUNTS; do
     bind_src="${bind_spec%%:*}"
     bind_dst="${bind_spec##*:}"
     mkdir -p "$bind_src" "$SANDBOX_DIR/temproot/$bind_dst"
-    mount --bind "$bind_src" "$SANDBOX_DIR/temproot/$bind_dst" 2>>"$try_mount_log" || \
+    mount --rbind "$bind_src" "$SANDBOX_DIR/temproot/$bind_dst" 2>>"$try_mount_log" || \
         printf "%s: Warning: Failed bind-mounting %s into sandbox, see \"$try_mount_log\"\n" "$TRY_COMMAND" "$bind_spec" >&2
 done
 
