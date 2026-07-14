@@ -331,7 +331,12 @@ EOF
     # --fork: necessary if we do --pid
     #         "Creation of a persistent PID namespace will fail if the --fork option is not also specified."
     # shellcheck disable=SC2086 # we want field splitting!
-    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS "$mount_and_execute"
+    ## Run the script through /bin/sh instead of exec'ing it directly: the
+    ## temp file lives in TMPDIR, and a caller-provided TMPDIR may sit on a
+    ## noexec filesystem (e.g. /dev/shm, which container runtimes mount
+    ## noexec). Interpreting it only needs read permission, exactly like the
+    ## chroot_executable invocation above.
+    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS /bin/sh "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
