@@ -22,13 +22,10 @@ AUTO_CPPFLAGS=""
 
 if test "$enable_utils" = "yes"
 then
-        AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-
- 	AUTO_CPPFLAGS=""
+    AC_REQUIRE_AUX_FILE([utils/try-commit.c])
 
 	CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
 	CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
-
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 
