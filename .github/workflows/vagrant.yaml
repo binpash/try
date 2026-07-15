@@ -1,15 +1,17 @@
-name: Distro and LVM tests
+name: Vagrant VM tests
 
 on:
   push:
     branches:
     - main
   pull_request:
-  schedule:
-    - cron: '17 20 * * *'
 
 jobs:
   vagrant:
+    # These tests need the self-hosted runner, which is not always available.
+    # Opt in by putting [vagrant] in the commit message (to main) or PR title.
+    # Putting [vagrant] in the commit message on a PR will _not_ run this pipeline.
+    if: contains(github.event.head_commit.message, '[vagrant]') || contains(github.event.pull_request.title, '[vagrant]')
     strategy:
       fail-fast: false
       matrix:
