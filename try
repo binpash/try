@@ -198,8 +198,8 @@ make_overlay() {
 }
 
 mountable_without_mergerfs() {
-    mountpoint="$1"
-    fstype=$(stat -f -c %T "$mountpoint")
+    mountpoint_to_check="$1"
+    fstype=$(stat -f -c %T "$mountpoint_to_check")
 
     case "$fstype" in
       (exfat|hfs|hfs+) return 1;;
