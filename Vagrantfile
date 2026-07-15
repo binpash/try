@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
       sudo chown -R vagrant:vagrant try
       cd try
       mkdir rustup
-      ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
+      ./try -N rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
 
       rm -rf rustup
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
       which try-commit || exit 2
 
       mkdir rustup
-      ./try -D rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
+      ./try -N rustup \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y\"
       ls -lah rustup/upperdir/home/vagrant/.cargo/bin
     "
   end

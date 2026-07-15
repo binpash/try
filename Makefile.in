@@ -24,6 +24,7 @@ install: $(TARGETS)
 	$(INSTALL) -d $(bindir)
 	$(INSTALL) -m 755 try $(bindir)
 	$(INSTALL) -m 755 utils/make-socket $(bindir)
+	$(INSTALL) -m 755 utils/try-parse-trace $(bindir)
 ifeq (@enable_utils@, yes)
 	$(INSTALL) -m 755 utils/try-summary $(bindir)
 	$(INSTALL) -m 755 utils/try-commit $(bindir)
@@ -53,10 +54,10 @@ man/try.1.gz: man/try.1
 man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
 
-utils/try-summary: utils/ignores.o utils/try-summary.o
+utils/try-summary: utils/excludes.o utils/try-summary.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
-utils/try-commit: utils/ignores.o utils/try-commit.o
+utils/try-commit: utils/excludes.o utils/try-commit.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
 
 utils/make-socket: utils/make-socket.o

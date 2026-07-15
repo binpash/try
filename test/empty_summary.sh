@@ -23,7 +23,7 @@ try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
 try_example_dir="$(mktemp -d)"
-"$TRY" -D "$try_example_dir" -- echo hi >/dev/null || exit 1
+"$TRY" -N "$try_example_dir" -- echo hi >/dev/null || exit 1
 "$TRY" summary "$try_example_dir" >summary.out
 
 # an empty summary yields exit status 1

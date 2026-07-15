@@ -49,6 +49,8 @@ set_TRY_SHELL() {
 # Run a command (in `$@`) in an overlay (in `$SANDBOX_DIR`)
 ################################################################################
 
+TRY_TRACE_PATH="/run/try_trace.log"
+
 try() {
     set_TRY_SHELL
     START_DIR="$PWD"
@@ -77,10 +79,6 @@ try() {
     ## because we have already checked if it valid.
     export SANDBOX_DIR
 
-    # We created "$IGNORE_FILE" up front, but now we can stash it in the sandbox.
-    mv "$IGNORE_FILE" "$SANDBOX_DIR"/ignore
-    IGNORE_FILE="$SANDBOX_DIR"/ignore
-
     try_mount_log="$SANDBOX_DIR"/mount.log
     export try_mount_log
 
@@ -94,6 +92,14 @@ try() {
         mount -t tmpfs tmpfs "$SANDBOX_DIR"
     fi
 
+    # Move filter patterns after any tmpfs mount; mounting SANDBOX_DIR hides prior contents.
+    mv "$HIDE_FILE" "$SANDBOX_DIR"/hide
+    HIDE_FILE="$SANDBOX_DIR"/hide
+    mv "$INCLUDE_FILE" "$SANDBOX_DIR"/include
+    INCLUDE_FILE="$SANDBOX_DIR"/include
+    mv "$EXCLUDE_FILE" "$SANDBOX_DIR"/exclude
+    EXCLUDE_FILE="$SANDBOX_DIR"/exclude
+
     mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
 
     ## Find all the directories and mounts that need to be mounted
@@ -105,6 +111,7 @@ try() {
     # Calculate UPDATED_DIRS_AND_MOUNTS that contains the merge arguments in LOWER_DIRS
     UPDATED_DIRS_AND_MOUNTS="$SANDBOX_DIR"/mounts.updated
     export UPDATED_DIRS_AND_MOUNTS
+    : >"$UPDATED_DIRS_AND_MOUNTS"
     while IFS="" read -r mountpoint
     do
         new_mountpoint=""
@@ -118,6 +125,12 @@ try() {
             new_mountpoint="${new_mountpoint:+$new_mountpoint:}$temp_mountpoint"
         done
         IFS=$OLDIFS
+        # Add the hide layer before the original mountpoint.
+        if [ -s "$HIDE_FILE" ]
+        then
+            temp_mountpoint="$SANDBOX_DIR/hidedir$mountpoint"
+            new_mountpoint="${new_mountpoint:+$new_mountpoint:}$temp_mountpoint"
+        fi
         # Add the original mountpoint at the end
         new_mountpoint="${new_mountpoint:+$new_mountpoint:}$mountpoint"
         echo "$new_mountpoint" >> "$UPDATED_DIRS_AND_MOUNTS"
@@ -136,8 +149,29 @@ try() {
         then
             # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
             mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/upperdir/${mountpoint}" "${SANDBOX_DIR}/workdir/${mountpoint}" "${SANDBOX_DIR}/temproot/${mountpoint}"
+            if [ -s "$HIDE_FILE" ]
+            then
+                # shellcheck disable=SC2174 # warning acknowledged, "When used with -p, -m only applies to the deepest directory."
+                mkdir -m "$(stat -c %a "$mountpoint")" -p "${SANDBOX_DIR}/hidedir/${mountpoint}"
+            fi
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    while IFS="" read -r hide_path
+    do
+        case "$hide_path" in
+            ("") continue;;
+            (/*) hide_path="$(readlink -m "$hide_path")";;
+            (*)  hide_path="$(readlink -m "$START_DIR/$hide_path")";;
+        esac
+
+        [ "$hide_path" != "/" ] || error "cannot hide /" 2
+
+        mkdir -p "$SANDBOX_DIR/hidedir/$(dirname "$hide_path")"
+        touch "$SANDBOX_DIR/hidedir/$hide_path"
+        setfattr -n user.overlay.whiteout -v y "$SANDBOX_DIR/hidedir/$hide_path" ||
+            error "could not create whiteout for hidden path '$hide_path'" 1
+    done <"$HIDE_FILE"
 
     chmod "$(stat -c %a /)" "$SANDBOX_DIR/temproot"
 
@@ -167,6 +201,7 @@ devices_to_mount="tty null zero full random urandom"
 ## Mounts and unmounts a few select devices instead of the whole `/dev`
 mount_devices() {
     sandbox_dir="$1"
+    mkdir -p "$sandbox_dir/temproot/dev" "$sandbox_dir/temproot/dev/pts"
     for dev in $devices_to_mount
     do
         touch "$sandbox_dir/temproot/dev/$dev"
@@ -214,7 +249,9 @@ do
     ## Symlinks
     if [ -L "$pure_mountpoint" ]
     then
-        ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
+        [ -e "$SANDBOX_DIR/temproot/$pure_mountpoint" ] ||
+            [ -L "$SANDBOX_DIR/temproot/$pure_mountpoint" ] ||
+            ln -s $(readlink "$pure_mountpoint") "$SANDBOX_DIR/temproot/$pure_mountpoint"
         continue
     fi
 
@@ -242,7 +279,7 @@ do
             printf "%s: Warning: Failed mounting $mountpoint as an overlay and mergerfs or unionfs not set and could not be found, see \"$try_mount_log\"\n" "$TRY_COMMAND" >&2
         else
             merger_dir="$SANDBOX_DIR"/mergerdir"$(echo "$pure_mountpoint" | tr '/' '.')"
-            mkdir "$merger_dir"
+            mkdir "$merger_dir" 2>>"$try_mount_log"
 
             ## Create a union directory
             ## NB $mountpoint is the local directory to mount
@@ -271,6 +308,8 @@ exitcode="$?"
 rm "$sandbox_dir/temproot/dev/stdin"
 rm "$sandbox_dir/temproot/dev/stdout"
 rm "$sandbox_dir/temproot/dev/stderr"
+rm "$sandbox_dir/temproot/dev/fd"
+rm "$sandbox_dir/temproot/dev/ptmx"
 
 unmount_devices "$SANDBOX_DIR"
 
@@ -278,18 +317,26 @@ exit $exitcode
 EOF
 
     # NB we substitute in the heredoc, so the early unsets are okay!
+    if [ -n "${TRACE_FILE}" ]; then
+        WRAPPER_COMMAND="strace -y -f  --seccomp-bpf --trace=fork,clone,%file -o ${TRY_TRACE_PATH} sh"
+    else
+        WRAPPER_COMMAND="."
+    fi
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
 
-unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS
+unset START_DIR SANDBOX_DIR UNION_HELPER DIRS_AND_MOUNTS TRY_EXIT_STATUS TRY_COMMAND TRY_SHELL UPDATED_DIRS_AND_MOUNTS
 unset script_to_execute chroot_executable try_mount_log
 
+mount -t devpts devpts /dev/pts -o newinstance,ptmxmode=0666,mode=0620,gid=$(getent group tty | cut -d: -f3 || echo 5) 2>/dev/null &&
+[ -e /dev/ptmx ] || ln -s /dev/pts/ptmx /dev/ptmx &&
 mount -t proc proc /proc &&
+ln -s /proc/self/fd /dev/fd &&
 ln -s /proc/self/fd/0 /dev/stdin &&
 ln -s /proc/self/fd/1 /dev/stdout &&
 ln -s /proc/self/fd/2 /dev/stderr &&
 cd "$START_DIR" &&
-. "$script_to_execute"
+OLDPWD=$OLDPWD ${WRAPPER_COMMAND} "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -318,9 +365,11 @@ EOF
         pure_mountpoint=${mountpoint##*:}
         if [  -L "$pure_mountpoint" ]
         then
-            rm "${SANDBOX_DIR}/temproot/${mountpoint}"
+            rm "${SANDBOX_DIR}/temproot/${mountpoint}" 2>"$try_mount_log"
         fi
     done <"$DIRS_AND_MOUNTS"
+
+    emit_trace
 
     ################################################################################
     # commit?
@@ -329,18 +378,7 @@ EOF
         (quiet)       ;;
         (show)        echo "$SANDBOX_DIR";;
         (commit)      commit;;
-        (interactive) summary >&2
-                      # shellcheck disable=SC2181
-                      if [ "$?" -eq 0 ]
-                      then
-                          printf "\nCommit these changes? [y/N] " >&2
-                          read -r DO_COMMIT
-                          case "$DO_COMMIT" in
-                              (y|Y|yes|YES) commit;;
-                              (*)           echo "Not committing." >&2
-                                            echo "$SANDBOX_DIR";;
-                          esac
-                      fi;;
+        (interactive) prompt_commit;;
     esac
 }
 
@@ -351,7 +389,7 @@ EOF
 if type try-summary >/dev/null 2>&1
 then
     summary() {
-        try-summary -i "$IGNORE_FILE" "$SANDBOX_DIR" || return 1
+        try-summary -E "$EXCLUDE_FILE" -I "$INCLUDE_FILE" "$SANDBOX_DIR" || return 1
         TRY_EXIT_STATUS=0
     }
 else
@@ -365,7 +403,7 @@ else
         fi
 
         ## Finds all potential changes
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$EXCLUDE_FILE" "$INCLUDE_FILE")
         summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
         if [ -z "$summary_output" ]
         then
@@ -393,6 +431,59 @@ else
     }
 fi
 
+materialize_stack() {
+    reversed_lower_dirs=""
+    OLDIFS=$IFS
+    IFS=":"
+    for lower_dir in $LOWER_DIRS
+    do
+        reversed_lower_dirs="$lower_dir
+$reversed_lower_dirs"
+    done
+    IFS=$OLDIFS
+
+    # TODO: Find way to do this more efficiently
+    mkdir -p "$SANDBOX_DIR/upperdir" "$SANDBOX_DIR/workdir" "$SANDBOX_DIR/temproot"
+    while IFS= read -r lower_dir
+    do
+        [ -n "$lower_dir" ] || continue
+        if ! [ -d "$lower_dir/upperdir" ]
+        then
+            error "could not find directory $lower_dir/upperdir" 1
+        fi
+
+        changed_files=$(find_upperdir_changes "$lower_dir" "$EXCLUDE_FILE" "$INCLUDE_FILE")
+        process_changes "$lower_dir" "$changed_files" | while IFS= read -r summary_line
+        do
+            apply_upperdir_effect "$lower_dir" "$summary_line"
+        done
+    done <<EOF
+$reversed_lower_dirs
+EOF
+
+    TRY_EXIT_STATUS=0
+}
+
+apply_upperdir_effect() {
+    source_sandbox="$1"
+    summary_line="$2"
+    local_file="$(echo "$summary_line" | cut -c 4-)"
+    changed_file="$source_sandbox/upperdir$local_file"
+    dest_file="$SANDBOX_DIR/upperdir$local_file"
+
+    mkdir -p "$(dirname "$dest_file")"
+    case "$summary_line" in
+        (md*) if [ -e "$dest_file" ] && ! [ -d "$dest_file" ] || [ -L "$dest_file" ]
+              then
+                  rm -rf "$dest_file"
+              fi
+              mkdir -p "$dest_file"
+              cp -a "$changed_file/." "$dest_file/";;
+        (*)   rm -rf "$dest_file"
+              cp -a "$changed_file" "$dest_file";;
+    esac
+}
+
 ################################################################################
 # Commit the results of an overlay in `$SANDBOX_DIR`
 ################################################################################
@@ -400,7 +491,7 @@ fi
 if type try-commit >/dev/null 2>&1
 then
     commit() {
-        try-commit -i "$IGNORE_FILE" "$SANDBOX_DIR"
+        try-commit -E "$EXCLUDE_FILE" -I "$INCLUDE_FILE" "$SANDBOX_DIR"
         TRY_EXIT_STATUS=$?
     }
 else
@@ -413,7 +504,7 @@ else
             error "could not find directory $SANDBOX_DIR/upperdir" 1
         fi
 
-        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$IGNORE_FILE")
+        changed_files=$(find_upperdir_changes "$SANDBOX_DIR" "$EXCLUDE_FILE" "$INCLUDE_FILE")
         summary_output=$(process_changes "$SANDBOX_DIR" "$changed_files")
 
         TRY_EXIT_STATUS=0
@@ -440,13 +531,104 @@ else
 fi
 
 ################################################################################
-## Defines which changes we want to ignore in the summary and commit
+# Interactively choose whether and how to commit sandbox effects
 ################################################################################
 
-ignore_changes() {
-    ignore_file="$1"
+prompt_commit() {
+    effects_file="$(mktemp --suffix ".try-$EXECID")"
 
-    grep -v -f "$ignore_file"
+    summary >"$effects_file"
+    # shellcheck disable=SC2181
+    if [ "$?" -eq 0 ]
+    then
+        cat "$effects_file" >&2
+        printf "\nCommit these changes? [y/i/N] " >&2
+        read -r DO_COMMIT
+        case "$DO_COMMIT" in
+            (y|Y|yes|YES) commit;;
+            (i|I)         if choose_effects "$effects_file"
+                          then
+                              commit
+                          else
+                              echo "Not committing." >&2
+                              echo "$SANDBOX_DIR"
+                          fi;;
+            (*)           echo "Not committing." >&2
+                          echo "$SANDBOX_DIR";;
+        esac
+    fi
+
+    rm -f "$effects_file"
+}
+
+choose_effects() {
+    effects_file="$1"
+    include_file="$(mktemp --suffix ".try-$EXECID")"
+
+    "${EDITOR:-vi}" "$effects_file" || {
+        rm -f "$include_file"
+        return 1
+    }
+
+    while IFS= read -r effect
+    do
+        case "$effect" in
+            (*" (added)"|*" (created dir)"|*" (deleted)"|*" (modified)"|*" (replaced with dir)"|*" (symlink)")
+                printf "%s\n" "${effect% (*}" >>"$include_file";;
+        esac
+    done <"$effects_file"
+
+    if ! [ -s "$include_file" ]
+    then
+        rm -f "$include_file"
+        return 1
+    fi
+
+    mv "$include_file" "$INCLUDE_FILE"
+}
+
+if type try-parse-trace >/dev/null 2>&1
+then
+    emit_trace() {
+        if [ -n "${TRACE_FILE}" ]
+        then
+            try-parse-trace "$SANDBOX_DIR/upperdir/$TRY_TRACE_PATH" > "$TRACE_FILE"
+            TRY_EXIT_STATUS=$?
+        fi
+    }
+else
+    emit_trace() {
+        if [ -n "${TRACE_FILE}" ]
+        then
+            cat "$SANDBOX_DIR/upperdir/$TRY_TRACE_PATH" > "$TRACE_FILE"
+            TRY_EXIT_STATUS=1
+        fi
+    }
+fi
+
+################################################################################
+## Defines which changes we want to exclude in the summary and commit
+################################################################################
+
+exclude_changes() {
+    exclude_file="$1"
+
+    grep -v -f "$exclude_file"
+}
+
+################################################################################
+## Defines which changes we want to include in the summary and commit
+################################################################################
+
+include_changes() {
+    include_file="$1"
+
+    if [ -s "$include_file" ]
+    then
+        grep -f "$include_file"
+    else
+        cat
+    fi
 }
 
 ################################################################################
@@ -455,9 +637,10 @@ ignore_changes() {
 
 find_upperdir_changes() {
     sandbox_dir="$1"
-    ignore_file="$2"
+    exclude_file="$2"
+    include_file="$3"
 
-    find "$sandbox_dir/upperdir/" | ignore_changes "$ignore_file"
+    find "$sandbox_dir/upperdir/" | include_changes "$include_file" | exclude_changes "$exclude_file"
 }
 
 ################################################################################
@@ -612,13 +795,16 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-E PATTERN] [-I PATTERN] [-i PATH] [-t PATH] [-N DIR] [-U PATH] [-L dir1:dir2:...] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
   -x                prevent network access (by unsharing the network namespace)
-  -i PATTERN        ignore paths that match PATTERN on summary and commit
-  -D DIR            work in DIR (implies -n)
+  -E PATTERN        exclude paths that match PATTERN on summary and commit
+  -I PATTERN        include only paths that match PATTERN on summary and commit
+  -i PATH           hide PATH inside the sandbox
+  -t PATH           generate ordered log of effects in PATH
+  -N DIR            work in DIR (implies -n)
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -v                show version information (and exit)
@@ -641,19 +827,35 @@ EOF
 # "commit"      - commit the result directory automatically when we're done
 NO_COMMIT="interactive"
 
-# Includes all patterns given using the `-i` flag; will be used with `grep -f`
+# Includes all paths given using the `-i` flag.
 #
 # We have to create this temporary up front.
-# We move it to $SANDBOX_DIR/ignore in `try()`, but delete it when we don't move it.
-IGNORE_FILE="$(mktemp --suffix ".try-$EXECID")"
+# We move it to $SANDBOX_DIR/hide in `try()`, but delete it when we don't move it.
+HIDE_FILE="$(mktemp --suffix ".try-$EXECID")"
 
-while getopts ":yvnhxi:D:U:L:" opt
+# Includes all patterns given using the `-I` flag; will be used with `grep -f`
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/include in `try()`, but delete it when we don't move it.
+INCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
+
+# Excludes all patterns given using the `-E` flag; will be used with `grep -f`
+#
+# We have to create this temporary up front.
+# We move it to $SANDBOX_DIR/exclude in `try()`, but delete it when we don't move it.
+EXCLUDE_FILE="$(mktemp --suffix ".try-$EXECID")"
+echo "/run/mount" >>"$EXCLUDE_FILE"
+echo "$TRY_TRACE_PATH" >> "$EXCLUDE_FILE"
+
+while getopts ":yvnhxE:I:i:t:N:U:L:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
-        (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
-        (D)   if ! [ -d "$OPTARG" ]
+        (E)   echo "$OPTARG" >>"$EXCLUDE_FILE";;
+        (I)   echo "$OPTARG" >>"$INCLUDE_FILE";;
+        (i)   echo "$OPTARG" >>"$HIDE_FILE";;
+        (N)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
               fi
@@ -673,6 +875,7 @@ do
               fi
               UNION_HELPER="$OPTARG"
               export UNION_HELPER;;
+        (t)   TRACE_FILE="$OPTARG";;
         (x)   EXTRA_NS="--net";;
         (h|*) usage
               exit 0;;
@@ -683,6 +886,12 @@ shift $((OPTIND - 1))
 
 if [ "$#" -eq 0 ]
 then
+    if [ -n "$LOWER_DIRS" ] && [ -n "$SANDBOX_DIR" ]
+    then
+        materialize_stack
+        exit "$TRY_EXIT_STATUS"
+    fi
+
     usage
     exit 2
 fi
@@ -691,11 +900,15 @@ TRY_EXIT_STATUS=1
 case "$1" in
     (summary) : "${SANDBOX_DIR=$2}"
               summary
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$HIDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (commit)  : "${SANDBOX_DIR=$2}"
-              commit
-              rm "$IGNORE_FILE" # we didn't move it to the sandbox, so clean up
+              try ":"
+              rm "$HIDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$INCLUDE_FILE" # we didn't move it to the sandbox, so clean up
+              rm "$EXCLUDE_FILE" # we didn't move it to the sandbox, so clean up
               ;;
     (explore) : "${SANDBOX_DIR=$2}"
               set_TRY_SHELL

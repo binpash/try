@@ -136,11 +136,11 @@ $ try -n "curl https://sh.rustup.rs | sh"
 /tmp/tmp.uCThKq7LBK
 ```
 
-Alternatively, you can specify your own existing overlay directory using the `-D [dir]` flag:
+Alternatively, you can specify your own existing overlay directory using the `-N [dir]` flag:
 
 ```ShellSession
 $ mkdir rustup-sandbox
-$ try -D rustup-sandbox "curl https://sh.rustup.rs | sh"
+$ try -N rustup-sandbox "curl https://sh.rustup.rs | sh"
 $ ls rustup-sandbox
 temproot  upperdir  workdir
 ```
@@ -182,9 +182,9 @@ explore /tmp/tmp.X6OQb5tJwr` to explore an existing sandbox.
 To specify multiple lower directories for overlay (by merging them together), you can use the `-L` (implies `-n`) flag followed by a colon-separated list of directories. The directories on the left have higher precedence and can overwrite the directories on the right:
 
 ```ShellSession
-$ try -D /tmp/sandbox1 "echo 'File 1 Contents - sandbox1' > file1.txt"
-$ try -D /tmp/sandbox2 "echo 'File 2 Contents - sandbox2' > file2.txt"
-$ try -D /tmp/sandbox3 "echo 'File 2 Contents - sandbox3' > file2.txt"
+$ try -N /tmp/sandbox1 "echo 'File 1 Contents - sandbox1' > file1.txt"
+$ try -N /tmp/sandbox2 "echo 'File 2 Contents - sandbox2' > file2.txt"
+$ try -N /tmp/sandbox3 "echo 'File 2 Contents - sandbox3' > file2.txt"
 
 # Now use the -L flag to merge both sandbox directories together, with sandbox3 having precedence over sandbox2
 $ try -L "/tmp/sandbox3:/tmp/sandbox2:/tmp/sandbox1" "cat file1.txt file2.txt"
@@ -221,7 +221,9 @@ Please also report any issue you run into while using the future branch!
   - Resolve issues with `userxattr`.
   - Better support for `unionfs`.
   - Use `/bin/sh`, not `/bin/bash`.
-  - `-i` flag to ignore paths.
+  - `-E` flag to exclude paths.
+  - `-I` flag to include paths.
+  - `-i` flag to hide paths inside the sandbox.
   - Interactive improvements.
 
 * v0.1.0 - 2023-06-25

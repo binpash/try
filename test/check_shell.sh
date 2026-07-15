@@ -24,9 +24,9 @@ check_case() {
   expected="$(mktemp)"
   out="$(mktemp)"
   echo "$expected_output" >"$expected"
-  TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" "echo \"\$TRY_SHELL\"" >"$out" || exit 1
+  TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" 'realpath /proc/$$/exe' >"$out" || exit "$case"
 
-  if ! diff -q "$expected" "$out"; then
+  if ! diff "$expected" "$out"; then
     exit "$case"
   fi
 
@@ -37,6 +37,6 @@ check_case() {
 
 trap 'cleanup' EXIT
 
-check_case "/bin/bash" "/bin/sh" "/bin/bash" "1"
+check_case "/bin/bash" "/bin/sh" "$(realpath "/bin/bash")" "1"
 
-check_case "" "/bin/bash" "/bin/bash" "2"
+check_case "" "/bin/bash" "$(realpath "/bin/bash")" "2"

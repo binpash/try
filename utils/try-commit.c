@@ -14,7 +14,7 @@
 #include <sys/xattr.h>
 #include <unistd.h>
 
-#include "ignores.h"
+#include "excludes.h"
 #include "version.h"
 
 static int should_copy = 0;
@@ -78,17 +78,20 @@ void remove_local(char *local_file, int local_exists, struct stat *local_stat) {
 }
 
 void usage(int status) {
-  fprintf(stderr, "Usage: try-commit [-c] [-i IGNORE_FILE] SANDBOX_DIR\n");
+  fprintf(stderr, "Usage: try-commit [-c] [-E EXCLUDE_FILE] [-I INCLUDE_FILE] SANDBOX_DIR\n");
   fprintf(stderr, "\t-c\tcopy files instead of moving them\n");
   exit(status);
 }
 
 int main(int argc, char *argv[]) {
   int opt;
-  while ((opt = getopt(argc, argv, "hvci:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvcE:I:")) != -1) {
     switch (opt) {
-    case 'i':
-      load_ignores("try-commit", optarg);
+    case 'E':
+      load_excludes("try-commit", optarg);
+      break;
+    case 'I':
+      load_includes("try-commit", optarg);
       break;
     case 'c':
       should_copy = 1;
@@ -156,7 +159,7 @@ int main(int argc, char *argv[]) {
   while ((ent = fts_read(fts)) != NULL) {
     char *local_file = ent->fts_path + prefix_len;
 
-    if (should_ignore(local_file)) { continue; }
+    if (should_exclude(local_file) || !should_include(local_file)) { continue; }
 
     struct stat local_stat;
     int local_exists = lstat(local_file, &local_stat) != -1;
@@ -308,7 +311,8 @@ int main(int argc, char *argv[]) {
   }
 
   fts_close(fts);
-  free_ignores();
+  free_excludes();
+  free_includes();
 
   return num_errors == 0 ? 0 : 1;
 }

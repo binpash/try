@@ -17,12 +17,11 @@ trap 'cleanup' EXIT
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
-# Set up expected output
-touch expected.bar
+mkdir visible hidden_dir || exit 1
+touch visible/file hidden_file hidden_dir/file || exit 2
 
-# Ignore changes to foo
-"$TRY" -y -i foo1 -i foo2 "touch foo1.txt; touch foo2.txt; touch bar.txt" || exit 1
+"$TRY" -y -i hidden_file -i hidden_dir "test ! -e hidden_file && test ! -e hidden_dir && test -e visible/file" || exit 3
 
-diff -q expected.bar bar.txt || exit 2
-! [ -f foo1.txt ] || exit 3
-! [ -f foo2.txt ] || exit 4
+test -e hidden_file || exit 4
+test -e hidden_dir/file || exit 5
+test -e visible/file || exit 6

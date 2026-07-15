@@ -14,9 +14,13 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
+if ! command -v bash >/dev/null 2>&1
+then
+    exit 0
+fi
+
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 9
 
-# Exclude changes to foo
-"$TRY" -y "head -c 5 /dev/urandom >target" || exit 1
-[ -s target ] || exit 2
+TRY_SHELL="$(command -v bash)" \
+    "$TRY" -n 'diff <(printf "alpha\n") <(printf "alpha\n")' || exit 1

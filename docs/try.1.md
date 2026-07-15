@@ -6,7 +6,7 @@
 try - run a command in an overlay
 
 # SYNOPSIS
-| try [-ny] [-i PATTERN] [-D DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
+| try [-ny] [-E PATTERN] [-I PATTERN] [-i PATH] [-N DIR] [-U PATH] [-L LOWER_DIRS] CMD [ARG ...]
 | try summary [DIR]
 | try commit [DIR]
 | try explore
@@ -17,7 +17,7 @@ try - run a command in an overlay
 
 *try* lets you run a command inside an overlay without modifying the state of the filesystem.
 
-While using *try* you can choose to commit the result to the filesystem or completely ignore it without any side-effect to the main file system.
+While using *try* you can choose to commit the result to the filesystem or completely discard it without any side-effect to the main file system.
 
 You can also choose your own shell when running *try*. *try* will run your command within your login shell by default; you can override this by setting the *TRY_SHELL* variable to the absolute path of a shell to use
 
@@ -46,13 +46,21 @@ You can also choose your own shell when running *try*. *try* will run your comma
 
 ## Options
 
--i *PATTERN*
+-E *PATTERN*
 
-: Ignore paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in as arguments to `-e` in a call to `grep -v`.
+: Exclude paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in a pattern file passed to `grep -v`.
 
--D *DIR*
+-I *PATTERN*
 
-: Specify *DIR* as the overlay directory (implies -n). The use of -D also implies that *DIR* already exists.
+: Include only paths that match *PATTERN* on summary and commit. This option can be passed multiple times; the patterns given will be used in a pattern file passed to `grep`.
+
+-i *PATH*
+
+: Hide *PATH* inside the sandbox. Relative paths are resolved from the directory where *try* is invoked. This option can be passed multiple times.
+
+-N *DIR*
+
+: Specify *DIR* as the overlay directory (implies -n). The use of -N also implies that *DIR* already exists.
 
 -U *PATH*
 
@@ -132,7 +140,7 @@ try -n gunzip file.txt.gz
 Alternatively, you can specify your own overlay directory as follows (note that *try_dir* already exists):
 
 ```
-try -D try_dir gunzip file.txt.gz
+try -N try_dir gunzip file.txt.gz
 ```
 
 To use multiple lower directories for overlay (by merging them), you can use the `-L` flag followed by a colon-separated list of directories. The directories on the left have higher precedence and can overwrite the directories on the right:
