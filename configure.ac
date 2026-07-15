@@ -10,25 +10,22 @@ AC_ARG_ENABLE([utils],
                               [don't compile C utilities for summarizing and committing changes (default is yes)])],
               [enable_utils=${enableval}], [enable_utils=yes])
 
+
+AC_REQUIRE_AUX_FILE([utils/make-socket.c])
+
+# build tools
+AC_PROG_CC
+
+# CFLAGS AND CPPFLAGGS
+AUTO_CFLAGS=""
+AUTO_CPPFLAGS=""
+
 if test "$enable_utils" = "yes"
 then
-        AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-
-        # build tools
-        AC_PROG_CC
-
-        # CFLAGS and CPPFLAGGS
-	if test -z "$CFLAGS"
-	then
-	        AUTO_CFLAGS="-g -Wall -O2"
-	else
-	        AUTO_CFLAGS=""
-	fi
-	AUTO_CPPFLAGS=""
+    AC_REQUIRE_AUX_FILE([utils/try-commit.c])
 
 	CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
 	CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
-
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 
