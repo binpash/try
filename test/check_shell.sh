@@ -24,6 +24,7 @@ check_case() {
   expected="$(mktemp)"
   out="$(mktemp)"
   echo "$expected_output" >"$expected"
+
   TRY_SHELL="$try_shell" SHELL="$shell" "$TRY" 'realpath /proc/$$/exe' >"$out" || exit "$case"
 
   if ! diff "$expected" "$out"; then
