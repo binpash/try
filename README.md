@@ -13,7 +13,7 @@ We're setting out to change that: `try cmd` and commit---or not.
 
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 
-Please note that `try` is a prototype and not a full sandbox, and should not be used to execute
+Please note that `try` is a semisolate (as opposed to a sandbox), and should not be used to execute
 commands that you don't already trust on your system, (i.e. network calls are all allowed)
 
 <img src="docs/try_pip_install_example.gif" alt="try gif">
@@ -74,7 +74,7 @@ The repository and source distribution are slightly different: the repository do
 
 #### Arch Linux
 
-`try` is present in [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
+`try` is on the [AUR](https://aur.archlinux.org/packages/try), you can install it with your preferred AUR helper:
 
 ```shellsession
 yay -S try
