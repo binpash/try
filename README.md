@@ -6,12 +6,17 @@
 
 We're setting out to change that: `try cmd` and commit---or not.
 
+**News**: `try` received a best paper **and** distinguished artifact award at [OSDI'26](https://www.usenix.org/conferences/best-papers)!
+
+Quick jump: [Usage](#example-usage) | [Installing](#installing) | [Citation](#citation) | [License](#license)
+
 ## Description
 [![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 [![issues - try](https://img.shields.io/github/issues/binpash/try)](https://github.com/binpash/try/issues)
 
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
+Please refer to the [paper](https://www.usenix.org/conference/osdi26/presentation/lamprou) for a more detailed description of its design and implementation.
 
 Please note that `try` is a semisolate (as opposed to a sandbox), and should not be used to execute
 commands that you don't already trust on your system, (i.e. network calls are all allowed)
@@ -239,6 +244,22 @@ system. This package can then be easily installed, managed, and removed using
 the package manager of your Linux distribution. It helps in maintaining a clean
 and organized system by keeping track of installed software and its
 dependencies.
+
+## Citation
+
+If you use `try`, please cite the paper:
+
+```bibtex
+@inproceedings{try:osdi:2026,
+  title = {Controlling Opaque-Component Effects with Semisolates and Try},
+  author = {Lamprou, Evangelos and Zhu, Tianyu (Ezri) and Jin, Di and Ntousakis, Grigoris and Liargkovas, Georgios and Eng, Calvin and Kallas, Konstantinos and Greenberg, Michael and Vasilakis, Nikos},
+  year = {2026},
+  booktitle = {20th USENIX Symposium on Operating Systems Design and Implementation (OSDI 26)},
+  publisher = {USENIX Association},
+  url = {https://www.usenix.org/conference/osdi26/presentation/lamprou},
+}
+
+```
 
 ## License
 
