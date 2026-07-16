@@ -6,17 +6,17 @@
 
 We're setting out to change that: `try cmd` and commit---or not.
 
-**News**: `try` received a best paper **and** distinguished artifact award at [OSDI'26](https://www.usenix.org/conferences/best-papers)!
-
-Quick jump: [Usage](#example-usage) | [Installing](#installing) | [Citation](#citation) | [License](#license)
+**News**: `try` received a [best paper](https://www.usenix.org/conferences/best-papers?taxonomy_vocabulary_1_tid=2026&title_1=OSDI) **and** distinguished artifact award at [OSDI'26](https://www.usenix.org/conferences/best-papers)!
 
 ## Description
 [![Main workflow](https://github.com/binpash/try/actions/workflows/test.yaml/badge.svg)](https://github.com/binpash/try/actions/workflows/test.yaml)
 [![License](https://img.shields.io/badge/License-MIT-blue)](#license)
 [![issues - try](https://img.shields.io/github/issues/binpash/try)](https://github.com/binpash/try/issues)
 
+Quick jump: [Usage](#example-usage) | [Installing](#installing) | [Citation](#citation) | [License](#license)
+
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
-Please refer to the [paper](https://www.usenix.org/conference/osdi26/presentation/lamprou) for a more detailed description of its design and implementation.
+Please refer to the [paper (OSDI'26)](https://www.usenix.org/conference/osdi26/presentation/lamprou) for a more detailed description of its design and implementation.
 
 Please note that `try` is a semisolate (as opposed to a sandbox), and should not be used to execute
 commands that you don't already trust on your system, (i.e. network calls are all allowed)
