@@ -214,26 +214,6 @@ behavior.](https://github.com/binpash/try/issues/155#issuecomment-2078556237)
 
 Please also report any issue you run into while using the future branch!
 
-## Version History
-
-* v0.2.0 - 2023-07-24
-  - Refactor tests.
-  - Improved linting.
-  - Hide `try`-internal variables from scripts.
-  - Style guide.
-  - Testing in Vagrant.
-  - Support nested mounts.
-  - Resolve issues with `userxattr`.
-  - Better support for `unionfs`.
-  - Use `/bin/sh`, not `/bin/bash`.
-  - `-E` flag to exclude paths.
-  - `-I` flag to include paths.
-  - `-i` flag to hide paths inside the sandbox.
-  - Interactive improvements.
-
-* v0.1.0 - 2023-06-25
-  - Initial release.
-
 ## See Also
 
 [checkinstall](http://checkinstall.izto.org/) (unmaintained)
