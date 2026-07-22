@@ -44,9 +44,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Allow unprivileged user namespaces (for Ubuntu 24.04)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install dependencies
         run: |
-          sudo apt-get install pandoc
+          sudo apt-get install expect mergerfs attr pandoc
 
       - name: Checkout
         uses: actions/checkout@v4
