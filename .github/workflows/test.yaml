@@ -46,6 +46,42 @@ jobs:
           name: try-dist.tgz
           path: try-*.tgz
 
+  package:
+    needs: dist
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Download dist tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: try-dist.tgz
+
+      - name: Unpack tarball
+        run: |
+          tar xzf try-*.tgz --strip-components=1
+
+      - name: Build packaging image
+        run: |
+          docker build -t try-packager packaging/
+
+      - name: Build .deb and .rpm
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work try-packager scripts/build_packages.sh
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: try-packages
+          path: |
+            dist-packages/*.deb
+            dist-packages/*.rpm
+
   test-dist:
     needs: dist
     strategy:
@@ -234,6 +270,7 @@ jobs:
       - lint
       - shellcheck
       - trycase-check
+      - package
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
 
@@ -255,3 +292,5 @@ jobs:
           title: "Latest distribution tarball"
           files: |
             try-latest.tgz
+            try-packages/*.deb
+            try-packages/*.rpm
