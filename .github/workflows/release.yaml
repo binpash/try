@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check tag against declared versions
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          SCRIPT_VERSION="$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)"
+          MANPAGE_VERSION="$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)"
+          INCLUDE_VERSION="$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)"
+          CONFIGAC_VERSION="$(grep AC_INIT configure.ac | cut -d'[' -f3 | cut -d']' -f1)"
+
+          echo "     TAG_VERSION = '$TAG_VERSION'"
+          echo "  SCRIPT_VERSION = '$SCRIPT_VERSION'"
+          echo " MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          echo " INCLUDE_VERSION = '$INCLUDE_VERSION'"
+          echo "CONFIGAC_VERSION = '$CONFIGAC_VERSION'"
+
+          for v in "$SCRIPT_VERSION" "$MANPAGE_VERSION" "$INCLUDE_VERSION" "$CONFIGAC_VERSION"
+          do
+              if [ "$v" != "$TAG_VERSION" ]
+              then
+                  echo "::error::tag $GITHUB_REF_NAME does not match all declared versions"
+                  exit 1
+              fi
+          done
+
+  dist:
+    needs: version-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get install pandoc
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure and build tarball
+        run: |
+          autoconf
+          ./configure
+          make dist
+
+      - name: Upload dist tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: try-dist.tgz
+          path: try-*.tgz
+
+  package:
+    needs: dist
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download dist tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: try-dist.tgz
+
+      - name: Unpack tarball
+        run: |
+          tar xzf try-*.tgz --strip-components=1
+
+      - name: Build packaging image
+        run: |
+          docker build -t try-packager packaging/
+
+      - name: Build .deb and .rpm
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work try-packager scripts/build_packages.sh
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: try-packages
+          path: |
+            dist-packages/*.deb
+            dist-packages/*.rpm
+
+  smoke-test:
+    needs: package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: try-packages
+
+      - name: Install the .deb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ./*.deb
+
+      - name: Check installed version matches the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # try -v writes to stderr
+          INSTALLED="$(try -v 2>&1 | awk '{print $NF}')"
+          echo "installed: '$INSTALLED' expected: '$TAG_VERSION'"
+          [ "$INSTALLED" = "$TAG_VERSION" ]
+
+      - name: Check manpage is installed
+        run: |
+          man -w try
+
+  release:
+    needs: smoke-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download dist tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: try-dist.tgz
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: try-packages
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              try-*.tgz ./*.deb ./*.rpm
