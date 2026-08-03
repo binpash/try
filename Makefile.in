@@ -9,6 +9,7 @@ CC=@CC@
 endif
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
 INSTALL=@INSTALL@
 
 .PHONY: all install test dist lint clean
@@ -55,13 +56,13 @@ man/try.1: docs/try.1.md
 	pandoc --standalone --from markdown-smart --to man $< -o $@
 
 utils/try-summary: utils/excludes.o utils/try-summary.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 utils/try-commit: utils/excludes.o utils/try-commit.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 utils/make-socket: utils/make-socket.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -g $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 test: try $(if $(findstring yes,@enable_utils@),utils/try-summary utils/try-commit) utils/make-socket
 	scripts/run_tests.sh

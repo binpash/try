@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,7 +28,7 @@ void show_change(char *local_file, char *msg) {
   fputs(")\n", stdout);
 }
 
-void usage(int status) {
+noreturn void usage(int status) {
   fprintf(stderr, "Usage: try-summary [-q] [-E EXCLUDE_FILE] [-I INCLUDE_FILE] SANDBOX_DIR\n");
   exit(status);
 }

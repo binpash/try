@@ -7,6 +7,7 @@
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -79,7 +80,7 @@ void remove_local(char *local_file, int local_exists, struct stat *local_stat) {
   }
 }
 
-void usage(int status) {
+noreturn void usage(int status) {
   fprintf(stderr, "Usage: try-commit [-c] [-E EXCLUDE_FILE] [-I INCLUDE_FILE] SANDBOX_DIR\n");
   fprintf(stderr, "\t-c\tcopy files instead of moving them\n");
   exit(status);
@@ -239,12 +240,12 @@ int main(int argc, char *argv[]) {
       }
 
       char *tgt = malloc(sizeof(char) * tgt_len);
-      int nbytes = readlink(ent->fts_path, tgt, tgt_len);
+      ssize_t nbytes = readlink(ent->fts_path, tgt, tgt_len);
       if (nbytes == -1) {
         commit_error(ent->fts_path, "ln -s");
       }
 
-      while (nbytes == tgt_len) {
+      while ((size_t) nbytes == tgt_len) {
         tgt_len *= 2;
         tgt = realloc(tgt, sizeof(char) * tgt_len);
         nbytes = readlink(ent->fts_path, tgt, tgt_len);

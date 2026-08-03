@@ -6,13 +6,13 @@
 
 static regex_t *excludes = NULL;
 static size_t excludes_len = 0;
-static int num_excludes = 0;
+static size_t num_excludes = 0;
 static regex_t *includes = NULL;
 static size_t includes_len = 0;
-static int num_includes = 0;
+static size_t num_includes = 0;
 
 int should_exclude(char *filename) {
-  for (int i = 0; i < num_excludes; i += 1) {
+  for (size_t i = 0; i < num_excludes; i += 1) {
     if (regexec(&excludes[i], filename, 0, NULL, 0) == 0) {
       return 1;
     }
@@ -26,7 +26,7 @@ int should_include(char *filename) {
     return 1;
   }
 
-  for (int i = 0; i < num_includes; i += 1) {
+  for (size_t i = 0; i < num_includes; i += 1) {
     if (regexec(&includes[i], filename, 0, NULL, 0) == 0) {
       return 1;
     }
@@ -114,7 +114,7 @@ void load_includes(char *progname, char *include_filename) {
 }
 
 void free_excludes() {
-  for (int i = 0; i < num_excludes; i += 1) {
+  for (size_t i = 0; i < num_excludes; i += 1) {
     regfree(&excludes[i]);
   }
   free(excludes);
@@ -124,7 +124,7 @@ void free_excludes() {
 }
 
 void free_includes() {
-  for (int i = 0; i < num_includes; i += 1) {
+  for (size_t i = 0; i < num_includes; i += 1) {
     regfree(&includes[i]);
   }
   free(includes);
