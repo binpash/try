@@ -72,7 +72,7 @@ jobs:
 
       - name: Build .deb and .rpm
         run: |
-          docker run --rm -v "$PWD:/work" -w /work try-packager scripts/build_packages.sh
+          docker run --rm -v "$PWD:/work" -w /work try-packager packaging/build_packages.sh
 
       - name: Upload packages
         uses: actions/upload-artifact@v4

@@ -90,7 +90,7 @@ jobs:
 
       - name: Build .deb and .rpm
         run: |
-          docker run --rm -v "$PWD:/work" -w /work try-packager scripts/build_packages.sh
+          docker run --rm -v "$PWD:/work" -w /work try-packager packaging/build_packages.sh
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
@@ -100,7 +100,7 @@ jobs:
             dist-packages/*.deb
             dist-packages/*.rpm
 
-  smoke-test:
+  smoke-test-deb:
     needs: package
     runs-on: ubuntu-latest
 
@@ -127,8 +127,38 @@ jobs:
         run: |
           man -w try
 
+  smoke-test-rpm:
+    needs: package
+    runs-on: ubuntu-latest
+    container: fedora:latest
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: try-packages
+
+      - name: Install the .rpm
+        run: |
+          # fedora's container image sets tsflags=nodocs by default, which
+          # would silently drop the manpage; override it for this install
+          dnf install -y --setopt=tsflags= ./*.rpm man-db
+
+      - name: Check installed version matches the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # try -v writes to stderr
+          INSTALLED="$(try -v 2>&1 | awk '{print $NF}')"
+          echo "installed: '$INSTALLED' expected: '$TAG_VERSION'"
+          [ "$INSTALLED" = "$TAG_VERSION" ]
+
+      - name: Check manpage is installed
+        run: |
+          mandb
+          man -w try
+
   release:
-    needs: smoke-test
+    needs: [smoke-test-deb, smoke-test-rpm]
     runs-on: ubuntu-latest
 
     steps:
