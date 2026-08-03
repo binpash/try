@@ -31,7 +31,9 @@ void run(char *argv[], char *file) {
 
     if (pid == 0) {
       execvp(argv[0], argv);
-      return; // unreachable
+      // reachable only when we can't exec `argv[0]`
+      fprintf(stderr, "try-commit: couldn't run '%s': %s\n", argv[0], strerror(errno));
+      _exit(127);
     }
 
     int status = -1;
