@@ -15,14 +15,19 @@ RPMTOPDIR="$PWD/rpmbuild"
 
 DESCRIPTION="Lets you run a command and inspect its effects before changing your live system"
 
-rm -rf "$PKGROOT" "$OUTDIR" "$RPMTOPDIR"
+for d in "$PKGROOT" "$OUTDIR" "$RPMTOPDIR"; do
+    if [ -e "$d" ]; then
+        echo "error: $d already exists; refusing to overwrite" >&2
+        exit 1
+    fi
+done
 mkdir -p "$OUTDIR"
 
 grep -q '^AC_DEFUN(\[TRY_REQUIRE_PROG\], \[\])$' configure.ac ||
     sed -i '/^AC_DEFUN(\[TRY_REQUIRE_PROG\]/,/^])$/c\AC_DEFUN([TRY_REQUIRE_PROG], [])' configure.ac
 autoconf
 
-./configure --prefix=/usr
+./configure
 make
 make install prefix="$PKGROOT/usr"
 
@@ -47,7 +52,6 @@ Description: $DESCRIPTION
 EOF
 
     dpkg-deb --build --root-owner-group "$PKGROOT" "$output"
-    rm -rf "$PKGROOT/DEBIAN"
 }
 
 # build .rpm with rpmbuild
