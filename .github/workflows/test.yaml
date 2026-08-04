@@ -41,7 +41,7 @@ jobs:
           make dist
 
       - name: Upload dist tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: try-dist.tgz
           path: try-*.tgz
@@ -64,12 +64,13 @@ jobs:
           sudo apt-get install expect mergerfs attr pandoc
 
       - name: Download dist tarball
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
 
       - name: Unpack tarball; configure and build utilities
         run: |
-          tar xzf try-dist.tgz/try-*.tgz --strip-components=1
-          rm -r try-dist.tgz
+          ls -lR
+          tar xzf try-*.tgz --strip-components=1
+          rm try-*.tgz
           ./configure --disable-utils
           make all
           sudo make install
