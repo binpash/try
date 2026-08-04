@@ -20,4 +20,4 @@ Both packages are built from a single staged tree.
 # Why there is no Homebrew formula
 `try` is Linux-only (Linux 5.11 or later).
 
-For distributions outside the deb/rpm families, `../package.nix` and `../shell.nix` provide a Nix package, and building from source with `./configure && make && make install` is supported everywhere.
+For distributions outside the deb/rpm families, `../package.nix` and `../shell.nix` provide a Nix package, Arch Linux users can install the [AUR package](https://aur.archlinux.org/packages/try), and building from source with `./configure && make && make install` is supported everywhere.
