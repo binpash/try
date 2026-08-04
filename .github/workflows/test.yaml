@@ -59,7 +59,7 @@ jobs:
           path: packaging.tgz
 
   package:
-    needs: dist
+    needs: [dist, test-dist]
     runs-on: ubuntu-latest
 
     steps:
