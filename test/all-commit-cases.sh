@@ -15,6 +15,7 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
+# expose test-only utils, like `try-make-socket`
 PATH="$TRY_TOP/utils:$PATH"
 export PATH
 
@@ -275,6 +276,11 @@ rm newpipe
 
 : $((COUNT += 1))
 
+if ! type try-make-socket >/dev/null 2>&1
+then
+    echo "could not find try-make-socket in PATH=$PATH"
+    fail
+fi
 ! [ -e newsock ] || fail
 "$TRY" -y "touch newsock; echo hello> newsock"
 [ -f newsock ] || fail
