@@ -114,10 +114,11 @@ jobs:
 
       - name: Download dist tarball
         uses: actions/download-artifact@v8
+        with:
+          name: try-dist.tgz
 
       - name: Unpack tarball; configure and build utilities
         run: |
-          ls -lR
           tar xzf try-*.tgz --strip-components=1
           rm try-*.tgz
           ./configure --disable-utils
@@ -405,8 +406,15 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
-      - name: Download binaries
+      - name: Download dist tarball
         uses: actions/download-artifact@v8
+        with:
+          name: try-dist.tgz
+
+      - name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: try-packages
 
       - name: Rename tarball
         run: |
