@@ -15,6 +15,9 @@ cleanup() {
 
 trap 'cleanup' EXIT
 
+PATH="$TRY_TOP/utils:$PATH"
+export PATH
+
 try_workspace="$(mktemp -d)"
 cd "$try_workspace" || exit 99
 
@@ -276,7 +279,7 @@ rm newpipe
 "$TRY" -y "touch newsock; echo hello> newsock"
 [ -f newsock ] || fail
 [ "$(cat newsock)" = "hello" ] || fail
-"$TRY" -y "rm newsock; make-socket newsock"
+"$TRY" -y "rm newsock; try-make-socket newsock"
 [ -S newsock ] || fail
 rm newsock
 
@@ -287,7 +290,7 @@ rm newsock
 ! [ -e newsock ] || fail
 "$TRY" -y "mkdir newsock"
 [ -d newsock ] || fail
-"$TRY" -y "rm -r newsock; make-socket newsock"
+"$TRY" -y "rm -r newsock; try-make-socket newsock"
 [ -S newsock ] || fail
 rm newsock
 
@@ -298,7 +301,7 @@ rm newsock
 ! [ -e newsock ] || fail
 ln -s "$TRY" newsock
 [ -L newsock ] || fail
-"$TRY" -y "rm newsock; make-socket newsock"
+"$TRY" -y "rm newsock; try-make-socket newsock"
 ! [ -e newlink ] || fail
 [ -S newsock ] || fail
 rm newsock
@@ -308,6 +311,6 @@ rm newsock
 : $((COUNT += 1))
 
 ! [ -e newsock ]
-"$TRY" -y "make-socket newsock"
+"$TRY" -y "try-make-socket newsock"
 [ -S newsock ] || fail
 rm newsock

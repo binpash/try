@@ -1,5 +1,8 @@
 { pkgs ? import <nixpkgs> {}}:
 
+let
+  tryPkg = pkgs.callPackage ./package.nix {};
+in
 pkgs.mkShell {
   buildInputs = with pkgs; [
     expect
@@ -10,7 +13,8 @@ pkgs.mkShell {
     shellcheck
     autoconf
     pandoc
-    (pkgs.callPackage ./package.nix {})
+    tryPkg
+    tryPkg.test
   ];
 }
 

@@ -1,4 +1,4 @@
 try-summary
 try-commit
 *.o
-make-socket
+try-make-socket

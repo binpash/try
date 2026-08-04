@@ -11,28 +11,30 @@ AC_ARG_ENABLE([utils],
               [enable_utils=${enableval}], [enable_utils=yes])
 
 
-AC_REQUIRE_AUX_FILE([utils/make-socket.c])
+AC_REQUIRE_AUX_FILE([utils/try-make-socket.c])
+
+# unconditionally require CC and its flags (for try-make-socket)
+
+# -O2 is required for -D_FORTIFY_SOURCE to do anything; -U_FORTIFY_SOURCE
+# first avoids a redefinition warning on distros whose GCC predefines it.
+AUTO_CFLAGS="-O2 -Wall -Wextra -Werror -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fstack-protector-strong -fPIE"
+AUTO_CPPFLAGS=""
+AUTO_LDFLAGS="-pie -Wl,-z,relro,-z,now"
+
+CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
+CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
+LDFLAGS=${LDFLAGS-"$AUTO_LDFLAGS"}
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(LDFLAGS)
+
+# build tools
+AC_PROG_CC
 
 
 if test "$enable_utils" = "yes"
 then
 	AC_REQUIRE_AUX_FILE([utils/try-commit.c])
-
-	# -O2 is required for -D_FORTIFY_SOURCE to do anything; -U_FORTIFY_SOURCE
-	# first avoids a redefinition warning on distros whose GCC predefines it.
-	AUTO_CFLAGS="-O2 -Wall -Wextra -Werror -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fstack-protector-strong -fPIE"
-	AUTO_CPPFLAGS=""
-	AUTO_LDFLAGS="-pie -Wl,-z,relro,-z,now"
-
-	CFLAGS=${CFLAGS-"$AUTO_CFLAGS"}
-	CPPFLAGS=${CPPFLAGS-"$AUTO_CPPFLAGS"}
-	LDFLAGS=${LDFLAGS-"$AUTO_LDFLAGS"}
-	AC_SUBST(CFLAGS)
-	AC_SUBST(CPPFLAGS)
-	AC_SUBST(LDFLAGS)
-
-        # build tools
-        AC_PROG_CC
 
 	# needed C types
 	AC_TYPE_PID_T
