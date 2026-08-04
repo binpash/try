@@ -4,7 +4,9 @@ on:
   pull_request:
   push:
     branches:
-    - main
+      - main
+    tags:
+      - 'v*'
   schedule:
     - cron: '17 14 * * *'
 
@@ -46,25 +48,36 @@ jobs:
           name: try-dist.tgz
           path: try-*.tgz
 
+      - name: Package packaging assets
+        run: |
+          tar czf packaging.tgz packaging
+
+      - name: Upload packaging assets
+        uses: actions/upload-artifact@v7
+        with:
+          name: packaging-assets
+          path: packaging.tgz
+
   package:
     needs: dist
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
       - name: Download dist tarball
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: try-dist.tgz
 
-      - name: Unpack tarball
+      - name: Download packaging assets
+        uses: actions/download-artifact@v8
+        with:
+          name: packaging-assets
+
+      - name: Unpack tarballs
         run: |
           tar xzf try-*.tgz --strip-components=1
+          tar xzf packaging.tgz
+          rm -f try-*.tgz packaging.tgz
 
       - name: Build packaging image
         run: |
@@ -75,7 +88,7 @@ jobs:
           docker run --rm -v "$PWD:/work" -w /work try-packager packaging/build_packages.sh
 
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: try-packages
           path: |
@@ -261,6 +274,123 @@ jobs:
         run: |
           nix-shell --run "sh scripts/run_tests.sh"
 
+  tag-version-check:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check tag against declared versions
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          SCRIPT_VERSION="$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)"
+          MANPAGE_VERSION="$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)"
+          INCLUDE_VERSION="$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)"
+          CONFIGAC_VERSION="$(grep AC_INIT configure.ac | cut -d'[' -f3 | cut -d']' -f1)"
+
+          echo "     TAG_VERSION = '$TAG_VERSION'"
+          echo "  SCRIPT_VERSION = '$SCRIPT_VERSION'"
+          echo " MANPAGE_VERSION = '$MANPAGE_VERSION'"
+          echo " INCLUDE_VERSION = '$INCLUDE_VERSION'"
+          echo "CONFIGAC_VERSION = '$CONFIGAC_VERSION'"
+
+          for v in "$SCRIPT_VERSION" "$MANPAGE_VERSION" "$INCLUDE_VERSION" "$CONFIGAC_VERSION"
+          do
+              if [ "$v" != "$TAG_VERSION" ]
+              then
+                  echo "::error::tag $GITHUB_REF_NAME does not match all declared versions"
+                  exit 1
+              fi
+          done
+
+  smoke-test-deb:
+    needs: package
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: try-packages
+
+      - name: Install the .deb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ./*.deb
+
+      - name: Check installed version matches the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # try -v writes to stderr
+          INSTALLED="$(try -v 2>&1 | awk '{print $NF}')"
+          echo "installed: '$INSTALLED' expected: '$TAG_VERSION'"
+          [ "$INSTALLED" = "$TAG_VERSION" ]
+
+      - name: Check manpage is installed
+        run: |
+          man -w try
+
+  smoke-test-rpm:
+    needs: package
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: try-packages
+
+      - name: Install the .rpm
+        run: |
+          # fedora's container image sets tsflags=nodocs by default, which
+          # would silently drop the manpage; override it for this install
+          dnf install -y --setopt=tsflags= ./*.rpm man-db
+
+      - name: Check installed version matches the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # try -v writes to stderr
+          INSTALLED="$(try -v 2>&1 | awk '{print $NF}')"
+          echo "installed: '$INSTALLED' expected: '$TAG_VERSION'"
+          [ "$INSTALLED" = "$TAG_VERSION" ]
+
+      - name: Check manpage is installed
+        run: |
+          mandb
+          man -w try
+
+  release:
+    needs: [tag-version-check, smoke-test-deb, smoke-test-rpm]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: try-dist.tgz
+
+      - name: Download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: try-packages
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              try-*.tgz ./*.deb ./*.rpm
 
   prerelease:
     needs:
@@ -276,12 +406,11 @@ jobs:
 
     steps:
       - name: Download binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
 
       - name: Rename tarball
         run: |
-          mv try-dist.tgz/try-*.tgz try-latest.tgz
-          rmdir try-dist.tgz
+          mv try-*.tgz try-latest.tgz
 
       - name: Deploy 'latest' release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -292,5 +421,5 @@ jobs:
           title: "Latest distribution tarball"
           files: |
             try-latest.tgz
-            try-packages/*.deb
-            try-packages/*.rpm
+            *.deb
+            *.rpm
