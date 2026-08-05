@@ -300,6 +300,19 @@ rm "$sandbox_dir/temproot/dev/stderr"
 exit $exitcode
 EOF
 
+    # -M: open the marker path right before running CMD, as a signal to an
+    # external tracer (e.g. fstrace) that sandbox setup is finished. The open is
+    # expected to fail harmlessly (the path need not exist) — the openat syscall
+    # is the signal. It is wrapped in a subshell because ':' is a POSIX special
+    # built-in, and a redirection failure on a special built-in makes a
+    # non-interactive shell (e.g. dash) exit outright; the subshell contains
+    # that exit so "|| true" keeps the && chain alive. Empty when -M unset.
+    if [ -n "${EXEC_MARKER:-}" ]; then
+        exec_marker_prefix="{ ( : 2>/dev/null < \"$EXEC_MARKER\" ) || true; } && "
+    else
+        exec_marker_prefix=""
+    fi
+
     # NB we substitute in the heredoc, so the early unsets are okay!
     cat >"$chroot_executable" <<EOF
 #!/bin/sh
@@ -313,7 +326,7 @@ ln -s /proc/self/fd/0 stdin &&
 ln -s /proc/self/fd/1 stdout &&
 ln -s /proc/self/fd/2 stderr &&
 cd "$START_DIR" &&
-. "$script_to_execute"
+$exec_marker_prefix. "$script_to_execute"
 EOF
 
     echo "$@" >"$script_to_execute"
@@ -628,7 +641,7 @@ error() {
 
 usage() {
     cat >&2 <<EOF
-Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-B src:dst] CMD [ARG ...]
+Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] [-B src:dst] [-M PATH] CMD [ARG ...]
 
   -n                don't commit or prompt for commit (overrides -y)
   -y                assume yes to all prompts (overrides -n)
@@ -638,6 +651,8 @@ Usage: $TRY_COMMAND [-nvhyx] [-i PATTERN] [-D DIR] [-U PATH] [-L dir1:dir2:...] 
   -U PATH           path to unionfs helper (e.g., mergerfs, unionfs-fuse)
   -L dir1:dir2:...  specify multiple lower directories to merge (colon-separated, implies -n)
   -B src:dst        bind-mount src into the sandbox at dst (may be repeated)
+  -M PATH           open PATH (harmlessly) right before running CMD, as a signal
+                    to an external tracer that sandbox setup is done
   -v                show version information (and exit)
   -h                show this usage message (and exit)
 
@@ -661,13 +676,14 @@ NO_COMMIT="interactive"
 # Includes all patterns given using the `-i` flag; will be used with `grep -f`
 IGNORE_FILE="$(mktemp)"
 
-while getopts ":yvnhxi:D:U:L:B:" opt
+while getopts ":yvnhxi:D:U:L:B:M:" opt
 do
     case "$opt" in
         (y)   NO_COMMIT="commit";;
         (n)   NO_COMMIT="show";;
         (i)   echo "$OPTARG" >>"$IGNORE_FILE";;
         (B)   EXTRA_BIND_MOUNTS="${EXTRA_BIND_MOUNTS:+$EXTRA_BIND_MOUNTS }$OPTARG";;
+        (M)   EXEC_MARKER="$OPTARG";;
         (D)   if ! [ -d "$OPTARG" ]
               then
                   error "could not find sandbox directory '$OPTARG'" 2
