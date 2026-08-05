@@ -303,12 +303,18 @@ EOF
     # -M: open the marker path right before running CMD, as a signal to an
     # external tracer (e.g. fstrace) that sandbox setup is finished. The open is
     # expected to fail harmlessly (the path need not exist) — the openat syscall
-    # is the signal. It is wrapped in a subshell because ':' is a POSIX special
-    # built-in, and a redirection failure on a special built-in makes a
-    # non-interactive shell (e.g. dash) exit outright; the subshell contains
-    # that exit so "|| true" keeps the && chain alive. Empty when -M unset.
+    # itself is the signal.
+    #
+    # The exact form matters. It must NOT fork: a tracer keys on the pid that
+    # performs the open, and only that process (plus the children it goes on to
+    # fork) should be affected, so the open has to happen in the very shell that
+    # then runs CMD — a subshell would signal a short-lived child instead. And a
+    # bare ':' will not do either: ':' is a POSIX special built-in, so a
+    # redirection failure on it exits a non-interactive shell outright. 'command'
+    # strips those special-built-in properties while staying a built-in itself
+    # (no fork), and '|| true' keeps the && chain alive. Empty when -M unset.
     if [ -n "${EXEC_MARKER:-}" ]; then
-        exec_marker_prefix="{ ( : 2>/dev/null < \"$EXEC_MARKER\" ) || true; } && "
+        exec_marker_prefix="{ command : 2>/dev/null < \"$EXEC_MARKER\" || true; } && "
     else
         exec_marker_prefix=""
     fi
