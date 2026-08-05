@@ -1,19 +1,20 @@
-This directory holds the container image used to build distribution packages for `try`.
+This directory holds the packaging logic used to build distribution packages for `try`.
 
-The `Dockerfile` builds a Debian image with a toolchain plus `dpkg-dev` and `rpm`, which
-provide the native `dpkg-deb` and `rpmbuild` packaging tools.
-The actual packaging logic lives in `build_packages.sh`, which runs inside that image.
+`build_packages.sh` builds a `.deb` and a `.rpm` from an unpacked `make dist` tarball, using
+the native `dpkg-deb` and `rpmbuild` tools. On Debian/Ubuntu, `dpkg-deb` ships as part of the
+base `dpkg` package; `rpmbuild` comes from the `rpm` package, which is not installed by
+default and needs `apt-get install rpm` (or the equivalent) first.
 
 # Building
 
-From an unpacked `make dist` tarball:
+From an unpacked `make dist` tarball, on a Debian/Ubuntu machine (or any environment with the
+tools above):
 
 ```
-docker build -t try-packager packaging/
-docker run --rm -v "$PWD:/work" -w /work try-packager packaging/build_packages.sh
+packaging/build_packages.sh
 ```
 
-Packages land in `dist-packages/`. The bind mount means the results appear on the host directly, with no copy step out of the container.
+Packages land in `dist-packages/`.
 
 Both packages are built from a single staged tree.
 

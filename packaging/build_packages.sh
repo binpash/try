@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Builds .deb and .rpm packages from an unpacked try dist tree using
-# native packaging tools (dpkg-deb, rpmbuild). Intended to run inside
-# packaging/Dockerfile, against the tarball produced by `make dist`.
+# native packaging tools (dpkg-deb, rpmbuild), against the tarball
+# produced by `make dist`.
 
 set -e
 

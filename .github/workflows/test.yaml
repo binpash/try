@@ -63,6 +63,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y rpm
+
       - name: Download dist tarball
         uses: actions/download-artifact@v8
         with:
@@ -79,21 +83,17 @@ jobs:
           tar xzf packaging.tgz
           rm -f try-*.tgz packaging.tgz
 
-      - name: Build packaging image
-        run: |
-          docker build -t try-packager packaging/
-
       - name: Build .deb and .rpm
         run: |
-          docker run --rm -v "$PWD:/work" -w /work try-packager packaging/build_packages.sh
+          packaging/build_packages.sh
 
       - name: Upload packages
         uses: actions/upload-artifact@v7
         with:
           name: try-packages
           path: |
-            dist-packages/*.deb
-            dist-packages/*.rpm
+            dist-packages/try*.deb
+            dist-packages/try*.rpm
 
   test-dist:
     needs: dist
@@ -284,27 +284,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Check tag against declared versions
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          SCRIPT_VERSION="$(grep 'TRY_VERSION=' try | cut -d'"' -f 2)"
-          MANPAGE_VERSION="$(grep 'TRY(1)' docs/try.1.md | cut -d' ' -f 4)"
-          INCLUDE_VERSION="$(grep '#define TRY_VERSION' utils/version.h | cut -d'"' -f 2)"
-          CONFIGAC_VERSION="$(grep AC_INIT configure.ac | cut -d'[' -f3 | cut -d']' -f1)"
-
-          echo "     TAG_VERSION = '$TAG_VERSION'"
-          echo "  SCRIPT_VERSION = '$SCRIPT_VERSION'"
-          echo " MANPAGE_VERSION = '$MANPAGE_VERSION'"
-          echo " INCLUDE_VERSION = '$INCLUDE_VERSION'"
-          echo "CONFIGAC_VERSION = '$CONFIGAC_VERSION'"
-
-          for v in "$SCRIPT_VERSION" "$MANPAGE_VERSION" "$INCLUDE_VERSION" "$CONFIGAC_VERSION"
-          do
-              if [ "$v" != "$TAG_VERSION" ]
-              then
-                  echo "::error::tag $GITHUB_REF_NAME does not match all declared versions"
-                  exit 1
-              fi
-          done
+        run: scripts/check_version.sh "${GITHUB_REF_NAME#v}"
 
   smoke-test-deb:
     needs: package
@@ -320,7 +300,7 @@ jobs:
       - name: Install the .deb
         run: |
           sudo apt-get update
-          sudo apt-get install -y ./*.deb
+          sudo apt-get install -y ./try*.deb
 
       - name: Check installed version matches the tag
         run: |
@@ -350,7 +330,7 @@ jobs:
         run: |
           # fedora's container image sets tsflags=nodocs by default, which
           # would silently drop the manpage; override it for this install
-          dnf install -y --setopt=tsflags= ./*.rpm man-db
+          dnf install -y --setopt=tsflags= ./try*.rpm man-db
 
       - name: Check installed version matches the tag
         run: |
@@ -391,7 +371,7 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --title "$GITHUB_REF_NAME" \
               --generate-notes \
-              try-*.tgz ./*.deb ./*.rpm
+              try-*.tgz ./try*.deb ./try*.rpm
 
   prerelease:
     needs:
@@ -429,5 +409,5 @@ jobs:
           title: "Latest distribution tarball"
           files: |
             try-latest.tgz
-            *.deb
-            *.rpm
+            try*.deb
+            try*.rpm
