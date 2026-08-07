@@ -305,16 +305,26 @@ EOF
     # expected to fail harmlessly (the path need not exist) — the openat syscall
     # itself is the signal.
     #
-    # The exact form matters. It must NOT fork: a tracer keys on the pid that
-    # performs the open, and only that process (plus the children it goes on to
-    # fork) should be affected, so the open has to happen in the very shell that
-    # then runs CMD — a subshell would signal a short-lived child instead. And a
-    # bare ':' will not do either: ':' is a POSIX special built-in, so a
-    # redirection failure on it exits a non-interactive shell outright. 'command'
-    # strips those special-built-in properties while staying a built-in itself
-    # (no fork), and '|| true' keeps the && chain alive. Empty when -M unset.
+    # 'test -e' stats the path and does nothing else, which matters for three
+    # reasons:
+    #
+    #   * it does not fork. A tracer keys on the pid that touches the path, and
+    #     only that process (plus the children it goes on to fork) should be
+    #     affected, so this must happen in the very shell that then runs CMD —
+    #     a subshell would signal a short-lived child instead.
+    #   * it does not touch file descriptors. A redirection ('< "$MARKER"')
+    #     makes the shell save the affected fd to a high one *before* the marker
+    #     and restore it *after*, so the restoring dup names an fd the tracer
+    #     never saw created — right across the boundary the marker defines.
+    #   * it cannot fail in a way that matters. The path need not exist and need
+    #     not be reachable: a tracer watching syscall *entry* sees the path
+    #     argument before the kernel resolves it, so ENOENT and EACCES signal
+    #     just as well as success, and 'test' (a non-special built-in) merely
+    #     returns false. '|| true' keeps the && chain alive in that case.
+    #
+    # Empty when -M is unset.
     if [ -n "${EXEC_MARKER:-}" ]; then
-        exec_marker_prefix="{ command : 2>/dev/null < \"$EXEC_MARKER\" || true; } && "
+        exec_marker_prefix="{ test -e \"$EXEC_MARKER\" || true; } && "
     else
         exec_marker_prefix=""
     fi
