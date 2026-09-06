@@ -161,7 +161,12 @@ unmount_devices() {
     for dev in $devices_to_mount
     do
         umount "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
-        rm -f "$sandbox_dir/temproot/dev/$dev"
+        ## Send this to the mount log too, like the umount above. If the umount
+        ## failed the bind mount is still live, so the rm fails as well, and a
+        ## caller that has redirected our stderr to capture the sandboxed
+        ## program's output would otherwise record teardown noise as if the
+        ## program had printed it.
+        rm -f "$sandbox_dir/temproot/dev/$dev" 2>>"$try_mount_log"
     done
 }
 
