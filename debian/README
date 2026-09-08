@@ -9,6 +9,136 @@ logic.
 push and lints the result with `lintian`; `publish-ppa` signs and uploads it
 to the configured PPA via `dput`.
 
+# Dry-running a release against your own PPA
+
+Validates the build/sign/upload chain against a real PPA before trusting it
+to CI. Requires a Launchpad account with a registered OpenPGP key (Account
+-> Personal details -> OpenPGP keys) and a PPA already created.
+
+The source tree used for the orig tarball must come from `make dist`, same
+as CI's `dist` job -- not `git archive` or a raw checkout. `git archive`
+includes everything git tracks (`.github/`, `debian/`, `packaging/`, ...);
+`make dist` only includes what `Makefile.in`'s `$(DISTDIR)` rule lists.
+Building the orig tarball from the wrong one produces a tarball with
+different content under the same filename, which Launchpad rejects on any
+later upload that references that filename (CI's build included) -- it
+requires byte-identical content for every upload referencing a given
+`orig.tar.gz`, forever.
+
+On macOS, none of `dpkg-buildpackage`/`devscripts`/`dput`/`autoconf`'s
+`overlayfs`/`unshare` checks work natively, so this runs inside a container.
+A plain bind mount of the repo can pick up macOS filesystem metadata that
+breaks `dpkg-source`'s patch application, so transfer the repo via a
+`git bundle` instead.
+
+## 1. Prep, on macOS
+
+```sh
+cd /path/to/try
+git bundle create /tmp/try-repo.bundle HEAD
+gpg --armor --export-secret-keys <YOUR_KEY_ID_OR_EMAIL> > /tmp/my-signing-key.asc
+```
+
+## 2. Start the container
+
+```sh
+open -a Docker
+until docker info >/dev/null 2>&1; do sleep 2; done && echo "Docker is ready"
+
+docker run -it --rm \
+  -v /tmp/try-repo.bundle:/tmp/repo.bundle:ro \
+  -v /tmp/my-signing-key.asc:/tmp/my-signing-key.asc:ro \
+  ubuntu:24.04 bash
+```
+
+## 3. Inside the container: install tools, set up a clean GPG home
+
+```sh
+apt-get update
+apt-get install -y git build-essential autoconf pandoc debhelper dpkg-dev devscripts dput gnupg
+
+mkdir -p /run/user/$(id -u)
+chmod 700 /run/user/$(id -u)
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+
+export GNUPGHOME=/tmp/gnupg-fresh
+mkdir -m 700 -p "$GNUPGHOME"
+gpg --batch --import /tmp/my-signing-key.asc
+gpg --list-secret-keys --keyid-format long   # note your key ID for step 6
+```
+
+## 4. Build the dist tarball via `make dist`
+
+`./configure`'s `TRY_REQUIRE_PROG` checks (overlayfs via `lsmod`, `unshare`)
+test the machine `try` will *run* on, not the one building it -- they fail
+unconditionally in a plain container. Patch them out to let `./configure`
+succeed, same as `packaging/build_packages.sh` does, but restore the
+original `configure.ac` before running `make dist` -- otherwise the patched
+macro ends up baked into the dist tarball itself, which is a different bug
+of the same shape (CI's real `dist` job runs on a VM with real privileges,
+so it never patches `configure.ac` at all; the resulting tarball must match
+that).
+
+```sh
+git clone /tmp/repo.bundle /work/src
+cd /work/src
+
+cp configure.ac /tmp/configure.ac.orig
+sed -i '/^AC_DEFUN(\[TRY_REQUIRE_PROG\]/,/^])$/c\AC_DEFUN([TRY_REQUIRE_PROG], [])' configure.ac
+autoconf
+./configure
+cp /tmp/configure.ac.orig configure.ac
+
+make dist
+mv try-*.tgz /work/
+cd /work
+tar xzf try-*.tgz
+```
+
+## 5. Assemble the Debian source tree and build
+
+```sh
+tar --sort=name --owner=0 --group=0 --numeric-owner \
+    --mtime='UTC 2020-01-01' -cf - try-0.2.0 \
+    | gzip -n -9 > try_0.2.0.orig.tar.gz
+
+cp -R /work/src/debian try-0.2.0/debian
+
+# debian/changelog stays "UNRELEASED" in source control; finalize it to a
+# real series here, same as ppa-source-check does in CI -- Launchpad
+# rejects uploads still targeting UNRELEASED.
+sed -i '1s/UNRELEASED/noble/' try-0.2.0/debian/changelog
+
+cd try-0.2.0
+dpkg-buildpackage -S -us -uc -sa
+cd ..
+```
+
+## 6. Sign explicitly with your key ID, then verify
+
+```sh
+debsign -k<YOUR_KEY_ID> try_*_source.changes
+head -1 try_*_source.changes   # should show -----BEGIN PGP SIGNED MESSAGE-----
+```
+
+`debsign` needs `-k` here rather than relying on its default (matching the
+`Maintainer:`/`Changed-By:` identity) since `debian/control`'s `Maintainer:`
+is a placeholder, not tied to any real key.
+
+## 7. Upload
+
+```sh
+dput ppa:yourusername/try try_*_source.changes
+```
+
+Then check `launchpad.net/~yourusername/+archive/ubuntu/try` for the build.
+Launchpad also emails on both acceptance/rejection and build completion.
+
+A local `gpg: ... SignatureVerifyError: 0` warning from `dput`'s own
+pre-upload check is a known, benign `gpgme`-vs-keyring quirk in these
+containers -- it doesn't block the actual upload, and Launchpad does its own
+real signature verification server-side regardless.
+
 # Testing that a published PPA package actually installs and works
 
 Once a build succeeds on Launchpad, verify it installs cleanly in an
