@@ -18,7 +18,7 @@ Quick jump: [Usage](#example-usage) | [Installing](#installing) | [Citation](#ci
 `try` lets you run a command and inspect its effects before changing your live system. `try` uses Linux's [namespaces (via `unshare`)](https://docs.kernel.org/userspace-api/unshare.html) and the [overlayfs](https://docs.kernel.org/filesystems/overlayfs.html) union filesystem.
 Please refer to the [paper (OSDI'26)](https://www.usenix.org/conference/osdi26/presentation/lamprou) for a more detailed description of its design and implementation.
 
-Please note that `try` is a semisolate (as opposed to a sandbox), and should not be used to execute
+Please note that `try` is a semisolate (as opposed to a fully isolated sandbox), and should not be used to execute
 commands that you don't already trust on your system, (i.e. network calls are all allowed)
 
 <img src="docs/try_pip_install_example.gif" alt="try gif">
