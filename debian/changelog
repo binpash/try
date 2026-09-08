@@ -1,18 +1,3 @@
-try (0.2.0-3) UNRELEASED; urgency=medium
-
-  * No packaging changes; previous manual test upload used a source tree
-    built via `git archive` rather than `make dist`, producing an
-    orig.tar.gz that doesn't match what CI actually builds.
-
- -- try maintainers <TODO@example.com>  Tue, 08 Sep 2026 17:33:57 -0400
-
-try (0.2.0-2) UNRELEASED; urgency=medium
-
-  * Skip dh_auto_test: build chroots lack the privileges try's test suite
-    needs (unshare namespaces, overlayfs).
-
- -- try maintainers <TODO@example.com>  Tue, 08 Sep 2026 10:31:33 -0400
-
 try (0.2.0-1) UNRELEASED; urgency=medium
 
   * Initial Debian packaging.
