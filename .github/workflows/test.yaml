@@ -129,17 +129,16 @@ jobs:
 
       - name: Assemble Debian source tree
         run: |
-          # keep the try-VERSION/ directory from the dist tarball intact --
-          # dpkg-buildpackage needs the source in a properly named
-          # directory next to its .orig tarball, unlike the flattened tree
-          # the "package" job builds from.
           tar xzf try-*.tgz
           srcdir=$(echo try-*/)
           version=${srcdir#try-}
           version=${version%/}
-          tar czf "try_${version}.orig.tar.gz" "$srcdir"
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+              --mtime='UTC 2020-01-01' -cf - "$srcdir" \
+              | gzip -n -9 > "try_${version}.orig.tar.gz"
           tar xzf debian-packaging.tgz -C "$srcdir"
           rm -f try-*.tgz debian-packaging.tgz
+          sed -i "1s/UNRELEASED/noble/" "$srcdir/debian/changelog"
           echo "SRCDIR=$srcdir" >> "$GITHUB_ENV"
 
       - name: Build the Debian source package
@@ -150,6 +149,17 @@ jobs:
       - name: Lint the source package
         run: |
           lintian try_*_source.changes
+
+      - name: Upload Debian source package
+        uses: actions/upload-artifact@v7
+        with:
+          name: try-ppa-source
+          path: |
+            try_*.dsc
+            try_*.orig.tar.gz
+            try_*.debian.tar.xz
+            try_*_source.changes
+            try_*_source.buildinfo
 
   test-dist:
     needs: dist
@@ -430,6 +440,39 @@ jobs:
               --title "$GITHUB_REF_NAME" \
               --generate-notes \
               try-*.tgz ./try*.deb ./try*.rpm
+
+  publish-ppa:
+    needs: ppa-source-check
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: ppa-release
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts dput gnupg
+
+      - name: Download the Debian source package
+        uses: actions/download-artifact@v8
+        with:
+          name: try-ppa-source
+
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          echo "KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5; exit}')" >> "$GITHUB_ENV"
+
+      - name: Sign and upload to the PPA
+        env:
+          GPG_PASSPHRASE: ${{ secrets.PPA_GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
+          debsign -k"$KEYID" -p"gpg --batch --yes --pinentry-mode loopback --passphrase-file /tmp/gpg-passphrase" try_*_source.changes
+          rm -f /tmp/gpg-passphrase
+          dput "${{ vars.PPA_TARGET }}" try_*_source.changes
 
   prerelease:
     needs:

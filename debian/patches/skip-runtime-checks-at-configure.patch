@@ -1,14 +1,5 @@
 Description: Skip TRY_REQUIRE_PROG's runtime environment checks during packaging builds
- configure.ac's TRY_REQUIRE_PROG macro checks things like overlayfs kernel
- module availability (via lsmod) and unshare namespace support. These are
- real runtime requirements for using `try`, but they are properties of the
- machine `try` will run on, not of the machine building the package -- a
- build chroot (sbuild/pbuilder/OBS/etc.) commonly has no kernel module
- visibility and no namespace privileges at all, so these checks fail
- `./configure` unconditionally in any such environment.
- .
- This mirrors the same workaround already used by packaging/build_packages.sh
- for the GitHub Releases build.
+
 Author: try packaging
 Forwarded: not-needed
 --- a/configure.ac
