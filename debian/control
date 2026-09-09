@@ -1,7 +1,7 @@
 Source: try
 Section: utils
 Priority: optional
-Maintainer: try maintainers <TODO@example.com>
+Maintainer: try maintainers <try@binpa.sh>
 Build-Depends: debhelper-compat (= 13), autoconf, pandoc
 Standards-Version: 4.6.2
 Homepage: https://github.com/binpash/try

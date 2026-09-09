@@ -138,6 +138,10 @@ jobs:
               | gzip -n -9 > "try_${version}.orig.tar.gz"
           tar xzf debian-packaging.tgz -C "$srcdir"
           rm -f try-*.tgz debian-packaging.tgz
+
+          revision=$(sed -n "1s/^try ([^)-]*-\([0-9]*\)).*/\1/p" "$srcdir/debian/changelog")
+          sed -i "1s/^try ([^)]*)/try (${version}-${revision})/" "$srcdir/debian/changelog"
+
           sed -i "1s/UNRELEASED/noble/" "$srcdir/debian/changelog"
           echo "SRCDIR=$srcdir" >> "$GITHUB_ENV"
 

@@ -2,4 +2,4 @@ try (0.2.0-1) UNRELEASED; urgency=medium
 
   * Initial Debian packaging.
 
- -- try maintainers <TODO@example.com>  Tue, 01 Sep 2026 10:08:54 -0400
+ -- try maintainers <try@binpa.sh>  Tue, 01 Sep 2026 10:08:54 -0400
