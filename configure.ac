@@ -120,7 +120,7 @@ TRY_REQUIRE_PROG([findmnt])
 TRY_REQUIRE_PROG([sort])
 TRY_REQUIRE_PROG([getfattr])
 
-TRY_REQUIRE_PROG([overlayfs],[for overlayfs],[],[! lsmod | grep -q overlay], [], [the overlay module did not appear in the output of lsmod])
+TRY_REQUIRE_PROG([overlayfs],[for overlayfs],[],[test "$TRY_SKIP_RUNTIME_CHECKS" != yes && ! lsmod | grep -q overlay], [], [the overlay module did not appear in the output of lsmod])
 
 AC_CHECK_PROG([mergerfs], [mergerfs], [yes], [no])
 AC_CHECK_PROG([unionfs], [unionfs], [yes], [no])
@@ -135,9 +135,12 @@ fi
 
 TRY_REQUIRE_PROG([readlink])
 TRY_REQUIRE_PROG([unshare], [for unshare], [
+if test "$TRY_SKIP_RUNTIME_CHECKS" != yes
+then
 res=$(unshare --mount --map-root-user --user --pid --fork -- ls $PWD/try 2>/dev/null)
+fi
 ], [
-test "$?" != 0 || test "$res" != "$PWD/try"
+test "$TRY_SKIP_RUNTIME_CHECKS" != yes && (test "$?" != 0 || test "$res" != "$PWD/try")
 ], [], [could not run unshare])
 
 # for manpages

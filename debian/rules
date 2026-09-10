@@ -3,6 +3,9 @@
 %:
 	dh $@
 
+override_dh_auto_configure:
+	TRY_SKIP_RUNTIME_CHECKS=yes dh_auto_configure
+
 override_dh_auto_install:
 	$(MAKE) install prefix=$(CURDIR)/debian/try/usr
 
