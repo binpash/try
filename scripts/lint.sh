@@ -51,12 +51,6 @@ trailing_newline() {
 trailing_whitespace() {
     file="$1"
 
-    # unified diffs use a lone trailing space to mark a blank context
-    # line -- it's part of the format, not a mistake
-    case "$file" in
-        (*.patch) return;;
-    esac
-
     [ -f "$file" ] || warn "trailing_whitespace: '$file' is not a normal file"
 
     # empty file is fine

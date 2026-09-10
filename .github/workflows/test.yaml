@@ -59,16 +59,6 @@ jobs:
           name: packaging-assets
           path: packaging.tgz
 
-      - name: Package Debian packaging assets
-        run: |
-          tar czf debian-packaging.tgz debian
-
-      - name: Upload Debian packaging assets
-        uses: actions/upload-artifact@v7
-        with:
-          name: debian-packaging
-          path: debian-packaging.tgz
-
   package:
     needs: [dist, test-dist]
     runs-on: ubuntu-latest
@@ -122,10 +112,10 @@ jobs:
         with:
           name: try-dist.tgz
 
-      - name: Download Debian packaging assets
+      - name: Download packaging assets
         uses: actions/download-artifact@v8
         with:
-          name: debian-packaging
+          name: packaging-assets
 
       - name: Assemble Debian source tree
         run: |
@@ -136,8 +126,9 @@ jobs:
           tar --sort=name --owner=0 --group=0 --numeric-owner \
               --mtime='UTC 2020-01-01' -cf - "$srcdir" \
               | gzip -n -9 > "try_${version}.orig.tar.gz"
-          tar xzf debian-packaging.tgz -C "$srcdir"
-          rm -f try-*.tgz debian-packaging.tgz
+          tar xzf packaging.tgz
+          cp -R packaging/debian "$srcdir/debian"
+          rm -f try-*.tgz packaging.tgz
 
           revision=$(sed -n "1s/^try ([^)-]*-\([0-9]*\)).*/\1/p" "$srcdir/debian/changelog")
           sed -i "1s/^try ([^)]*)/try (${version}-${revision})/" "$srcdir/debian/changelog"
