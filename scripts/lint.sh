@@ -72,7 +72,7 @@ tabs() {
 
     # it's supposed to be there!
     case "$file" in
-        (*Makefile*) return;;
+        (*Makefile*|*/debian/rules) return;;
     esac
 
     [ -f "$file" ] || warn "tabs: '$file' is not a normal file"

@@ -1,0 +1,20 @@
+Source: try
+Section: utils
+Priority: optional
+Maintainer: try maintainers <try@binpa.sh>
+Build-Depends: debhelper-compat (= 13), autoconf, pandoc, attr
+Standards-Version: 4.6.2
+Homepage: https://github.com/binpash/try
+Rules-Requires-Root: no
+
+Package: try
+Architecture: any
+Depends: attr, ${shlibs:Depends}, ${misc:Depends}
+Description: run a command and inspect its effects before changing your live system
+ try lets you run a command, inspect the changes it would make to your
+ filesystem, and then decide whether to commit or discard them, without
+ actually touching your live system.
+ .
+ It works by running the command inside a copy-on-write overlay, so
+ nothing is written to the real filesystem until you explicitly commit
+ the change.
