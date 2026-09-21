@@ -100,6 +100,10 @@ jobs:
     needs: [dist, test-dist]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: true
+      matrix:
+        series: [focal, jammy, noble]
 
     steps:
       - name: Install dependencies
@@ -118,6 +122,8 @@ jobs:
           name: packaging-assets
 
       - name: Assemble Debian source tree
+        env:
+          SERIES: ${{ matrix.series }}
         run: |
           tar xzf try-*.tgz
           srcdir=$(echo try-*/)
@@ -130,10 +136,30 @@ jobs:
           cp -R packaging/debian "$srcdir/debian"
           rm -f try-*.tgz packaging.tgz
 
-          revision=$(sed -n "1s/^try ([^)-]*-\([0-9]*\)).*/\1/p" "$srcdir/debian/changelog")
-          sed -i "1s/^try ([^)]*)/try (${version}-${revision})/" "$srcdir/debian/changelog"
+          changelog="$srcdir/debian/changelog"
+          committed=$(sed -n '1s/^try (\([^)]*\)).*/\1/p' "$changelog")
+          if [ "${committed%-*}" = "$version" ]
+          then
+              # same upstream version: packaging-only revision, keep the committed one
+              revision=${committed##*-}
+          else
+              # new upstream release: start again at revision 1
+              revision=1
+              maintainer=$(sed -n 's/^Maintainer: //p' "$srcdir/debian/control")
+              {
+                  echo "try (${version}-1) UNRELEASED; urgency=medium"
+                  echo
+                  echo "  * New upstream release ${version}."
+                  echo
+                  echo " -- ${maintainer}  $(date -R)"
+                  echo
+                  cat "$changelog"
+              } > "$changelog.new"
+              mv "$changelog.new" "$changelog"
+          fi
+          sed -i "1s/^try ([^)]*)/try (${version}-${revision}~${SERIES}1)/" "$changelog"
 
-          sed -i "1s/UNRELEASED/noble/" "$srcdir/debian/changelog"
+          sed -i "1s/UNRELEASED/${SERIES}/" "$changelog"
           echo "SRCDIR=$srcdir" >> "$GITHUB_ENV"
 
       - name: Build the Debian source package
@@ -148,7 +174,7 @@ jobs:
       - name: Upload Debian source package
         uses: actions/upload-artifact@v7
         with:
-          name: try-ppa-source
+          name: try-ppa-source-${{ matrix.series }}
           path: |
             try_*.dsc
             try_*.orig.tar.gz
@@ -446,12 +472,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y devscripts dput gnupg
+          sudo apt-get install -y devscripts dput gnupg openssh-client python3-paramiko
 
-      - name: Download the Debian source package
+      - name: Download the Debian source packages
         uses: actions/download-artifact@v8
         with:
-          name: try-ppa-source
+          pattern: try-ppa-source-*
+          merge-multiple: true
 
       - name: Import GPG signing key
         env:
@@ -460,14 +487,57 @@ jobs:
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           echo "KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5; exit}')" >> "$GITHUB_ENV"
 
+      - name: Configure SFTP upload to Launchpad
+        env:
+          SSH_KEY: ${{ secrets.PPA_SSH_KEY }}
+          PPA_TARGET: ${{ vars.PPA_TARGET }}
+          PPA_LOGIN: ${{ vars.PPA_LOGIN }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan ppa.launchpad.net >> ~/.ssh/known_hosts
+          ssh-keygen -lf ~/.ssh/known_hosts
+
+          ppa=${PPA_TARGET#ppa:}
+          owner=${ppa%%/*}
+          name=${ppa#*/}
+          cat > ~/.dput.cf <<EOF
+          [ppa-sftp]
+          fqdn = ppa.launchpad.net
+          method = sftp
+          incoming = ~${owner}/ubuntu/${name}/
+          login = ${PPA_LOGIN:-$owner}
+          allow_unsigned_uploads = 0
+          EOF
+
       - name: Sign and upload to the PPA
         env:
           GPG_PASSPHRASE: ${{ secrets.PPA_GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
-          debsign -k"$KEYID" -p"gpg --batch --yes --pinentry-mode loopback --passphrase-file /tmp/gpg-passphrase" try_*_source.changes
+          failed=""
+          for changes in try_*_source.changes
+          do
+              debsign -k"$KEYID" -p"gpg --batch --yes --pinentry-mode loopback --passphrase-file /tmp/gpg-passphrase" "$changes"
+              uploaded=""
+              for attempt in 1 2 3 4 5
+              do
+                  if dput ppa-sftp "$changes"
+                  then
+                      uploaded=yes
+                      break
+                  fi
+                  echo "upload of $changes failed (attempt $attempt); retrying in 60s"
+                  sleep 60
+              done
+              [ -n "$uploaded" ] || failed="$failed $changes"
+              # give Launchpad's upload server time to finish the previous upload
+              sleep 30
+          done
           rm -f /tmp/gpg-passphrase
-          dput "${{ vars.PPA_TARGET }}" try_*_source.changes
+          [ -z "$failed" ] || { echo "failed uploads:$failed"; exit 1; }
 
   prerelease:
     needs:

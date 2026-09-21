@@ -16,6 +16,31 @@ builds a source package. CI (`ppa-source-check` in
 result with `lintian`; `publish-ppa` signs and uploads it to the configured
 PPA via `dput`.
 
+# Versioning
+
+You don't edit `debian/changelog` for a normal release. CI takes the
+upstream version from the release tarball and compares it with the top
+entry of the committed changelog:
+
+* Different (a new upstream release): CI starts at revision 1 and adds a
+  "New upstream release" entry itself.
+* Same (a packaging-only fix, e.g. a `debian/control` change): CI keeps the
+  committed revision, so bump it by hand (`0.2.1-1` to `0.2.1-2`) in the PR
+  that makes the fix.
+
+# Supported Ubuntu series
+
+CI builds and uploads one source package per Ubuntu series, listed in the
+`matrix.series` of `ppa-source-check` in `.github/workflows/test.yaml`
+(currently `focal`, `jammy`, `noble`). Each upload gets its own version
+(`<version>-<revision>~<series>1`, e.g. `0.2.1-1~focal1`), because a PPA
+won't accept the same version twice; the `.orig.tar.gz` is shared and
+byte-identical across them.
+
+`debian/control` uses `debhelper-compat (= 12)` rather than 13 because
+focal (20.04) ships debhelper 12.10, which can't satisfy 13. Raise it only
+if focal is dropped.
+
 # Testing that a published PPA package actually installs and works
 
 Once a build succeeds on Launchpad, verify it installs cleanly in an
