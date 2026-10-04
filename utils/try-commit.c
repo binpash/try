@@ -61,6 +61,59 @@ void commit(char *changed_file, char *local_file) {
   }
 }
 
+// Mount points of this namespace, from /proc/self/mountinfo (octal escapes
+// such as \040 decoded). try makes the sandbox's upper directory for every
+// mount point, and every ancestor of one, itself (mkdir as root): their owner
+// and mode in the sandbox say nothing about what the program did.
+static char **mountpoints = NULL;
+static size_t num_mountpoints = 0;
+
+static void load_mountpoints(void) {
+  FILE *f = fopen("/proc/self/mountinfo", "r");
+  if (f == NULL) {
+    return;
+  }
+  char *line = NULL;
+  size_t cap = 0;
+  while (getline(&line, &cap, f) != -1) {
+    // fields: id parent major:minor root MOUNTPOINT ...
+    char *field = line;
+    for (int i = 0; i < 4 && field != NULL; i++) {
+      field = strchr(field, ' ');
+      if (field != NULL) field++;
+    }
+    if (field == NULL) continue;
+    char *end = strchr(field, ' ');
+    if (end != NULL) *end = '\0';
+    char *mp = malloc(strlen(field) + 1), *out = mp;
+    for (char *in = field; *in; in++) {
+      if (in[0] == '\\' && in[1] && in[2] && in[3]) {
+        *out++ = (char) ((in[1] - '0') * 64 + (in[2] - '0') * 8 + (in[3] - '0'));
+        in += 3;
+      } else {
+        *out++ = *in;
+      }
+    }
+    *out = '\0';
+    mountpoints = realloc(mountpoints, sizeof(char *) * (num_mountpoints + 1));
+    mountpoints[num_mountpoints++] = mp;
+  }
+  free(line);
+  fclose(f);
+}
+
+// Whether `dir` is a mount point or an ancestor of one.
+static int is_sandbox_skeleton(const char *dir) {
+  size_t len = strlen(dir);
+  if (strcmp(dir, "/") == 0) return 1;
+  for (size_t i = 0; i < num_mountpoints; i++) {
+    const char *mp = mountpoints[i];
+    if (strcmp(mp, dir) == 0) return 1;
+    if (strncmp(mp, dir, len) == 0 && mp[len] == '/') return 1;
+  }
+  return 0;
+}
+
 void remove_local(char *local_file, int local_exists, struct stat *local_stat) {
   if (!local_exists) {
     return;
@@ -106,6 +159,8 @@ int main(int argc, char *argv[]) {
   if (argc != optind + 1) {
     usage(2);
   }
+
+  load_mountpoints();
 
   struct stat sandbox_stat;
   if (stat(argv[optind], &sandbox_stat) == -1) {
@@ -202,7 +257,23 @@ int main(int argc, char *argv[]) {
         break;
       }
 
-      // nothing of interest! directory got made, but modifications must be inside
+      // TRYCASE(dir, dir): the contents are merged as the traversal goes on,
+      // but a change to the directory itself (chmod, chown) is only on the
+      // sandbox's copy. Overlay copy-up keeps the original owner and mode,
+      // so a difference here is a real change: carry it over. Not for the
+      // directories try made itself (mount points and their ancestors).
+      if (is_sandbox_skeleton(local_file)) {
+        break;
+      }
+      if ((ent->fts_statp->st_mode & 07777) != (local_stat.st_mode & 07777)
+          && chmod(local_file, ent->fts_statp->st_mode & 07777) != 0) {
+        commit_error(ent->fts_path, "chmod");
+      }
+      if ((ent->fts_statp->st_uid != local_stat.st_uid
+           || ent->fts_statp->st_gid != local_stat.st_gid)
+          && lchown(local_file, ent->fts_statp->st_uid, ent->fts_statp->st_gid) != 0) {
+        commit_error(ent->fts_path, "chown");
+      }
       break;
     case FTS_F: // regular file
       if (getxattr(ent->fts_path, "user.overlay.whiteout", NULL, 0) != -1) {

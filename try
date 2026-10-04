@@ -359,7 +359,7 @@ EOF
     [ -t 0 ] && set -m
 
     # --mount: mounting and unmounting filesystems will not affect the rest of the system outside the unshare
-    # --map-root-user: map to the superuser UID and GID in the newly created user namespace.
+    # --map-root-user (or, as root, --map-users/--map-groups all): see below.
     # --user: the process will have a distinct set of UIDs, GIDs and capabilities.
     # --pid: create a new process namespace (needed fr procfs to work right)
     # --fork: necessary if we do --pid
@@ -370,7 +370,19 @@ EOF
     ## noexec filesystem (e.g. /dev/shm, which container runtimes mount
     ## noexec). Interpreting it only needs read permission, exactly like the
     ## chroot_executable invocation above.
-    unshare --mount --map-root-user --user --pid --fork $EXTRA_NS /bin/sh "$mount_and_execute"
+    ## As real root, map every uid and gid to itself (--map-users/--map-groups
+    ## all) rather than only root. With root alone mapped, every other id is
+    ## unmapped inside: overlay copy-up of a file whose group is not root
+    ## (/etc/shadow) fails, chown to any other user fails with EINVAL, and
+    ## root cannot remove another user's files, so `useradd`/`userdel`-style
+    ## commands behave differently in the sandbox than outside it. Unprivileged
+    ## callers can only map themselves, as before.
+    if [ "$(id -u)" = 0 ]; then
+        TRY_USERNS_MAP="--map-users=all --map-groups=all"
+    else
+        TRY_USERNS_MAP="--map-root-user"
+    fi
+    unshare --mount $TRY_USERNS_MAP --user --pid --fork $EXTRA_NS /bin/sh "$mount_and_execute"
     TRY_EXIT_STATUS=$?
 
     # remove symlink
