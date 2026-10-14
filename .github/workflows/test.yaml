@@ -549,7 +549,7 @@ jobs:
       - trycase-check
       - package
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'schedule' }}
 
     steps:
       - name: Download dist tarball
