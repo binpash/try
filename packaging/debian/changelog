@@ -1,7 +1,7 @@
-try (0.2.1-1) UNRELEASED; urgency=medium
+try (0.2.1-2) UNRELEASED; urgency=medium
 
   * Add PPA release workflow: Debian source packaging (debian/) built,
     linted, signed, and published to a Launchpad PPA by CI on version
-    tag pushes.
+    tag pushes, for Ubuntu 20.04 (focal), 22.04 (jammy) and 24.04 (noble).
 
  -- try maintainers <try@binpa.sh>  Tue, 15 Sep 2026 14:32:00 -0400
