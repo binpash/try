@@ -583,6 +583,20 @@ prompt_commit() {
     rm -f "$effects_file"
 }
 
+################################################################################
+# Turn a chosen path into include patterns that match only that path
+#
+# The include file is read both as BRE (`grep -f` in the shell fallback) and as
+# ERE (`try-commit`/`try-summary`), so special characters are escaped in a way
+# that means the same thing in both. The pattern is anchored at the end; the
+# second line keeps the contents of a chosen directory.
+################################################################################
+
+include_effect() {
+    escaped_path="$(printf "%s\n" "$1" | sed -e 's/[.[\*^$]/\\&/g' -e 's/[+?(){}|]/[&]/g')"
+    printf "%s\n" "$escaped_path\$" "$escaped_path/"
+}
+
 choose_effects() {
     effects_file="$1"
     include_file="$(mktemp --suffix ".try-$EXECID")"
@@ -596,7 +610,7 @@ choose_effects() {
     do
         case "$effect" in
             (*" (added)"|*" (created dir)"|*" (deleted)"|*" (modified)"|*" (replaced with dir)"|*" (symlink)")
-                printf "%s\n" "${effect% (*}" >>"$include_file";;
+                include_effect "${effect% (*}" >>"$include_file";;
         esac
     done <"$effects_file"
 
